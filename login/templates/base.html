@@ -1,0 +1,20 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+    <title>{% block title %}{% endblock %}</title>
+    {% block script %}{% endblock %}
+</head>
+<body>
+<main class="container">
+    <h1>Ekran base</h1>
+    {% block content %}
+    {% endblock %}
+</main>
+
+</body>
+</html>
