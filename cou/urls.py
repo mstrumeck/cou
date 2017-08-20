@@ -19,4 +19,5 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^', include('login.urls', namespace='login')),
+    url(r'^', include('city_engine.urls', namespace='city_engine'))
 ]

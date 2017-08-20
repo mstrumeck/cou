@@ -8,6 +8,7 @@ from django.contrib.auth import login
 from login.forms import SignUpForm
 from login.tokens import account_activation_token
 
+
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
