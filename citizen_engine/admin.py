@@ -1,3 +1,8 @@
 from django.contrib import admin
+from .models import Citizen
 
-# Register your models here.
+
+class CitizenAdmin(admin.ModelAdmin):
+    list_display = ['name', 'surname', 'city', 'age', 'health']
+    list_filter = ['name', 'city']
+admin.site.register(Citizen, CitizenAdmin)

@@ -1,28 +1,30 @@
 from django.test import TestCase
 from .models import Citizen
 from city_engine.models import City
+from django.contrib.auth.models import User
 
 
 class NewCitizenTest(TestCase):
 
     def setUp(self):
-        city = City.objects.create(name='Wrocław')
+        user = User.objects.create()
+        city = City.objects.create(name='Wrocław', user=user, cash=1000)
         global city
         citizen = Citizen.objects.create(name='Jan', surname='Strumecki', age=40, health=25, city=city)
-        Citizen.objects.create(name='Michał', surname='Strumecki', age=40, health=55, city=city)
 
     def test_if_citizen_exist(self):
         self.assertTrue(Citizen.objects.filter(name='Jan',
                                                surname='Strumecki',
                                                age=40,
                                                health=25,
-                                               city=city.id))
+                                               city=city))
 
 
 class CreateCitizensTest(TestCase):
 
     def setUp(self):
-        city = City.objects.create(name='Łódź')
+        user = User.objects.create()
+        city = City.objects.create(name='Łódź', user=user, cash=1000)
         global city
 
     def test_saving_and_retreving_citizens(self):

@@ -4,4 +4,8 @@
 
 {% block content %}
 <h1>Miasto {{ city.name }}</h1>
+<h1>Liczba mieszkańców: {{ citizen_number }}</h1>
+<h1>Pieniądze: {{ city.cash }}</h1>
+<h1>{{ turns.current_turn }}/{{ turns.max_turn }}</h1>
+<button>Kolejna tura</button>
 {% endblock %}
