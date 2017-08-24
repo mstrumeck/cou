@@ -7,5 +7,5 @@
 <h1>Liczba mieszkańców: {{ citizen_number }}</h1>
 <h1>Pieniądze: {{ city.cash }}</h1>
 <h1>{{ turns.current_turn }}/{{ turns.max_turn }}</h1>
-<button>Kolejna tura</button>
+<a href="/{{ city.id }}/turn_calculations">Kolejna tura</a>
 {% endblock %}

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import City
+from .models import City, TurnSystem
 
 
 class CityAdmin(admin.ModelAdmin):
@@ -8,3 +8,8 @@ class CityAdmin(admin.ModelAdmin):
     ordering = ['publish']
     date_hierarchy = 'publish'
 admin.site.register(City, CityAdmin)
+
+
+class TurnAdmin(admin.ModelAdmin):
+    list_display = ['city', 'current_turn', 'max_turn']
+admin.site.register(TurnSystem, TurnAdmin)
