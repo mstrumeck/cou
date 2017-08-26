@@ -15,5 +15,5 @@ class City(models.Model):
 
 class TurnSystem(models.Model):
     city = models.OneToOneField(City)
-    current_turn = models.IntegerField(default=0)
+    current_turn = models.IntegerField(default=1)
     max_turn = models.IntegerField(default=12)

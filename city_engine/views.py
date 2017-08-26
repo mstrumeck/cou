@@ -15,5 +15,8 @@ def main_view(request, city_id):
 
 
 def turn_calculations(request, city_id):
+    turns = TurnSystem.objects.get(city_id=city_id)
+    turns.current_turn += 1
+    turns.save()
     return HttpResponseRedirect(reverse('city_engine:main_view', args=(city_id,)))
 
