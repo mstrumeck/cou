@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import City, TurnSystem
+from .models import City, TurnSystem, Residential
 
 
 class CityAdmin(admin.ModelAdmin):
@@ -13,3 +13,8 @@ admin.site.register(City, CityAdmin)
 class TurnAdmin(admin.ModelAdmin):
     list_display = ['city', 'current_turn', 'max_turn']
 admin.site.register(TurnSystem, TurnAdmin)
+
+
+class ResidentialAdmin(admin.ModelAdmin):
+    list_display = ['city', 'current_population', 'max_population']
+admin.site.register(Residential, ResidentialAdmin)

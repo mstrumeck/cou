@@ -1,17 +1,24 @@
 from django.shortcuts import render
-from .models import City, TurnSystem
+from .models import City, TurnSystem, Residential
 from citizen_engine.models import Citizen
 from django.shortcuts import HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from django.db.models import Sum
 
 
 def main_view(request, city_id):
     city = City.objects.get(id=city_id)
-    citizens_number = Citizen.objects.filter(city_id=city_id).count()
+    population = Citizen.objects.filter(city_id=city_id).count()
+    max_population = Residential.objects.filter(city_id=city_id).aggregate(Sum('max_population'))['max_population__sum']
+    house_number = Residential.objects.filter(city_id=city_id).count()
     turns = TurnSystem.objects.get(city_id=city_id)
+    income = Citizen.objects.filter(city_id=city_id).aggregate(Sum('income'))['income__sum']
     return render(request, 'main_view.html', {'city': city,
-                                              'citizen_number': citizens_number,
-                                              'turns': turns})
+                                              'population': population,
+                                              'max_population': max_population,
+                                              'turns': turns,
+                                              'house_number': house_number,
+                                              'income': income})
 
 
 def turn_calculations(request, city_id):

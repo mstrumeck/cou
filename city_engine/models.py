@@ -17,3 +17,9 @@ class TurnSystem(models.Model):
     city = models.OneToOneField(City)
     current_turn = models.IntegerField(default=1)
     max_turn = models.IntegerField(default=12)
+
+
+class Residential(models.Model):
+    city = models.ForeignKey(City)
+    current_population = models.IntegerField(default=0)
+    max_population = models.IntegerField()

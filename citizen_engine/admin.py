@@ -3,6 +3,6 @@ from .models import Citizen
 
 
 class CitizenAdmin(admin.ModelAdmin):
-    list_display = ['name', 'surname', 'city', 'age', 'health']
-    list_filter = ['name', 'city']
+    list_display = ['city', 'age', 'health']
+    list_filter = ['city']
 admin.site.register(Citizen, CitizenAdmin)
