@@ -13,13 +13,28 @@ class City(models.Model):
         return self.name
 
 
-class TurnSystem(models.Model):
-    city = models.OneToOneField(City)
-    current_turn = models.IntegerField(default=1)
-    max_turn = models.IntegerField(default=12)
-
-
-class Residential(models.Model):
+class Building(models.Model):
     city = models.ForeignKey(City)
-    current_population = models.IntegerField(default=0)
+    trash = models.IntegerField()
+    health = models.IntegerField()
+    energy = models.IntegerField()
+    water = models.IntegerField()
+    crime = models.IntegerField()
+    pollution = models.IntegerField()
+    recycling = models.IntegerField()
+    city_communication = models.IntegerField()
+
+    class Meta:
+        abstract = True
+
+
+class Residential(Building):
+    current_population = models.IntegerField()
     max_population = models.IntegerField()
+    residential_level = models.IntegerField()
+
+
+class ProductionBuilding(Building):
+    current_employees = models.IntegerField()
+    max_employees = models.IntegerField()
+    production_level = models.IntegerField()
