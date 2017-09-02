@@ -16,6 +16,7 @@ body {
 #board {
 
 }
+
 .hexagon {
     float: left;
     margin-left: 3px;
@@ -45,6 +46,7 @@ body {
 .hex-row {
     clear: left;
 }
+
 .hex-row.even {
     margin-left: 53px;
 }
