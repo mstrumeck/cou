@@ -1,0 +1,51 @@
+
+canvas {
+    border-style: solid;
+    }
+
+body {
+    margin: 0 auto;
+    padding: 0;
+    font-family: Arial, helvetica, sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    width: 100%;
+    background: #efefef;
+}
+
+#board {
+
+}
+.hexagon {
+    float: left;
+    margin-left: 3px;
+    margin-bottom: -26px;
+}
+
+.hexagon-top {
+    width: 0;
+    border-bottom: 30px solid #6C6;
+    border-left: 52px solid transparent;
+    border-right: 52px solid transparent;
+}
+
+.hexagon-middle {
+    width: 104px;
+    height: 60px;
+    background: #6C6;
+}
+
+.hexagon-bottom {
+    width: 0;
+    border-top: 30px solid #6C6;
+    border-left: 52px solid transparent;
+    border-right: 52px solid transparent;
+}
+
+.hex-row {
+    clear: left;
+}
+.hex-row.even {
+    margin-left: 53px;
+}
+

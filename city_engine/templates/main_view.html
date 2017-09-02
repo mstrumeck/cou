@@ -1,15 +1,10 @@
 {% extends 'base_city.html' %}
+{% load staticfiles %}
 
-{% block title %}Miasto {{ city.name }}{% endblock %}
 {% block script %}
-<script type="text/javascript" src="/static/js/paperJs/docs/assets/js/paper.js"></script>
-{% for item in fields %}
-<script type="text/paperscript" canvas="field{{ item }}">
-    var hexagon = new Path.RegularPolygon(new Point(50, 70), 6, 40);
-    hexagon.fullySelected = true;
-    </script>
-{% endfor %}
+    <script src="{% static 'js/table_generator.js' %}"></script>
 {% endblock %}
+{% block title %}Miasto {{ city.name }}{% endblock %}
 
 {% block content %}
 <h1>Miasto: {{ city.name }}</h1>
@@ -22,9 +17,5 @@
     <button><a href="/{{ city.id }}/turn_calculations">Kolejna tura</a></button>
 {% endif %}
 
-<div>
-{% for item in fields %}
-<canvas id="field{{ item }}"></canvas>
-{% endfor %}
-</div>
+<div id="table"><h1>Plansza wygenerowana</h1></div>
 {% endblock %}
