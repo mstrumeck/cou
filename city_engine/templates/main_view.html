@@ -1,19 +1,30 @@
 {% extends 'base_city.html' %}
 
 {% block title %}Miasto {{ city.name }}{% endblock %}
+{% block script %}
+<script type="text/javascript" src="/static/js/paperJs/docs/assets/js/paper.js"></script>
+{% for item in fields %}
+<script type="text/paperscript" canvas="field{{ item }}">
+    var hexagon = new Path.RegularPolygon(new Point(50, 70), 6, 40);
+    hexagon.fullySelected = true;
+    </script>
+{% endfor %}
+{% endblock %}
 
 {% block content %}
 <h1>Miasto: {{ city.name }}</h1>
 <h1>Mieszkańcy: {{ population }}/{{ max_population }}</h1>
 <h1>Domy: {{ house_number }}</h1>
 <h1>Dochody: {{ income }}</h1>
-{% if city.cash == None %}
-    <h1>Pieniądze: 0</h1>
-    {% else %}
-    <h1>Pieniądze: {{ city.cash }}</h1>
-{% endif %}
+<h1>Pieniądze: {{ city.cash }}</h1>
 <h1>{{ profile.current_turn }}/12</h1>
 {% if profile.current_turn <= 11 %}
     <button><a href="/{{ city.id }}/turn_calculations">Kolejna tura</a></button>
 {% endif %}
+
+<div>
+{% for item in fields %}
+<canvas id="field{{ item }}"></canvas>
+{% endfor %}
+</div>
 {% endblock %}
