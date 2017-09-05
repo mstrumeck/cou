@@ -24,8 +24,7 @@ def main_view(request):
                                               'population': population,
                                               'max_population': max_population,
                                               'house_number': house_number,
-                                              'income': income,
-                                              'fields': range(5)})
+                                              'income': income})
 
 
 def turn_calculations(request):

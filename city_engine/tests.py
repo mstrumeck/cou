@@ -1,6 +1,7 @@
 from django.test import TestCase
 from city_engine.models import City, Residential, ProductionBuilding
 from django.contrib.auth.models import User
+from django.test.client import Client
 from citizen_engine.models import Citizen
 from django.db.models import Sum
 from player.models import Profile
@@ -12,6 +13,7 @@ from .views import main_view
 class CityViewTests(TestCase):
     def setUp(self):
         user = User.objects.create_user(username='test_username', password='12345', email='random@wp.pl')
+        self.client.login(username='test_username', password='12345', email='random@wp.pl')
         city = City.objects.create(name='Wrocław', user=user, cash=100)
         fabric = ProductionBuilding.objects.create(max_employees=20,
                                                    current_employees=0,
@@ -60,53 +62,42 @@ class CityViewTests(TestCase):
                                           )
 
     def test_call_view_loads(self):
-        self.client.login(username='test_username', password='12345')
-        response = self.client.get('main_view')
+        response = self.client.get('/main_view/')
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'main_view.html')
 
-        # django_book = Thing.objects.get(name="Django Book")
-        # request = self.factory.get('/things/django-book/edit/')
-        # request.user = django_book.user
-        # response = edit_thing(request, django_book.slug)
-        # print(response.status_code)
-        # self.assertEqual(response.status_code, 200)
-        # self.client.login(username='Foo', password='barbaz')
-        # response = self.client.get('/things/django-book/edit/')
-        # self.assertTemplateUsed(response, 'things/edit_thing.html')
-
-    # def test_city_view(self):
-    #     city = City.objects.get(name='Wrocław')
-    #     self.response = self.client.get('main_view')
-    #     self.assertTemplateUsed(self.response, 'main_view.html')
-    #     self.assertContains(self.response, city.name)
-    #     self.assertContains(self.response, 'Pieniądze: {}'.format(city.cash))
-    #     self.assertContains(self.response, 'Domy: {}'.format(Residential.objects.filter(city_id=city.id).count()))
-    #     self.assertContains(self.response, 'Mieszkańcy: {}/{}'.format(
-    #         Citizen.objects.filter(city_id=city.id).count(),
-    #         Residential.objects.filter(city_id=city.id).aggregate(Sum('max_population'))['max_population__sum']))
-    #     self.assertContains(self.response, 'Dochody: {}'.format(
-    #         Citizen.objects.filter(city_id=city.id).aggregate(Sum('income'))['income__sum']))
+    def test_city_view(self):
+        city = City.objects.get(name='Wrocław')
+        self.response = self.client.get('/main_view/')
+        self.assertTemplateUsed(self.response, 'main_view.html')
+        self.assertContains(self.response, city.name)
+        self.assertContains(self.response, 'Pieniądze: {}'.format(city.cash))
+        self.assertContains(self.response, 'Domy: {}'.format(Residential.objects.filter(city_id=city.id).count()))
+        self.assertContains(self.response, 'Mieszkańcy: {}/{}'.format(
+            Citizen.objects.filter(city_id=city.id).count(),
+            Residential.objects.filter(city_id=city.id).aggregate(Sum('max_population'))['max_population__sum']))
+        self.assertContains(self.response, 'Dochody: {}'.format(
+            Citizen.objects.filter(city_id=city.id).aggregate(Sum('income'))['income__sum']))
 
 
-# class CityPerformanceTests(TestCase):
-#     def setUp(self):
-#         user = User.objects.create()
-#         city = City.objects.create(name='Wrocław', user=user, cash=100)
-#         citizens = [Citizen() for i in range(1000)]
+class CityPerformanceTests(TestCase):
+    def setUp(self):
+        user = User.objects.create()
+        city = City.objects.create(name='Wrocław', user=user, cash=100)
+        citizens = [Citizen() for i in range(1000)]
 
 
-# class TurnSystemTests(TestCase):
-#     def setUp(self):
-#         user = User.objects.create_user(username='test_username', password='12345', email='random@wp.pl')
-#         city = City.objects.create(name='Wrocław', user=user, cash=100)
-#         # profile = Profile.objects.create(user=user)
-#
-#     def test_turn_view(self):
-#         login = self.client.login(username='test_username', password='12345')
-#         city = City.objects.get(name='Wrocław')
-#         # profile = Profile.objects.get()
-#         response = self.client.get('main_view')
-#         self.assertTemplateUsed(response, 'main_view.html')
-#         # self.assertContains(response, '{}/12'.format(profile.current_turn))
-#         self.assertContains(response, 'Kolejna tura')
+class TurnSystemTests(TestCase):
+    def setUp(self):
+        user = User.objects.create_user(username='test_username', password='12345', email='random@wp.pl')
+        city = City.objects.create(name='Wrocław', user=user, cash=100)
+        self.client.login(username='test_username', password='12345', email='random@wp.pl')
+
+    def test_turn_view(self):
+        city = City.objects.get(name='Wrocław')
+        user = User.objects.get(username='test_username')
+        profile = Profile.objects.get(user=user)
+        response = self.client.get('/main_view/')
+        self.assertTemplateUsed(response, 'main_view.html')
+        self.assertContains(response, '{}/12'.format(profile.current_turn))
+        self.assertContains(response, 'Kolejna tura')
