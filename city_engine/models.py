@@ -1,9 +1,11 @@
 from django.db import models
 from django.conf import settings
+from player.models import Profile
+from django.contrib.auth.models import User
 
 
 class City(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    profile = models.ForeignKey(User)
     name = models.TextField(max_length=15, unique=True)
     cash = models.IntegerField()
     publish = models.DateField(auto_now_add=True)
@@ -13,8 +15,12 @@ class City(models.Model):
         return self.name
 
 
-class Building(models.Model):
+class CityField(models.Model):
     city = models.ForeignKey(City)
+
+
+class Building(models.Model):
+    city_field = models.ForeignKey(CityField)
     trash = models.IntegerField()
     health = models.IntegerField()
     energy = models.IntegerField()

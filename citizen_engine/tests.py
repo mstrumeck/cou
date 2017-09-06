@@ -10,87 +10,43 @@ class NewCitizenTest(TestCase):
     def setUp(self):
         user = User.objects.create()
         city = City.objects.create(name='Wrocław', user=user, cash=1000)
-        fabric = ProductionBuilding.objects.create(max_employees=20,
-                                                   current_employees=0,
-                                                   production_level=0,
-                                                   city=city,
-                                                   trash=0,
-                                                   health=0,
-                                                   energy=0,
-                                                   water=0,
-                                                   crime=0,
-                                                   pollution=0,
-                                                   recycling=0,
-                                                   city_communication=0)
-        residential1 = Residential.objects.create(max_population=20,
-                                                  current_population=0,
-                                                  residential_level=0,
-                                                  city=city,
-                                                  trash=0,
-                                                  health=0,
-                                                  energy=0,
-                                                  water=0,
-                                                  crime=0,
-                                                  pollution=0,
-                                                  recycling=0,
-                                                  city_communication=0
-                                                  )
-        citizen1 = Citizen.objects.create(age=40,
-                                          health=25,
-                                          income=10,
-                                          city=city,
-                                          residential_id=residential1.id,
-                                          production_building_id=fabric.id)
+        factory = ProductionBuilding()
+        factory.max_employees = 20
+        factory.current_employees = 0
+        factory.production_level = 0
+        factory.city = city
+        factory.trash = 0
+        factory.health = 0
+        factory.energy = 0
+        factory.water = 0
+        factory.crime = 0
+        factory.pollution = 0
+        factory.recycling = 0
+        factory.city_communication = 0
+        factory.save()
 
-    def test_if_citizen_exist(self):
-        city = City.objects.get(name='Wrocław')
-        self.assertTrue(Citizen.objects.filter(age=40,
-                                               health=25,
-                                               city=city))
+        residential = Residential()
+        residential.max_population = 20
+        residential.current_population = 0
+        residential.residential_level = 0
+        residential.city = city
+        residential.trash = 0
+        residential.health = 0
+        residential.energy = 0
+        residential.water = 0
+        residential.crime = 0
+        residential.pollution = 0
+        residential.recycling = 0
+        residential.city_communication = 0
+        residential.save()
 
-
-class CreateCitizensTest(TestCase):
-
-    def setUp(self):
-        user = User.objects.create()
-        city = City.objects.create(name='Łódź', user=user, cash=1000)
-        fabric = ProductionBuilding.objects.create(max_employees=20,
-                                                   current_employees=0,
-                                                   production_level=0,
-                                                   city=city,
-                                                   trash=0,
-                                                   health=0,
-                                                   energy=0,
-                                                   water=0,
-                                                   crime=0,
-                                                   pollution=0,
-                                                   recycling=0,
-                                                   city_communication=0)
-        residential1 = Residential.objects.create(max_population=20,
-                                                  current_population=0,
-                                                  residential_level=0,
-                                                  city=city,
-                                                  trash=0,
-                                                  health=0,
-                                                  energy=0,
-                                                  water=0,
-                                                  crime=0,
-                                                  pollution=0,
-                                                  recycling=0,
-                                                  city_communication=0
-                                                  )
-
-    def test_saving_and_retreving_citizens(self):
-        city = City.objects.get(name='Łódź')
-        residential = Residential.objects.get(city=city)
-        production = ProductionBuilding.objects.get(city=city)
         first_citizen = Citizen()
         first_citizen.age = 22
         first_citizen.health = 20
         first_citizen.city = city
         first_citizen.income = 100
         first_citizen.residential = residential
-        first_citizen.production_building = production
+        first_citizen.production_building = factory
         first_citizen.save()
 
         second_citizen = Citizen()
@@ -99,18 +55,39 @@ class CreateCitizensTest(TestCase):
         second_citizen.city = city
         second_citizen.income = 100
         second_citizen.residential = residential
-        second_citizen.production_building = production
+        second_citizen.production_building = factory
         second_citizen.save()
 
+        third_citizen = Citizen()
+        third_citizen.age = 40
+        third_citizen.health = 25
+        third_citizen.income = 10
+        third_citizen.city = city
+        third_citizen.residential = residential
+        third_citizen.production_building = factory
+        third_citizen.save()
+
+
+class CreateCitizensTest(NewCitizenTest):
+
+    def test_saving_and_retreving_citizens(self):
+        city = City.objects.get(name='Wrocław')
+
         saved_citizen = Citizen.objects.all()
-        self.assertEqual(saved_citizen.count(), 2)
+        self.assertEqual(saved_citizen.count(), 3)
 
         first_saved_citizen = saved_citizen[0]
         second_saved_citizen = saved_citizen[1]
+        third_saved_citizen = saved_citizen[2]
 
         self.assertEqual(first_saved_citizen.age, 22)
         self.assertEqual(second_saved_citizen.age, 60)
+        self.assertEqual(third_saved_citizen.age, 40)
+
         self.assertEqual(first_saved_citizen.health, 20)
         self.assertEqual(second_saved_citizen.health, 10)
+        self.assertEqual(third_saved_citizen.health, 25)
+
         self.assertEqual(first_saved_citizen.city, city)
         self.assertEqual(second_saved_citizen.city, city)
+        self.assertEqual(third_saved_citizen.city, city)
