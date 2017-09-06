@@ -1,13 +1,11 @@
 from django.db import models
-from django.conf import settings
 from player.models import Profile
-from django.contrib.auth.models import User
 
 
 class City(models.Model):
-    profile = models.ForeignKey(User)
+    profile = models.ForeignKey(Profile)
     name = models.TextField(max_length=15, unique=True)
-    cash = models.IntegerField()
+    cash = models.IntegerField(default=10000)
     publish = models.DateField(auto_now_add=True)
     updated = models.DateField(auto_now=True)
 
