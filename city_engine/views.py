@@ -17,13 +17,14 @@ def main_view(request):
     profile = Profile.objects.get(user_id=request.user.id)
     population = Citizen.objects.filter(city_id=city_id).count()
     income = Citizen.objects.filter(city_id=city_id).aggregate(Sum('income'))['income__sum']
-    max_population = Residential.objects.filter(city_id=city_id).aggregate(Sum('max_population'))['max_population__sum']
-    house_number = Residential.objects.filter(city_id=city_id).count()
+
+    # max_population = Residential.objects.filter(city_id=city_id).aggregate(Sum('max_population'))['max_population__sum']
+    # house_number = Residential.objects.filter(city_id=city_id).count()
     return render(request, 'main_view.html', {'city': city,
                                               'profile': profile,
                                               'population': population,
-                                              'max_population': max_population,
-                                              'house_number': house_number,
+                                              # 'max_population': max_population,
+                                              # 'house_number': house_number,
                                               'income': income})
 
 

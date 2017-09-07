@@ -10,4 +10,5 @@ urlpatterns = [
     url(r'login/$', auth_views.login, name='login'),
     url(r'logout/$', auth_views.logout, name='logout'),
     url(r'logout-then-login/$', auth_views.logout_then_login, name='logout_then_login'),
+    url(r'create_city/$', views.create_city, name='create_city')
 ]

@@ -29,7 +29,16 @@ class SignupAndLoginTest(LiveServerTestCase):
         password_field2.send_keys('michal12345')
         time.sleep(1)
         self.browser.find_element_by_tag_name('button').click()
-        time.sleep(5)
+        self.browser.get('http://localhost:8000/create_city')
+        time.sleep(10)
+        self.assertIn('Tworzenie miasta', self.browser.title)
+        city_name_field = self.browser.find_element_by_id('id_name')
+        city_name_field.send_keys('Wrocław')
+        self.browser.find_element_by_tag_name('button').click()
+        time.sleep(10)
+        self.assertIn('Miasto {}'.format('Wrocław'), self.browser.title)
+
+
 
 # class TurnSystemTest(LiveServerTestCase):
 #

@@ -6,8 +6,22 @@ from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
-from player.forms import SignUpForm
+from player.forms import SignUpForm, CityCreationForm
 from player.tokens import account_activation_token
+from city_engine.models import City
+
+
+def create_city(request):
+    if request.method == 'POST':
+        form = CityCreationForm(request.POST)
+        if form.is_valid():
+            city_name = form.cleaned_data.get('name')
+            new_city = City.objects.create(user_id=request.user.id, name=city_name)
+            new_city.save()
+            return redirect('/main_view/')
+    else:
+        form = CityCreationForm()
+    return render(request, 'registration/create_city.html', {'form': form})
 
 
 def signup(request):
@@ -19,7 +33,7 @@ def signup(request):
             raw_password = form.cleaned_data.get('password1')
             user = authenticate(username=username, password=raw_password)
             login(request, user)
-            return redirect('/main_view/')
+            return redirect('/create_city/')
     else:
         form = UserCreationForm()
     return render(request, 'registration/signup.html', {'form': form})

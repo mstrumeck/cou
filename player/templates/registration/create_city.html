@@ -1,12 +1,15 @@
 {% extends 'base_player.html' %}
+{% load staticfiles %}
 
-{% block title %}Rejestracja{% endblock %}
+{% block title %}Tworzenie miasta{% endblock %}
 
 {% block content %}
-<h1>Rejestracja</h1>
+
+<h1>Tworzenie miasta</h1>
 <form method="POST">
     {% csrf_token %}
     {{ form }}
     <button type="submit">Submit</button>
 </form>
+
 {% endblock %}
