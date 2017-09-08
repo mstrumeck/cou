@@ -1,7 +1,6 @@
 from django.test import TestCase
 from .models import Citizen
-from city_engine.models import ProductionBuilding, Residential
-from city_engine.models import City
+from city_engine.models import ProductionBuilding, Residential, City, CityField
 from django.contrib.auth.models import User
 
 
@@ -10,6 +9,7 @@ class NewCitizenTest(TestCase):
     def setUp(self):
         user = User.objects.create()
         city = City.objects.create(name='Wrocław', user=user, cash=1000)
+        city_field = CityField.objects.create(city=city)
         factory = ProductionBuilding()
         factory.max_employees = 20
         factory.current_employees = 0
@@ -23,6 +23,7 @@ class NewCitizenTest(TestCase):
         factory.pollution = 0
         factory.recycling = 0
         factory.city_communication = 0
+        factory.city_field = city_field
         factory.save()
 
         residential = Residential()
@@ -38,6 +39,7 @@ class NewCitizenTest(TestCase):
         residential.pollution = 0
         residential.recycling = 0
         residential.city_communication = 0
+        residential.city_field = city_field
         residential.save()
 
         first_citizen = Citizen()

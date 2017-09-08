@@ -11,6 +11,10 @@ from player.tokens import account_activation_token
 from city_engine.models import City
 
 
+def main_page(request):
+    return render(request, 'registration/main_page.html')
+
+
 def create_city(request):
     if request.method == 'POST':
         form = CityCreationForm(request.POST)

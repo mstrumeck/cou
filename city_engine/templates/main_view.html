@@ -2,7 +2,7 @@
 {% load staticfiles %}
 
 {% block script %}
-    <script src="{% static 'js/table_generator.js' %}"></script>
+    <!--<script src="{% static 'js/table_generator.js' %}"></script>-->
 {% endblock %}
 {% block title %}Miasto {{ city.name }}{% endblock %}
 
@@ -17,5 +17,11 @@
     <button><a href="/turn_calculations">Kolejna tura</a></button>
 {% endif %}
 
-<div id="table"><h1>Plansza wygenerowana</h1></div>
+<!--<div id="table">-->
+    <!--<h1>Plansza wygenerowana</h1>-->
+<!--</div>-->
+<div>
+    <h1>Plansza wygenerowana z Djagno</h1>
+    {{ hex_table }}
+</div>
 {% endblock %}
