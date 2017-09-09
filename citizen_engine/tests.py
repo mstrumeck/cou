@@ -2,14 +2,18 @@ from django.test import TestCase
 from .models import Citizen
 from city_engine.models import ProductionBuilding, Residential, City, CityField
 from django.contrib.auth.models import User
+from city_engine.board import HEX_NUM
 
 
-class NewCitizenTest(TestCase):
+class CitizenFixture(TestCase):
 
     def setUp(self):
         user = User.objects.create()
         city = City.objects.create(name='Wrocław', user=user, cash=1000)
-        city_field = CityField.objects.create(city=city)
+
+        for field_id in range(1, int(HEX_NUM) + 1):
+            CityField.objects.create(city=city, field_id=field_id).save()
+
         factory = ProductionBuilding()
         factory.max_employees = 20
         factory.current_employees = 0
@@ -23,7 +27,7 @@ class NewCitizenTest(TestCase):
         factory.pollution = 0
         factory.recycling = 0
         factory.city_communication = 0
-        factory.city_field = city_field
+        factory.city_field = CityField.objects.get(field_id=1)
         factory.save()
 
         residential = Residential()
@@ -39,7 +43,7 @@ class NewCitizenTest(TestCase):
         residential.pollution = 0
         residential.recycling = 0
         residential.city_communication = 0
-        residential.city_field = city_field
+        residential.city_field = CityField.objects.get(field_id=2)
         residential.save()
 
         first_citizen = Citizen()
@@ -70,7 +74,7 @@ class NewCitizenTest(TestCase):
         third_citizen.save()
 
 
-class CreateCitizensTest(NewCitizenTest):
+class CreateCitizensTest(CitizenFixture):
 
     def test_saving_and_retreving_citizens(self):
         city = City.objects.get(name='Wrocław')

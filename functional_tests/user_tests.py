@@ -1,44 +1,46 @@
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-import unittest
+from city_engine.models import City, CityField
 from django.contrib.auth.models import User
-from django.test import LiveServerTestCase
+import time
+from .base import BaseTest
+from city_engine.board import HEX_NUM
 
 
-class NewPlayerSetupAccount(LiveServerTestCase):
-    password = '12345'
-    mail = 'michal.strumecki@wp.pl'
-    nick = 'Kleju_0011'
+class SignupAndLoginTest(BaseTest):
 
-    def setUp(self):
-        self.browser = webdriver.Chrome()
+    def test_signup(self):
+        self.browser.get(self.live_server_url)
+        self.browser.find_element_by_link_text('Rejestracja').click()
+        self.assertIn('Rejestracja', self.browser.title)
+        username_field = self.browser.find_element_by_id('id_username')
+        password_field1 = self.browser.find_element_by_id('id_password1')
+        password_field2 = self.browser.find_element_by_id('id_password2')
+        username_field.send_keys('test_username')
+        password_field1.send_keys('michal12345')
+        password_field2.send_keys('michal12345')
+        self.browser.find_element_by_tag_name('button').click()
+        time.sleep(1)
+        self.assertIn('Tworzenie miasta', self.browser.title)
+        city_name_field = self.browser.find_element_by_id('id_name')
+        city_name_field.send_keys('Wrocław')
+        self.browser.find_element_by_tag_name('button').click()
+        time.sleep(1)
+        self.assertIn('Miasto {}'.format('Wrocław'), self.browser.title)
+        self.assertEqual(CityField.objects.all().count(), HEX_NUM)
 
-    def tearDown(self):
-        self.browser.quit()
-
-    def test_create_new_account(self):
-        self.browser.get('http://localhost:8081/signup')
-        registration_form = self.browser.find_element_by_id('registration_form')
-
-        nick_input = self.browser.find_element_by_id('nick')
-        nick_input.send_keys(self.nick)
-
-        mail_input = self.browser.find_element_by_id('e-mail_input')
-        mail_input.send_keys(self.mail)
-
-        password_input1 = self.browser.find_element_by_id('password')
-        password_input1.send_keys(self.password)
-
-        password_input2 = self.browser.find_element_by_id('password')
-        password_input2.send_keys(self.password)
-
-        registration_form.submit()
-
-        users = User.objects.all()
-        self.assertEqual(len(users), 1)
-
-if __name__ == '__main__':
-    unittest.main()
-
+    def test_login_with_provided_account_info(self):
+        username = 'test_username'
+        password = 'michal12345'
+        user = User.objects.create_user(username=username, password=password)
+        City.objects.create(name='Wrocław', user=user)
+        self.browser.get(self.live_server_url)
+        self.browser.find_element_by_link_text('Zaloguj').click()
+        time.sleep(1)
+        username_field = self.browser.find_element_by_id('id_username')
+        password_field = self.browser.find_element_by_id('id_password')
+        username_field.send_keys(username)
+        password_field.send_keys(password)
+        self.browser.find_element_by_tag_name('button').click()
+        time.sleep(1)
+        self.assertIn('Miasto {}'.format('Wrocław'), self.browser.title)
 
 

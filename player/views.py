@@ -6,9 +6,10 @@ from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
-from player.forms import SignUpForm, CityCreationForm
+from player.forms import CityCreationForm
 from player.tokens import account_activation_token
-from city_engine.models import City
+from city_engine.models import City, CityField
+from city_engine.board import HEX_NUM
 
 
 def main_page(request):
@@ -21,6 +22,8 @@ def create_city(request):
         if form.is_valid():
             city_name = form.cleaned_data.get('name')
             new_city = City.objects.create(user_id=request.user.id, name=city_name)
+            for field_id in range(1, int(HEX_NUM)+1):
+                CityField.objects.create(city=new_city, field_id=field_id).save()
             new_city.save()
             return redirect('/main_view/')
     else:

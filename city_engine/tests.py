@@ -5,6 +5,7 @@ from django.test.client import Client
 from citizen_engine.models import Citizen
 from django.db.models import Sum
 from player.models import Profile
+from .board import HEX_NUM
 from django.urls import reverse, resolve
 from django.http import HttpRequest
 from .views import main_view
@@ -15,7 +16,10 @@ class CityFixture(TestCase):
         user = User.objects.create_user(username='test_username', password='12345', email='random@wp.pl')
         self.client.login(username='test_username', password='12345', email='random@wp.pl')
         city = City.objects.create(name='Wrocław', user=user, cash=100)
-        city_field = CityField.objects.create(city=city)
+
+        for field_id in range(1, int(HEX_NUM) + 1):
+            CityField.objects.create(city=city, field_id=field_id).save()
+
         factory = ProductionBuilding()
         factory.max_employees = 20
         factory.current_employees = 0
@@ -29,7 +33,7 @@ class CityFixture(TestCase):
         factory.pollution = 0
         factory.recycling = 0
         factory.city_communication = 0
-        factory.city_field = city_field
+        factory.city_field = CityField.objects.get(field_id=1)
         factory.save()
 
         residential = Residential()
@@ -45,7 +49,7 @@ class CityFixture(TestCase):
         residential.pollution = 0
         residential.recycling = 0
         residential.city_communication = 0
-        residential.city_field = city_field
+        residential.city_field = CityField.objects.get(field_id=2)
         residential.save()
 
         first_citizen = Citizen()
@@ -85,7 +89,7 @@ class CityViewTests(CityFixture):
 
     def test_city_view(self):
         city = City.objects.get(name='Wrocław')
-        city_field = CityField.objects.get(city=city)
+        city_field = CityField.objects.get(city=city, field_id=1)
         self.response = self.client.get('/main_view/')
         self.assertTemplateUsed(self.response, 'main_view.html')
         self.assertContains(self.response, city.name)
@@ -96,13 +100,6 @@ class CityViewTests(CityFixture):
         #     Residential.objects.filter(city_field=city_field).aggregate(Sum('max_population'))['max_population__sum']))
         self.assertContains(self.response, 'Dochody: {}'.format(
             Citizen.objects.filter(city_id=city.id).aggregate(Sum('income'))['income__sum']))
-
-
-# class CityPerformanceTests(CityFixture):
-#     def setUp(self):
-#         user = User.objects.create()
-#         city = City.objects.create(name='Wrocław', user=user, cash=100)
-#         citizens = [Citizen() for i in range(1000)]
 
 
 class TurnSystemTests(CityFixture):

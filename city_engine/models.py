@@ -15,6 +15,7 @@ class City(models.Model):
 
 class CityField(models.Model):
     city = models.ForeignKey(City)
+    field_id = models.IntegerField()
 
 
 class Building(models.Model):
