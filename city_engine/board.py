@@ -15,5 +15,8 @@ for row in range(ROW_NUM):
                                                                      "<div class='hexagon-top'></div>" \
                                                                      "<div class='hexagon-middle'></div>" \
                                                                      "<div class='hexagon-bottom'></div>" \
+                                                                     "<div class='detail-hex-info'>" \
+                                                                     "<h1>Plansza dla hexa"+str(counter)+"</h1>" \
+                                                                     "</div>" \
                                                                      "</div>"
     hex_table += "</div>"

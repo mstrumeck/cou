@@ -7,7 +7,7 @@ from django.shortcuts import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.db.models import Sum
 from django.contrib.auth.decorators import login_required
-from .board import hex_table
+from .board import hex_table, HEX_NUM
 from django.utils.safestring import mark_safe
 
 
@@ -27,7 +27,8 @@ def main_view(request):
                                               # 'max_population': max_population,
                                               # 'house_number': house_number,
                                               'income': income,
-                                              'hex_table': mark_safe(hex_table)})
+                                              'hex_table': mark_safe(hex_table),
+                                              'HEX_NUM': range(HEX_NUM)})
 
 
 def turn_calculations(request):

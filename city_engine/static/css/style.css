@@ -1,7 +1,4 @@
 
-canvas {
-    border-style: solid;
-    }
 
 body {
     margin: 0 auto;
@@ -12,35 +9,46 @@ body {
     width: 100%;
     background: #efefef;
 }
-
 #board {
-
+    border-style: solid;
 }
 
 .hexagon {
     float: left;
     margin-left: 3px;
-    margin-bottom: -26px;
+    margin-bottom: -16px;
 }
+
+.hexagon:hover .hexagon-top {
+    border-bottom: 20px solid red;
+    }
+
+.hexagon:hover .hexagon-middle {
+    background: red;
+    }
+
+.hexagon:hover .hexagon-bottom {
+    border-top: 20px solid red;
+    }
 
 .hexagon-top {
     width: 0;
-    border-bottom: 30px solid #6C6;
-    border-left: 52px solid transparent;
-    border-right: 52px solid transparent;
+    border-bottom: 20px solid #6C6;
+    border-left: 31px solid transparent;
+    border-right: 31px solid transparent;
 }
 
 .hexagon-middle {
-    width: 104px;
-    height: 60px;
+    width: 62px;
+    height: 40px;
     background: #6C6;
 }
 
 .hexagon-bottom {
     width: 0;
-    border-top: 30px solid #6C6;
-    border-left: 52px solid transparent;
-    border-right: 52px solid transparent;
+    border-top: 20px solid #6C6;
+    border-left: 31px solid transparent;
+    border-right: 31px solid transparent;
 }
 
 .hex-row {
@@ -48,6 +56,24 @@ body {
 }
 
 .hex-row.even {
-    margin-left: 53px;
+    margin-left: 32px;
 }
 
+.change-hex .hexagon-top {
+    border-bottom: 20px solid black;
+}
+
+.change-hex .hexagon-middle {
+    background: black;
+}
+
+.change-hex .hexagon-bottom {
+    border-top: 20px solid black;
+}
+
+.detail-hex-info {
+    position:absolute;
+    z-index:1;
+    border-style: solid;
+    background-color: white;
+}
