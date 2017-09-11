@@ -16,15 +16,18 @@
 {% if profile.current_turn <= 11 %}
     <button><a href="/turn_calculations">Kolejna tura</a></button>
 {% endif %}
-<button id="hex-change">Zmień hexy</button>
 
+<div id="hexInfoBox">
+    <h1>Podgląd hexa</h1>
+    {{ hex_detail_info_table }}
+</div>
+
+<button id="hex-change">Zmień hexy</button>
 <div id="board">
     <h1>Plansza wygenerowana z Djagno</h1>
     {{ hex_table }}
-    {% for item in HEX_NUM %}
-    <div class="detail-hex-info">
-        Plansza z opcjami dla hexa
-    </div>
-    {% endfor %}
 </div>
+
+
+
 {% endblock %}
