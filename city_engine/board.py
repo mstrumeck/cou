@@ -19,7 +19,7 @@ def add_counter_to_hex(counter):
 
 
 def add_hex_detail_box(counter):
-    return "<div class='hexInfoDetail'>" \
+    return "<div class='hexInfoDetail' id='hexBox"+str(counter)+"'>" \
            "<p>Podgląd hexa "+str(counter)+"</p>" \
                                            "</div>"
 
