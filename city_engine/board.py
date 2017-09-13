@@ -11,9 +11,8 @@ def add_counter_to_hex(counter):
     "<div class='hexagon-top'></div>" \
     "<div class='hexagon-middle'></div>" \
     "<div class='hexagon-bottom'></div>" \
-    "<div class='detail-hex-info'>" \
-        "<h1>Plansza dla hexa nr "+str(counter)+"</h1>" \
-        "<button>Zbuduj elektrownie</button>" \
+    "<div class='hexInfoDetail'>" \
+        "<h1>Szczegóły hexa "+str(counter)+"</h1>" \
     "</div>" \
     "</div>"
 

@@ -1,19 +1,29 @@
 $(document).ready(function() {
 
     $('.hexagon').mouseover(function(){
-        var id_text = $(this).attr('id');
-        $('.hexInfoDetail#hexBox'+id_text+'').show();
+        var hex_id = $(this).attr('id');
+        $('.hexInfoDetail#hexBox'+hex_id+'').show();
     }).mouseout(function(){
-        var id_text = $(this).attr('id');
-        $('.hexInfoDetail#hexBox'+id_text+'').hide();
+        var hex_id = $(this).attr('id');
+        $('.hexInfoDetail#hexBox'+hex_id+'').hide();
         });
 
+    $('.hexagon').select(function(){
+        var hex_id = $(this).attr('id');
+        $(this).toggleClass('changeHex');
+        $('.hexInfoDetail#hexBox'+hex_id+'').show();
+    });
+
+//    $('.hexagon').selectable({
+//        filter: '.hexagon-middle'
+//    });
+
     $('#hex-change').click(function(){
-    $('.hexagon').toggleClass('change-hex');
+    $('.hexagon').toggleClass('changeHex');
     });
 
     $('.hexagon').click(function(){
-        $(this).closest('div').children('.detail-hex-info').toggle('fast');
+        $(this).closest('div').children('.hexInfoDetail').toggle('fast');
     });
 
 

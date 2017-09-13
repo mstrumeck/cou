@@ -100,6 +100,8 @@ class CityViewTests(CityFixture):
         #     Residential.objects.filter(city_field=city_field).aggregate(Sum('max_population'))['max_population__sum']))
         self.assertContains(self.response, 'Dochody: {}'.format(
             Citizen.objects.filter(city_id=city.id).aggregate(Sum('income'))['income__sum']))
+        for hex_num in range(1, HEX_NUM+1):
+            self.assertContains(self.response, 'Podgląd hexa {}'.format(hex_num))
 
 
 class TurnSystemTests(CityFixture):

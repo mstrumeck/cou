@@ -59,24 +59,16 @@ body {
     margin-left: 32px;
 }
 
-.change-hex .hexagon-top {
+.changeHex .hexagon-top {
     border-bottom: 20px solid black;
 }
 
-.change-hex .hexagon-middle {
+.changeHex .hexagon-middle {
     background: black;
 }
 
-.change-hex .hexagon-bottom {
+.changeHex .hexagon-bottom {
     border-top: 20px solid black;
-}
-
-.detail-hex-info {
-    display: none;
-    position:absolute;
-    z-index:1;
-    border-style: solid;
-    background-color: white;
 }
 
 #hexInfoBox {
@@ -84,9 +76,9 @@ body {
 }
 
 .hexInfoDetail {
-    display: none;
-    border-style: solid;
-}
-.hexInfoDetailDisplay {
-    display: inline;
+     display: none;
+     position: absolute;
+     z-index:1;
+     border-style: solid;
+     background-color: white;
 }
