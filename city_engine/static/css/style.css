@@ -1,5 +1,4 @@
 
-
 body {
     margin: 0 auto;
     padding: 0;
@@ -60,19 +59,24 @@ body {
 }
 
 .changeHex .hexagon-top {
-    border-bottom: 20px solid black;
+    border-bottom: 20px solid green;
 }
 
 .changeHex .hexagon-middle {
-    background: black;
+    background: green;
 }
 
 .changeHex .hexagon-bottom {
-    border-top: 20px solid black;
+    border-top: 20px solid green;
 }
 
 #hexInfoBox {
     border-style: solid;
+}
+
+.hexInfoBoxDetail {
+    display: none;
+    border-style: solid
 }
 
 .hexInfoDetail {
@@ -81,4 +85,8 @@ body {
      z-index:1;
      border-style: solid;
      background-color: white;
+}
+
+.xyz {
+    background: yellow;
 }

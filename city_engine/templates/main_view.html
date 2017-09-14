@@ -2,7 +2,7 @@
 {% load staticfiles %}
 
 {% block script %}
-    <script src="{% static 'js/table_generator.js' %}"></script>
+    <script src="{% static 'js/hex_events.js' %}"></script>
 {% endblock %}
 {% block title %}Miasto {{ city.name }}{% endblock %}
 
@@ -17,16 +17,16 @@
     <button><a href="/turn_calculations">Kolejna tura</a></button>
 {% endif %}
 
-
-
 <button id="hex-change">Zmień hexy</button>
+
 <div id="board">
     <h1>Plansza wygenerowana z Djagno</h1>
     {{ hex_table }}
 </div>
 
-<h1>Podgląd hexa</h1>
+
 <div id="hexInfoBox">
+    <h1>Podgląd hexa</h1>
     {{ hex_detail_info_table }}
 </div>
 

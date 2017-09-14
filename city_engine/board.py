@@ -11,14 +11,11 @@ def add_counter_to_hex(counter):
     "<div class='hexagon-top'></div>" \
     "<div class='hexagon-middle'></div>" \
     "<div class='hexagon-bottom'></div>" \
-    "<div class='hexInfoDetail'>" \
-        "<h1>Szczegóły hexa "+str(counter)+"</h1>" \
-    "</div>" \
     "</div>"
 
 
 def add_hex_detail_box(counter):
-    return "<div class='hexInfoDetail' id='hexBox"+str(counter)+"'>" \
+    return "<div class='hexInfoBoxDetail' id='hexBox"+str(counter)+"'>" \
            "<p>Podgląd hexa "+str(counter)+"</p>" \
                                            "</div>"
 
