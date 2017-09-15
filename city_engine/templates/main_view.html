@@ -8,7 +8,7 @@
 
 {% block content %}
 <h1>Miasto: {{ city.name }}</h1>
-<h1>Mieszkańcy: {{ population }}/{{ max_population }}</h1>
+<h1>Mieszkańcy: {{ current_population }}/{{ max_population }}</h1>
 <h1>Domy: {{ house_number }}</h1>
 <h1>Dochody: {{ income }}</h1>
 <h1>Pieniądze: {{ city.cash }}</h1>
@@ -18,7 +18,7 @@
 {% endif %}
 
 <button id="hex-change">Zmień hexy</button>
-
+<button>Zbuduj elektrownie</button>
 <div id="board">
     <h1>Plansza wygenerowana z Djagno</h1>
     {{ hex_table }}

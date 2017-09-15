@@ -16,10 +16,14 @@ class City(models.Model):
 class CityField(models.Model):
     city = models.ForeignKey(City)
     field_id = models.IntegerField()
+    if_residental = models.BooleanField()
+    if_production = models.BooleanField()
+    if_service = models.BooleanField()
 
 
 class Building(models.Model):
-    city_field = models.ForeignKey(CityField)
+    city_field = models.OneToOneField(CityField)
+    build_time = models.IntegerField()
     trash = models.IntegerField()
     health = models.IntegerField()
     energy = models.IntegerField()

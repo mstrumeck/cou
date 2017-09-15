@@ -33,6 +33,7 @@ class CityFixture(TestCase):
         factory.pollution = 0
         factory.recycling = 0
         factory.city_communication = 0
+        factory.build_time = 3
         factory.city_field = CityField.objects.get(field_id=1)
         factory.save()
 
@@ -49,6 +50,7 @@ class CityFixture(TestCase):
         residential.pollution = 0
         residential.recycling = 0
         residential.city_communication = 0
+        residential.build_time = 3
         residential.city_field = CityField.objects.get(field_id=2)
         residential.save()
 
