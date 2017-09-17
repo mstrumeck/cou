@@ -16,9 +16,9 @@ class City(models.Model):
 class CityField(models.Model):
     city = models.ForeignKey(City)
     field_id = models.IntegerField()
-    if_residental = models.BooleanField()
-    if_production = models.BooleanField()
-    if_service = models.BooleanField()
+    if_residential = models.BooleanField(default=False)
+    if_production = models.BooleanField(default=False)
+    if_electricity = models.BooleanField(default=False)
 
 
 class Building(models.Model):
@@ -47,3 +47,15 @@ class ProductionBuilding(Building):
     current_employees = models.IntegerField()
     max_employees = models.IntegerField()
     production_level = models.IntegerField()
+
+
+class PowerPlant(Building):
+    name = models.CharField(max_length=20)
+    current_employees = models.IntegerField()
+    max_employees = models.IntegerField()
+    power_nodes = models.IntegerField(default=1)
+    energy_production = models.IntegerField()
+    
+    def total_energy_production(self):
+        return self.energy_production * self.power_nodes
+

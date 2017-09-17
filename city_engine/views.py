@@ -23,7 +23,7 @@ def main_view(request):
     income = Citizen.objects.filter(city_id=city_id).aggregate(Sum('income'))['income__sum']
     # max_population = Residential.objects.filter(city_id=city_id).aggregate(Sum('max_population'))['max_population__sum']
     for city_field in CityField.objects.filter(city_id=city_id):
-        if city_field.if_residental is True:
+        if city_field.if_residential is True:
             max_population += Residential.objects.get(city_field=city_field).max_population
             current_population += Residential.objects.get(city_field=city_field).current_population
     # house_number = Residential.objects.filter(city_id=city_id).count()

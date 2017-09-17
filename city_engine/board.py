@@ -1,4 +1,4 @@
-from .models import CityField, Residential, ProductionBuilding
+from .models import CityField, Residential, ProductionBuilding, PowerPlant
 
 hex_table = ''
 hex_detail_info_table = ''
@@ -19,23 +19,32 @@ def add_counter_to_hex(hex_id):
 def add_hex_detail_box(hex_id):
     hex_detail_box = "<div class='hexInfoBoxDetail' id='hexBox"+str(hex_id) + "'>" \
                         "<p>Podgląd hexa "+str(hex_id) + "</p>"
-    if CityField.objects.all():
-        if CityField.objects.filter(field_id=hex_id):
-            build_field = CityField.objects.get(id=hex_id)
-            if build_field.if_residental is True:
-                residential = Residential.objects.get(city_field=build_field.id)
-                hex_detail_box += '<p>Jest budynek dla '+str(hex_id)+'</p>' \
-                                '<p>Budynek mieszkalny</p>' \
-                                '<p>Populacja: '+str(residential.current_population)+'</p>'
-            elif build_field.if_production is True:
-                production = ProductionBuilding.objects.get(city_field=build_field.id)
-                hex_detail_box += '<p>Jest budynek dla ' + str(hex_id) + '</p>' \
+    if CityField.objects.filter(field_id=hex_id):
+        build_field = CityField.objects.get(id=hex_id)
+        if build_field.if_residential is True:
+            residential = Residential.objects.get(city_field=build_field.id)
+            hex_detail_box += '<p>Jest budynek dla '+str(hex_id)+'</p>' \
+                            '<p>Budynek mieszkalny</p>' \
+                            '<p>Populacja: '+str(residential.current_population)+'</p>'
+        elif build_field.if_production is True:
+            production = ProductionBuilding.objects.get(city_field=build_field.id)
+            hex_detail_box += '<p>Jest budynek dla ' + str(hex_id) + '</p>' \
                                 '<p>Budynek produkcyjny</p>' \
-                                '<p>Pracownicy: ' + str(production.current_employees) + '</p>'
+                                '<p>Pracownicy: '+str(production.current_employees)+'/'+str(production.max_employees)+'</p>'
+        elif build_field.if_electricity is True:
+            electricity = PowerPlant.objects.get(city_field=build_field.id)
+            hex_detail_box += '<p>Jest budynek dla '+str(hex_id)+'</p>' \
+                            '<p>'+str(electricity.name)+'</p>' \
+                            '<p>Pracownicy: '+str(electricity.current_employees)+'/'+str(electricity.max_employees)+'</p>' \
+                            '<p> Produkowana energia: '+str(electricity.total_energy_production())+'</p>'
 
     hex_detail_box += "</div>"
     return hex_detail_box
 
+# def add_hex_detail_box(counter):
+#     return "<div class='hexInfoBoxDetail' id='hexBox"+str(counter)+"'>" \
+#            "<p>Podgląd hexa "+str(counter)+"</p>" \
+#                                            "</div>"
 
 for row in range(ROW_NUM):
     if row % 2 == 0:

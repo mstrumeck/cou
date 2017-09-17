@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import City, Residential, ProductionBuilding, CityField
+from .models import City, Residential, ProductionBuilding, CityField, PowerPlant
 
 
 class CityAdmin(admin.ModelAdmin):
@@ -23,3 +23,8 @@ admin.site.register(ProductionBuilding, ProductionAdmin)
 class CityFieldAdmin(admin.ModelAdmin):
     list_display = ['city', 'city_id']
 admin.site.register(CityField, CityFieldAdmin)
+
+
+class PowerPlantsAdmin(admin.ModelAdmin):
+    list_display = ['city_field', 'current_employees']
+admin.site.register(PowerPlant, PowerPlantsAdmin)
