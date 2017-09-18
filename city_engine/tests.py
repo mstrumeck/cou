@@ -20,6 +20,13 @@ class CityFixture(TestCase):
         for field_id in range(1, int(HEX_NUM) + 1):
             CityField.objects.create(city=city, field_id=field_id).save()
 
+        CityField.objects.get(field_id=1).if_production = True
+        CityField.objects.get(field_id=2).if_residential = True
+        CityField.objects.get(field_id=3).if_electricity = True
+        CityField.objects.get(field_id=1).save()
+        CityField.objects.get(field_id=2).save()
+        CityField.objects.get(field_id=3).save()
+
         factory = ProductionBuilding()
         factory.max_employees = 20
         factory.current_employees = 0
@@ -39,7 +46,7 @@ class CityFixture(TestCase):
 
         residential = Residential()
         residential.max_population = 20
-        residential.current_population = 0
+        residential.current_population = 4
         residential.residential_level = 0
         residential.city = city
         residential.trash = 0
@@ -111,8 +118,10 @@ class CityViewTests(CityFixture):
 
     def test_city_view(self):
         city = City.objects.get(name='Wrocław')
+        residential = Residential.objects.get()
+        factory = ProductionBuilding.objects.get()
         power_plant = PowerPlant.objects.get(name='Elektrownia wiatrowa')
-        city_field = CityField.objects.get(city=city, field_id=1)
+
         self.response = self.client.get('/main_view/')
         self.assertTemplateUsed(self.response, 'main_view.html')
         self.assertContains(self.response, city.name)
@@ -121,17 +130,30 @@ class CityViewTests(CityFixture):
         # self.assertContains(self.response, 'Mieszkańcy: {}/{}'.format(
         #     Citizen.objects.filter(city_id=city.id).count(),
         #     Residential.objects.filter(city_field=city_field).aggregate(Sum('max_population'))['max_population__sum']))
-        self.assertContains(self.response, 'Dochody: {}'.format(
-            Citizen.objects.filter(city_id=city.id).aggregate(Sum('income'))['income__sum']))
+        self.assertContains(self.response,
+                            'Dochody: {}'.format
+                            (Citizen.objects.filter(city_id=city.id).aggregate(Sum('income'))['income__sum']))
 
         for hex_num in range(1, HEX_NUM+1):
             self.assertContains(self.response, 'Podgląd hexa {}'.format(hex_num))
 
-        detail_power_plant_view = '<p>Jest budynek dla 3</p>' \
-                            '<p>'+str(power_plant.name)+'</p>' \
-                            '<p>Pracownicy: '+str(power_plant.current_employees)+'/'+str(power_plant.max_employees)+'</p>' \
+        self.assertContains(self.response,
+                            "<div class='building'>"
+                            '<p>'+str(power_plant.name)+'</p>'
+                            '<p>Pracownicy: '+str(power_plant.current_employees)+'/'+str(power_plant.max_employees)+'</p>'
                             '<p> Produkowana energia: '+str(power_plant.total_energy_production())+'</p>'
-        self.assertContains(self.response, detail_power_plant_view)
+                            '</div>')
+
+        self.assertContains(self.response,
+                            "<div class='building'>"
+                            '<p>Budynek produkcyjny</p>'
+                            '<p>Pracownicy: '+str(factory.current_employees)+'/'+str(factory.max_employees)+'</p>'
+                            '</div>')
+
+        self.assertContains(self.response,
+                            "<div class='building'>"
+                            '<p>Budynek mieszkalny</p>'
+                            '</div>')
 
 
 class TurnSystemTests(CityFixture):

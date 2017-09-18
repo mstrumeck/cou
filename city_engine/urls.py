@@ -3,5 +3,6 @@ from . import views
 
 urlpatterns = [
     url(r'^main_view/$', views.main_view, name='main_view'),
-    url(r'^turn_calculations/$', views.turn_calculations, name='turn_calculations')
+    url(r'^turn_calculations/$', views.turn_calculations, name='turn_calculations'),
+    url(r'^build/(?P<hex_id>\d+)/$', views.build, name='build')
 ]

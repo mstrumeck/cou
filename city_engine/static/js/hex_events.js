@@ -3,13 +3,21 @@ $(document).ready(function() {
         $('.hexagon').toggleClass('changeHex');
     });
 
+    $('#buildPowerPlant').click(function(){
+        $('.hexagon').not('.build').toggleClass('isHexTaken');
+        $('.build').toggleClass('disabled');
+        $('.hexagon').click(function(){
+            var hexId = $(this).attr('id');
+            window.location.replace("/build/"+hexId+"");
+        });
+    });
+
     $('.hexagon').click(function(){
         var hexId = $(this).attr('id');
         var hexInfoBox = $(this).closest('main').find('#hexInfoBox');
         hexInfoBox.children('.hexInfoBoxDetail').hide();
         hexInfoBox.children('.hexInfoBoxDetail#hexBox'+hexId+'').toggle('slow');
     });
-
 
 });
 

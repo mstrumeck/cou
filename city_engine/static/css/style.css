@@ -87,6 +87,33 @@ body {
      background-color: white;
 }
 
-.xyz {
+.isHexTaken .hexagon-top {
+    border-bottom: 20px solid yellow;
+}
+
+.isHexTaken .hexagon-middle {
     background: yellow;
+}
+
+.isHexTaken .hexagon-bottom {
+    border-top: 20px solid yellow;
+}
+
+.disabled {
+    pointer-events: none;
+}
+.disabled .hexagon-top {
+    border-bottom: 20px solid grey;
+}
+
+.disabled .hexagon-middle {
+    background: grey;
+}
+
+.disabled .hexagon-bottom {
+    border-top: 20px solid grey;
+}
+
+.test {
+    background: blue;
 }

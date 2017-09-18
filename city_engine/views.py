@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import City, Residential, ProductionBuilding, CityField
+from .models import City, Residential, ProductionBuilding, CityField,PowerPlant
 from player.models import Profile
 from django.contrib.auth.models import User
 from citizen_engine.models import Citizen
@@ -7,7 +7,7 @@ from django.shortcuts import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.db.models import Sum
 from django.contrib.auth.decorators import login_required
-from .board import hex_table, hex_detail_info_table, HEX_NUM
+from .board import hex_table, hex_detail_info_table, HEX_NUM, hex_with_builds
 from django.utils.safestring import mark_safe
 
 
@@ -35,10 +35,15 @@ def main_view(request):
                                               # 'house_number': house_number,
                                               'income': income,
                                               'hex_table': mark_safe(hex_table),
-                                              'hex_detail_info_table':mark_safe(hex_detail_info_table),
+                                              'hex_detail_info_table': mark_safe(hex_detail_info_table),
                                               'HEX_NUM': range(HEX_NUM)})
 
 
 def turn_calculations(request):
+    return HttpResponseRedirect(reverse('city_engine:main_view'))
+
+
+def build(request, hex_id):
+
     return HttpResponseRedirect(reverse('city_engine:main_view'))
 
