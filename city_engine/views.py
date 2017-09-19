@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import City, Residential, ProductionBuilding, CityField,PowerPlant
+from .models import City, Residential, ProductionBuilding, CityField, PowerPlant
 from player.models import Profile
 from django.contrib.auth.models import User
 from citizen_engine.models import Citizen
@@ -44,6 +44,30 @@ def turn_calculations(request):
 
 
 def build(request, hex_id):
+    city = City.objects.get(user_id=request.user.id)
+    city_field = CityField.objects.get(field_id=hex_id, city_id=city.id)
+    city_field.if_electricity = True
+    city_field.save()
+    city_field.refresh_from_db()
+    power_plant = PowerPlant()
+    power_plant.max_employees = 20
+    power_plant.name = 'Elektrownia wiatrowa'
+    power_plant.current_employees = 0
+    power_plant.production_level = 0
+    power_plant.trash = 0
+    power_plant.health = 0
+    power_plant.energy = 0
+    power_plant.water = 0
+    power_plant.crime = 0
+    power_plant.pollution = 0
+    power_plant.recycling = 0
+    power_plant.city_communication = 0
+    power_plant.build_time = 3
+    power_plant.power_nodes = 1
+    power_plant.energy_production = 20
+    power_plant.city_field = CityField.objects.get(field_id=hex_id)
+    power_plant.save()
+    power_plant.refresh_from_db()
 
     return HttpResponseRedirect(reverse('city_engine:main_view'))
 

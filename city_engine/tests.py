@@ -31,7 +31,6 @@ class CityFixture(TestCase):
         factory.max_employees = 20
         factory.current_employees = 0
         factory.production_level = 0
-        factory.city = city
         factory.trash = 0
         factory.health = 0
         factory.energy = 0
@@ -48,7 +47,6 @@ class CityFixture(TestCase):
         residential.max_population = 20
         residential.current_population = 4
         residential.residential_level = 0
-        residential.city = city
         residential.trash = 0
         residential.health = 0
         residential.energy = 0
@@ -66,7 +64,6 @@ class CityFixture(TestCase):
         power_plant.name = 'Elektrownia wiatrowa'
         power_plant.current_employees = 0
         power_plant.production_level = 0
-        power_plant.city = city
         power_plant.trash = 0
         power_plant.health = 0
         power_plant.energy = 0
@@ -138,22 +135,16 @@ class CityViewTests(CityFixture):
             self.assertContains(self.response, 'Podgląd hexa {}'.format(hex_num))
 
         self.assertContains(self.response,
-                            "<div class='building'>"
                             '<p>'+str(power_plant.name)+'</p>'
                             '<p>Pracownicy: '+str(power_plant.current_employees)+'/'+str(power_plant.max_employees)+'</p>'
-                            '<p> Produkowana energia: '+str(power_plant.total_energy_production())+'</p>'
-                            '</div>')
+                            '<p>Produkowana energia: '+str(power_plant.total_energy_production())+'</p>')
 
         self.assertContains(self.response,
-                            "<div class='building'>"
                             '<p>Budynek produkcyjny</p>'
-                            '<p>Pracownicy: '+str(factory.current_employees)+'/'+str(factory.max_employees)+'</p>'
-                            '</div>')
+                            '<p>Pracownicy: '+str(factory.current_employees)+'/'+str(factory.max_employees)+'</p>')
 
         self.assertContains(self.response,
-                            "<div class='building'>"
-                            '<p>Budynek mieszkalny</p>'
-                            '</div>')
+                            '<p>Budynek mieszkalny</p>')
 
 
 class TurnSystemTests(CityFixture):

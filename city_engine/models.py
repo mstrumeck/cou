@@ -22,7 +22,7 @@ class CityField(models.Model):
 
 
 class Building(models.Model):
-    city_field = models.OneToOneField(CityField)
+    city_field = models.ForeignKey(CityField)
     build_time = models.IntegerField()
     trash = models.IntegerField()
     health = models.IntegerField()
@@ -55,7 +55,7 @@ class PowerPlant(Building):
     max_employees = models.IntegerField()
     power_nodes = models.IntegerField(default=1)
     energy_production = models.IntegerField()
-    
+
     def total_energy_production(self):
         return self.energy_production * self.power_nodes
 
