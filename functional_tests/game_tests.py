@@ -12,30 +12,27 @@ import time
 import sys
 
 
+class CreateBuildingsTest(BaseTest):
+
+    def test_create_power_plant(self):
+        username = 'test_username'
+        password = 'michal12345'
+        user = User.objects.create_user(username=username, password=password)
+        City.objects.create(name='Wrocław', user=user)
+        self.browser.get(self.live_server_url)
+        self.browser.find_element_by_link_text('Zaloguj').click()
+        time.sleep(1)
+        username_field = self.browser.find_element_by_id('id_username')
+        password_field = self.browser.find_element_by_id('id_password')
+        username_field.send_keys(username)
+        password_field.send_keys(password)
+        self.browser.find_element_by_tag_name('button').click()
+        time.sleep(1)
+        self.assertIn('Miasto {}'.format(City.objects.get(name='Wrocław').name), self.browser.title)
+        self.browser.find_element_by_id('buildPowerPlant').click()
+        self.browser.find_element_by_id('hexBox1').click()
+        time.sleep(2)
+        self.assertIn('Elektrownia wiatrowa', self.client.get('/main_view/'))
 
 
-
-# class TurnSystemTest(LiveServerTestCase):
-#
-#     def setUp(self):
-#         self.browser = webdriver.Chrome()
-#         user = User.objects.create_superuser(username='test_username', password='michal12345', email='test@wp.pl')
-#         City.objects.create(name='Wrocław', user=user, cash=100)
-#
-#     def tearDown(self):
-#         self.browser.quit()
-#
-#     def test_if_turn_work_correct(self):
-#         # city = City.objects.get(name='Wrocław')
-#         self.browser.get('http://localhost:8000/main_view')
-#         self.assertIn('Login', self.browser.title)
-#         username_field = self.browser.find_element_by_id('id_username')
-#         password_field = self.browser.find_element_by_id('id_password')
-#         username_field.send_keys('test_username')
-#         password_field.send_keys('michal12345')
-#         time.sleep(1)
-#         self.browser.find_element_by_tag_name('button').click()
-#         time.sleep(5)
-#         # login_page = self.browser.get('http://localhost:8000/login')
-#         # WebDriverWait(login_page, 20).until(expected_conditions.presence_of_element_located((By.CLASS_NAME, 'container')))
 

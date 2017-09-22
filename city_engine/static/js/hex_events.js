@@ -1,6 +1,8 @@
 $(document).ready(function() {
+
     $('#hex-change').click(function(){
-        $('.hexagon').toggleClass('changeHex');
+        $('.hexagon').not('.build').toggleClass('isHexTaken');
+        $('.build').toggleClass('disabled');
     });
 
     $('#buildPowerPlant').click(function(){
@@ -9,6 +11,7 @@ $(document).ready(function() {
         $('.hexagon').click(function(){
             var hexId = $(this).attr('id');
             window.location.replace("/build/"+hexId+"");
+
         });
     });
 

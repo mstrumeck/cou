@@ -2,8 +2,8 @@
 {% load staticfiles %}
 
 {% block script %}
-    <script src="{% static 'js/hex_events.js' %}"></script>
 {% endblock %}
+
 {% block title %}Miasto {{ city.name }}{% endblock %}
 
 {% block content %}
@@ -12,6 +12,7 @@
 <h1>Domy: {{ house_number }}</h1>
 <h1>Dochody: {{ income }}</h1>
 <h1>Pieniądze: {{ city.cash }}</h1>
+<h1>Energia: {{ energy }}</h1>
 <h1>{{ profile.current_turn }}/12</h1>
 {% if profile.current_turn <= 11 %}
     <button><a href="/turn_calculations">Kolejna tura</a></button>
@@ -30,5 +31,8 @@
     {{ hex_detail_info_table }}
 </div>
 
+{% endblock %}
 
+{% block jsScript %}
+    <script src="{% static 'js/hex_events.js' %}"></script>
 {% endblock %}

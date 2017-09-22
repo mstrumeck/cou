@@ -22,6 +22,7 @@ class CityField(models.Model):
 
 
 class Building(models.Model):
+    user = models.ForeignKey(User)
     city_field = models.ForeignKey(CityField)
     build_time = models.IntegerField()
     trash = models.IntegerField()

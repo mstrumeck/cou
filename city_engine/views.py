@@ -3,18 +3,21 @@ from .models import City, Residential, ProductionBuilding, CityField, PowerPlant
 from player.models import Profile
 from django.contrib.auth.models import User
 from citizen_engine.models import Citizen
-from django.shortcuts import HttpResponseRedirect
+from django.shortcuts import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.db.models import Sum
 from django.contrib.auth.decorators import login_required
-from .board import hex_table, hex_detail_info_table, HEX_NUM, hex_with_builds
+from .board import generate_board, generate_hex_detail
 from django.utils.safestring import mark_safe
 
 
 @login_required
 def main_view(request):
+    generate_board()
+    generate_hex_detail(request)
     max_population = 0
     current_population = 0
+    energy = 0
     user = User.objects.get(id=request.user.id)
     city_id = City.objects.get(user_id=user.id).id
     city = City.objects.get(id=city_id)
@@ -26,6 +29,9 @@ def main_view(request):
         if city_field.if_residential is True:
             max_population += Residential.objects.get(city_field=city_field).max_population
             current_population += Residential.objects.get(city_field=city_field).current_population
+        elif city_field.if_electricity is True:
+            energy += PowerPlant.objects.get(city_field=city_field).total_energy_production()
+
     # house_number = Residential.objects.filter(city_id=city_id).count()
     return render(request, 'main_view.html', {'city': city,
                                               'profile': profile,
@@ -34,9 +40,9 @@ def main_view(request):
                                               'max_population': max_population,
                                               # 'house_number': house_number,
                                               'income': income,
-                                              'hex_table': mark_safe(hex_table),
-                                              'hex_detail_info_table': mark_safe(hex_detail_info_table),
-                                              'HEX_NUM': range(HEX_NUM)})
+                                              'energy': energy,
+                                              'hex_table': mark_safe(generate_board()),
+                                              'hex_detail_info_table': mark_safe(generate_hex_detail(request))})
 
 
 def turn_calculations(request):
@@ -49,9 +55,11 @@ def build(request, hex_id):
     city_field.if_electricity = True
     city_field.save()
     city_field.refresh_from_db()
+
     power_plant = PowerPlant()
     power_plant.max_employees = 20
     power_plant.name = 'Elektrownia wiatrowa'
+    power_plant.user = request.user
     power_plant.current_employees = 0
     power_plant.production_level = 0
     power_plant.trash = 0
@@ -68,6 +76,9 @@ def build(request, hex_id):
     power_plant.city_field = CityField.objects.get(field_id=hex_id)
     power_plant.save()
     power_plant.refresh_from_db()
+
+    generate_board()
+    generate_hex_detail(request)
 
     return HttpResponseRedirect(reverse('city_engine:main_view'))
 

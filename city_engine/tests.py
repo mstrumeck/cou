@@ -40,6 +40,7 @@ class CityFixture(TestCase):
         factory.recycling = 0
         factory.city_communication = 0
         factory.build_time = 3
+        factory.user = user
         factory.city_field = CityField.objects.get(field_id=1)
         factory.save()
 
@@ -56,6 +57,7 @@ class CityFixture(TestCase):
         residential.recycling = 0
         residential.city_communication = 0
         residential.build_time = 3
+        residential.user = user
         residential.city_field = CityField.objects.get(field_id=2)
         residential.save()
 
@@ -75,6 +77,7 @@ class CityFixture(TestCase):
         power_plant.build_time = 3
         power_plant.power_nodes = 1
         power_plant.energy_production = 20
+        power_plant.user = user
         power_plant.city_field = CityField.objects.get(field_id=3)
         power_plant.save()
 
@@ -123,6 +126,7 @@ class CityViewTests(CityFixture):
         self.assertTemplateUsed(self.response, 'main_view.html')
         self.assertContains(self.response, city.name)
         self.assertContains(self.response, 'Pieniądze: {}'.format(city.cash))
+        self.assertContains(self.response, 'Energia: {}'.format(power_plant.total_energy_production()))
         # self.assertContains(self.response, 'Domy: {}'.format(Residential.objects.filter(city_field=city_field).count()))
         # self.assertContains(self.response, 'Mieszkańcy: {}/{}'.format(
         #     Citizen.objects.filter(city_id=city.id).count(),
