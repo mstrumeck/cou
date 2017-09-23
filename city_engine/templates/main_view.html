@@ -7,6 +7,14 @@
 {% block title %}Miasto {{ city.name }}{% endblock %}
 
 {% block content %}
+
+{% if request.user.is_authenticated %}
+    <h1>Witaj, {{ request.user.first_name }}!</h1>
+    <h1><a href="{% url 'player:logout' %}">Wyloguj</a></h1>
+                    {% else %}
+    <h1><a href="{% url 'player:login' %}">Zaloguj</a></h1>
+    {% endif %}
+
 <h1>Miasto: {{ city.name }}</h1>
 <h1>Mieszkańcy: {{ current_population }}/{{ max_population }}</h1>
 <h1>Domy: {{ house_number }}</h1>

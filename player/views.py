@@ -16,34 +16,28 @@ def main_page(request):
     return render(request, 'registration/main_page.html')
 
 
-def create_city(request):
+def signup(request):
     if request.method == 'POST':
-        form = CityCreationForm(request.POST)
-        if form.is_valid():
-            city_name = form.cleaned_data.get('name')
+        user_creation_form = UserCreationForm(request.POST)
+        city_creation_form = CityCreationForm(request.POST)
+        if user_creation_form.is_valid() and city_creation_form.is_valid():
+            user_creation_form.save()
+            username = user_creation_form.cleaned_data.get('username')
+            raw_password = user_creation_form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=raw_password)
+            login(request, user)
+            city_name = city_creation_form.cleaned_data.get('name')
             new_city = City.objects.create(user_id=request.user.id, name=city_name)
+
             for field_id in range(1, int(HEX_NUM)+1):
                 CityField.objects.create(city=new_city, field_id=field_id).save()
             new_city.save()
             return redirect('/main_view/')
     else:
-        form = CityCreationForm()
-    return render(request, 'registration/create_city.html', {'form': form})
-
-
-def signup(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=raw_password)
-            login(request, user)
-            return redirect('/create_city/')
-    else:
-        form = UserCreationForm()
-    return render(request, 'registration/signup.html', {'form': form})
+        user_creation_form = UserCreationForm()
+        city_creation_form = CityCreationForm()
+    return render(request, 'registration/signup.html', {'user_creation_form': user_creation_form,
+                                                        'city_creation_form': city_creation_form})
 
 # def signup(request):
 #     if request.method == 'POST':

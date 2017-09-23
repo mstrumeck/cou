@@ -30,9 +30,6 @@ class CreateBuildingsTest(BaseTest):
         time.sleep(1)
         self.assertIn('Miasto {}'.format(City.objects.get(name='Wrocław').name), self.browser.title)
         self.browser.find_element_by_id('buildPowerPlant').click()
-        self.browser.find_element_by_id('hexBox1').click()
+        time.sleep(10)
         time.sleep(2)
         self.assertIn('Elektrownia wiatrowa', self.client.get('/main_view/'))
-
-
-

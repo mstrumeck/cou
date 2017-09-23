@@ -54,7 +54,6 @@ def build(request, hex_id):
     city_field = CityField.objects.get(field_id=hex_id, city_id=city.id)
     city_field.if_electricity = True
     city_field.save()
-    city_field.refresh_from_db()
 
     power_plant = PowerPlant()
     power_plant.max_employees = 20
@@ -73,9 +72,8 @@ def build(request, hex_id):
     power_plant.build_time = 3
     power_plant.power_nodes = 1
     power_plant.energy_production = 20
-    power_plant.city_field = CityField.objects.get(field_id=hex_id)
+    power_plant.city_field = CityField.objects.get(field_id=hex_id, city=city)
     power_plant.save()
-    power_plant.refresh_from_db()
 
     generate_board()
     generate_hex_detail(request)

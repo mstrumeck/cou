@@ -8,11 +8,13 @@ $(document).ready(function() {
     $('#buildPowerPlant').click(function(){
         $('.hexagon').not('.build').toggleClass('isHexTaken');
         $('.build').toggleClass('disabled');
-        $('.hexagon').click(function(){
+        $('.hexagon').on('click', function(event){
             var hexId = $(this).attr('id');
-            window.location.replace("/build/"+hexId+"");
-
+            if(event.target == $(this)){
+                window.location.replace("/build/"+hexId+"");
+            }
         });
+
     });
 
     $('.hexagon').click(function(){
@@ -21,7 +23,6 @@ $(document).ready(function() {
         hexInfoBox.children('.hexInfoBoxDetail').hide();
         hexInfoBox.children('.hexInfoBoxDetail#hexBox'+hexId+'').toggle('slow');
     });
-
 });
 
 //    $('.hexagon').mouseover(function(){

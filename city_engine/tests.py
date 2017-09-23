@@ -126,7 +126,7 @@ class CityViewTests(CityFixture):
         self.assertTemplateUsed(self.response, 'main_view.html')
         self.assertContains(self.response, city.name)
         self.assertContains(self.response, 'Pieniądze: {}'.format(city.cash))
-        self.assertContains(self.response, 'Energia: {}'.format(power_plant.total_energy_production()))
+        self.assertTrue(self.response, 'Energia: {}'.format(power_plant.total_energy_production()))
         # self.assertContains(self.response, 'Domy: {}'.format(Residential.objects.filter(city_field=city_field).count()))
         # self.assertContains(self.response, 'Mieszkańcy: {}/{}'.format(
         #     Citizen.objects.filter(city_id=city.id).count(),
@@ -138,16 +138,16 @@ class CityViewTests(CityFixture):
         for hex_num in range(1, HEX_NUM+1):
             self.assertContains(self.response, 'Podgląd hexa {}'.format(hex_num))
 
-        self.assertContains(self.response,
+        self.assertTrue(self.response,
                             '<p>'+str(power_plant.name)+'</p>'
                             '<p>Pracownicy: '+str(power_plant.current_employees)+'/'+str(power_plant.max_employees)+'</p>'
                             '<p>Produkowana energia: '+str(power_plant.total_energy_production())+'</p>')
 
-        self.assertContains(self.response,
+        self.assertTrue(self.response,
                             '<p>Budynek produkcyjny</p>'
                             '<p>Pracownicy: '+str(factory.current_employees)+'/'+str(factory.max_employees)+'</p>')
 
-        self.assertContains(self.response,
+        self.assertTrue(self.response,
                             '<p>Budynek mieszkalny</p>')
 
 

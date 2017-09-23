@@ -9,7 +9,6 @@ urlpatterns = [
     url(r'^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
         views.activate, name='activate'),
     url(r'login/$', auth_views.login, name='login'),
-    url(r'logout/$', auth_views.logout, name='logout'),
+    url(r'logout/$', auth_views.logout, {'next_page': '/'}, name='logout'),
     url(r'logout-then-login/$', auth_views.logout_then_login, name='logout_then_login'),
-    url(r'create_city/$', views.create_city, name='create_city')
 ]

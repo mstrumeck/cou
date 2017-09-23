@@ -1,4 +1,4 @@
-from .models import CityField, Residential, ProductionBuilding, PowerPlant
+from .models import CityField, Residential, ProductionBuilding, PowerPlant, City
 from django.contrib.auth.models import User
 
 ROW_NUM = 4
@@ -11,8 +11,9 @@ def add_hex_detail_box(hex_id, request):
     hex_detail_box = "<div class='hexInfoBoxDetail' id='hexBox"+str(hex_id)+"'>" \
                     "<p>Podgląd hexa "+str(hex_id)+"</p>"
 
-    if CityField.objects.filter(field_id=hex_id):
-        build_field = CityField.objects.get(id=hex_id)
+    city = City.objects.get(user=request.user)
+    if CityField.objects.filter(field_id=hex_id, city=city):
+        build_field = CityField.objects.get(field_id=hex_id, city=city)
         build_field.refresh_from_db()
 
         if build_field.if_residential is True:

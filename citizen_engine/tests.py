@@ -3,6 +3,7 @@ from .models import Citizen
 from city_engine.models import ProductionBuilding, Residential, City, CityField
 from django.contrib.auth.models import User
 from city_engine.board import HEX_NUM
+from city_engine.tests import CityFixture
 
 
 class CitizenFixture(TestCase):
@@ -76,7 +77,7 @@ class CitizenFixture(TestCase):
         third_citizen.save()
 
 
-class CreateCitizensTest(CitizenFixture):
+class CreateCitizensTest(CityFixture):
 
     def test_saving_and_retreving_citizens(self):
         city = City.objects.get(name='Wrocław')

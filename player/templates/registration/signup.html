@@ -6,7 +6,8 @@
 <h1>Rejestracja</h1>
 <form method="POST">
     {% csrf_token %}
-    {{ form }}
+    {{ user_creation_form }}
+    {{ city_creation_form }}
     <button type="submit">Submit</button>
 </form>
 
