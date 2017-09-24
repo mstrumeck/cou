@@ -15,16 +15,22 @@ from django.utils.safestring import mark_safe
 def main_view(request):
     generate_board()
     generate_hex_detail(request)
+
     max_population = 0
     current_population = 0
     energy = 0
+
+    building_name = []
+    building_cur = []
+    building_end = []
+
+    buildings_under_construction = zip(building_name, building_cur, building_end)
     user = User.objects.get(id=request.user.id)
     city_id = City.objects.get(user_id=user.id).id
     city = City.objects.get(id=city_id)
     profile = Profile.objects.get(user_id=request.user.id)
-    # population = Citizen.objects.filter(city_id=city_id).count()
     income = Citizen.objects.filter(city_id=city_id).aggregate(Sum('income'))['income__sum']
-    # max_population = Residential.objects.filter(city_id=city_id).aggregate(Sum('max_population'))['max_population__sum']
+
     for city_field in CityField.objects.filter(city_id=city_id):
         if city_field.if_residential is True:
             max_population += Residential.objects.get(city_field=city_field).max_population
@@ -32,20 +38,50 @@ def main_view(request):
         elif city_field.if_electricity is True:
             energy += PowerPlant.objects.get(city_field=city_field).total_energy_production()
 
-    # house_number = Residential.objects.filter(city_id=city_id).count()
+    for buildings in Residential.objects.filter(city=city):
+        if buildings.if_under_construction is True:
+            building_name.append('Dom')
+            building_cur.append(buildings.current_build_time)
+            building_end.append(buildings.build_time)
+
+    for buildings in ProductionBuilding.objects.filter(city=city):
+        if buildings.if_under_construction is True:
+            building_name.append('Fabryka')
+            building_cur.append(buildings.current_build_time)
+            building_end.append(buildings.build_time)
+
+    for buildings in PowerPlant.objects.filter(city=city):
+        if buildings.if_under_construction is True:
+            building_name.append(buildings.name)
+            building_cur.append(buildings.current_build_time)
+            building_end.append(buildings.build_time)
+
     return render(request, 'main_view.html', {'city': city,
                                               'profile': profile,
-                                              # 'population': population,
-                                              'current_population': current_population,
-                                              'max_population': max_population,
-                                              # 'house_number': house_number,
                                               'income': income,
                                               'energy': energy,
                                               'hex_table': mark_safe(generate_board()),
-                                              'hex_detail_info_table': mark_safe(generate_hex_detail(request))})
+                                              'hex_detail_info_table': mark_safe(generate_hex_detail(request)),
+                                              'building_name': building_name,
+                                              'buildings_under_construction': buildings_under_construction})
 
 
 def turn_calculations(request):
+    profile = Profile.objects.get(user_id=request.user.id)
+    profile.current_turn += 1
+    profile.save()
+
+    city = City.objects.get(user_id=request.user.id)
+
+    for buildings in Residential.objects.filter(city=city):
+        buildings.build_status()
+
+    for buildings in ProductionBuilding.objects.filter(city=city):
+        buildings.build_status()
+
+    for buildings in PowerPlant.objects.filter(city=city):
+        buildings.build_status()
+
     return HttpResponseRedirect(reverse('city_engine:main_view'))
 
 
@@ -56,21 +92,9 @@ def build(request, hex_id):
     city_field.save()
 
     power_plant = PowerPlant()
-    power_plant.max_employees = 20
     power_plant.name = 'Elektrownia wiatrowa'
-    power_plant.user = request.user
-    power_plant.current_employees = 0
-    power_plant.production_level = 0
-    power_plant.trash = 0
-    power_plant.health = 0
-    power_plant.energy = 0
-    power_plant.water = 0
-    power_plant.crime = 0
-    power_plant.pollution = 0
-    power_plant.recycling = 0
-    power_plant.city_communication = 0
+    power_plant.city = city
     power_plant.build_time = 3
-    power_plant.power_nodes = 1
     power_plant.energy_production = 20
     power_plant.city_field = CityField.objects.get(field_id=hex_id, city=city)
     power_plant.save()

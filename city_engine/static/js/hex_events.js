@@ -8,11 +8,9 @@ $(document).ready(function() {
     $('#buildPowerPlant').click(function(){
         $('.hexagon').not('.build').toggleClass('isHexTaken');
         $('.build').toggleClass('disabled');
-        $('.hexagon').on('click', function(event){
+        $('.hexagon.isHexTaken').on('click', function(event){
             var hexId = $(this).attr('id');
-            if(event.target == $(this)){
-                window.location.replace("/build/"+hexId+"");
-            }
+            window.location.replace("/build/"+hexId+"");
         });
 
     });

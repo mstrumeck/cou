@@ -1,14 +1,9 @@
 from django.test import TestCase
 from city_engine.models import City, Residential, ProductionBuilding, CityField, PowerPlant
 from django.contrib.auth.models import User
-from django.test.client import Client
 from citizen_engine.models import Citizen
-from django.db.models import Sum
 from player.models import Profile
 from .board import HEX_NUM
-from django.urls import reverse, resolve
-from django.http import HttpRequest
-from .views import main_view
 
 
 class CityFixture(TestCase):
@@ -31,16 +26,9 @@ class CityFixture(TestCase):
         factory.max_employees = 20
         factory.current_employees = 0
         factory.production_level = 0
-        factory.trash = 0
-        factory.health = 0
-        factory.energy = 0
-        factory.water = 0
-        factory.crime = 0
-        factory.pollution = 0
-        factory.recycling = 0
-        factory.city_communication = 0
         factory.build_time = 3
-        factory.user = user
+        factory.city = city
+        factory.if_under_construction = False
         factory.city_field = CityField.objects.get(field_id=1)
         factory.save()
 
@@ -48,16 +36,9 @@ class CityFixture(TestCase):
         residential.max_population = 20
         residential.current_population = 4
         residential.residential_level = 0
-        residential.trash = 0
-        residential.health = 0
-        residential.energy = 0
-        residential.water = 0
-        residential.crime = 0
-        residential.pollution = 0
-        residential.recycling = 0
-        residential.city_communication = 0
         residential.build_time = 3
-        residential.user = user
+        residential.city = city
+        residential.if_under_construction = False
         residential.city_field = CityField.objects.get(field_id=2)
         residential.save()
 
@@ -66,18 +47,10 @@ class CityFixture(TestCase):
         power_plant.name = 'Elektrownia wiatrowa'
         power_plant.current_employees = 0
         power_plant.production_level = 0
-        power_plant.trash = 0
-        power_plant.health = 0
-        power_plant.energy = 0
-        power_plant.water = 0
-        power_plant.crime = 0
-        power_plant.pollution = 0
-        power_plant.recycling = 0
-        power_plant.city_communication = 0
         power_plant.build_time = 3
         power_plant.power_nodes = 1
         power_plant.energy_production = 20
-        power_plant.user = user
+        power_plant.city = city
         power_plant.city_field = CityField.objects.get(field_id=3)
         power_plant.save()
 
@@ -127,13 +100,6 @@ class CityViewTests(CityFixture):
         self.assertContains(self.response, city.name)
         self.assertContains(self.response, 'Pieniądze: {}'.format(city.cash))
         self.assertTrue(self.response, 'Energia: {}'.format(power_plant.total_energy_production()))
-        # self.assertContains(self.response, 'Domy: {}'.format(Residential.objects.filter(city_field=city_field).count()))
-        # self.assertContains(self.response, 'Mieszkańcy: {}/{}'.format(
-        #     Citizen.objects.filter(city_id=city.id).count(),
-        #     Residential.objects.filter(city_field=city_field).aggregate(Sum('max_population'))['max_population__sum']))
-        self.assertContains(self.response,
-                            'Dochody: {}'.format
-                            (Citizen.objects.filter(city_id=city.id).aggregate(Sum('income'))['income__sum']))
 
         for hex_num in range(1, HEX_NUM+1):
             self.assertContains(self.response, 'Podgląd hexa {}'.format(hex_num))
@@ -149,6 +115,15 @@ class CityViewTests(CityFixture):
 
         self.assertTrue(self.response,
                             '<p>Budynek mieszkalny</p>')
+
+        self.assertTrue(self.response,
+                        'Budowa')
+
+        self.assertTrue(self.response,
+                        'Czas')
+
+        self.assertTrue(self.response,
+                        '0/3')
 
 
 class TurnSystemTests(CityFixture):

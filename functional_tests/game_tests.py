@@ -1,20 +1,13 @@
-from selenium import webdriver
 from .base import BaseTest
 from city_engine.models import City
 from django.contrib.auth.models import User
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase, LiveServerTestCase
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.support.ui import WebDriverWait
-import unittest
 import time
-import sys
 
 
 class CreateBuildingsTest(BaseTest):
 
     def test_create_power_plant(self):
+        response = self.client.get('/main_view/')
         username = 'test_username'
         password = 'michal12345'
         user = User.objects.create_user(username=username, password=password)
@@ -30,6 +23,24 @@ class CreateBuildingsTest(BaseTest):
         time.sleep(1)
         self.assertIn('Miasto {}'.format(City.objects.get(name='Wrocław').name), self.browser.title)
         self.browser.find_element_by_id('buildPowerPlant').click()
-        time.sleep(10)
+        time.sleep(3)
+        self.browser.find_element_by_css_selector('.hexagon.isHexTaken')
         time.sleep(2)
-        self.assertIn('Elektrownia wiatrowa', self.client.get('/main_view/'))
+        self.assertTrue(response, 'Elektrownia wiatrowa')
+        self.assertTrue(response, 'Budowa')
+        self.assertTrue(response, 'Czas')
+        self.assertTrue(response, '0/3')
+        self.browser.find_element_by_link_text('Kolejna tura').click()
+        time.sleep(3)
+        self.assertTrue(response, '1/3')
+        self.browser.find_element_by_link_text('Kolejna tura').click()
+        time.sleep(3)
+        self.assertTrue(response, '2/3')
+        self.browser.find_element_by_link_text('Kolejna tura').click()
+        time.sleep(3)
+        self.assertTrue(response, '3/3')
+        self.browser.find_element_by_link_text('Kolejna tura').click()
+        time.sleep(3)
+        self.assertFalse(response, 'Budowa')
+        self.assertFalse(response, 'Czas')
+

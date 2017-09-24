@@ -19,33 +19,17 @@ class CitizenFixture(TestCase):
         factory.max_employees = 20
         factory.current_employees = 0
         factory.production_level = 0
-        factory.city = city
-        factory.trash = 0
-        factory.health = 0
-        factory.energy = 0
-        factory.water = 0
-        factory.crime = 0
-        factory.pollution = 0
-        factory.recycling = 0
-        factory.city_communication = 0
         factory.build_time = 3
+        factory.city = city
         factory.city_field = CityField.objects.get(field_id=1)
         factory.save()
 
         residential = Residential()
         residential.max_population = 20
-        residential.current_population = 0
+        residential.current_population = 4
         residential.residential_level = 0
-        residential.city = city
-        residential.trash = 0
-        residential.health = 0
-        residential.energy = 0
-        residential.water = 0
-        residential.crime = 0
-        residential.pollution = 0
-        residential.recycling = 0
-        residential.city_communication = 0
         residential.build_time = 3
+        residential.city = city
         residential.city_field = CityField.objects.get(field_id=2)
         residential.save()
 

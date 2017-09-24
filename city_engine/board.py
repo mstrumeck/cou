@@ -1,5 +1,4 @@
 from .models import CityField, Residential, ProductionBuilding, PowerPlant, City
-from django.contrib.auth.models import User
 
 ROW_NUM = 4
 HEX_NUM = 16
@@ -18,21 +17,21 @@ def add_hex_detail_box(hex_id, request):
 
         if build_field.if_residential is True:
             hex_with_builds.append(hex_id)
-            residential = Residential.objects.get(city_field=build_field.id, user=request.user)
+            residential = Residential.objects.get(city_field=build_field.id, city=city)
             residential.refresh_from_db()
             hex_detail_box += '<p>Budynek mieszkalny</p>' \
                               '<p>Populacja: '+str(residential.current_population)+'</p>'
 
         if build_field.if_production is True:
             hex_with_builds.append(hex_id)
-            production = ProductionBuilding.objects.get(city_field=build_field.id, user=request.user)
+            production = ProductionBuilding.objects.get(city_field=build_field.id, city=city)
             production.refresh_from_db()
             hex_detail_box += '<p>Budynek produkcyjny</p>' \
                                 '<p>Pracownicy: '+str(production.current_employees)+'/'+str(production.max_employees)+'</p>'
 
         if build_field.if_electricity is True:
             hex_with_builds.append(hex_id)
-            electricity = PowerPlant.objects.get(city_field=build_field.id, user=request.user)
+            electricity = PowerPlant.objects.get(city_field=build_field.id, city=city)
             electricity.refresh_from_db()
             hex_detail_box += '<p>'+str(electricity.name)+'</p>' \
                             '<p>Pracownicy: '+str(electricity.current_employees)+'/'+str(electricity.max_employees)+'</p>' \

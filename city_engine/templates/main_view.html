@@ -16,14 +16,30 @@
     {% endif %}
 
 <h1>Miasto: {{ city.name }}</h1>
-<h1>Mieszkańcy: {{ current_population }}/{{ max_population }}</h1>
-<h1>Domy: {{ house_number }}</h1>
-<h1>Dochody: {{ income }}</h1>
 <h1>Pieniądze: {{ city.cash }}</h1>
 <h1>Energia: {{ energy }}</h1>
 <h1>{{ profile.current_turn }}/12</h1>
 {% if profile.current_turn <= 11 %}
     <button><a href="/turn_calculations">Kolejna tura</a></button>
+{% endif %}
+
+{% if building_name %}
+<table>
+    <thead>
+        <tr>
+            <th>Budowa</th>
+            <th>Czas</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for name, start, end in buildings_under_construction %}
+        <tr>
+            <th>{{ name }}</th>
+            <th>{{ start }}/{{ end }}</th>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
 {% endif %}
 
 <button id="hex-change">Zmień hexy</button>
