@@ -5,11 +5,10 @@ from city_engine.models import City
 
 
 class SignUpForm(UserCreationForm):
-    email = forms.EmailField(max_length=254, help_text='Wprowadź swój adres mailowy')
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password1', 'password2')
+        fields = ('username', 'password1', 'password2')
 
 
 class CityCreationForm(forms.ModelForm):

@@ -2,8 +2,10 @@ from django.test import TestCase
 from city_engine.models import City, Residential, ProductionBuilding, CityField, PowerPlant
 from django.contrib.auth.models import User
 from citizen_engine.models import Citizen
+from django.urls import resolve
 from player.models import Profile
 from .board import HEX_NUM
+from .views import main_view
 
 
 class CityFixture(TestCase):
@@ -88,6 +90,10 @@ class CityViewTests(CityFixture):
         response = self.client.get('/main_view/')
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'main_view.html')
+
+    def test_home_url_resolves_home_view(self):
+        view = resolve('/main_view/')
+        self.assertEquals(view.func, main_view)
 
     def test_city_view(self):
         city = City.objects.get(name='Wrocław')
