@@ -84,6 +84,21 @@ class SignupFormTest(TestCase):
         self.assertContains(self.response, 'type="text"', 1)
         self.assertContains(self.response, 'type="password"', 2)
 
+    def test_dobuled_city_name(self):
+        url = '/signup/'
+        user = User.objects.create_user(username='test_username', password='12345', email='random@wp.pl')
+        City.objects.create(name='Wrocław', user=user, cash=100).save()
+        data = {
+            'username': 'michal',
+            'email': 'strumecki@wp.pl',
+            'password1': 'strumecki123',
+            'password2': 'strumecki123',
+            'name': 'Wrocław'
+        }
+        response = self.client.post(url, data)
+        self.assertEquals(response.status_code, 200)
+        self.assertTrue(City.objects.all().count(),1)
+
     # def test_contains_form(self):
     #     form = self.response.context.get('form')
     #     self.assertIsInstance(form, SignUpForm)

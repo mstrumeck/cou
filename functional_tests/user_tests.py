@@ -82,5 +82,26 @@ class SignupAndLoginTest(BaseTest):
         error = self.browser.find_element_by_class_name('errorlist')
         self.assertTrue(error.is_displayed())
 
+    def test_doubled_city_name(self):
+        password = 'michal12345'
+        user = User.objects.create_user(username='test_username', password='12345', email='random@wp.pl')
+        City.objects.create(name='Wrocław', user=user, cash=100)
+        self.browser.get(self.live_server_url)
+        self.browser.find_element_by_link_text('Rejestracja').click()
+        time.sleep(1)
+        username_field = self.browser.find_element_by_id('id_username')
+        password_field1 = self.browser.find_element_by_id('id_password1')
+        password_field2 = self.browser.find_element_by_id('id_password2')
+        city_name_field = self.browser.find_element_by_id('id_name')
+        username_field.send_keys('test_username')
+        password_field1.send_keys(password)
+        password_field2.send_keys(password)
+        city_name_field.send_keys('Wrocław')
+        self.browser.find_element_by_tag_name('button').click()
+        time.sleep(1)
+        error = self.browser.find_element_by_class_name('errorlist')
+        self.assertTrue(error.is_displayed())
+
+
 
 
