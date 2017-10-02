@@ -1,14 +1,15 @@
-from django.shortcuts import render, redirect
-from django.utils.encoding import force_text
-from django.utils.http import urlsafe_base64_encode
-from django.template.loader import render_to_string
-from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+from django.shortcuts import render, redirect
+from django.template.loader import render_to_string
+from django.utils.encoding import force_text
+from django.utils.http import urlsafe_base64_encode
+
+from city_engine.main_view_data.board import assign_city_fields_to_board
+from city_engine.models import City
 from player.forms import CityCreationForm
 from player.tokens import account_activation_token
-from city_engine.models import City, CityField
-from city_engine.board import HEX_NUM
 
 
 def main_page(request):
@@ -27,9 +28,8 @@ def signup(request):
             login(request, user)
             city_name = city_creation_form.cleaned_data.get('name')
             new_city = City.objects.create(user_id=request.user.id, name=city_name)
+            assign_city_fields_to_board(new_city)
 
-            for field_id in range(1, int(HEX_NUM)+1):
-                CityField.objects.create(city=new_city, field_id=field_id).save()
             new_city.save()
             return redirect('/main_view/')
     else:

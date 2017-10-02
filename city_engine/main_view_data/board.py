@@ -1,4 +1,4 @@
-from .models import CityField, Residential, ProductionBuilding, PowerPlant, City
+from city_engine.models import CityField, Residential, ProductionBuilding, PowerPlant, City
 
 ROW_NUM = 4
 HEX_NUM = 16
@@ -81,3 +81,8 @@ def generate_hex_detail(request):
             counter += 1
             hex_detail_info_table += add_hex_detail_box(counter, request)
     return hex_detail_info_table
+
+
+def assign_city_fields_to_board(city):
+    for field_id in range(1, int(HEX_NUM) + 1):
+        CityField.objects.create(city=city, field_id=field_id).save()

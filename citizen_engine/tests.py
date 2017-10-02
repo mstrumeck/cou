@@ -1,19 +1,20 @@
-from django.test import TestCase
-from .models import Citizen
-from city_engine.models import ProductionBuilding, Residential, City, CityField
 from django.contrib.auth.models import User
-from city_engine.board import HEX_NUM
+from django.test import TestCase
+
+from city_engine.main_view_data.board import assign_city_fields_to_board
+from city_engine.models import ProductionBuilding, Residential, City, CityField
 from city_engine.tests import CityFixture
+from .models import Citizen
 
 
 class CitizenFixture(TestCase):
 
     def setUp(self):
-        user = User.objects.create()
+        user = User.objects.create_user(username='test_username', password='12345', email='random@wp.pl')
+        self.client.login(username='test_username', password='12345', email='random@wp.pl')
         city = City.objects.create(name='Wrocław', user=user, cash=1000)
 
-        for field_id in range(1, int(HEX_NUM) + 1):
-            CityField.objects.create(city=city, field_id=field_id).save()
+        assign_city_fields_to_board(city)
 
         factory = ProductionBuilding()
         factory.max_employees = 20
@@ -21,7 +22,7 @@ class CitizenFixture(TestCase):
         factory.production_level = 0
         factory.build_time = 3
         factory.city = city
-        factory.city_field = CityField.objects.get(field_id=1)
+        factory.city_field = CityField.objects.get(field_id=1, city=city)
         factory.save()
 
         residential = Residential()
@@ -30,7 +31,7 @@ class CitizenFixture(TestCase):
         residential.residential_level = 0
         residential.build_time = 3
         residential.city = city
-        residential.city_field = CityField.objects.get(field_id=2)
+        residential.city_field = CityField.objects.get(field_id=2, city=city)
         residential.save()
 
         first_citizen = Citizen()

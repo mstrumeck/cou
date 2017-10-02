@@ -1,86 +1,130 @@
-from django.test import TestCase
-from city_engine.models import City, Residential, ProductionBuilding, CityField, PowerPlant
 from django.contrib.auth.models import User
-from citizen_engine.models import Citizen
+from django.test import TestCase
 from django.urls import resolve
+
+from citizen_engine.models import Citizen
+from city_engine.main_view_data.board import HEX_NUM
+from city_engine.models import City, Residential, ProductionBuilding, CityField, PowerPlant
 from player.models import Profile
-from .board import HEX_NUM
 from .views import main_view
 
 
 class CityFixture(TestCase):
     def setUp(self):
-        user = User.objects.create_user(username='test_username', password='12345', email='random@wp.pl')
+        first_user = User.objects.create_user(username='test_username', password='12345', email='random@wp.pl')
         self.client.login(username='test_username', password='12345', email='random@wp.pl')
-        city = City.objects.create(name='Wrocław', user=user, cash=100)
+        first_city = City.objects.create(name='Wrocław', user=first_user, cash=100)
+
+        second_user = User.objects.create_user(username='test_username_2', password='54321', email='random2@wp.pl')
+        second_city = City.objects.create(name='Łódź', user=second_user, cash=100)
 
         for field_id in range(1, int(HEX_NUM) + 1):
-            CityField.objects.create(city=city, field_id=field_id).save()
+            CityField.objects.create(city=first_city, field_id=field_id).save()
+            CityField.objects.create(city=second_city, field_id=field_id).save()
 
-        CityField.objects.get(field_id=1).if_production = True
-        CityField.objects.get(field_id=2).if_residential = True
-        CityField.objects.get(field_id=3).if_electricity = True
-        CityField.objects.get(field_id=1).save()
-        CityField.objects.get(field_id=2).save()
-        CityField.objects.get(field_id=3).save()
+        CityField.objects.get(field_id=1, city=first_city).if_production = True
+        CityField.objects.get(field_id=2, city=first_city).if_residential = True
+        CityField.objects.get(field_id=3, city=first_city).if_electricity = True
+        CityField.objects.get(field_id=1, city=first_city).save()
+        CityField.objects.get(field_id=2, city=first_city).save()
+        CityField.objects.get(field_id=3, city=first_city).save()
 
-        factory = ProductionBuilding()
-        factory.max_employees = 20
-        factory.current_employees = 0
-        factory.production_level = 0
-        factory.build_time = 3
-        factory.city = city
-        factory.if_under_construction = False
-        factory.city_field = CityField.objects.get(field_id=1)
-        factory.save()
+        CityField.objects.get(field_id=1, city=second_city).if_production = True
+        CityField.objects.get(field_id=2, city=second_city).if_residential = True
+        CityField.objects.get(field_id=3, city=second_city).if_electricity = True
+        CityField.objects.get(field_id=1, city=second_city).save()
+        CityField.objects.get(field_id=2, city=second_city).save()
+        CityField.objects.get(field_id=3, city=second_city).save()
 
-        residential = Residential()
-        residential.max_population = 20
-        residential.current_population = 4
-        residential.residential_level = 0
-        residential.build_time = 3
-        residential.city = city
-        residential.if_under_construction = False
-        residential.city_field = CityField.objects.get(field_id=2)
-        residential.save()
+        first_factory = ProductionBuilding()
+        first_factory.max_employees = 20
+        first_factory.current_employees = 0
+        first_factory.production_level = 0
+        first_factory.build_time = 3
+        first_factory.city = first_city
+        first_factory.if_under_construction = False
+        first_factory.city_field = CityField.objects.get(field_id=1, city=first_city)
+        first_factory.save()
 
-        power_plant = PowerPlant()
-        power_plant.max_employees = 20
-        power_plant.name = 'Elektrownia wiatrowa'
-        power_plant.current_employees = 0
-        power_plant.production_level = 0
-        power_plant.build_time = 3
-        power_plant.power_nodes = 1
-        power_plant.energy_production = 20
-        power_plant.city = city
-        power_plant.city_field = CityField.objects.get(field_id=3)
-        power_plant.save()
+        second_factory = ProductionBuilding()
+        second_factory.max_employees = 20
+        second_factory.current_employees = 0
+        second_factory.production_level = 0
+        second_factory.build_time = 3
+        second_factory.city = second_city
+        second_factory.if_under_construction = False
+        second_factory.city_field = CityField.objects.get(field_id=1, city=second_city)
+        second_factory.save()
+
+        first_residential = Residential()
+        first_residential.max_population = 20
+        first_residential.current_population = 4
+        first_residential.residential_level = 0
+        first_residential.build_time = 3
+        first_residential.city = first_city
+        first_residential.if_under_construction = False
+        first_residential.city_field = CityField.objects.get(field_id=2, city=first_city)
+        first_residential.save()
+
+        second_residential = Residential()
+        second_residential.max_population = 20
+        second_residential.current_population = 4
+        second_residential.residential_level = 0
+        second_residential.build_time = 3
+        second_residential.city = second_city
+        second_residential.if_under_construction = False
+        second_residential.city_field = CityField.objects.get(field_id=2, city=second_city)
+        second_residential.save()
+
+        first_power_plant = PowerPlant()
+        first_power_plant.max_employees = 20
+        first_power_plant.name = 'Elektrownia wiatrowa'
+        first_power_plant.current_employees = 0
+        first_power_plant.production_level = 0
+        first_power_plant.build_time = 3
+        first_power_plant.power_nodes = 1
+        first_power_plant.energy_production = 20
+        first_power_plant.city = first_city
+        first_power_plant.city_field = CityField.objects.get(field_id=3, city=first_city)
+        first_power_plant.save()
+
+        second_power_plant = PowerPlant()
+        second_power_plant.max_employees = 20
+        second_power_plant.name = 'Elektrownia wiatrowa'
+        second_power_plant.current_employees = 0
+        second_power_plant.production_level = 0
+        second_power_plant.build_time = 3
+        second_power_plant.power_nodes = 1
+        second_power_plant.energy_production = 20
+        second_power_plant.city = second_city
+        second_power_plant.city_field = CityField.objects.get(field_id=3, city=second_city)
+        second_power_plant.save()
 
         first_citizen = Citizen()
         first_citizen.age = 22
         first_citizen.health = 20
-        first_citizen.city = city
+        first_citizen.city = first_city
         first_citizen.income = 100
-        first_citizen.residential = residential
-        first_citizen.production_building = factory
+        first_citizen.residential = first_residential
+        first_citizen.production_building = first_factory
         first_citizen.save()
 
         second_citizen = Citizen()
         second_citizen.age = 60
         second_citizen.health = 10
-        second_citizen.city = city
+        second_citizen.city = first_city
         second_citizen.income = 100
-        second_citizen.residential = residential
-        second_citizen.production_building = factory
+        second_citizen.residential = first_residential
+        second_citizen.production_building = first_factory
         second_citizen.save()
 
         third_citizen = Citizen()
         third_citizen.age = 40
         third_citizen.health = 25
         third_citizen.income = 10
-        third_citizen.city = city
-        third_citizen.residential = residential
-        third_citizen.production_building = factory
+        third_citizen.city = first_city
+        third_citizen.residential = first_residential
+        third_citizen.production_building = first_factory
         third_citizen.save()
 
 
@@ -96,10 +140,11 @@ class CityViewTests(CityFixture):
         self.assertEquals(view.func, main_view)
 
     def test_city_view(self):
-        city = City.objects.get(name='Wrocław')
-        residential = Residential.objects.get()
-        factory = ProductionBuilding.objects.get()
-        power_plant = PowerPlant.objects.get(name='Elektrownia wiatrowa')
+        user = User.objects.get(username='test_username')
+        city = City.objects.get(user=user)
+        residential = Residential.objects.get(city=city)
+        factory = ProductionBuilding.objects.get(city=city)
+        power_plant = PowerPlant.objects.get(city=city)
 
         self.response = self.client.get('/main_view/')
         self.assertTemplateUsed(self.response, 'main_view.html')

@@ -26,7 +26,7 @@ class Building(models.Model):
     city_field = models.ForeignKey(CityField)
     if_under_construction = models.BooleanField(default=True)
     build_time = models.IntegerField()
-    current_build_time = models.IntegerField(default=0)
+    current_build_time = models.IntegerField(default=1)
     trash = models.IntegerField(default=0)
     health = models.IntegerField(default=0)
     energy = models.IntegerField(default=0)
