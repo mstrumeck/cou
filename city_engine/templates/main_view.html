@@ -20,7 +20,7 @@
 <h1>Energia: {{ energy }}</h1>
 <h1>{{ profile.current_turn }}/12</h1>
 {% if profile.current_turn <= 11 %}
-    <button><a href="/turn_calculations">Kolejna tura</a></button>
+    <button><a href="{% url 'city_engine:turn_calculations' %}">Kolejna tura</a></button>
 {% endif %}
 
 {% if buildings_under_construction %}
@@ -42,8 +42,11 @@
 </table>
 {% endif %}
 
-<button id="hex-change">Zmień hexy</button>
-<button id="buildPowerPlant" value="WindPlant">Zbuduj elektrownie</button>
+<button class="hex-change">Zmień hexy</button>
+
+<button class="setBuilding" name="WindPlant">Elektrownia wiatrowa</button>
+<button class="setBuilding" name="RopePlant">Elektrownia na ropę</button>
+
 <div id="board">
     <h1>Plansza wygenerowana z Djagno</h1>
     {{ hex_table }}

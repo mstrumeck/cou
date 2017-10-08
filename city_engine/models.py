@@ -25,6 +25,7 @@ class Building(models.Model):
     city = models.ForeignKey(City)
     city_field = models.ForeignKey(CityField)
     if_under_construction = models.BooleanField(default=True)
+    cost = models.PositiveIntegerField(default=0)
     build_time = models.IntegerField()
     current_build_time = models.IntegerField(default=1)
     trash = models.IntegerField(default=0)
@@ -91,9 +92,9 @@ class PowerPlant(Building):
                 return False
             elif self.current_build_time == self.build_time:
                 self.if_under_construction = False
-                self.max_employees = 5
+                self.max_employees = 1
                 self.power_nodes = 1
-                self.energy_production = 20
+                self.energy_production = 1
                 self.save()
                 return True
         else:
@@ -104,13 +105,49 @@ class PowerPlant(Building):
 
 
 class WindPlant(PowerPlant):
-    name = models.CharField(default='Elektrownia wiatrowa', max_length=20)
-    build_time = models.IntegerField(default=3)
+    name = 'Elektrownia wiatrowa'
+    build_time = 3
+    cost = 100
 
-    def __str__(self):
-        return self.name
+    def build_status(self):
+        if self.if_under_construction is True:
+            if self.current_build_time < self.build_time:
+                self.current_build_time += 1
+                self.save()
+                return False
+            elif self.current_build_time == self.build_time:
+                self.if_under_construction = False
+                self.max_employees = 5
+                self.power_nodes = 1
+                self.energy_production = 20
+                self.save()
+                return True
+        else:
+            return False
 
-electricity_buildings = [WindPlant]
+
+class RopePlant(PowerPlant):
+    name = 'Elektrownia na ropę'
+    build_time = 5
+    cost = 200
+
+    def build_status(self):
+        if self.if_under_construction is True:
+            if self.current_build_time < self.build_time:
+                self.current_build_time += 1
+                self.save()
+                return False
+            elif self.current_build_time == self.build_time:
+                self.if_under_construction = False
+                self.max_employees = 10
+                self.power_nodes = 1
+                self.energy_production = 30
+                self.save()
+                return True
+        else:
+            return False
+
+electricity_buildings = [WindPlant, RopePlant]
 list_of_buildings_categories = [electricity_buildings]
 list_of_models = [ProductionBuilding, Residential]
 

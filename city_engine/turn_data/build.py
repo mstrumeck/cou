@@ -1,4 +1,4 @@
-from city_engine.models import CityField, City, list_of_buildings_categories, electricity_buildings, WindPlant
+from city_engine.models import CityField, City, electricity_buildings, WindPlant, RopePlant
 
 
 def build_building(request, hex_id, build_type):
@@ -11,9 +11,7 @@ def build_building(request, hex_id, build_type):
 
     city_field.save()
 
-    power_plant = build_type()
-    power_plant.city = city
-    power_plant.build_time = 3
-    power_plant.energy_production = 20
-    power_plant.city_field = CityField.objects.get(field_id=hex_id, city=city)
-    power_plant.save()
+    building = build_type()
+    building.city = city
+    building.city_field = CityField.objects.get(field_id=hex_id, city=city)
+    building.save()

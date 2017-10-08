@@ -113,7 +113,3 @@ body {
 .disabled .hexagon-bottom {
     border-top: 20px solid grey;
 }
-
-.test {
-    background: blue;
-}

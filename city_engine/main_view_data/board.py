@@ -1,4 +1,4 @@
-from city_engine.models import CityField, Residential, ProductionBuilding, WindPlant, City
+from city_engine.models import CityField, Residential, ProductionBuilding, WindPlant, City, electricity_buildings
 
 ROW_NUM = 4
 HEX_NUM = 16
@@ -28,10 +28,12 @@ def add_hex_detail_box(hex_id, request):
 
         if build_field.if_electricity is True:
             hex_with_builds.append(hex_id)
-            electricity = WindPlant.objects.get(city_field=build_field.id, city=city)
-            hex_detail_box += '<p>'+str(electricity.name)+'</p>' \
-                            '<p>Pracownicy: '+str(electricity.current_employees)+'/'+str(electricity.max_employees)+'</p>' \
-                            '<p>Produkowana energia: '+str(electricity.total_energy_production())+'</p>'
+            for buildings in electricity_buildings:
+                if buildings.objects.filter(city_field=build_field.id, city=city).count() == 1:
+                    build = buildings.objects.get(city_field=build_field.id, city=city)
+                    hex_detail_box += '<p>'+str(build.name)+'</p>' \
+                            '<p>Pracownicy: '+str(build.current_employees)+'/'+str(build.max_employees)+'</p>' \
+                            '<p>Produkowana energia: '+str(build.total_energy_production())+'</p>'
 
     hex_detail_box += "</div>"
     return hex_detail_box

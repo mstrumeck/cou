@@ -1,19 +1,18 @@
 $(document).ready(function() {
 
-    $('#hex-change').click(function(){
+    $('.hex-change').click(function(){
         $('.hexagon').not('.build').toggleClass('isHexTaken');
         $('.build').toggleClass('disabled');
     });
 
-    $('#buildPowerPlant').click(function(){
-        var buildType = $(this).attr('value');
+    $('.setBuilding').click(function(){
+        var buildType = $(this).attr('name');
         $('.hexagon').not('.build').toggleClass('isHexTaken');
         $('.build').toggleClass('disabled');
         $('.hexagon.isHexTaken').on('click', function(event){
             var hexId = $(this).attr('id');
             window.location.replace("/build/"+hexId+"/"+buildType+"");
         });
-
     });
 
     $('.hexagon').click(function(){

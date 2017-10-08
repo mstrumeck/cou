@@ -5,6 +5,7 @@ from citizen_engine.models import Citizen
 from city_engine.main_view_data.board import HEX_NUM
 from city_engine.models import City, Residential, ProductionBuilding, CityField, WindPlant
 from player.models import Profile
+from .turn_data.build import build_building
 from city_engine.views import main_view
 
 
@@ -184,3 +185,5 @@ class TurnSystemTests(CityFixture):
         self.assertTemplateUsed(response, 'main_view.html')
         self.assertContains(response, '{}/12'.format(profile.current_turn))
         self.assertContains(response, 'Kolejna tura')
+
+
