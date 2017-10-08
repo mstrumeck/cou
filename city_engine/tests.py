@@ -1,12 +1,11 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import resolve
-
 from citizen_engine.models import Citizen
 from city_engine.main_view_data.board import HEX_NUM
-from city_engine.models import City, Residential, ProductionBuilding, CityField, PowerPlant
+from city_engine.models import City, Residential, ProductionBuilding, CityField, WindPlant
 from player.models import Profile
-from .views import main_view
+from city_engine.views import main_view
 
 
 class CityFixture(TestCase):
@@ -76,9 +75,8 @@ class CityFixture(TestCase):
         second_residential.city_field = CityField.objects.get(field_id=2, city=second_city)
         second_residential.save()
 
-        first_power_plant = PowerPlant()
+        first_power_plant = WindPlant()
         first_power_plant.max_employees = 20
-        first_power_plant.name = 'Elektrownia wiatrowa'
         first_power_plant.current_employees = 0
         first_power_plant.production_level = 0
         first_power_plant.build_time = 3
@@ -88,9 +86,8 @@ class CityFixture(TestCase):
         first_power_plant.city_field = CityField.objects.get(field_id=3, city=first_city)
         first_power_plant.save()
 
-        second_power_plant = PowerPlant()
+        second_power_plant = WindPlant()
         second_power_plant.max_employees = 20
-        second_power_plant.name = 'Elektrownia wiatrowa'
         second_power_plant.current_employees = 0
         second_power_plant.production_level = 0
         second_power_plant.build_time = 3
@@ -144,21 +141,21 @@ class CityViewTests(CityFixture):
         city = City.objects.get(user=user)
         residential = Residential.objects.get(city=city)
         factory = ProductionBuilding.objects.get(city=city)
-        power_plant = PowerPlant.objects.get(city=city)
+        wind_plant = WindPlant.objects.get(city=city)
 
         self.response = self.client.get('/main_view/')
         self.assertTemplateUsed(self.response, 'main_view.html')
         self.assertContains(self.response, city.name)
         self.assertContains(self.response, 'Pieniądze: {}'.format(city.cash))
-        self.assertTrue(self.response, 'Energia: {}'.format(power_plant.total_energy_production()))
+        self.assertTrue(self.response, 'Energia: {}'.format(wind_plant.total_energy_production()))
 
         for hex_num in range(1, HEX_NUM+1):
             self.assertContains(self.response, 'Podgląd hexa {}'.format(hex_num))
 
         self.assertTrue(self.response,
-                            '<p>'+str(power_plant.name)+'</p>'
-                            '<p>Pracownicy: '+str(power_plant.current_employees)+'/'+str(power_plant.max_employees)+'</p>'
-                            '<p>Produkowana energia: '+str(power_plant.total_energy_production())+'</p>')
+                            '<p>'+str(wind_plant.name)+'</p>'
+                            '<p>Pracownicy: '+str(wind_plant.current_employees)+'/'+str(wind_plant.max_employees)+'</p>'
+                            '<p>Produkowana energia: '+str(wind_plant.total_energy_production())+'</p>')
 
         self.assertTrue(self.response,
                             '<p>Budynek produkcyjny</p>'

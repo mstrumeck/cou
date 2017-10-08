@@ -9,7 +9,7 @@
 {% block content %}
 
 {% if request.user.is_authenticated %}
-    <h1>Witaj, {{ request.user.first_name }}!</h1>
+    <h1>Witaj, {{ request.user.username }}!</h1>
     <h1><a href="{% url 'player:logout' %}">Wyloguj</a></h1>
                     {% else %}
     <h1><a href="{% url 'player:login' %}">Zaloguj</a></h1>
@@ -43,7 +43,7 @@
 {% endif %}
 
 <button id="hex-change">Zmień hexy</button>
-<button id="buildPowerPlant">Zbuduj elektrownie</button>
+<button id="buildPowerPlant" value="WindPlant">Zbuduj elektrownie</button>
 <div id="board">
     <h1>Plansza wygenerowana z Djagno</h1>
     {{ hex_table }}

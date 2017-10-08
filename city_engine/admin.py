@@ -24,7 +24,3 @@ class CityFieldAdmin(admin.ModelAdmin):
     list_display = ['city', 'city_id']
 admin.site.register(CityField, CityFieldAdmin)
 
-
-class PowerPlantsAdmin(admin.ModelAdmin):
-    list_display = ['city_field', 'current_employees']
-admin.site.register(PowerPlant, PowerPlantsAdmin)

@@ -6,11 +6,12 @@ $(document).ready(function() {
     });
 
     $('#buildPowerPlant').click(function(){
+        var buildType = $(this).attr('value');
         $('.hexagon').not('.build').toggleClass('isHexTaken');
         $('.build').toggleClass('disabled');
         $('.hexagon.isHexTaken').on('click', function(event){
             var hexId = $(this).attr('id');
-            window.location.replace("/build/"+hexId+"");
+            window.location.replace("/build/"+hexId+"/"+buildType+"");
         });
 
     });

@@ -5,26 +5,26 @@ from django.db.models import Sum
 from django.shortcuts import HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.safestring import mark_safe
-from .turn_data.main import \
-    update_turn_status
+from citizen_engine.models import Citizen
+from city_engine.main_view_data.board import generate_board, generate_hex_detail
+from city_engine.models import City, CityField, WindPlant, list_of_models
+from player.models import Profile
 from .main_view_data.main import \
     create_list_of_buildings_under_construction, \
     calculate_max_population, \
     calculate_energy_production, \
     calculate_current_population
-from citizen_engine.models import Citizen
-from city_engine.main_view_data.board import generate_board, generate_hex_detail
-from player.models import Profile
-from .models import City, Residential, ProductionBuilding, CityField, PowerPlant
+from .turn_data.main import \
+    update_turn_status
+from .turn_data.build import build_building
 
 
 @login_required
 def main_view(request):
     user = User.objects.get(id=request.user.id)
-    city_id = City.objects.get(user_id=user.id).id
-    city = City.objects.get(id=city_id)
+    city = City.objects.get(user=user)
     profile = Profile.objects.get(user_id=request.user.id)
-    income = Citizen.objects.filter(city_id=city_id).aggregate(Sum('income'))['income__sum']
+    income = Citizen.objects.filter(city=city).aggregate(Sum('income'))['income__sum']
 
     generate_board()
     generate_hex_detail(request)
@@ -44,6 +44,7 @@ def main_view(request):
                                               'buildings_under_construction': buildings_under_construction})
 
 
+@login_required
 def turn_calculations(request):
     profile = Profile.objects.get(user_id=request.user.id)
     profile.current_turn += 1
@@ -55,22 +56,20 @@ def turn_calculations(request):
     return HttpResponseRedirect(reverse('city_engine:main_view'))
 
 
-def build(request, hex_id):
-    city = City.objects.get(user_id=request.user.id)
-    city_field = CityField.objects.get(field_id=hex_id, city_id=city.id)
-    city_field.if_electricity = True
-    city_field.save()
-
-    power_plant = PowerPlant()
-    power_plant.name = 'Elektrownia wiatrowa'
-    power_plant.city = city
-    power_plant.build_time = 3
-    power_plant.energy_production = 20
-    power_plant.city_field = CityField.objects.get(field_id=hex_id, city=city)
-    power_plant.save()
-
-    generate_board()
-    generate_hex_detail(request)
+@login_required
+def build(request, hex_id, build_type):
+    build_building(request, hex_id, build_type)
+    # city = City.objects.get(user_id=request.user.id)
+    # city_field = CityField.objects.get(field_id=hex_id, city_id=city.id)
+    # city_field.if_electricity = True
+    # city_field.save()
+    #
+    # power_plant = eval(build_type)()
+    # power_plant.city = city
+    # power_plant.build_time = 3
+    # power_plant.energy_production = 20
+    # power_plant.city_field = CityField.objects.get(field_id=hex_id, city=city)
+    # power_plant.save()
 
     return HttpResponseRedirect(reverse('city_engine:main_view'))
 

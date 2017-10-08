@@ -5,7 +5,6 @@ from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_encode
-
 from city_engine.main_view_data.board import assign_city_fields_to_board
 from city_engine.models import City
 from player.forms import CityCreationForm

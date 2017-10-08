@@ -1,11 +1,10 @@
-from city_engine.models import Residential, ProductionBuilding, PowerPlant, CityField
+from city_engine.models import Residential, WindPlant, CityField, list_of_models
 
 
 def create_list_of_buildings_under_construction(city):
     building_name, building_cur, building_end = [], [], []
-    model_list = [Residential, ProductionBuilding, PowerPlant]
     buildings_under_construction = zip(building_name, building_cur, building_end)
-    for model in model_list:
+    for model in list_of_models:
         for building in model.objects.filter(city=city):
             if building.if_under_construction is True:
                 building_name.append(building.name)
@@ -26,7 +25,7 @@ def calculate_energy_production(city):
     energy = 0
     for city_field in CityField.objects.filter(city=city):
         if city_field.if_electricity is True:
-            energy += PowerPlant.objects.get(city_field=city_field).total_energy_production()
+            energy += WindPlant.objects.get(city_field=city_field).total_energy_production()
     return energy
 
 

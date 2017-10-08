@@ -1,4 +1,5 @@
 from django.db import models
+
 from city_engine.models import City, Residential, ProductionBuilding
 
 

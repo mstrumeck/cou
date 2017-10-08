@@ -70,7 +70,10 @@ class PowerPlant(Building):
     current_employees = models.IntegerField(default=0)
     max_employees = models.IntegerField(default=0)
     power_nodes = models.IntegerField(default=0)
-    energy_production = models.IntegerField()
+    energy_production = models.IntegerField(default=0)
+
+    class Meta:
+        abstract = True
 
     def total_energy_production(self):
         if self.current_employees is 0 or self.max_employees is 0:
@@ -90,6 +93,7 @@ class PowerPlant(Building):
                 self.if_under_construction = False
                 self.max_employees = 5
                 self.power_nodes = 1
+                self.energy_production = 20
                 self.save()
                 return True
         else:
@@ -98,3 +102,17 @@ class PowerPlant(Building):
     def __str__(self):
         return self.name
 
+
+class WindPlant(PowerPlant):
+    name = models.CharField(default='Elektrownia wiatrowa', max_length=20)
+    build_time = models.IntegerField(default=3)
+
+    def __str__(self):
+        return self.name
+
+electricity_buildings = [WindPlant]
+list_of_buildings_categories = [electricity_buildings]
+list_of_models = [ProductionBuilding, Residential]
+
+for building in electricity_buildings:
+    list_of_models.append(building)
