@@ -3,20 +3,23 @@ from django.test import TestCase
 from django.urls import resolve
 from citizen_engine.models import Citizen
 from city_engine.main_view_data.board import HEX_NUM
-from city_engine.models import City, Residential, ProductionBuilding, CityField, WindPlant
+from city_engine.models import City, Residential, ProductionBuilding, CityField, WindPlant, electricity_buildings, list_of_models
 from player.models import Profile
+from django.db.models import Sum
 from .turn_data.build import build_building
 from city_engine.views import main_view
+from .main_view_data.main import calculate_energy_production
+from .turn_data.main import calculate_maintenance_cost
 
 
 class CityFixture(TestCase):
     def setUp(self):
         first_user = User.objects.create_user(username='test_username', password='12345', email='random@wp.pl')
         self.client.login(username='test_username', password='12345', email='random@wp.pl')
-        first_city = City.objects.create(name='Wrocław', user=first_user, cash=100)
+        first_city = City.objects.create(name='Wrocław', user=first_user, cash=10000)
 
         second_user = User.objects.create_user(username='test_username_2', password='54321', email='random2@wp.pl')
-        second_city = City.objects.create(name='Łódź', user=second_user, cash=100)
+        second_city = City.objects.create(name='Łódź', user=second_user, cash=10000)
 
         for field_id in range(1, int(HEX_NUM) + 1):
             CityField.objects.create(city=first_city, field_id=field_id).save()
@@ -137,6 +140,36 @@ class CityViewTests(CityFixture):
         view = resolve('/main_view/')
         self.assertEquals(view.func, main_view)
 
+    def test_total_energy_production_view(self):
+        total_energy = 0
+        self.response = self.client.get('/main_view/')
+        user = User.objects.get(username='test_username')
+        city = City.objects.get(user=user)
+        for models in electricity_buildings:
+            list_of_buildings = models.objects.filter(city=city)
+            for building in list_of_buildings:
+                total_energy += building.total_energy_production()
+
+        self.assertEqual(total_energy, calculate_energy_production(city))
+        self.assertTrue(self.response, 'Energia: {}'.format(total_energy))
+
+    def test_cash_info_view(self):
+        total_cost = 0
+        self.response = self.client.get('/main_view/')
+        user = User.objects.get(username='test_username')
+        city = City.objects.get(user=user)
+        for models in list_of_models:
+            list_of_buildings = models.objects.filter(city=city)
+            for building in list_of_buildings:
+                    total_cost += building.maintenance_cost
+
+        total_cost_one = city.cash - total_cost
+        total_cost_two = city.cash - calculate_maintenance_cost(list_of_models, city)
+
+        self.assertEqual(total_cost_one, total_cost_two)
+        self.assertTrue(self.response, total_cost_one)
+        self.assertTrue(self.response, total_cost_two)
+
     def test_city_view(self):
         user = User.objects.get(username='test_username')
         city = City.objects.get(user=user)
@@ -147,8 +180,6 @@ class CityViewTests(CityFixture):
         self.response = self.client.get('/main_view/')
         self.assertTemplateUsed(self.response, 'main_view.html')
         self.assertContains(self.response, city.name)
-        self.assertContains(self.response, 'Pieniądze: {}'.format(city.cash))
-        self.assertTrue(self.response, 'Energia: {}'.format(wind_plant.total_energy_production()))
 
         for hex_num in range(1, HEX_NUM+1):
             self.assertContains(self.response, 'Podgląd hexa {}'.format(hex_num))

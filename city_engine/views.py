@@ -36,13 +36,16 @@ def main_view(request):
 
     buildings_under_construction = create_list_of_buildings_under_construction(city)
 
+    total_cost_of_maintenance = calculate_maintenance_cost(list_of_models, city)
+
     return render(request, 'main_view.html', {'city': city,
                                               'profile': profile,
                                               'income': income,
                                               'energy': energy,
                                               'hex_table': mark_safe(generate_board()),
                                               'hex_detail_info_table': mark_safe(generate_hex_detail(request)),
-                                              'buildings_under_construction': buildings_under_construction})
+                                              'buildings_under_construction': buildings_under_construction,
+                                              'total_cost_of_maintenance': total_cost_of_maintenance})
 
 
 @login_required
@@ -53,7 +56,9 @@ def turn_calculations(request):
 
     city = City.objects.get(user_id=request.user.id)
     update_build_status(city)
-    calculate_maintenance_cost(list_of_models, city)
+
+    city.cash -= calculate_maintenance_cost(list_of_models, city)
+    city.save()
 
     return HttpResponseRedirect(reverse('city_engine:main_view'))
 
