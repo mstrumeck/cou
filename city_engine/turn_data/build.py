@@ -1,4 +1,4 @@
-from city_engine.models import CityField, City, electricity_buildings, WindPlant, RopePlant
+from city_engine.models import CityField, City, electricity_buildings, WindPlant, RopePlant, CoalPlant
 
 
 def build_building(request, hex_id, build_type):

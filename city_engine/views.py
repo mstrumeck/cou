@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.utils.safestring import mark_safe
 from citizen_engine.models import Citizen
 from city_engine.main_view_data.board import generate_board, generate_hex_detail
-from city_engine.models import City, CityField, WindPlant, list_of_models
+from city_engine.models import City, list_of_models
 from player.models import Profile
 from .main_view_data.main import \
     create_list_of_buildings_under_construction, \
@@ -15,7 +15,8 @@ from .main_view_data.main import \
     calculate_energy_production, \
     calculate_current_population
 from .turn_data.main import \
-    update_turn_status
+    update_build_status, \
+    calculate_maintenance_cost
 from .turn_data.build import build_building
 
 
@@ -51,7 +52,8 @@ def turn_calculations(request):
     profile.save()
 
     city = City.objects.get(user_id=request.user.id)
-    update_turn_status(city)
+    update_build_status(city)
+    calculate_maintenance_cost(list_of_models, city)
 
     return HttpResponseRedirect(reverse('city_engine:main_view'))
 
@@ -59,17 +61,5 @@ def turn_calculations(request):
 @login_required
 def build(request, hex_id, build_type):
     build_building(request, hex_id, build_type)
-    # city = City.objects.get(user_id=request.user.id)
-    # city_field = CityField.objects.get(field_id=hex_id, city_id=city.id)
-    # city_field.if_electricity = True
-    # city_field.save()
-    #
-    # power_plant = eval(build_type)()
-    # power_plant.city = city
-    # power_plant.build_time = 3
-    # power_plant.energy_production = 20
-    # power_plant.city_field = CityField.objects.get(field_id=hex_id, city=city)
-    # power_plant.save()
-
     return HttpResponseRedirect(reverse('city_engine:main_view'))
 

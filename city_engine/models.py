@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 class City(models.Model):
     user = models.ForeignKey(User)
     name = models.TextField(max_length=15, unique=True)
-    cash = models.IntegerField(default=10000)
+    cash = models.DecimalField(default=10000, decimal_places=2, max_digits=20)
     publish = models.DateField(auto_now_add=True)
     updated = models.DateField(auto_now=True)
 
@@ -15,7 +15,7 @@ class City(models.Model):
 
 class CityField(models.Model):
     city = models.ForeignKey(City)
-    field_id = models.IntegerField()
+    field_id = models.PositiveIntegerField()
     if_residential = models.BooleanField(default=False)
     if_production = models.BooleanField(default=False)
     if_electricity = models.BooleanField(default=False)
@@ -25,17 +25,18 @@ class Building(models.Model):
     city = models.ForeignKey(City)
     city_field = models.ForeignKey(CityField)
     if_under_construction = models.BooleanField(default=True)
-    cost = models.PositiveIntegerField(default=0)
-    build_time = models.IntegerField()
-    current_build_time = models.IntegerField(default=1)
-    trash = models.IntegerField(default=0)
-    health = models.IntegerField(default=0)
-    energy = models.IntegerField(default=0)
-    water = models.IntegerField(default=0)
-    crime = models.IntegerField(default=0)
-    pollution = models.IntegerField(default=0)
-    recycling = models.IntegerField(default=0)
-    city_communication = models.IntegerField(default=0)
+    build_cost = models.PositiveIntegerField(default=0)
+    maintenance_cost = models.PositiveIntegerField(default=0)
+    build_time = models.PositiveIntegerField()
+    current_build_time = models.PositiveIntegerField(default=1)
+    trash = models.PositiveIntegerField(default=0)
+    health = models.PositiveIntegerField(default=0)
+    energy = models.PositiveIntegerField(default=0)
+    water = models.PositiveIntegerField(default=0)
+    crime = models.PositiveIntegerField(default=0)
+    pollution = models.PositiveIntegerField(default=0)
+    recycling = models.PositiveIntegerField(default=0)
+    city_communication = models.PositiveIntegerField(default=0)
 
     class Meta:
         abstract = True
@@ -55,23 +56,23 @@ class Building(models.Model):
 
 
 class Residential(Building):
-    current_population = models.IntegerField(default=0)
-    max_population = models.IntegerField()
-    residential_level = models.IntegerField()
+    current_population = models.PositiveIntegerField(default=0)
+    max_population = models.PositiveIntegerField()
+    residential_level = models.PositiveIntegerField()
 
 
 class ProductionBuilding(Building):
-    current_employees = models.IntegerField(default=0)
-    max_employees = models.IntegerField()
-    production_level = models.IntegerField()
+    current_employees = models.PositiveIntegerField(default=0)
+    max_employees = models.PositiveIntegerField()
+    production_level = models.PositiveIntegerField()
 
 
 class PowerPlant(Building):
     name = models.CharField(max_length=20)
-    current_employees = models.IntegerField(default=0)
-    max_employees = models.IntegerField(default=0)
-    power_nodes = models.IntegerField(default=0)
-    energy_production = models.IntegerField(default=0)
+    current_employees = models.PositiveIntegerField(default=0)
+    max_employees = models.PositiveIntegerField(default=0)
+    power_nodes = models.PositiveIntegerField(default=0)
+    energy_production = models.PositiveIntegerField(default=0)
 
     class Meta:
         abstract = True
@@ -105,9 +106,10 @@ class PowerPlant(Building):
 
 
 class WindPlant(PowerPlant):
-    name = 'Elektrownia wiatrowa'
-    build_time = 3
-    cost = 100
+    name = models.CharField(default='Elektrownia wiatrowa', max_length=20)
+    build_time = models.PositiveIntegerField(default=3)
+    build_cost = models.PositiveIntegerField(default=100)
+    maintenance_cost = models.PositiveIntegerField(default=10)
 
     def build_status(self):
         if self.if_under_construction is True:
@@ -119,7 +121,7 @@ class WindPlant(PowerPlant):
                 self.if_under_construction = False
                 self.max_employees = 5
                 self.power_nodes = 1
-                self.energy_production = 20
+                self.energy_production = 10
                 self.save()
                 return True
         else:
@@ -127,9 +129,10 @@ class WindPlant(PowerPlant):
 
 
 class RopePlant(PowerPlant):
-    name = 'Elektrownia na ropę'
-    build_time = 5
-    cost = 200
+    name = models.CharField(default='Elektrownia na ropę', max_length=20)
+    build_time = models.PositiveIntegerField(default=5)
+    build_cost = models.PositiveIntegerField(default=200)
+    maintenance_cost = models.PositiveIntegerField(default=20)
 
     def build_status(self):
         if self.if_under_construction is True:
@@ -147,7 +150,30 @@ class RopePlant(PowerPlant):
         else:
             return False
 
-electricity_buildings = [WindPlant, RopePlant]
+
+class CoalPlant(PowerPlant):
+    name = models.CharField(default='Elektrownia węglowa', max_length=20)
+    build_time = models.PositiveIntegerField(default=4)
+    build_cost = models.PositiveIntegerField(default=150)
+    maintenance_cost = models.PositiveIntegerField(default=15)
+
+    def build_status(self):
+        if self.if_under_construction is True:
+            if self.current_build_time < self.build_time:
+                self.current_build_time += 1
+                self.save()
+                return False
+            elif self.current_build_time == self.build_time:
+                self.if_under_construction = False
+                self.max_employees = 15
+                self.power_nodes = 2
+                self.energy_production = 20
+                self.save()
+                return True
+        else:
+            return False
+
+electricity_buildings = [WindPlant, RopePlant, CoalPlant]
 list_of_buildings_categories = [electricity_buildings]
 list_of_models = [ProductionBuilding, Residential]
 
