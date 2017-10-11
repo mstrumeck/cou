@@ -34,6 +34,7 @@ def main_view(request):
     current_population = calculate_current_population(city=city)
     energy = calculate_energy_production(city=city)
 
+    buildings = create_list_of_buildings_under_construction(city)
     buildings_under_construction = create_list_of_buildings_under_construction(city)
 
     total_cost_of_maintenance = calculate_maintenance_cost(list_of_models, city)
@@ -44,6 +45,7 @@ def main_view(request):
                                               'energy': energy,
                                               'hex_table': mark_safe(generate_board()),
                                               'hex_detail_info_table': mark_safe(generate_hex_detail(request)),
+                                              'buildings': buildings,
                                               'buildings_under_construction': buildings_under_construction,
                                               'total_cost_of_maintenance': total_cost_of_maintenance})
 

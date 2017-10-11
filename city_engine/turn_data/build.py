@@ -14,4 +14,6 @@ def build_building(request, hex_id, build_type):
     building = build_type()
     building.city = city
     building.city_field = CityField.objects.get(field_id=hex_id, city=city)
+    city.cash -= building.build_cost
+    city.save()
     building.save()

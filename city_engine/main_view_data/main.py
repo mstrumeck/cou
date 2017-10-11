@@ -1,4 +1,4 @@
-from city_engine.models import Residential, WindPlant, CityField, list_of_models, electricity_buildings
+from city_engine.models import Residential, WindPlant, CityField, list_of_models, electricity_buildings, ProductionBuilding
 
 
 def create_list_of_buildings_under_construction(city):
@@ -11,6 +11,14 @@ def create_list_of_buildings_under_construction(city):
                 building_cur.append(building.current_build_time)
                 building_end.append(building.build_time)
     return buildings_under_construction
+
+
+def create_list_of_buildings(city):
+    building_name = []
+    for model in list_of_models:
+        for building in model.objects.filter(city=city):
+            if building.if_under_construction is False:
+                building_name.append(building.name)
 
 
 def calculate_max_population(city):

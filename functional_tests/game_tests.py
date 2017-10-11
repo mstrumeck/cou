@@ -36,7 +36,7 @@ class CreateBuildingsTest(BaseTest):
         self.assertTrue(response, 'Budowa')
         self.assertTrue(response, 'Czas')
         self.assertTrue(response, '1/3')
-        self.assertTrue(response, '{}'.format(city.cash - wind_plant.maintenance_cost))
+        self.assertTrue(response, '{}'.format(city.cash - (wind_plant.maintenance_cost + wind_plant.build_cost)))
         self.browser.find_element_by_link_text('Kolejna tura').click()
         time.sleep(1)
         self.assertTrue(response, '2/3')

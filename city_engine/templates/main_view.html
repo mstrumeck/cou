@@ -24,7 +24,26 @@
     <button><a href="{% url 'city_engine:turn_calculations' %}">Kolejna tura</a></button>
 {% endif %}
 
+{% if buildings %}
+<h1>Lista budynków</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Nazwa</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for name in buildings %}
+        <tr>
+            <th>{{ name }}</th>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
 {% if buildings_under_construction %}
+<h1>Lista budynków w budowie</h1>
 <table>
     <thead>
         <tr>
@@ -45,9 +64,12 @@
 
 <button class="hex-change">Zmień hexy</button>
 
-<button class="setBuilding" name="WindPlant">Elektrownia wiatrowa</button>
-<button class="setBuilding" name="RopePlant">Elektrownia na ropę</button>
-<button class="setBuilding" name="CoalPlant">Elektrownia na węgiel</button>
+<button class="buildingToHide">Budynki elektryczne</button>
+<div class="buildingsToBuild">
+    <button class="setBuilding" name="WindPlant">Elektrownia wiatrowa</button>
+    <button class="setBuilding" name="RopePlant">Elektrownia na ropę</button>
+    <button class="setBuilding" name="CoalPlant">Elektrownia na węgiel</button>
+</div>
 
 
 <div id="board">

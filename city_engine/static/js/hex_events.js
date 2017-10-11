@@ -21,6 +21,12 @@ $(document).ready(function() {
         hexInfoBox.children('.hexInfoBoxDetail').hide();
         hexInfoBox.children('.hexInfoBoxDetail#hexBox'+hexId+'').toggle('slow');
     });
+
+    $('.buildingsToBuild').hide();
+    $('.buildingToHide').click(function(){
+        $(this).next().toggle('slow');
+    });
+
 });
 
 //    $('.hexagon').mouseover(function(){
