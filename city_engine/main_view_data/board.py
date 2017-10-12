@@ -1,4 +1,11 @@
-from city_engine.models import CityField, Residential, ProductionBuilding, WindPlant, City, electricity_buildings
+from city_engine.models import CityField, \
+    Residential, \
+    ProductionBuilding, \
+    WindPlant, \
+    City, \
+    electricity_buildings, \
+    CoalPlant, \
+    RopePlant
 
 ROW_NUM = 4
 HEX_NUM = 16
@@ -34,16 +41,23 @@ def add_hex_detail_box(hex_id, request):
                     hex_detail_box += '<p>'+str(build.name)+'</p>' \
                             '<p>Pracownicy: '+str(build.current_employees)+'/'+str(build.max_employees)+'</p>' \
                             '<p>Produkowana energia: '+str(build.total_energy_production())+'</p>'
+                    if buildings is WindPlant:
+                        hex_detail_box += '<p>Liczba turbin: '
+                    elif buildings is CoalPlant or buildings is RopePlant:
+                        hex_detail_box += '<p>Liczba reaktorów: '
+                    hex_detail_box += str(build.power_nodes) + '/' + str(build.max_power_nodes) + '</p>'
 
     hex_detail_box += "</div>"
     return hex_detail_box
 
 
 def create_hex(hex_id):
+    hexagon = "<div class='hexagon"
     if hex_id in hex_with_builds:
-        hexagon = "<div class='hexagon build' id="+str(hex_id)+">"
+        hexagon += " build'"
     else:
-        hexagon = "<div class='hexagon' id="+str(hex_id)+">"
+        hexagon += "'"
+    hexagon += "id="+str(hex_id)+">"
     hexagon += "<div class='hexagon-top'></div>"
     hexagon += "<div class='hexagon-middle'></div>"
     hexagon += "<div class='hexagon-bottom'></div>"

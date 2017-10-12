@@ -13,7 +13,8 @@ from .main_view_data.main import \
     create_list_of_buildings_under_construction, \
     calculate_max_population, \
     calculate_energy_production, \
-    calculate_current_population
+    calculate_current_population, \
+    create_list_of_buildings
 from .turn_data.main import \
     update_build_status, \
     calculate_maintenance_cost
@@ -34,7 +35,7 @@ def main_view(request):
     current_population = calculate_current_population(city=city)
     energy = calculate_energy_production(city=city)
 
-    buildings = create_list_of_buildings_under_construction(city)
+    buildings = create_list_of_buildings(city)
     buildings_under_construction = create_list_of_buildings_under_construction(city)
 
     total_cost_of_maintenance = calculate_maintenance_cost(list_of_models, city)

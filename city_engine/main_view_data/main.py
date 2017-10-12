@@ -3,22 +3,27 @@ from city_engine.models import Residential, WindPlant, CityField, list_of_models
 
 def create_list_of_buildings_under_construction(city):
     building_name, building_cur, building_end = [], [], []
-    buildings_under_construction = zip(building_name, building_cur, building_end)
     for model in list_of_models:
         for building in model.objects.filter(city=city):
             if building.if_under_construction is True:
                 building_name.append(building.name)
                 building_cur.append(building.current_build_time)
                 building_end.append(building.build_time)
-    return buildings_under_construction
+    if not building_name:
+        return None
+    return zip(building_name, building_cur, building_end)
 
 
 def create_list_of_buildings(city):
-    building_name = []
+    building_names = []
     for model in list_of_models:
         for building in model.objects.filter(city=city):
             if building.if_under_construction is False:
-                building_name.append(building.name)
+                try:
+                    building_names.append(building.name)
+                except(AttributeError):
+                    pass
+    return building_names
 
 
 def calculate_max_population(city):

@@ -1,4 +1,5 @@
 $(document).ready(function() {
+    $('.buildingsToBuild').hide();
 
     $('.hex-change').click(function(){
         $('.hexagon').not('.build').toggleClass('isHexTaken');
@@ -22,7 +23,6 @@ $(document).ready(function() {
         hexInfoBox.children('.hexInfoBoxDetail#hexBox'+hexId+'').toggle('slow');
     });
 
-    $('.buildingsToBuild').hide();
     $('.buildingToHide').click(function(){
         $(this).next().toggle('slow');
     });

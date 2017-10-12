@@ -3,12 +3,21 @@ from django.test import TestCase
 from django.urls import resolve
 from citizen_engine.models import Citizen
 from city_engine.main_view_data.board import HEX_NUM
-from city_engine.models import City, Residential, ProductionBuilding, CityField, WindPlant, electricity_buildings, list_of_models
+from city_engine.models import City,\
+    Residential, \
+    ProductionBuilding, \
+    CityField, \
+    WindPlant, \
+    electricity_buildings, \
+    list_of_models, \
+    CoalPlant
 from player.models import Profile
 from django.db.models import Sum
 from .turn_data.build import build_building
 from city_engine.views import main_view
-from .main_view_data.main import calculate_energy_production
+from .main_view_data.main import calculate_energy_production, \
+    create_list_of_buildings_under_construction, \
+    create_list_of_buildings
 from .turn_data.main import calculate_maintenance_cost
 
 
@@ -169,6 +178,34 @@ class CityViewTests(CityFixture):
         self.assertEqual(total_cost_one, total_cost_two)
         self.assertTrue(self.response, total_cost_one)
         self.assertTrue(self.response, total_cost_two)
+
+    def test_buildings_under_construction_view(self):
+        self.response = self.client.get('/main_view/')
+        user = User.objects.get(username='test_username')
+        city = City.objects.get(user=user)
+        name, cur, end = [], [], []
+        for model in list_of_models:
+            for objects in model.objects.filter(city=city):
+                if objects.if_under_construction is True:
+                    name.append(objects.name)
+                    cur.append(objects.current_build_time)
+                    end.append(objects.build_time)
+
+        first_list = create_list_of_buildings_under_construction(city)
+        second_list = zip(name, cur, end)
+
+        for name, cur, end in first_list:
+            self.assertTrue(self.response, name)
+            self.assertTrue(self.response, cur)
+            self.assertTrue(self.response, end)
+
+        for name, cur, end in second_list:
+            self.assertTrue(self.response, name)
+            self.assertTrue(self.response, cur)
+            self.assertTrue(self.response, end)
+
+        for zip_one, zip_two in zip(first_list, second_list):
+            self.assertEqual(zip_one[0], zip_two[0])
 
     def test_city_view(self):
         user = User.objects.get(username='test_username')
