@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import resolve
 from citizen_engine.models import Citizen
-from city_engine.main_view_data.board import HEX_NUM
+from city_engine.main_view_data.board import Board
 from city_engine.models import City,\
     Residential, \
     ProductionBuilding, \
@@ -30,7 +30,7 @@ class CityFixture(TestCase):
         second_user = User.objects.create_user(username='test_username_2', password='54321', email='random2@wp.pl')
         second_city = City.objects.create(name='Łódź', user=second_user, cash=10000)
 
-        for field_id in range(1, int(HEX_NUM) + 1):
+        for field_id in range(1, int(Board.HEX_NUM) + 1):
             CityField.objects.create(city=first_city, field_id=field_id).save()
             CityField.objects.create(city=second_city, field_id=field_id).save()
 
@@ -204,8 +204,13 @@ class CityViewTests(CityFixture):
             self.assertTrue(self.response, cur)
             self.assertTrue(self.response, end)
 
-        for zip_one, zip_two in zip(first_list, second_list):
-            self.assertEqual(zip_one[0], zip_two[0])
+    def test_buildings_view(self):
+        self.response = self.client.get('/main_view/')
+        user = User.objects.get(username='test_username')
+        city = City.objects.get(user=user)
+
+        for building_name in create_list_of_buildings(city):
+            self.assertTrue(self.response, building_name)
 
     def test_city_view(self):
         user = User.objects.get(username='test_username')
@@ -218,7 +223,7 @@ class CityViewTests(CityFixture):
         self.assertTemplateUsed(self.response, 'main_view.html')
         self.assertContains(self.response, city.name)
 
-        for hex_num in range(1, HEX_NUM+1):
+        for hex_num in range(1, Board.HEX_NUM+1):
             self.assertContains(self.response, 'Podgląd hexa {}'.format(hex_num))
 
         self.assertTrue(self.response,

@@ -6,7 +6,7 @@ from django.shortcuts import HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.safestring import mark_safe
 from citizen_engine.models import Citizen
-from city_engine.main_view_data.board import generate_board, generate_hex_detail
+from city_engine.main_view_data.board import Board, HexDetail
 from city_engine.models import City, list_of_models
 from player.models import Profile
 from .main_view_data.main import \
@@ -28,8 +28,14 @@ def main_view(request):
     profile = Profile.objects.get(user_id=request.user.id)
     income = Citizen.objects.filter(city=city).aggregate(Sum('income'))['income__sum']
 
-    generate_board()
-    generate_hex_detail(request)
+    New_hex_detail = HexDetail(request)
+    New_hex_detail.generate_hex_detail()
+
+    New_board = Board(request)
+    New_board.generate_board()
+
+    # generate_board()
+    # generate_hex_detail(request)
 
     max_population = calculate_max_population(city=city)
     current_population = calculate_current_population(city=city)
@@ -44,8 +50,10 @@ def main_view(request):
                                               'profile': profile,
                                               'income': income,
                                               'energy': energy,
-                                              'hex_table': mark_safe(generate_board()),
-                                              'hex_detail_info_table': mark_safe(generate_hex_detail(request)),
+                                              # 'hex_table': mark_safe(generate_board()),
+                                              'hex_table': mark_safe(New_board.hex_table),
+                                              # 'hex_detail_info_table': mark_safe(generate_hex_detail(request)),
+                                              'hex_detail_info_table': mark_safe(New_hex_detail.hex_detail_info_table),
                                               'buildings': buildings,
                                               'buildings_under_construction': buildings_under_construction,
                                               'total_cost_of_maintenance': total_cost_of_maintenance})
