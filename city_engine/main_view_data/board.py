@@ -1,11 +1,8 @@
-from city_engine.models import CityField, \
+from city_engine.models import CityField, City, \
     Residential, \
     ProductionBuilding, \
-    WindPlant, \
-    City, \
-    electricity_buildings, \
-    CoalPlant, \
-    RopePlant
+    WindPlant, CoalPlant, RopePlant, \
+    electricity_buildings, waterworks_buildings
 
 
 def assign_city_fields_to_board(city):
@@ -74,8 +71,12 @@ class Hex(object):
         self.hexagon += ">"
         self.hexagon += "<div class='hexagon-top'></div>"
         self.hexagon += "<div class='hexagon-middle'>"
+
         if self.hex_id in Board.hex_with_electricity:
             self.hexagon += "<p>Prąd</p>"
+        elif self.hex_id in Board.hex_with_waterworks:
+            self.hexagon += "<p>Wodociągi</p>"
+
         self.hexagon += "</div>"
         self.hexagon += "<div class='hexagon-bottom'></div>"
         self.hexagon += "</div>"
@@ -86,6 +87,7 @@ class HexDetail(object):
     def __init__(self, request):
         self.request = request
         self.hex_detail_info_table = ''
+        self.generate_hex_detail()
 
     def generate_hex_detail(self):
         counter = 0
@@ -114,24 +116,37 @@ class HexDetail(object):
                                     '<p>Pracownicy: '+str(production.current_employees)+'/'+str(production.max_employees)+'</p>'
 
             elif build_field.if_electricity is True:
-                hex_detail_box += self.add_electricity_details(build_field, city)
+                hex_detail_box += self.add_build_details(build_field, city, electricity_buildings)
+
+            elif build_field.if_waterworks is True:
+                hex_detail_box += self.add_build_details(build_field, city, waterworks_buildings)
 
         hex_detail_box += "</div>"
         return hex_detail_box
 
-    def add_electricity_details(self, build_field, city):
+    def add_build_details(self, build_field, city, list_of_buildings):
         hex_detail_box = ''
-        for buildings in electricity_buildings:
-            if buildings.objects.filter(city_field=build_field.id, city=city).count() == 1:
-                build = buildings.objects.get(city_field=build_field.id, city=city)
-                hex_detail_box = '<p>' + str(build.name) + '</p>' \
-                    '<p>Pracownicy: ' + str(build.current_employees) + '/' + str(build.max_employees) + '</p>' \
-                    '<p>Produkowana energia: ' + str(build.total_energy_production()) + '</p>'
-                if buildings is WindPlant:
-                    hex_detail_box += '<p>Liczba turbin: '
-                else:
-                    hex_detail_box += '<p>Liczba reaktorów: '
-                hex_detail_box += str(build.power_nodes) + '/' + str(build.max_power_nodes) + '</p>'
+        for building in list_of_buildings:
+            if building.objects.filter(city_field=build_field.id, city=city).count() == 1:
+                build = building.objects.get(city_field=build_field.id, city=city)
+                hex_detail_box = '<p>'+str(build.name)+'</p>'
+                hex_detail_box += '<p>Pracownicy: '+str(build.current_employees)+'/'+str(build.max_employees)+'</p>'
+                if build_field.if_electricity is True:
+                    hex_detail_box += self.add_electricity_details(build)
+                elif build_field.if_waterworks is True:
+                    hex_detail_box += self.add_waterworks_details(build)
         return hex_detail_box
 
+    def add_electricity_details(self, build):
+        hex_detail_box = ''
+        hex_detail_box += '<p>Produkowana energia: ' + str(build.total_production()) + '</p>'
+        if build is WindPlant:
+            hex_detail_box += '<p>Liczba turbin: '
+        else:
+            hex_detail_box += '<p>Liczba reaktorów: '
+            hex_detail_box += str(build.power_nodes)+'/'+str(build.max_power_nodes)+'</p>'
+        return hex_detail_box
+
+    def add_waterworks_details(self, build):
+        return '<p>Pompowana woda: '+str(build.total_production()) + '</p>'
 

@@ -28,10 +28,8 @@ def main_view(request):
     profile = Profile.objects.get(user_id=request.user.id)
     income = Citizen.objects.filter(city=city).aggregate(Sum('income'))['income__sum']
 
-    new_hex_detail = HexDetail(request)
-    new_hex_detail.generate_hex_detail()
-
     new_board = Board(request)
+    new_hex_detail = HexDetail(request)
 
     max_population = calculate_max_population(city=city)
     current_population = calculate_current_population(city=city)

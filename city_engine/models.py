@@ -30,7 +30,7 @@ class Building(models.Model):
     maintenance_cost = models.PositiveIntegerField(default=0)
     build_time = models.PositiveIntegerField()
     current_build_time = models.PositiveIntegerField(default=1)
-    current_employees = models.PositiveIntegerField(default=0)
+    current_employees = models.PositiveIntegerField(default=2)
     max_employees = models.PositiveIntegerField(default=0)
     trash = models.PositiveIntegerField(default=0)
     health = models.PositiveIntegerField(default=0)
@@ -77,7 +77,7 @@ class PowerPlant(Building):
     class Meta:
         abstract = True
 
-    def total_energy_production(self):
+    def total_production(self):
         if self.current_employees is 0 or self.max_employees is 0:
             return 0
         else:
@@ -184,7 +184,7 @@ class Waterworks(Building):
     class Meta:
         abstract = True
 
-    def total_water_production(self):
+    def total_production(self):
         if self.current_employees is 0 or self.max_employees is 0:
             return 0
         else:
@@ -220,6 +220,8 @@ waterworks_buildings = [WaterTower]
 list_of_buildings_categories = [electricity_buildings, waterworks_buildings]
 list_of_models = [ProductionBuilding, Residential]
 
-for electricity, waterworks in zip(electricity_buildings, waterworks_buildings):
+for electricity in electricity_buildings:
     list_of_models.append(electricity)
+
+for waterworks in waterworks_buildings:
     list_of_models.append(waterworks)

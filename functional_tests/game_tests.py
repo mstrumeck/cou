@@ -2,14 +2,16 @@ import time
 from django.contrib.auth.models import User
 from django.test import override_settings
 from city_engine.main_view_data.board import assign_city_fields_to_board
-from city_engine.models import City, WindPlant
+from city_engine.models import City,\
+    WindPlant, CoalPlant, RopePlant, \
+    WaterTower
 from .base import BaseTest
 
 
 @override_settings(DEBUG=True)
 class CreateBuildingsTest(BaseTest):
 
-    def test_create_power_plant(self):
+    def test_create_buildings(self):
         response = self.client.get('/main_view/')
         username = 'test_username'
         password = 'michal12345'
@@ -29,15 +31,39 @@ class CreateBuildingsTest(BaseTest):
         self.assertIn('Miasto {}'.format(City.objects.get(name='Wrocław').name), self.browser.title)
         self.browser.find_element_by_name('Budynki_elektryczne').click()
         self.browser.find_element_by_name('WindPlant').click()
-        time.sleep(1)
         self.browser.find_element_by_css_selector('.hexagon.isHexTaken').click()
+
+        self.browser.find_element_by_name('Budynki_elektryczne').click()
         time.sleep(1)
+        self.browser.find_element_by_name('CoalPlant').click()
+        self.browser.find_element_by_css_selector('.hexagon.isHexTaken').click()
+
+        self.browser.find_element_by_name('Budynki_elektryczne').click()
+        time.sleep(1)
+        self.browser.find_element_by_name('RopePlant').click()
+        self.browser.find_element_by_css_selector('.hexagon.isHexTaken').click()
+
+        self.browser.find_element_by_name('Wodociagi').click()
+        time.sleep(1)
+        self.browser.find_element_by_name('WaterTower').click()
+        self.browser.find_element_by_css_selector('.hexagon.isHexTaken').click()
+
         wind_plant = WindPlant.objects.get()
+        rope_plant = RopePlant.objects.get()
+        coal_plant = CoalPlant.objects.get()
+        water_tower = WaterTower.objects.get()
+
         self.assertTrue(response, 'Elektrownia wiatrowa')
+        self.assertTrue(response, 'Wieża Ciśnień')
+        self.assertTrue(response, 'Elektrownia węglowa')
+        self.assertTrue(response, 'Elektrownia na ropę')
         self.assertTrue(response, 'Budowa')
         self.assertTrue(response, 'Czas')
         self.assertTrue(response, '1/3')
-        self.assertTrue(response, '{}'.format(city.cash - (wind_plant.maintenance_cost + wind_plant.build_cost)))
+
+        all_build_costs = wind_plant.build_cost + rope_plant.build_cost + coal_plant.build_cost + water_tower.build_cost
+        all_maintenance_cost = wind_plant.maintenance_cost + rope_plant.maintenance_cost + coal_plant.maintenance_cost + water_tower.maintenance_cost
+        self.assertTrue(response, '{}'.format(city.cash - (all_maintenance_cost + all_build_costs)))
         self.browser.find_element_by_link_text('Kolejna tura').click()
         time.sleep(1)
         self.assertTrue(response, '2/3')

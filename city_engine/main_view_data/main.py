@@ -48,7 +48,7 @@ def calculate_energy_production(city):
         if city_field.if_electricity is True:
             for building in electricity_buildings:
                 if building.objects.filter(city_field=city_field).count() == 1:
-                    energy += building.objects.get(city_field=city_field).total_energy_production()
+                    energy += building.objects.get(city_field=city_field).total_production()
     return energy
 
 

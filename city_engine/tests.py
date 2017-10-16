@@ -157,7 +157,7 @@ class CityViewTests(CityFixture):
         for models in electricity_buildings:
             list_of_buildings = models.objects.filter(city=city)
             for building in list_of_buildings:
-                total_energy += building.total_energy_production()
+                total_energy += building.total_production()
 
         self.assertEqual(total_energy, calculate_energy_production(city))
         self.assertTrue(self.response, 'Energia: {}'.format(total_energy))
@@ -227,9 +227,9 @@ class CityViewTests(CityFixture):
             self.assertContains(self.response, 'Podgląd hexa {}'.format(hex_num))
 
         self.assertTrue(self.response,
-                            '<p>'+str(wind_plant.name)+'</p>'
-                            '<p>Pracownicy: '+str(wind_plant.current_employees)+'/'+str(wind_plant.max_employees)+'</p>'
-                            '<p>Produkowana energia: '+str(wind_plant.total_energy_production())+'</p>')
+                            '<p>' + str(wind_plant.name) +'</p>'
+                            '<p>Pracownicy: ' + str(wind_plant.current_employees) +'/' + str(wind_plant.max_employees) +'</p>'
+                            '<p>Produkowana energia: ' + str(wind_plant.total_production()) + '</p>')
 
         self.assertTrue(self.response,
                             '<p>Budynek produkcyjny</p>'
