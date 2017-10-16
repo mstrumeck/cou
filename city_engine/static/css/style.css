@@ -113,27 +113,3 @@ body {
 .disabled .hexagon-bottom {
     border-top: 20px solid grey;
 }
-
-.hexagon[name='electricity'] .hexagon-top {
-    border-bottom: 20px solid blue;
-}
-
-.hexagon[name='electricity'] .hexagon-middle {
-    background: blue;
-}
-
-.hexagon[name='electricity'] .hexagon-bottom {
-    border-top: 20px solid blue;
-}
-
-.hexagon[name='electricity']:hover .hexagon-top {
-    border-bottom: 20px solid red;
-    }
-
-.hexagon[name='electricity']:hover .hexagon-middle {
-    background: red;
-    }
-
-.hexagon[name='electricity']:hover .hexagon-bottom {
-    border-top: 20px solid red;
-    }

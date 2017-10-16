@@ -1,4 +1,7 @@
-from city_engine.models import CityField, City, electricity_buildings, WindPlant, RopePlant, CoalPlant
+from city_engine.models import CityField, City, \
+    electricity_buildings, waterworks_buildings, \
+    WindPlant, RopePlant, CoalPlant, \
+    WaterTower
 
 
 def build_building(request, hex_id, build_type):
@@ -8,6 +11,8 @@ def build_building(request, hex_id, build_type):
 
     if build_type in electricity_buildings:
         city_field.if_electricity = True
+    elif build_type in waterworks_buildings:
+        city_field.if_waterworks = True
 
     city_field.save()
 

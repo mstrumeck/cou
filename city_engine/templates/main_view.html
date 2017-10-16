@@ -9,23 +9,23 @@
 {% block content %}
 
 {% if request.user.is_authenticated %}
-    <h1>Witaj, {{ request.user.username }}!</h1>
-    <h1><a href="{% url 'player:logout' %}">Wyloguj</a></h1>
+    <p>Witaj, {{ request.user.username }}!</p>
+    <p><a href="{% url 'player:logout' %}">Wyloguj</a></p>
                     {% else %}
-    <h1><a href="{% url 'player:login' %}">Zaloguj</a></h1>
+    <p><a href="{% url 'player:login' %}">Zaloguj</a></p>
     {% endif %}
 
-<h1>Miasto: {{ city.name }}</h1>
-<h1>Pieniądze: {{ city.cash }}</h1>
-<h1>Energia: {{ energy }}</h1>
-<h1>Koszty utrzymania {{ total_cost_of_maintenance }}</h1>
-<h1>{{ profile.current_turn }}/12</h1>
+<p>Miasto: {{ city.name }}</p>
+<p>Pieniądze: {{ city.cash }}</p>
+<p>Energia: {{ energy }}</p>
+<p>Koszty utrzymania {{ total_cost_of_maintenance }}</p>
+<p>{{ profile.current_turn }}/12</p>
 {% if profile.current_turn <= 11 %}
     <button><a href="{% url 'city_engine:turn_calculations' %}">Kolejna tura</a></button>
 {% endif %}
 
 {% if buildings %}
-<h1>Lista budynków</h1>
+<p>Lista budynków</p>
 <table>
     <thead>
         <tr>
@@ -43,7 +43,7 @@
 {% endif %}
 
 {% if buildings_under_construction %}
-<h1>Lista budynków w budowie</h1>
+<p>Lista budynków w budowie</p>
 <table>
     <thead>
         <tr>
@@ -69,6 +69,11 @@
     <button class="setBuilding" name="WindPlant">Elektrownia wiatrowa</button>
     <button class="setBuilding" name="RopePlant">Elektrownia na ropę</button>
     <button class="setBuilding" name="CoalPlant">Elektrownia na węgiel</button>
+</div>
+
+<button class="buildingToHide">Wodociągi</button>
+<div class="buildingsToBuild">
+    <button class="setBuilding" name="WaterTower">Wieża ciśnień</button>
 </div>
 
 <div id="board">

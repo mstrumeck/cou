@@ -19,10 +19,13 @@ class Board(object):
     HEX_NUM_IN_ROW = HEX_NUM / ROW_NUM
     hex_with_builds = []
     hex_with_electricity = []
+    hex_with_waterworks = []
 
     def __init__(self, request):
         self.request = request
         self.hex_table = ''
+        self.map_board_info()
+        self.generate_board()
 
     def generate_board(self):
         counter = 0
@@ -35,6 +38,25 @@ class Board(object):
                 counter += 1
                 self.hex_table += Hex(counter).create()
             self.hex_table += "</div>"
+
+    def map_board_info(self):
+        counter = 0
+        city = City.objects.get(user=self.request.user)
+        for row in range(Board.ROW_NUM):
+            for id_number in range(1, int(Board.HEX_NUM_IN_ROW) + 1):
+                counter += 1
+                if CityField.objects.filter(field_id=counter, city=city):
+                    build_field = CityField.objects.get(field_id=counter, city=city)
+                    if build_field.if_residential is True:
+                        Board.hex_with_builds.append(counter)
+                    elif build_field.if_production is True:
+                        Board.hex_with_builds.append(counter)
+                    elif build_field.if_electricity is True:
+                        Board.hex_with_builds.append(counter)
+                        Board.hex_with_electricity.append(counter)
+                    elif build_field.if_waterworks is True:
+                        Board.hex_with_builds.append(counter)
+                        Board.hex_with_waterworks.append(counter)
 
 
 class Hex(object):
@@ -49,11 +71,12 @@ class Hex(object):
         else:
             self.hexagon += "'"
         self.hexagon += "id=" + str(self.hex_id) + ""
-        if self.hex_id in Board.hex_with_electricity:
-            self.hexagon += " name=electricity"
         self.hexagon += ">"
         self.hexagon += "<div class='hexagon-top'></div>"
-        self.hexagon += "<div class='hexagon-middle'></div>"
+        self.hexagon += "<div class='hexagon-middle'>"
+        if self.hex_id in Board.hex_with_electricity:
+            self.hexagon += "<p>Prąd</p>"
+        self.hexagon += "</div>"
         self.hexagon += "<div class='hexagon-bottom'></div>"
         self.hexagon += "</div>"
         return self.hexagon
@@ -81,33 +104,34 @@ class HexDetail(object):
             build_field = CityField.objects.get(field_id=hex_id, city=city)
 
             if build_field.if_residential is True:
-                Board.hex_with_builds.append(hex_id)
                 residential = Residential.objects.get(city_field=build_field.id, city=city)
                 hex_detail_box += '<p>Budynek mieszkalny</p>' \
                                   '<p>Populacja: '+str(residential.current_population)+'</p>'
 
-            if build_field.if_production is True:
-                Board.hex_with_builds.append(hex_id)
+            elif build_field.if_production is True:
                 production = ProductionBuilding.objects.get(city_field=build_field.id, city=city)
                 hex_detail_box += '<p>Budynek produkcyjny</p>' \
                                     '<p>Pracownicy: '+str(production.current_employees)+'/'+str(production.max_employees)+'</p>'
 
-            if build_field.if_electricity is True:
-                Board.hex_with_builds.append(hex_id)
-                Board.hex_with_electricity.append(hex_id)
-                for buildings in electricity_buildings:
-                    if buildings.objects.filter(city_field=build_field.id, city=city).count() == 1:
-                        build = buildings.objects.get(city_field=build_field.id, city=city)
-                        hex_detail_box += '<p>'+str(build.name)+'</p>' \
-                                '<p>Pracownicy: '+str(build.current_employees)+'/'+str(build.max_employees)+'</p>' \
-                                '<p>Produkowana energia: '+str(build.total_energy_production())+'</p>'
-                        if buildings is WindPlant:
-                            hex_detail_box += '<p>Liczba turbin: '
-                        elif buildings is CoalPlant or buildings is RopePlant:
-                            hex_detail_box += '<p>Liczba reaktorów: '
-                        hex_detail_box += str(build.power_nodes) + '/' + str(build.max_power_nodes) + '</p>'
+            elif build_field.if_electricity is True:
+                hex_detail_box += self.add_electricity_details(build_field, city)
 
         hex_detail_box += "</div>"
+        return hex_detail_box
+
+    def add_electricity_details(self, build_field, city):
+        hex_detail_box = ''
+        for buildings in electricity_buildings:
+            if buildings.objects.filter(city_field=build_field.id, city=city).count() == 1:
+                build = buildings.objects.get(city_field=build_field.id, city=city)
+                hex_detail_box = '<p>' + str(build.name) + '</p>' \
+                    '<p>Pracownicy: ' + str(build.current_employees) + '/' + str(build.max_employees) + '</p>' \
+                    '<p>Produkowana energia: ' + str(build.total_energy_production()) + '</p>'
+                if buildings is WindPlant:
+                    hex_detail_box += '<p>Liczba turbin: '
+                else:
+                    hex_detail_box += '<p>Liczba reaktorów: '
+                hex_detail_box += str(build.power_nodes) + '/' + str(build.max_power_nodes) + '</p>'
         return hex_detail_box
 
 
