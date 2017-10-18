@@ -1,4 +1,7 @@
-from city_engine.models import Residential, WindPlant, CityField, list_of_models, electricity_buildings, ProductionBuilding
+from city_engine.models import Residential, ProductionBuilding, \
+    WindPlant,\
+    CityField, \
+    list_of_models, electricity_buildings, waterworks_buildings
 
 
 def create_list_of_buildings_under_construction(city):
@@ -44,12 +47,32 @@ def calculate_current_population(city):
 
 def calculate_energy_production(city):
     energy = 0
-    for city_field in CityField.objects.filter(city=city):
-        if city_field.if_electricity is True:
-            for building in electricity_buildings:
-                if building.objects.filter(city_field=city_field).count() == 1:
-                    energy += building.objects.get(city_field=city_field).total_production()
+    for models in electricity_buildings:
+        list_of_buildings = models.objects.filter(city=city)
+        for building in list_of_buildings:
+            energy += building.total_production()
+
+    # for city_field in CityField.objects.filter(city=city):
+    #     if city_field.if_electricity is True:
+    #         for building in electricity_buildings:
+    #             if building.objects.filter(city_field=city_field).count() == 1:
+    #                 energy += building.objects.get(city_field=city_field).total_production()
     return energy
 
 
+def calculate_energy_usage(city):
+    total_energy = 0
+    for model in list_of_models:
+        for building in model.objects.filter(city=city):
+            total_energy += building.energy_required
+    return total_energy
+
+
+def calculate_water_production(city):
+    water = 0
+    for models in waterworks_buildings:
+        list_of_buildings = models.objects.filter(city=city)
+        for building in list_of_buildings:
+            water += building.total_production()
+    return water
 

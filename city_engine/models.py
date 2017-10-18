@@ -1,11 +1,15 @@
 from django.db import models
 from django.contrib.auth.models import User
+import numpy
 
 
 class City(models.Model):
     user = models.ForeignKey(User)
     name = models.TextField(max_length=15, unique=True)
     cash = models.DecimalField(default=10000, decimal_places=2, max_digits=20)
+    energy_production = models.PositiveIntegerField(default=0)
+    energy_used = models.PositiveIntegerField(default=0)
+    water_production = models.PositiveIntegerField(default=0)
     publish = models.DateField(auto_now_add=True)
     updated = models.DateField(auto_now=True)
 
@@ -35,6 +39,7 @@ class Building(models.Model):
     trash = models.PositiveIntegerField(default=0)
     health = models.PositiveIntegerField(default=0)
     energy = models.PositiveIntegerField(default=0)
+    energy_required = models.PositiveIntegerField(default=0)
     water = models.PositiveIntegerField(default=0)
     crime = models.PositiveIntegerField(default=0)
     pollution = models.PositiveIntegerField(default=0)
@@ -188,7 +193,13 @@ class Waterworks(Building):
         if self.current_employees is 0 or self.max_employees is 0:
             return 0
         else:
-            productivity = float(self.current_employees)/float(self.max_employees)
+            if self.city.energy_production <= self.energy_required:
+                total_energy = self.city.energy_production
+            else:
+                total_energy = self.energy_required
+            energy_productivity = float(total_energy)/float(self.energy_required)
+            employees_productivity = float(self.current_employees)/float(self.max_employees)
+            productivity = float((energy_productivity+employees_productivity)/2)
             total = (productivity * int(self.water_production))
             return int(total)
 
@@ -198,6 +209,7 @@ class WaterTower(Waterworks):
     build_time = models.PositiveIntegerField(default=1)
     build_cost = models.PositiveIntegerField(default=50)
     maintenance_cost = models.PositiveIntegerField(default=5)
+    energy_required = models.PositiveIntegerField(default=3)
 
     def build_status(self):
         if self.if_under_construction is True:

@@ -12,7 +12,7 @@ from player.models import Profile
 from .main_view_data.main import \
     create_list_of_buildings_under_construction, \
     calculate_max_population, \
-    calculate_energy_production, \
+    calculate_energy_production, calculate_water_production, calculate_energy_usage,\
     calculate_current_population, \
     create_list_of_buildings
 from .turn_data.main import \
@@ -31,9 +31,13 @@ def main_view(request):
     new_board = Board(request)
     new_hex_detail = HexDetail(request)
 
-    max_population = calculate_max_population(city=city)
-    current_population = calculate_current_population(city=city)
-    energy = calculate_energy_production(city=city)
+    max_population = calculate_max_population(city)
+    current_population = calculate_current_population(city)
+    City.energy_production = calculate_energy_production(city)
+    City.energy_used = calculate_energy_usage(city)
+    city_energy_bilans =  City.energy_production - City.energy_used
+
+    City.water_production = calculate_water_production(city)
 
     buildings = create_list_of_buildings(city)
     buildings_under_construction = create_list_of_buildings_under_construction(city)
@@ -43,7 +47,9 @@ def main_view(request):
     return render(request, 'main_view.html', {'city': city,
                                               'profile': profile,
                                               'income': income,
-                                              'energy': energy,
+                                              'energy': City.energy_production,
+                                              'energy_bilans': city_energy_bilans,
+                                              'water': City.water_production,
                                               'hex_table': mark_safe(new_board.hex_table),
                                               'hex_detail_info_table': mark_safe(new_hex_detail.hex_detail_info_table),
                                               'buildings': buildings,

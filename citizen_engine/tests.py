@@ -3,7 +3,7 @@ from django.test import TestCase
 
 from city_engine.main_view_data.board import assign_city_fields_to_board
 from city_engine.models import ProductionBuilding, Residential, City, CityField
-from city_engine.tests import CityFixture
+from city_engine.test.tests import CityFixture
 from .models import Citizen
 
 
