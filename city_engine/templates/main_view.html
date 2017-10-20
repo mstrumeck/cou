@@ -19,7 +19,7 @@
 <p>Pieniądze: {{ city.cash }}</p>
 <p>Energia: {{ energy_bilans }}/{{ energy }}</p>
 <p>Woda: {{ water }}</p>
-<p>Koszty utrzymania {{ total_cost_of_maintenance }}</p>
+<p>Koszty utrzymania: {{ total_cost_of_maintenance }}</p>
 <p>{{ profile.current_turn }}/12</p>
 {% if profile.current_turn <= 11 %}
     <button><a href="{% url 'city_engine:turn_calculations' %}">Kolejna tura</a></button>

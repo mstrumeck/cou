@@ -99,7 +99,7 @@ class HexDetail(object):
 
     def add_hex_detail_box(self, hex_id):
         hex_detail_box = "<div class='hexInfoBoxDetail' id='hexBox"+str(hex_id)+"'>" \
-                        "<p>Podgląd hexa "+str(hex_id)+"</p>"
+                         "<p>Podgląd hexa "+str(hex_id)+"</p>"
 
         city = City.objects.get(user=self.request.user)
         if CityField.objects.filter(field_id=hex_id, city=city):
@@ -113,7 +113,7 @@ class HexDetail(object):
             elif build_field.if_production is True:
                 production = ProductionBuilding.objects.get(city_field=build_field.id, city=city)
                 hex_detail_box += '<p>Budynek produkcyjny</p>' \
-                                    '<p>Pracownicy: '+str(production.current_employees)+'/'+str(production.max_employees)+'</p>'
+                                  '<p>Pracownicy: '+str(production.current_employees)+'/'+str(production.max_employees)+'</p>'
 
             elif build_field.if_electricity is True:
                 hex_detail_box += self.add_build_details(build_field, city, electricity_buildings)
