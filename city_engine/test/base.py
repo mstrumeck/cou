@@ -88,7 +88,7 @@ class CityFixture(TestCase):
         first_power_plant.max_power_nodes = 10
         first_power_plant.energy_production = 5
         first_power_plant.city = city
-        first_power_plant.if_under_construction = False
+        first_power_plant.if_under_construction = True
         first_power_plant.city_field = CityField.objects.get(field_id=3, city=city)
         first_power_plant.save()
 
@@ -110,7 +110,7 @@ class CityFixture(TestCase):
         third_power_plant.max_power_nodes = 4
         third_power_plant.energy_production = 30
         third_power_plant.city = city
-        third_power_plant.if_under_construction = True
+        third_power_plant.if_under_construction = False
         third_power_plant.city_field = CityField.objects.get(field_id=4, city=city)
         third_power_plant.save()
 

@@ -124,8 +124,6 @@ class CityViewTests(CityFixture):
     def test_city_view(self):
         user = User.objects.get(username='test_username')
         city = City.objects.get(user=user)
-        residential = Residential.objects.get(city=city)
-        factory = ProductionBuilding.objects.get(city=city)
 
         self.response = self.client.get('/main_view/')
         self.assertTemplateUsed(self.response, 'main_view.html')
@@ -134,20 +132,11 @@ class CityViewTests(CityFixture):
         for hex_num in range(1, Board.HEX_NUM+1):
             self.assertContains(self.response, 'Podgląd hexa {}'.format(hex_num))
 
+        self.assertContains(self.response, 'Budowa')
 
-        # self.assertContains(self.response, 'Pracownicy: ' + str(wind_plant.current_employees) +'/' + str(wind_plant.max_employees))
-        # self.assertContains(self.response, 'Produkowana energia: ' + str(wind_plant.total_production()))
+        self.assertContains(self.response, 'Czas')
 
-        # self.assertContains(response, 'Budynek produkcyjny')
-        # self.assertContains(response, 'Pracownicy: {}/{}'.format(str(factory.current_employees), str(factory.max_employees)))
-
-        # self.assertContains(response, 'Budynek mieszkalny')
-
-        # self.assertContains(response, 'Budowa')
-
-        # self.assertContains(response, 'Czas')
-
-        # self.assertContains(response, '0/3')
+        self.assertContains(self.response, '1/3')
 
 
 class TurnSystemTests(CityFixture):

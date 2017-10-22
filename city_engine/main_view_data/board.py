@@ -129,8 +129,8 @@ class HexDetail(object):
         for building in list_of_buildings:
             if building.objects.filter(city_field=build_field.id, city=city).count() == 1:
                 build = building.objects.get(city_field=build_field.id, city=city)
-                hex_detail_box = '<p>'+str(build.name)+'</p>'
-                hex_detail_box += '<p>Pracownicy: '+str(build.current_employees)+'/'+str(build.max_employees)+'</p>'
+                hex_detail_box = '<p name="detailName">'+str(build.name)+'</p>'
+                hex_detail_box += '<p name="detailEmployees">Pracownicy: '+str(build.current_employees)+'/'+str(build.max_employees)+'</p>'
                 if build_field.if_electricity is True:
                     hex_detail_box += self.add_electricity_details(build)
                 elif build_field.if_waterworks is True:
@@ -139,7 +139,7 @@ class HexDetail(object):
 
     def add_electricity_details(self, build):
         hex_detail_box = ''
-        hex_detail_box += '<p>Produkowana energia: ' + str(build.total_production()) + '</p>'
+        hex_detail_box += '<p name="detailEnergy">Produkowana energia: ' + str(build.total_production()) + '</p>'
         if build is WindPlant:
             hex_detail_box += '<p>Liczba turbin: '
         else:
@@ -148,5 +148,5 @@ class HexDetail(object):
         return hex_detail_box
 
     def add_waterworks_details(self, build):
-        return '<p>Pompowana woda: '+str(build.total_production()) + '</p>'
+        return '<p name="detailWater">Pompowana woda: '+str(build.total_production()) + '</p>'
 

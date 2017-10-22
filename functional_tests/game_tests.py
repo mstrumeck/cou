@@ -48,28 +48,14 @@ class CreateBuildingsTest(BaseTest):
         self.browser.find_element_by_name('WaterTower').click()
         self.browser.find_element_by_css_selector('.hexagon.isHexTaken').click()
 
-        # wind_plant = WindPlant.objects.get()
-        # rope_plant = RopePlant.objects.get()
-        # coal_plant = CoalPlant.objects.get()
-        # water_tower = WaterTower.objects.get()
+        time.sleep(1)
+        self.browser.find_element_by_name('detailEnergy').is_displayed()
+        self.browser.find_element_by_name('detailWater').is_displayed()
 
-        # self.assertContains(response, 'Elektrownia wiatrowa')
-        # self.assertContains(response, 'Wieża Ciśnień')
-        # self.assertContains(response, 'Elektrownia węglowa')
-        # self.assertContains(response, 'Elektrownia na ropę')
-        # self.assertContains(response, 'Budowa')
-        # self.assertContains(response, 'Czas')
-        # self.assertContains(response, '1/3')
-
-        # all_build_costs = wind_plant.build_cost + rope_plant.build_cost + coal_plant.build_cost + water_tower.build_cost
-        # all_maintenance_cost = wind_plant.maintenance_cost + rope_plant.maintenance_cost + coal_plant.maintenance_cost + water_tower.maintenance_cost
-        # self.assertContains(response, '{}'.format(city.cash - (all_maintenance_cost + all_build_costs)))
         self.browser.find_element_by_link_text('Kolejna tura').click()
         time.sleep(1)
-        # self.assertContains(response, '2/3')
         self.browser.find_element_by_link_text('Kolejna tura').click()
         time.sleep(1)
-        # self.assertContains(response, '3/3')
 
     def test_create_power_plants_for_various_players(self):
         response = self.client.get('/main_view/')
@@ -104,10 +90,8 @@ class CreateBuildingsTest(BaseTest):
         self.browser.find_element_by_css_selector('.hexagon.isHexTaken').click()
         time.sleep(2)
 
-        # self.assertContains(response, 'Elektrownia wiatrowa')
-        # self.assertContains(response, 'Budowa')
-        # self.assertContains(response, 'Czas')
-        # self.assertContains(response, '1/3')
+        self.browser.find_element_by_name('detailEnergy').is_displayed()
+
         self.assertEqual(WindPlant.objects.filter(city=first_city).count(), 1)
 
         self.browser.find_element_by_link_text('Wyloguj').click()
@@ -126,9 +110,8 @@ class CreateBuildingsTest(BaseTest):
         time.sleep(3)
         self.browser.find_element_by_css_selector('.hexagon.isHexTaken').click()
         time.sleep(2)
-        # self.assertContains(response, 'Elektrownia wiatrowa')
-        # self.assertContains(response, 'Budowa')
-        # self.assertContains(response, 'Czas')
-        # self.assertContains(response, '1/3')
+
+        self.browser.find_element_by_name('detailEnergy').is_displayed()
+
         self.assertEqual(WindPlant.objects.filter(city=second_city).count(), 1)
 
