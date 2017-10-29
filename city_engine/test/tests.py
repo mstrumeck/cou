@@ -18,8 +18,8 @@ from player.models import Profile
 from django.db.models import Sum
 from city_engine.turn_data.build import build_building
 from city_engine.views import main_view
-from city_engine.main_view_data.main import calculate_energy_production, calculate_energy_usage, \
-    calculate_water_production, \
+from city_engine.main_view_data.main import calculate_energy_production_in_city, calculate_energy_usage_in_city, \
+    calculate_water_production_in_city, \
     create_list_of_buildings_under_construction, \
     create_list_of_buildings
 from city_engine.turn_data.main import calculate_maintenance_cost
@@ -47,10 +47,10 @@ class CityViewTests(CityFixture):
             for building in list_of_buildings:
                 total_energy += building.total_production()
 
-        self.assertEqual(total_energy, calculate_energy_production(city))
-        self.assertContains(response, 'Energia: {}/{}'.format(
-            calculate_energy_production(city) - calculate_energy_usage(city),
-            calculate_energy_production(city)))
+        self.assertEqual(total_energy, calculate_energy_production_in_city(city))
+        self.assertContains(response, 'Energia: {}'.format(
+            calculate_energy_production_in_city(city) - calculate_energy_usage_in_city(city),
+            calculate_energy_production_in_city(city)))
 
     def test_total_water_production_view(self):
         response = self.client.get('/main_view/')
@@ -58,7 +58,7 @@ class CityViewTests(CityFixture):
         city = City.objects.get(user=user)
         self.assertTemplateUsed(response, 'main_view.html')
 
-        self.assertTrue(response, 'Woda: {}'.format(calculate_water_production(city)))
+        self.assertTrue(response, 'Woda: {}'.format(calculate_water_production_in_city(city)))
 
     def test_cash_info_view(self):
         response = self.client.get('/main_view/')

@@ -4,10 +4,10 @@ import time
 from django.contrib.auth.models import User
 from city_engine.main_view_data.board import Board
 from city_engine.models import City, CityField
-from .base import BaseTest
+from .base import BaseTestForOnePlayer, BaseTest
 
 
-class SignupAndLoginTest(BaseTest):
+class SignupAndLoginTestForOnePlayer(BaseTest):
 
     def test_signup_two_players(self):
         self.browser.get(self.live_server_url)

@@ -7,14 +7,14 @@ from django.shortcuts import render
 from django.utils.safestring import mark_safe
 from citizen_engine.models import Citizen
 from city_engine.main_view_data.board import Board, HexDetail
-from city_engine.models import City, list_of_models
+from city_engine.models import City, list_of_models, electricity_buildings
 from player.models import Profile
 from .main_view_data.main import \
     create_list_of_buildings_under_construction, \
     calculate_max_population, \
-    calculate_energy_production, calculate_water_production, calculate_energy_usage,\
+    calculate_energy_production_in_city, calculate_water_production_in_city, calculate_energy_usage_in_city,\
     calculate_current_population, \
-    create_list_of_buildings
+    create_list_of_buildings, allocate_resources
 from .turn_data.main import \
     update_build_status, \
     calculate_maintenance_cost
@@ -34,11 +34,13 @@ def main_view(request):
     max_population = calculate_max_population(city)
     current_population = calculate_current_population(city)
 
-    City.energy_production = calculate_energy_production(city)
-    City.energy_used = calculate_energy_usage(city)
+    City.energy_production = calculate_energy_production_in_city(city)
+    City.energy_used = calculate_energy_usage_in_city(city)
     city_energy_bilans = City.energy_production - City.energy_used
+    city.save()
+    allocate_resources(city, electricity_buildings)
 
-    City.water_production = calculate_water_production(city)
+    City.water_production = calculate_water_production_in_city(city)
 
     buildings = create_list_of_buildings(city)
     buildings_under_construction = create_list_of_buildings_under_construction(city)

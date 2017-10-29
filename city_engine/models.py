@@ -34,7 +34,7 @@ class Building(models.Model):
     maintenance_cost = models.PositiveIntegerField(default=0)
     build_time = models.PositiveIntegerField()
     current_build_time = models.PositiveIntegerField(default=1)
-    current_employees = models.PositiveIntegerField(default=2)
+    current_employees = models.PositiveIntegerField(default=0)
     max_employees = models.PositiveIntegerField(default=0)
     trash = models.PositiveIntegerField(default=0)
     health = models.PositiveIntegerField(default=0)
@@ -78,6 +78,8 @@ class PowerPlant(Building):
     power_nodes = models.PositiveIntegerField(default=0)
     max_power_nodes = models.PositiveIntegerField(default=1)
     energy_production = models.PositiveIntegerField(default=0)
+    total_energy_production = models.PositiveIntegerField(default=0)
+    energy_allocated = models.PositiveIntegerField(default=0)
 
     class Meta:
         abstract = True
@@ -126,6 +128,7 @@ class WindPlant(PowerPlant):
             elif self.current_build_time == self.build_time:
                 self.if_under_construction = False
                 self.max_employees = 5
+                self.current_employees = 5
                 self.power_nodes = 1
                 self.max_power_nodes = 10
                 self.energy_production = 5
@@ -149,6 +152,7 @@ class RopePlant(PowerPlant):
                 return False
             elif self.current_build_time == self.build_time:
                 self.if_under_construction = False
+                self.max_employees = 10
                 self.max_employees = 10
                 self.power_nodes = 1
                 self.max_power_nodes = 4

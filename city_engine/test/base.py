@@ -1,4 +1,4 @@
-from django.test import TestCase, RequestFactory
+from django import test
 from django.contrib.auth.models import User
 from city_engine.main_view_data.board import Board, assign_city_fields_to_board
 from citizen_engine.models import Citizen
@@ -11,7 +11,7 @@ from city_engine.models import City, CityField, \
     list_of_models
 
 
-class CityFixture(TestCase):
+class CityFixture(test.TestCase):
     def setUp(self):
         first_user = User.objects.create_user(username='test_username', password='12345', email='random@wp.pl')
         self.client.login(username='test_username', password='12345', email='random@wp.pl')

@@ -14,13 +14,13 @@ class Board(object):
     ROW_NUM = 4
     HEX_NUM = 16
     HEX_NUM_IN_ROW = HEX_NUM / ROW_NUM
-    hex_with_builds = []
-    hex_with_electricity = []
-    hex_with_waterworks = []
 
     def __init__(self, request):
         self.request = request
         self.hex_table = ''
+        self.hex_with_builds = []
+        self.hex_with_electricity = []
+        self.hex_with_waterworks = []
         self.map_board_info()
         self.generate_board()
 
@@ -33,7 +33,9 @@ class Board(object):
                 self.hex_table += "<div class='hex-row'>"
             for id_number in range(1, int(self.HEX_NUM_IN_ROW) + 1):
                 counter += 1
-                self.hex_table += Hex(counter).create()
+                self.hex_table += Hex(counter, self.hex_with_builds,
+                                      self.hex_with_electricity,
+                                      self.hex_with_waterworks).create()
             self.hex_table += "</div>"
 
     def map_board_info(self):
@@ -45,25 +47,28 @@ class Board(object):
                 if CityField.objects.filter(field_id=counter, city=city):
                     build_field = CityField.objects.get(field_id=counter, city=city)
                     if build_field.if_residential is True:
-                        Board.hex_with_builds.append(counter)
+                        self.hex_with_builds.append(counter)
                     elif build_field.if_production is True:
-                        Board.hex_with_builds.append(counter)
+                        self.hex_with_builds.append(counter)
                     elif build_field.if_electricity is True:
-                        Board.hex_with_builds.append(counter)
-                        Board.hex_with_electricity.append(counter)
+                        self.hex_with_builds.append(counter)
+                        self.hex_with_electricity.append(counter)
                     elif build_field.if_waterworks is True:
-                        Board.hex_with_builds.append(counter)
-                        Board.hex_with_waterworks.append(counter)
+                        self.hex_with_builds.append(counter)
+                        self.hex_with_waterworks.append(counter)
 
 
 class Hex(object):
-    def __init__(self, hex_id):
+    def __init__(self, hex_id, hex_with_builds, hex_with_electricity, hex_with_waterworks):
         self.hex_id = hex_id
+        self.hex_with_builds = hex_with_builds
+        self.hex_with_electricity = hex_with_electricity
+        self.hex_with_waterworks = hex_with_waterworks
         self.hexagon = ''
 
     def create(self):
         self.hexagon = "<div class='hexagon"
-        if self.hex_id in Board.hex_with_builds:
+        if self.hex_id in self.hex_with_builds:
             self.hexagon += " build'"
         else:
             self.hexagon += "'"
@@ -72,9 +77,9 @@ class Hex(object):
         self.hexagon += "<div class='hexagon-top'></div>"
         self.hexagon += "<div class='hexagon-middle'>"
 
-        if self.hex_id in Board.hex_with_electricity:
+        if self.hex_id in self.hex_with_electricity:
             self.hexagon += "<p>Prąd</p>"
-        elif self.hex_id in Board.hex_with_waterworks:
+        elif self.hex_id in self.hex_with_waterworks:
             self.hexagon += "<p>Wodociągi</p>"
 
         self.hexagon += "</div>"
@@ -139,7 +144,7 @@ class HexDetail(object):
 
     def add_electricity_details(self, build):
         hex_detail_box = ''
-        hex_detail_box += '<p name="detailEnergy">Produkowana energia: ' + str(build.total_production()) + '</p>'
+        hex_detail_box += '<p name="detailEnergy">Produkowana energia: ' + str(build.total_energy_production) + '</p>'
         if build is WindPlant:
             hex_detail_box += '<p>Liczba turbin: '
         else:
@@ -148,5 +153,8 @@ class HexDetail(object):
         return hex_detail_box
 
     def add_waterworks_details(self, build):
-        return '<p name="detailWater">Pompowana woda: '+str(build.total_production()) + '</p>'
+        hex_detail_box = ''
+        hex_detail_box += '<p name="detailWater">Pompowana woda: '+str(build.total_production())+'</p>'
+        hex_detail_box += '<p name="detailWater">Energia: '+str(build.energy)+'/'+str(build.energy_required)+'</p>'
+        return hex_detail_box
 
