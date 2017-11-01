@@ -150,6 +150,8 @@ class HexDetail(object):
         else:
             hex_detail_box += '<p>Liczba reaktorów: '
             hex_detail_box += str(build.power_nodes)+'/'+str(build.max_power_nodes)+'</p>'
+        hex_detail_box += 'total_energy_production' +str(build.total_energy_production)
+        hex_detail_box += 'total_energy_allocation' +str(build.energy_allocated)
         return hex_detail_box
 
     def add_waterworks_details(self, build):

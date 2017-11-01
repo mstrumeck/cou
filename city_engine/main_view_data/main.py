@@ -83,7 +83,6 @@ def calculate_water_production_in_city(city):
 
 
 def create_resource_allocation_pattern(hex_id):
-    pattern = []
     for x in range(1, int(Board.HEX_NUM_IN_ROW+1)):
         first_calculations = [
             hex_id + x,
@@ -97,7 +96,7 @@ def create_resource_allocation_pattern(hex_id):
         ]
         for result in first_calculations:
             if result > 0:
-                pattern.append(result)
+                yield result
 
         if x >= 2:
             second_calculations = [
@@ -114,7 +113,7 @@ def create_resource_allocation_pattern(hex_id):
             ]
             for result in second_calculations:
                 if result > 0:
-                    pattern.append(result)
+                    yield result
             if x % 2 == 0:
                 third_calculations = [
                     hex_id + (x * Board.HEX_NUM_IN_ROW) - 3,
@@ -124,7 +123,7 @@ def create_resource_allocation_pattern(hex_id):
                 ]
                 for result in third_calculations:
                     if result > 0:
-                        pattern.append(result)
+                        yield result
             elif x % 3 == 0:
                 fourth_calculations = [
                     hex_id + (x * Board.HEX_NUM_IN_ROW) - 3,
@@ -138,34 +137,35 @@ def create_resource_allocation_pattern(hex_id):
                 ]
                 for result in fourth_calculations:
                     if result > 0:
-                        pattern.append(result)
-    return pattern
+                        yield result
 
 
 def allocate_resources(city, list_of_models):
     for models in list_of_models:
         list_of_buildings = models.objects.filter(city=city)
         for building in list_of_buildings:
+            building.energy_allocated = 0
+            building.save()
             pattern = create_resource_allocation_pattern(building.city_field.id)
-            for hex_id in pattern:
-                for fields in CityField.objects.filter(city=city, field_id=hex_id):
-                    if fields.if_waterworks is True:
-                        watertower = WaterTower.objects.get(city=city, city_field=hex_id)
-                        requirements = watertower.energy_required - watertower.energy
-                        if requirements > 0 and building.energy_allocated < building.total_energy_production:
-                            watertower.energy += requirements
-                            building.energy_allocated += requirements
-                            watertower.save()
-                            building.save()
-
-
-
-
-
-#Wybranie danego rodzaju budynku elektrycznego z listy budynków tego typu
-#Utworzenie listy wszystkich tego typu budynków w mieście
-#Dla każdego pojedyńczego budynku zostaje utworzony z osobna wzór na ulokowanie zasobów
-#Oraz ile energii produkuje
-#Dla każdego pola z budynkiem jest powierzana energia
-
-
+            while building.energy_allocated < building.total_energy_production:
+                next_value = next(pattern)
+                if CityField.objects.filter(city=city, field_id=next_value):
+                    if CityField.objects.get(city=city, field_id=next_value).if_waterworks is True:
+                        energy_deficit = building.total_energy_production - building.energy_allocated
+                        watertower = WaterTower.objects.get(city=city, city_field_id=next_value)
+                        watertower.energy = 0
+                        watertower.save()
+                        if watertower.energy_required <= energy_deficit:
+                            watertower.energy += watertower.energy_required
+                            building.energy_allocated += watertower.energy_required
+                        else:
+                            watertower.energy += energy_deficit
+                            building.energy_allocated += energy_deficit
+                        watertower.save()
+                        building.save()
+                    else:
+                        pass
+                else:
+                    pass
+            else:
+                pass

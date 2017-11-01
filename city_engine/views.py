@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.utils.safestring import mark_safe
 from citizen_engine.models import Citizen
 from city_engine.main_view_data.board import Board, HexDetail
-from city_engine.models import City, list_of_models, electricity_buildings
+from city_engine.models import City, list_of_models, electricity_buildings, WindPlant
 from player.models import Profile
 from .main_view_data.main import \
     create_list_of_buildings_under_construction, \
@@ -23,11 +23,16 @@ from .turn_data.build import build_building
 
 @login_required
 def main_view(request):
+    user = User.objects.get(id=request.user.id)
+    city = City.objects.get(user=user)
+    City.energy_production = calculate_energy_production_in_city(city)
+    City.energy_used = calculate_energy_usage_in_city(city)
+    allocate_resources(city, electricity_buildings)
     new_board = Board(request)
     new_hex_detail = HexDetail(request)
 
-    user = User.objects.get(id=request.user.id)
-    city = City.objects.get(user=user)
+
+
     profile = Profile.objects.get(user_id=request.user.id)
     income = Citizen.objects.filter(city=city).aggregate(Sum('income'))['income__sum']
 
@@ -37,8 +42,6 @@ def main_view(request):
     City.energy_production = calculate_energy_production_in_city(city)
     City.energy_used = calculate_energy_usage_in_city(city)
     city_energy_bilans = City.energy_production - City.energy_used
-    city.save()
-    allocate_resources(city, electricity_buildings)
 
     City.water_production = calculate_water_production_in_city(city)
 
@@ -46,6 +49,7 @@ def main_view(request):
     buildings_under_construction = create_list_of_buildings_under_construction(city)
 
     total_cost_of_maintenance = calculate_maintenance_cost(list_of_models, city)
+    city.save()
 
     return render(request, 'main_view.html', {'city': city,
                                               'profile': profile,

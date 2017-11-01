@@ -105,7 +105,7 @@ class CreateBuildingsTestForOnePlayer(BaseTestForOnePlayer):
         self.assertEqual(WaterTower.objects.filter(city=self.city).count(), 2)
 
         self.browser.find_element_by_xpath('//div[@id="1" and @class="hexagon build"]').click()
-        self.browser.find_element_by_xpath('//p[contains(., "Energia: 1/3")]').is_displayed()
+        self.browser.find_element_by_xpath('//p[contains(., "Energia: 2/3")]').is_displayed()
 
         self.browser.find_element_by_xpath('//div[@id="3" and @class="hexagon build"]').click()
         self.browser.find_element_by_xpath('//p[contains(., "Energia: 3/3")]').is_displayed()
