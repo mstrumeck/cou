@@ -25,13 +25,11 @@ from .turn_data.build import build_building
 def main_view(request):
     user = User.objects.get(id=request.user.id)
     city = City.objects.get(user=user)
+    allocate_resources(city, electricity_buildings)
     City.energy_production = calculate_energy_production_in_city(city)
     City.energy_used = calculate_energy_usage_in_city(city)
-    allocate_resources(city, electricity_buildings)
     new_board = Board(request)
     new_hex_detail = HexDetail(request)
-
-
 
     profile = Profile.objects.get(user_id=request.user.id)
     income = Citizen.objects.filter(city=city).aggregate(Sum('income'))['income__sum']

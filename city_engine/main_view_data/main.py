@@ -140,21 +140,30 @@ def create_resource_allocation_pattern(hex_id):
                         yield result
 
 
-def allocate_resources(city, list_of_models):
+def allocate_resources(city, provider_type):
     for models in list_of_models:
+        list = models.objects.filter(city=city)
+        for building in list:
+            building.energy = 0
+            building.save()
+
+    for models in provider_type:
         list_of_buildings = models.objects.filter(city=city)
         for building in list_of_buildings:
             building.energy_allocated = 0
             building.save()
             pattern = create_resource_allocation_pattern(building.city_field.id)
             while building.energy_allocated < building.total_energy_production:
-                next_value = next(pattern)
+                try:
+                    next_value = next(pattern)
+                except(StopIteration):
+                    break
                 if CityField.objects.filter(city=city, field_id=next_value):
                     if CityField.objects.get(city=city, field_id=next_value).if_waterworks is True:
                         energy_deficit = building.total_energy_production - building.energy_allocated
                         watertower = WaterTower.objects.get(city=city, city_field_id=next_value)
-                        watertower.energy = 0
-                        watertower.save()
+                        # watertower.energy = 0
+                        # watertower.save()
                         if watertower.energy_required <= energy_deficit:
                             watertower.energy += watertower.energy_required
                             building.energy_allocated += watertower.energy_required
