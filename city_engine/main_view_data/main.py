@@ -4,7 +4,7 @@ from city_engine.models import Residential, ProductionBuilding, \
     WaterTower, \
     list_of_models, electricity_buildings, waterworks_buildings
 from city_engine.main_view_data.board import Board
-
+from random import shuffle
 
 def create_list_of_buildings_under_construction(city):
     building_name, building_cur, building_end = [], [], []
@@ -83,6 +83,7 @@ def calculate_water_production_in_city(city):
 
 
 def create_resource_allocation_pattern(hex_id):
+    first_circle, second_circle, third_circle, fourth_circle = [], [], [], []
     for x in range(1, int(Board.HEX_NUM_IN_ROW+1)):
         first_calculations = [
             hex_id + x,
@@ -94,9 +95,12 @@ def create_resource_allocation_pattern(hex_id):
             hex_id - Board.HEX_NUM_IN_ROW,
             hex_id - Board.HEX_NUM_IN_ROW + x,
         ]
+        shuffle(first_calculations)
         for result in first_calculations:
             if result > 0:
-                yield result
+                first_circle.append(result)
+        yield first_circle
+        first_circle = []
 
         if x >= 2:
             second_calculations = [
@@ -111,9 +115,13 @@ def create_resource_allocation_pattern(hex_id):
                 hex_id + (x * Board.HEX_NUM_IN_ROW) + (2 + x) - x,
                 hex_id - (x * Board.HEX_NUM_IN_ROW) + (2 + x) - x
             ]
+            shuffle(second_calculations)
             for result in second_calculations:
                 if result > 0:
-                    yield result
+                    second_circle.append(result)
+            yield second_circle
+            second_circle = []
+
             if x % 2 == 0:
                 third_calculations = [
                     hex_id + (x * Board.HEX_NUM_IN_ROW) - 3,
@@ -121,9 +129,13 @@ def create_resource_allocation_pattern(hex_id):
                     hex_id + (x * Board.HEX_NUM_IN_ROW) + 3,
                     hex_id - (x * Board.HEX_NUM_IN_ROW) + 3,
                 ]
+                shuffle(third_calculations)
                 for result in third_calculations:
                     if result > 0:
-                        yield result
+                        third_circle.append(result)
+                yield third_circle
+                third_circle = []
+
             elif x % 3 == 0:
                 fourth_calculations = [
                     hex_id + (x * Board.HEX_NUM_IN_ROW) - 3,
@@ -135,9 +147,12 @@ def create_resource_allocation_pattern(hex_id):
                     hex_id + (x * Board.HEX_NUM_IN_ROW) + 4,
                     hex_id - (x * Board.HEX_NUM_IN_ROW) + 4
                 ]
+                shuffle(fourth_calculations)
                 for result in fourth_calculations:
                     if result > 0:
-                        yield result
+                        fourth_circle.append(result)
+                yield fourth_circle
+                fourth_circle = []
 
 
 def allocate_resources(city, provider_type):
@@ -158,23 +173,25 @@ def allocate_resources(city, provider_type):
                     next_value = next(pattern)
                 except(StopIteration):
                     break
-                if CityField.objects.filter(city=city, field_id=next_value):
-                    if CityField.objects.get(city=city, field_id=next_value).if_waterworks is True:
-                        energy_deficit = building.total_energy_production - building.energy_allocated
-                        watertower = WaterTower.objects.get(city=city, city_field_id=next_value)
-                        # watertower.energy = 0
-                        # watertower.save()
-                        if watertower.energy_required <= energy_deficit:
-                            watertower.energy += watertower.energy_required
-                            building.energy_allocated += watertower.energy_required
+                for field in next_value:
+                    if CityField.objects.filter(city=city, field_id=field):
+                        if CityField.objects.get(city=city, field_id=field).if_waterworks is True:
+                            energy_deficit = building.total_energy_production - building.energy_allocated
+                            watertower = WaterTower.objects.get(city=city, city_field_id=field)
+                            # watertower.energy = 0
+                            # watertower.save()
+                            if watertower.energy == 0:
+                                if watertower.energy_required <= energy_deficit:
+                                    watertower.energy += watertower.energy_required
+                                    building.energy_allocated += watertower.energy_required
+                                else:
+                                    watertower.energy += energy_deficit
+                                    building.energy_allocated += energy_deficit
+                                watertower.save()
+                                building.save()
+                            else:
+                                pass
                         else:
-                            watertower.energy += energy_deficit
-                            building.energy_allocated += energy_deficit
-                        watertower.save()
-                        building.save()
+                            pass
                     else:
                         pass
-                else:
-                    pass
-            else:
-                pass
