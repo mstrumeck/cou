@@ -1,8 +1,10 @@
 from city_engine.models import CityField, City, \
     Residential, \
     ProductionBuilding, \
-    WindPlant, CoalPlant, RopePlant, \
-    electricity_buildings, waterworks_buildings
+    WindPlant, CoalPlant, RopePlant, WaterTower, \
+    electricity_buildings, waterworks_buildings, \
+    list_of_models
+from random import shuffle
 
 
 def assign_city_fields_to_board(city):
@@ -15,12 +17,14 @@ class Board(object):
     HEX_NUM = 16
     HEX_NUM_IN_ROW = HEX_NUM / ROW_NUM
 
-    def __init__(self, request):
-        self.request = request
+    def __init__(self, city):
         self.hex_table = ''
+        self.city = city
         self.hex_with_builds = []
         self.hex_with_electricity = []
         self.hex_with_waterworks = []
+        # self.allocate_resources()
+        ResourceAllocation(self.city)
         self.map_board_info()
         self.generate_board()
 
@@ -40,12 +44,11 @@ class Board(object):
 
     def map_board_info(self):
         counter = 0
-        city = City.objects.get(user=self.request.user)
         for row in range(Board.ROW_NUM):
             for id_number in range(1, int(Board.HEX_NUM_IN_ROW) + 1):
                 counter += 1
-                if CityField.objects.filter(field_id=counter, city=city):
-                    build_field = CityField.objects.get(field_id=counter, city=city)
+                if CityField.objects.filter(field_id=counter, city=self.city):
+                    build_field = CityField.objects.get(field_id=counter, city=self.city)
                     if build_field.if_residential is True:
                         self.hex_with_builds.append(counter)
                     elif build_field.if_production is True:
@@ -89,8 +92,8 @@ class Hex(object):
 
 
 class HexDetail(object):
-    def __init__(self, request):
-        self.request = request
+    def __init__(self, city):
+        self.city = city
         self.hex_detail_info_table = ''
         self.generate_hex_detail()
 
@@ -106,34 +109,33 @@ class HexDetail(object):
         hex_detail_box = "<div class='hexInfoBoxDetail' id='hexBox"+str(hex_id)+"'>" \
                          "<p>Podgląd hexa "+str(hex_id)+"</p>"
 
-        city = City.objects.get(user=self.request.user)
-        if CityField.objects.filter(field_id=hex_id, city=city):
-            build_field = CityField.objects.get(field_id=hex_id, city=city)
+        if CityField.objects.filter(field_id=hex_id, city=self.city):
+            build_field = CityField.objects.get(field_id=hex_id, city=self.city)
 
             if build_field.if_residential is True:
-                residential = Residential.objects.get(city_field=build_field.id, city=city)
+                residential = Residential.objects.get(city_field=build_field.id, city=self.city)
                 hex_detail_box += '<p>Budynek mieszkalny</p>' \
                                   '<p>Populacja: '+str(residential.current_population)+'</p>'
 
             elif build_field.if_production is True:
-                production = ProductionBuilding.objects.get(city_field=build_field.id, city=city)
+                production = ProductionBuilding.objects.get(city_field=build_field.id, city=self.city)
                 hex_detail_box += '<p>Budynek produkcyjny</p>' \
                                   '<p>Pracownicy: '+str(production.current_employees)+'/'+str(production.max_employees)+'</p>'
 
             elif build_field.if_electricity is True:
-                hex_detail_box += self.add_build_details(build_field, city, electricity_buildings)
+                hex_detail_box += self.add_build_details(build_field, electricity_buildings)
 
             elif build_field.if_waterworks is True:
-                hex_detail_box += self.add_build_details(build_field, city, waterworks_buildings)
+                hex_detail_box += self.add_build_details(build_field, waterworks_buildings)
 
         hex_detail_box += "</div>"
         return hex_detail_box
 
-    def add_build_details(self, build_field, city, list_of_buildings):
+    def add_build_details(self, build_field, list_of_buildings):
         hex_detail_box = ''
         for building in list_of_buildings:
-            if building.objects.filter(city_field=build_field.id, city=city).count() == 1:
-                build = building.objects.get(city_field=build_field.id, city=city)
+            if building.objects.filter(city_field=build_field.id, city=self.city).count() == 1:
+                build = building.objects.get(city_field=build_field.id, city=self.city)
                 hex_detail_box = '<p name="detailName">'+str(build.name)+'</p>'
                 hex_detail_box += '<p name="detailEmployees">Pracownicy: '+str(build.current_employees)+'/'+str(build.max_employees)+'</p>'
                 if build_field.if_electricity is True:
@@ -160,3 +162,115 @@ class HexDetail(object):
         hex_detail_box += '<p name="detailWater">Energia: '+str(build.energy)+'/'+str(build.energy_required)+'</p>'
         return hex_detail_box
 
+
+class ResourceAllocation(object):
+    def __init__(self, city):
+        self.city = city
+        self.clean_resource_data()
+        self.allocate_resources(electricity_buildings)
+
+    def create_allocation_pattern(self, hex_id):
+        first_circle, second_circle, third_circle, fourth_circle = [], [], [], []
+        for x in range(1, int(Board.HEX_NUM_IN_ROW+1)):
+            first_calculations = [
+            hex_id + x,
+            hex_id + Board.HEX_NUM_IN_ROW + x,
+            hex_id + Board.HEX_NUM_IN_ROW,
+            hex_id + Board.HEX_NUM_IN_ROW - x,
+            hex_id - x,
+            hex_id - Board.HEX_NUM_IN_ROW - x,
+            hex_id - Board.HEX_NUM_IN_ROW,
+            hex_id - Board.HEX_NUM_IN_ROW + x,
+            ]
+            shuffle(first_calculations)
+            for result in first_calculations:
+                if result > 0:
+                    first_circle.append(result)
+            yield first_circle
+            first_circle = []
+
+            if x >= 2:
+                second_calculations = [
+                    hex_id + (x - x * Board.HEX_NUM_IN_ROW) - 1 - x,
+                    hex_id + (x - x * Board.HEX_NUM_IN_ROW) - x,
+                    hex_id + (x - x * Board.HEX_NUM_IN_ROW) + 1 - x,
+                    hex_id + (x + x * Board.HEX_NUM_IN_ROW) - 1 - x,
+                    hex_id + (x + x * Board.HEX_NUM_IN_ROW) - x,
+                    hex_id + (x + x * Board.HEX_NUM_IN_ROW) + 1 - x,
+                    hex_id + (x * Board.HEX_NUM_IN_ROW) - (2 - x) - x,
+                    hex_id - (x * Board.HEX_NUM_IN_ROW) - (2 - x) - x,
+                    hex_id + (x * Board.HEX_NUM_IN_ROW) + (2 + x) - x,
+                    hex_id - (x * Board.HEX_NUM_IN_ROW) + (2 + x) - x
+                ]
+                shuffle(second_calculations)
+                for result in second_calculations:
+                    if result > 0:
+                        second_circle.append(result)
+                yield second_circle
+                second_circle = []
+
+                if x % 2 == 0:
+                    third_calculations = [
+                        hex_id + (x * Board.HEX_NUM_IN_ROW) - 3,
+                       hex_id - (x * Board.HEX_NUM_IN_ROW) - 3,
+                        hex_id + (x * Board.HEX_NUM_IN_ROW) + 3,
+                        hex_id - (x * Board.HEX_NUM_IN_ROW) + 3,
+                    ]
+                    shuffle(third_calculations)
+                    for result in third_calculations:
+                        if result > 0:
+                            third_circle.append(result)
+                    yield third_circle
+                    third_circle = []
+
+                elif x % 3 == 0:
+                    fourth_calculations = [
+                        hex_id + (x * Board.HEX_NUM_IN_ROW) - 3,
+                        hex_id - (x * Board.HEX_NUM_IN_ROW) - 3,
+                        hex_id + (x * Board.HEX_NUM_IN_ROW) + 3,
+                        hex_id - (x * Board.HEX_NUM_IN_ROW) + 3,
+                        hex_id + (x * Board.HEX_NUM_IN_ROW) - 4,
+                        hex_id - (x * Board.HEX_NUM_IN_ROW) - 4,
+                        hex_id + (x * Board.HEX_NUM_IN_ROW) + 4,
+                        hex_id - (x * Board.HEX_NUM_IN_ROW) + 4
+                    ]
+                    shuffle(fourth_calculations)
+                    for result in fourth_calculations:
+                        if result > 0:
+                            fourth_circle.append(result)
+                    yield fourth_circle
+                    fourth_circle = []
+
+    def clean_resource_data(self):
+        for models in list_of_models:
+            list = models.objects.filter(city=self.city)
+            for building in list:
+                building.energy = 0
+                building.save()
+
+    def allocate_resources(self, provider_type):
+        for models in provider_type:
+            list_of_buildings = models.objects.filter(city=self.city)
+            for building in list_of_buildings:
+                building.energy_allocated = 0
+                building.save()
+                pattern = self.create_allocation_pattern(building.city_field.id)
+                while building.energy_allocated < building.total_energy_production:
+                    try:
+                        next_value = next(pattern)
+                    except(StopIteration):
+                        break
+                    for field in next_value:
+                        if CityField.objects.filter(city=self.city, field_id=field):
+                            if CityField.objects.get(city=self.city, field_id=field).if_waterworks is True:
+                                energy_deficit = building.total_energy_production - building.energy_allocated
+                                watertower = WaterTower.objects.get(city=self.city, city_field=field)
+                                if watertower.energy == 0:
+                                    if watertower.energy_required <= energy_deficit:
+                                        watertower.energy += watertower.energy_required
+                                        building.energy_allocated += watertower.energy_required
+                                    else:
+                                        watertower.energy += energy_deficit
+                                        building.energy_allocated += energy_deficit
+                                    watertower.save()
+                                    building.save()

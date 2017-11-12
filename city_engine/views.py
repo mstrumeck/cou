@@ -14,7 +14,7 @@ from .main_view_data.main import \
     calculate_max_population, \
     calculate_energy_production_in_city, calculate_water_production_in_city, calculate_energy_usage_in_city,\
     calculate_current_population, \
-    create_list_of_buildings, allocate_resources
+    create_list_of_buildings
 from .turn_data.main import \
     update_build_status, \
     calculate_maintenance_cost
@@ -25,11 +25,10 @@ from .turn_data.build import build_building
 def main_view(request):
     user = User.objects.get(id=request.user.id)
     city = City.objects.get(user=user)
-    allocate_resources(city, electricity_buildings)
     City.energy_production = calculate_energy_production_in_city(city)
     City.energy_used = calculate_energy_usage_in_city(city)
-    new_board = Board(request)
-    new_hex_detail = HexDetail(request)
+    new_board = Board(city)
+    new_hex_detail = HexDetail(city)
 
     profile = Profile.objects.get(user_id=request.user.id)
     income = Citizen.objects.filter(city=city).aggregate(Sum('income'))['income__sum']

@@ -1,7 +1,7 @@
 import time
 from django.db.models import Sum
 from django.test import override_settings
-from city_engine.models import City,\
+from city_engine.models import City,CityField, \
     WindPlant, CoalPlant, RopePlant, \
     WaterTower
 from .base import BaseTestForOnePlayer, BaseTestForTwoPlayers
@@ -70,8 +70,6 @@ class CreateBuildingsTestForOnePlayer(BaseTestForOnePlayer):
         self.assertEqual(RopePlant.objects.filter(city=self.city).count(), 1)
         self.assertEqual(WaterTower.objects.filter(city=self.city).count(), 1)
 
-
-class ResourcesAllocationTests(BaseTestForOnePlayer):
     def test_energy_allocation(self):
         self.browser.get(self.live_server_url)
         self.browser.find_element_by_link_text('Zaloguj').click()
@@ -86,15 +84,15 @@ class ResourcesAllocationTests(BaseTestForOnePlayer):
 
         self.browser.find_element_by_name('Wodociagi').click()
         self.browser.find_element_by_name('WaterTower').click()
-        self.browser.find_element_by_css_selector('.hexagon.isHexTaken').click()
+        self.browser.find_element_by_xpath('//div[@id="1" and @class="hexagon isHexTaken"]').click()
 
         self.browser.find_element_by_name('Budynki_elektryczne').click()
         self.browser.find_element_by_name('WindPlant').click()
-        self.browser.find_element_by_css_selector('.hexagon.isHexTaken').click()
+        self.browser.find_element_by_xpath('//div[@id="2" and @class="hexagon isHexTaken"]').click()
 
         self.browser.find_element_by_name('Wodociagi').click()
         self.browser.find_element_by_name('WaterTower').click()
-        self.browser.find_element_by_css_selector('.hexagon.isHexTaken').click()
+        self.browser.find_element_by_xpath('//div[@id="3" and @class="hexagon isHexTaken"]').click()
 
         self.browser.find_element_by_link_text('Kolejna tura').click()
         time.sleep(1)
@@ -110,15 +108,18 @@ class ResourcesAllocationTests(BaseTestForOnePlayer):
                          WaterTower.objects.filter(city=self.city).aggregate(Sum('energy'))['energy__sum'])
 
         self.browser.find_element_by_xpath('//div[@id="1" and @class="hexagon build"]').click()
+        city_field_1 = CityField.objects.get(city=self.city, field_id=1)
+        city_field_3 = CityField.objects.get(city=self.city, field_id=3)
+
         self.browser.find_element_by_xpath('//p[contains(., "Energia: {}/{}")]'.format(
-            WaterTower.objects.get(city=self.city, city_field=1).energy,
-            WaterTower.objects.get(city=self.city, city_field=1).energy_required
+            WaterTower.objects.get(city=self.city, city_field=city_field_1).energy,
+            WaterTower.objects.get(city=self.city, city_field=city_field_1).energy_required
         )).is_displayed()
 
         self.browser.find_element_by_xpath('//div[@id="3" and @class="hexagon build"]').click()
         self.browser.find_element_by_xpath('//p[contains(., "Energia: {}/{}")]'.format(
-            WaterTower.objects.get(city=self.city, city_field=3).energy,
-            WaterTower.objects.get(city=self.city, city_field=3).energy_required
+            WaterTower.objects.get(city=self.city, city_field=city_field_3).energy,
+            WaterTower.objects.get(city=self.city, city_field=city_field_3).energy_required
         )).is_displayed()
 
 
