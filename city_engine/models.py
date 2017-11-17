@@ -41,6 +41,7 @@ class Building(models.Model):
     energy = models.PositiveIntegerField(default=0)
     energy_required = models.PositiveIntegerField(default=0)
     water = models.PositiveIntegerField(default=0)
+    water_required = models.PositiveIntegerField(default=0)
     crime = models.PositiveIntegerField(default=0)
     pollution = models.PositiveIntegerField(default=0)
     recycling = models.PositiveIntegerField(default=0)
@@ -88,9 +89,14 @@ class PowerPlant(Building):
         if self.current_employees is 0 or self.max_employees is 0:
             return 0
         else:
-            productivity = float(self.current_employees)/float(self.max_employees)
-            total = (productivity * int(self.energy_production)) * int(self.power_nodes)
-            return int(total)
+            if self.water is 0:
+                water_productivity = 0
+            else:
+                water_productivity = float(self.water) / float(self.water_required)
+        employees_productivity = float(self.current_employees) / float(self.max_employees)
+        productivity = int(water_productivity + employees_productivity)/2
+        total = (productivity * int(self.energy_production)) * int(self.power_nodes)
+        return int(total)
 
     def build_status(self):
         if self.if_under_construction is True:
@@ -118,6 +124,7 @@ class WindPlant(PowerPlant):
     build_time = models.PositiveIntegerField(default=3)
     build_cost = models.PositiveIntegerField(default=100)
     maintenance_cost = models.PositiveIntegerField(default=10)
+    water_required = models.PositiveIntegerField(default=10)
 
     def build_status(self):
         if self.if_under_construction is True:
@@ -143,6 +150,7 @@ class RopePlant(PowerPlant):
     build_time = models.PositiveIntegerField(default=5)
     build_cost = models.PositiveIntegerField(default=200)
     maintenance_cost = models.PositiveIntegerField(default=20)
+    water_required = models.PositiveIntegerField(default=15)
 
     def build_status(self):
         if self.if_under_construction is True:
@@ -152,7 +160,6 @@ class RopePlant(PowerPlant):
                 return False
             elif self.current_build_time == self.build_time:
                 self.if_under_construction = False
-                self.max_employees = 10
                 self.max_employees = 10
                 self.power_nodes = 1
                 self.max_power_nodes = 4
@@ -168,6 +175,7 @@ class CoalPlant(PowerPlant):
     build_time = models.PositiveIntegerField(default=4)
     build_cost = models.PositiveIntegerField(default=150)
     maintenance_cost = models.PositiveIntegerField(default=15)
+    water_required = models.PositiveIntegerField(default=20)
 
     def build_status(self):
         if self.if_under_construction is True:
@@ -188,7 +196,9 @@ class CoalPlant(PowerPlant):
 
 
 class Waterworks(Building):
+    water_allocated = models.PositiveIntegerField(default=0)
     water_production = models.PositiveIntegerField(default=0)
+    total_water_production = models.PositiveIntegerField(default=0)
 
     class Meta:
         abstract = True
@@ -197,11 +207,10 @@ class Waterworks(Building):
         if self.current_employees is 0 or self.max_employees is 0:
             return 0
         else:
-            if self.city.energy_production <= self.energy_required:
-                total_energy = self.city.energy_production
+            if self.energy is 0:
+                energy_productivity = 0
             else:
-                total_energy = self.energy_required
-            energy_productivity = float(total_energy)/float(self.energy_required)
+                energy_productivity = float(self.energy)/float(self.energy_required)
             employees_productivity = float(self.current_employees)/float(self.max_employees)
             productivity = float((energy_productivity+employees_productivity)/2)
             total = (productivity * int(self.water_production))
@@ -224,6 +233,7 @@ class WaterTower(Waterworks):
             elif self.current_build_time == self.build_time:
                 self.if_under_construction = False
                 self.max_employees = 5
+                self.current_employees = 5
                 self.water_production = 20
                 self.save()
                 return True

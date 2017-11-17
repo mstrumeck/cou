@@ -3,7 +3,7 @@ from city_engine.models import CityField, City, \
     ProductionBuilding, \
     WindPlant, CoalPlant, RopePlant, WaterTower, \
     electricity_buildings, waterworks_buildings, \
-    list_of_models
+    list_of_models, list_of_buildings_categories
 from random import shuffle
 
 
@@ -146,20 +146,22 @@ class HexDetail(object):
 
     def add_electricity_details(self, build):
         hex_detail_box = ''
-        hex_detail_box += '<p name="detailEnergy">Produkowana energia: ' + str(build.total_energy_production) + '</p>'
+        hex_detail_box += '<p name="detailEnergy">Produkowana energia: ' + str(build.total_production()) + '</p>'
         if build is WindPlant:
             hex_detail_box += '<p>Liczba turbin: '
         else:
             hex_detail_box += '<p>Liczba reaktorów: '
             hex_detail_box += str(build.power_nodes)+'/'+str(build.max_power_nodes)+'</p>'
-        hex_detail_box += 'total_energy_production' +str(build.total_energy_production)
-        hex_detail_box += 'total_energy_allocation' +str(build.energy_allocated)
+        hex_detail_box += '<p>Woda: '+str(build.water)+'/'+str(build.water_required)+'</p>'
+        hex_detail_box += '<p>total_energy_allocation' +str(build.energy_allocated)+'</p>'
+        hex_detail_box += '<p>if_ele '+str(build.city_field.if_electricity)+'</p>'
         return hex_detail_box
 
     def add_waterworks_details(self, build):
         hex_detail_box = ''
         hex_detail_box += '<p name="detailWater">Pompowana woda: '+str(build.total_production())+'</p>'
         hex_detail_box += '<p name="detailWater">Energia: '+str(build.energy)+'/'+str(build.energy_required)+'</p>'
+        hex_detail_box += '<p>Woda allocated: '+str(build.water_allocated)+'</p>'
         return hex_detail_box
 
 
@@ -167,7 +169,9 @@ class ResourceAllocation(object):
     def __init__(self, city):
         self.city = city
         self.clean_resource_data()
-        self.allocate_resources(electricity_buildings)
+        self.water_allocation()
+        self.energy_allocation()
+        # self.allocate_resources()
 
     def create_allocation_pattern(self, hex_id):
         first_circle, second_circle, third_circle, fourth_circle = [], [], [], []
@@ -246,16 +250,17 @@ class ResourceAllocation(object):
             list = models.objects.filter(city=self.city)
             for building in list:
                 building.energy = 0
+                building.water = 0
                 building.save()
 
-    def allocate_resources(self, provider_type):
-        for models in provider_type:
+    def energy_allocation(self):
+        for models in electricity_buildings:
             list_of_buildings = models.objects.filter(city=self.city)
             for building in list_of_buildings:
                 building.energy_allocated = 0
                 building.save()
                 pattern = self.create_allocation_pattern(building.city_field.id)
-                while building.energy_allocated < building.total_energy_production:
+                while building.energy_allocated < building.total_production():
                     try:
                         next_value = next(pattern)
                     except(StopIteration):
@@ -263,14 +268,43 @@ class ResourceAllocation(object):
                     for field in next_value:
                         if CityField.objects.filter(city=self.city, field_id=field):
                             if CityField.objects.get(city=self.city, field_id=field).if_waterworks is True:
-                                energy_deficit = building.total_energy_production - building.energy_allocated
-                                watertower = WaterTower.objects.get(city=self.city, city_field=field)
-                                if watertower.energy == 0:
-                                    if watertower.energy_required <= energy_deficit:
-                                        watertower.energy += watertower.energy_required
-                                        building.energy_allocated += watertower.energy_required
+                                energy_deficit = building.total_production() - building.energy_allocated
+                                waterworks = WaterTower.objects.get(city=self.city, city_field=field)
+                                if waterworks.energy == 0:
+                                    if waterworks.energy_required <= energy_deficit:
+                                        waterworks.energy += waterworks.energy_required
+                                        building.energy_allocated += waterworks.energy_required
                                     else:
-                                        watertower.energy += energy_deficit
+                                        waterworks.energy += energy_deficit
                                         building.energy_allocated += energy_deficit
-                                    watertower.save()
-                                    building.save()
+                                waterworks.save()
+                                building.save()
+
+    def water_allocation(self):
+        for models in waterworks_buildings:
+            list_of_buildings = models.objects.filter(city=self.city)
+            for building in list_of_buildings:
+                building.water_allocated = 0
+                building.save()
+                pattern = self.create_allocation_pattern(building.city_field.id)
+                while building.water_allocated < building.total_production():
+                    try:
+                        next_value = next(pattern)
+                    except(StopIteration):
+                        break
+                    for field in next_value:
+                        if CityField.objects.filter(city=self.city, field_id=field):
+                            if CityField.objects.get(city=self.city, field_id=field).if_electricity is True:
+                                water_deficit = building.total_production() - building.water_allocated
+                                for electric_building in electricity_buildings:
+                                    if electric_building.objects.filter(city=self.city, city_field=field):
+                                        power_plant = electric_building.objects.get(city=self.city, city_field=field)
+                                        if power_plant.water == 0:
+                                            if power_plant.water_required <= water_deficit:
+                                                power_plant.water += power_plant.water_required
+                                                building.water_allocated += power_plant.water_required
+                                            else:
+                                                power_plant.water += water_deficit
+                                                building.water_allocated += water_deficit
+                                        power_plant.save()
+                                        building.save()

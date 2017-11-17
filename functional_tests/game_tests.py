@@ -61,9 +61,9 @@ class CreateBuildingsTestForOnePlayer(BaseTestForOnePlayer):
         City.energy_used = calculate_energy_usage_in_city(self.city)
         city_energy_bilans = City.energy_production - City.energy_used
 
-        self.assertEqual(city_energy_bilans, 2)
+        self.assertEqual(city_energy_bilans, -1)
         # self.assertContains(self.client.get('/main_view/'), 'Energia: {}'.format(city_energy_bilans))
-        # self.assertContains(self.client.get('/main_view/'), 'Woda: {}'.format(calculate_water_production(self.city)))
+        # self.assertContains(self.client.get('/main_view/'), 'Woda: {}'.format(calculate_water_production_in_city(self.city)))
 
         self.assertEqual(WindPlant.objects.filter(city=self.city).count(), 1)
         self.assertEqual(CoalPlant.objects.filter(city=self.city).count(), 1)
@@ -109,11 +109,17 @@ class CreateBuildingsTestForOnePlayer(BaseTestForOnePlayer):
 
         self.browser.find_element_by_xpath('//div[@id="1" and @class="hexagon build"]').click()
         city_field_1 = CityField.objects.get(city=self.city, field_id=1)
+        city_field_2 = CityField.objects.get(city=self.city, field_id=2)
         city_field_3 = CityField.objects.get(city=self.city, field_id=3)
 
         self.browser.find_element_by_xpath('//p[contains(., "Energia: {}/{}")]'.format(
             WaterTower.objects.get(city=self.city, city_field=city_field_1).energy,
             WaterTower.objects.get(city=self.city, city_field=city_field_1).energy_required
+        )).is_displayed()
+
+        self.browser.find_element_by_xpath('//p[contains(., "Woda: {}/{}")]'.format(
+            WindPlant.objects.get(city=self.city, city_field=city_field_2).water,
+            WindPlant.objects.get(city=self.city, city_field=city_field_2).water_required
         )).is_displayed()
 
         self.browser.find_element_by_xpath('//div[@id="3" and @class="hexagon build"]').click()

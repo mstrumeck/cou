@@ -6,6 +6,7 @@ from city_engine.models import Residential, ProductionBuilding, \
 from random import shuffle
 from city_engine.main_view_data.board import Board
 
+
 def create_list_of_buildings_under_construction(city):
     building_name, building_cur, building_end = [], [], []
     for model in list_of_models:
@@ -52,10 +53,10 @@ def calculate_energy_production_in_city(city):
     for models in electricity_buildings:
         list_of_buildings = models.objects.filter(city=city)
         for building in list_of_buildings:
-            total_production = building.total_production()
-            building.total_energy_production = total_production
-            building.save()
-            energy += total_production
+            energy += building.total_production()
+            # building.total_energy_production = total_production
+            # building.save()
+            # energy += total_production
 
     # for city_field in CityField.objects.filter(city=city):
     #     if city_field.if_electricity is True:
@@ -63,6 +64,15 @@ def calculate_energy_production_in_city(city):
     #             if building.objects.filter(city_field=city_field).count() == 1:
     #                 energy += building.objects.get(city_field=city_field).total_production()
     return energy
+
+
+def calculate_energy_allocation_in_city(city):
+    energy_allocated = 0
+    for models in electricity_buildings:
+        list_of_buildings = models.objects.filter(city=city)
+        for building in list_of_buildings:
+            energy_allocated += building.energy_allocated
+    return energy_allocated
 
 
 def calculate_energy_usage_in_city(city):

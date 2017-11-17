@@ -12,7 +12,7 @@ from player.models import Profile
 from .main_view_data.main import \
     create_list_of_buildings_under_construction, \
     calculate_max_population, \
-    calculate_energy_production_in_city, calculate_water_production_in_city, calculate_energy_usage_in_city,\
+    calculate_energy_production_in_city, calculate_water_production_in_city, calculate_energy_usage_in_city, calculate_energy_allocation_in_city, \
     calculate_current_population, \
     create_list_of_buildings
 from .turn_data.main import \
@@ -25,22 +25,21 @@ from .turn_data.build import build_building
 def main_view(request):
     user = User.objects.get(id=request.user.id)
     city = City.objects.get(user=user)
-    City.energy_production = calculate_energy_production_in_city(city)
-    City.energy_used = calculate_energy_usage_in_city(city)
+
     new_board = Board(city)
     new_hex_detail = HexDetail(city)
+
+    # City.energy_production = calculate_energy_production_in_city(city)
+    # City.energy_used = calculate_energy_usage_in_city(city)
+    city_energy_bilans = calculate_energy_production_in_city(city) - calculate_energy_usage_in_city(city)
+
+    City.water_production = calculate_water_production_in_city(city)
 
     profile = Profile.objects.get(user_id=request.user.id)
     income = Citizen.objects.filter(city=city).aggregate(Sum('income'))['income__sum']
 
     max_population = calculate_max_population(city)
     current_population = calculate_current_population(city)
-
-    City.energy_production = calculate_energy_production_in_city(city)
-    City.energy_used = calculate_energy_usage_in_city(city)
-    city_energy_bilans = City.energy_production - City.energy_used
-
-    City.water_production = calculate_water_production_in_city(city)
 
     buildings = create_list_of_buildings(city)
     buildings_under_construction = create_list_of_buildings_under_construction(city)
@@ -53,6 +52,7 @@ def main_view(request):
                                               'income': income,
                                               'energy': City.energy_production,
                                               'energy_bilans': city_energy_bilans,
+                                              'energy_allocated': calculate_energy_allocation_in_city(city),
                                               'water': City.water_production,
                                               'hex_table': mark_safe(new_board.hex_table),
                                               'hex_detail_info_table': mark_safe(new_hex_detail.hex_detail_info_table),
