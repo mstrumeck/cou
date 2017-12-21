@@ -50,7 +50,7 @@ def main_view(request):
     return render(request, 'main_view.html', {'city': city,
                                               'profile': profile,
                                               'income': income,
-                                              'energy': City.energy_production,
+                                              'energy': calculate_energy_production_in_city(city),
                                               'energy_bilans': city_energy_bilans,
                                               'energy_allocated': calculate_energy_allocation_in_city(city),
                                               'water': City.water_production,
@@ -77,7 +77,7 @@ def turn_calculations(request):
 
 
 @login_required
-def build(request, hex_id, build_type):
-    build_building(request, hex_id, build_type)
+def build(request, row, col, build_type):
+    build_building(request, row, col, build_type)
     return HttpResponseRedirect(reverse('city_engine:main_view'))
 

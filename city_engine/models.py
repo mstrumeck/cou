@@ -7,8 +7,6 @@ class City(models.Model):
     user = models.ForeignKey(User)
     name = models.TextField(max_length=15, unique=True)
     cash = models.DecimalField(default=10000, decimal_places=2, max_digits=20)
-    energy_production = models.PositiveIntegerField(default=0)
-    energy_used = models.PositiveIntegerField(default=0)
     water_production = models.PositiveIntegerField(default=0)
     publish = models.DateField(auto_now_add=True)
     updated = models.DateField(auto_now=True)
@@ -19,7 +17,8 @@ class City(models.Model):
 
 class CityField(models.Model):
     city = models.ForeignKey(City)
-    field_id = models.PositiveIntegerField()
+    col = models.PositiveIntegerField()
+    row = models.PositiveIntegerField()
     if_residential = models.BooleanField(default=False)
     if_production = models.BooleanField(default=False)
     if_electricity = models.BooleanField(default=False)

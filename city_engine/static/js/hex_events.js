@@ -15,10 +15,17 @@ $(document).ready(function() {
             window.location.replace("/build/"+hexId+"/"+buildType+"");
         });
     });
+//    $('.hexagon').click(function(){
+//        var hexId = $(this).attr('id');
+//        var result = $(this).closest('main').find('#result');
+//        result.html('<p>'+hexId+'</p>');
+//    });
 
     $('.hexagon').click(function(){
         var hexId = $(this).attr('id');
         var hexInfoBox = $(this).closest('main').find('#hexInfoBox');
+        var result = $(this).closest('main').find('#result');
+        result.html('<p>'+hexId+'</p>');
         hexInfoBox.children('.hexInfoBoxDetail').hide();
         hexInfoBox.children('.hexInfoBoxDetail#hexBox'+hexId+'').toggle('slow');
     });

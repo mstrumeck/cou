@@ -22,7 +22,7 @@ class CitizenFixture(TestCase):
         factory.production_level = 0
         factory.build_time = 3
         factory.city = city
-        factory.city_field = CityField.objects.get(field_id=1, city=city)
+        factory.city_field = CityField.objects.get(row=0, col=0, city=city)
         factory.save()
 
         residential = Residential()
@@ -31,7 +31,7 @@ class CitizenFixture(TestCase):
         residential.residential_level = 0
         residential.build_time = 3
         residential.city = city
-        residential.city_field = CityField.objects.get(field_id=2, city=city)
+        residential.city_field = CityField.objects.get(row=0, col=1, city=city)
         residential.save()
 
         first_citizen = Citizen()

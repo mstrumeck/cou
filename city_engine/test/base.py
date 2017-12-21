@@ -27,19 +27,19 @@ class CityFixture(test.TestCase):
         #     CityField.objects.create(city=city, field_id=field_id).save()
         #     CityField.objects.create(city=second_city, field_id=field_id).save()
 
-        CityField.objects.get(field_id=1, city=city).if_production = True
-        CityField.objects.get(field_id=2, city=city).if_residential = True
-        CityField.objects.get(field_id=3, city=city).if_electricity = True
-        CityField.objects.get(field_id=1, city=city).save()
-        CityField.objects.get(field_id=2, city=city).save()
-        CityField.objects.get(field_id=3, city=city).save()
+        CityField.objects.get(row=0, col=0, city=city).if_production = True
+        CityField.objects.get(row=0, col=1, city=city).if_residential = True
+        CityField.objects.get(row=0, col=2, city=city).if_electricity = True
+        CityField.objects.get(row=0, col=0, city=city).save()
+        CityField.objects.get(row=0, col=1, city=city).save()
+        CityField.objects.get(row=0, col=2, city=city).save()
 
-        CityField.objects.get(field_id=1, city=second_city).if_production = True
-        CityField.objects.get(field_id=2, city=second_city).if_residential = True
-        CityField.objects.get(field_id=3, city=second_city).if_electricity = True
-        CityField.objects.get(field_id=1, city=second_city).save()
-        CityField.objects.get(field_id=2, city=second_city).save()
-        CityField.objects.get(field_id=3, city=second_city).save()
+        CityField.objects.get(row=0, col=0, city=second_city).if_production = True
+        CityField.objects.get(row=0, col=1, city=second_city).if_residential = True
+        CityField.objects.get(row=0, col=2, city=second_city).if_electricity = True
+        CityField.objects.get(row=0, col=0, city=second_city).save()
+        CityField.objects.get(row=0, col=1, city=second_city).save()
+        CityField.objects.get(row=0, col=2, city=second_city).save()
 
         first_factory = ProductionBuilding()
         first_factory.max_employees = 20
@@ -48,7 +48,7 @@ class CityFixture(test.TestCase):
         first_factory.build_time = 3
         first_factory.city = city
         first_factory.if_under_construction = False
-        first_factory.city_field = CityField.objects.get(field_id=1, city=city)
+        first_factory.city_field = CityField.objects.get(row=0, col=0, city=city)
         first_factory.save()
 
         second_factory = ProductionBuilding()
@@ -58,7 +58,7 @@ class CityFixture(test.TestCase):
         second_factory.build_time = 3
         second_factory.city = second_city
         second_factory.if_under_construction = False
-        second_factory.city_field = CityField.objects.get(field_id=1, city=second_city)
+        second_factory.city_field = CityField.objects.get(row=0, col=0, city=second_city)
         second_factory.save()
 
         first_residential = Residential()
@@ -68,7 +68,7 @@ class CityFixture(test.TestCase):
         first_residential.build_time = 3
         first_residential.city = city
         first_residential.if_under_construction = False
-        first_residential.city_field = CityField.objects.get(field_id=2, city=city)
+        first_residential.city_field = CityField.objects.get(row=0, col=1, city=city)
         first_residential.save()
 
         second_residential = Residential()
@@ -78,7 +78,7 @@ class CityFixture(test.TestCase):
         second_residential.build_time = 3
         second_residential.city = second_city
         second_residential.if_under_construction = False
-        second_residential.city_field = CityField.objects.get(field_id=2, city=second_city)
+        second_residential.city_field = CityField.objects.get(row=0, col=1, city=second_city)
         second_residential.save()
 
         first_power_plant = WindPlant()
@@ -89,7 +89,7 @@ class CityFixture(test.TestCase):
         first_power_plant.energy_production = 5
         first_power_plant.city = city
         first_power_plant.if_under_construction = True
-        first_power_plant.city_field = CityField.objects.get(field_id=3, city=city)
+        first_power_plant.city_field = CityField.objects.get(row=0, col=2, city=city)
         first_power_plant.save()
 
         second_power_plant = WindPlant()
@@ -100,7 +100,7 @@ class CityFixture(test.TestCase):
         second_power_plant.energy_production = 5
         second_power_plant.city = second_city
         second_power_plant.if_under_construction = False
-        second_power_plant.city_field = CityField.objects.get(field_id=3, city=second_city)
+        second_power_plant.city_field = CityField.objects.get(row=0, col=2, city=second_city)
         second_power_plant.save()
 
         third_power_plant = RopePlant()
@@ -111,7 +111,7 @@ class CityFixture(test.TestCase):
         third_power_plant.energy_production = 30
         third_power_plant.city = city
         third_power_plant.if_under_construction = False
-        third_power_plant.city_field = CityField.objects.get(field_id=4, city=city)
+        third_power_plant.city_field = CityField.objects.get(row=0, col=3, city=city)
         third_power_plant.save()
 
         fourth_power_plant = CoalPlant()
@@ -122,7 +122,7 @@ class CityFixture(test.TestCase):
         fourth_power_plant.energy_production = 30
         fourth_power_plant.city = city
         fourth_power_plant.if_under_construction = False
-        fourth_power_plant.city_field = CityField.objects.get(field_id=5, city=city)
+        fourth_power_plant.city_field = CityField.objects.get(row=1, col=0, city=city)
         fourth_power_plant.save()
 
         waterwork = WaterTower()
@@ -131,7 +131,7 @@ class CityFixture(test.TestCase):
         waterwork.water_production = 20
         waterwork.city = city
         waterwork.if_under_construction = False
-        waterwork.city_field = CityField.objects.get(field_id=6, city=city)
+        waterwork.city_field = CityField.objects.get(row=1, col=1, city=city)
         waterwork.save()
 
         first_citizen = Citizen()

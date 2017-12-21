@@ -17,8 +17,9 @@
 
 <p>Miasto: {{ city.name }}</p>
 <p>Pieniądze: {{ city.cash }}</p>
-<p>Energia: {{ energy_bilans }}</p>
-<p>Energia ulokowana: {{ energy_allocated }}</p>
+<p>Energia - produkowana: {{ energy }}</p>
+<p>Energia - ulokowana: {{ energy_allocated }}</p>
+<p>Energia - bilans: {{ energy_bilans }}</p>
 <p>Woda: {{ water }}</p>
 <p>Koszty utrzymania: {{ total_cost_of_maintenance }}</p>
 <p>{{ profile.current_turn }}/12</p>
@@ -77,6 +78,7 @@
 <div class="buildingsToBuild">
     <button class="setBuilding" name="WaterTower">Wieża ciśnień</button>
 </div>
+<div id="result"></div>
 
 <div id="board">
     <h1>Plansza wygenerowana z Djagno</h1>

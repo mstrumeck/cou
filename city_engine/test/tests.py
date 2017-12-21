@@ -6,10 +6,9 @@ from django.test.client import RequestFactory
 from django.http import HttpRequest
 from .base import CityFixture
 from city_engine.main_view_data.board import Board, HexDetail
-from city_engine.models import City,CityField, \
+from city_engine.models import City, CityField, \
     Residential, \
     ProductionBuilding, \
-    CityField, \
     WindPlant, RopePlant, CoalPlant, WaterTower, \
     electricity_buildings, \
     list_of_models, \
@@ -48,7 +47,7 @@ class CityViewTests(CityFixture):
                 total_energy += building.total_production()
 
         self.assertEqual(total_energy, calculate_energy_production_in_city(city))
-        self.assertContains(response, 'Energia: {}'.format(
+        self.assertContains(response, 'Energia - bilans: {}'.format(
             calculate_energy_production_in_city(city) - calculate_energy_usage_in_city(city),
             calculate_energy_production_in_city(city)))
 
@@ -163,14 +162,12 @@ class ModelsTests(TestCase):
         self.assertTrue(isinstance(city, City))
         self.assertEqual(str(city), city.name)
         self.assertEqual(city.cash, 10000)
-        self.assertEqual(city.energy_production, 0)
-        self.assertEqual(city.energy_used, 0)
         self.assertEqual(city.water_production, 0)
 
     def test_city_field_creation(self):
         user = User.objects.create_user(username='test_username', password='12345', email='random@wp.pl')
         city = City.objects.create(name='Wrocław', user=user)
-        city_field = CityField.objects.create(city=city, field_id=1)
+        city_field = CityField.objects.create(city=city, row=1, col=1)
         self.assertTrue(isinstance(city_field, CityField))
 
 
