@@ -2,7 +2,7 @@ from city_engine.models import CityField, City, \
     electricity_buildings, waterworks_buildings, \
     WindPlant, RopePlant, CoalPlant, \
     WaterTower
-
+#Test commita
 
 def build_building(request, hex_id, build_type):
     build_type = eval(build_type)
