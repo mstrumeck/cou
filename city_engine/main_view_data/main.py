@@ -90,3 +90,20 @@ def calculate_water_production_in_city(city):
         for building in list_of_buildings:
             water += building.total_production()
     return water
+
+
+def calculate_water_usage_in_city(city):
+    total_water = 0
+    for model in list_of_models:
+        for buildings in model.objects.filter(city=city):
+            total_water += buildings.water_required
+    return total_water
+
+
+def calculate_water_allocation_in_city(city):
+    water_allocated = 0
+    for models in waterworks_buildings:
+        list_of_buildings = models.objects.filter(city=city)
+        for building in list_of_buildings:
+            water_allocated += building.water_allocated
+    return water_allocated

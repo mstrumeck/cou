@@ -10,14 +10,14 @@ from city_engine.models import City, CityField, \
     Residential, \
     ProductionBuilding, \
     WindPlant, RopePlant, CoalPlant, WaterTower, \
-    electricity_buildings, \
+    electricity_buildings, waterworks_buildings, \
     list_of_models, \
     CoalPlant
 from player.models import Profile
 from django.db.models import Sum
 from city_engine.turn_data.build import build_building
 from city_engine.views import main_view
-from city_engine.main_view_data.main import calculate_energy_production_in_city, calculate_energy_usage_in_city, \
+from city_engine.main_view_data.main import calculate_energy_production_in_city, calculate_energy_usage_in_city, calculate_energy_allocation_in_city, \
     calculate_water_production_in_city, \
     create_list_of_buildings_under_construction, \
     create_list_of_buildings
@@ -48,8 +48,10 @@ class CityViewTests(CityFixture):
 
         self.assertEqual(total_energy, calculate_energy_production_in_city(city))
         self.assertContains(response, 'Energia - bilans: {}'.format(
-            calculate_energy_production_in_city(city) - calculate_energy_usage_in_city(city),
+            calculate_energy_production_in_city(city) - calculate_energy_allocation_in_city(city),
             calculate_energy_production_in_city(city)))
+
+    # calculate_energy_production_in_city(city) - calculate_energy_allocation_in_city(city)
 
     def test_total_water_production_view(self):
         response = self.client.get('/main_view/')
@@ -162,7 +164,6 @@ class ModelsTests(TestCase):
         self.assertTrue(isinstance(city, City))
         self.assertEqual(str(city), city.name)
         self.assertEqual(city.cash, 10000)
-        self.assertEqual(city.water_production, 0)
 
     def test_city_field_creation(self):
         user = User.objects.create_user(username='test_username', password='12345', email='random@wp.pl')
@@ -170,4 +171,53 @@ class ModelsTests(TestCase):
         city_field = CityField.objects.create(city=city, row=1, col=1)
         self.assertTrue(isinstance(city_field, CityField))
 
+    def test_water_allocation_reset_method(self):
+        user = User.objects.create_user(username='test_username', password='12345', email='random@wp.pl')
+        city = City.objects.create(name='Wrocław', user=user)
+        city_field = CityField.objects.create(city=city, row=1, col=1)
+        water_tower = WaterTower.objects.create(city=city,
+                                                city_field=city_field,
+                                                if_under_construction=False,
+                                                build_time=0,
+                                                water_allocated=10)
+        water_tower.resources_allocation_reset()
+        self.assertEqual(water_tower.water_allocated, 0)
+
+    def test_energy_allocation_reset_method(self):
+        user = User.objects.create_user(username='test_username', password='12345', email='random@wp.pl')
+        city = City.objects.create(name='Wrocław', user=user)
+        city_field = CityField.objects.create(city=city, row=1, col=1)
+        wind_plant = WindPlant.objects.create(city=city,
+                                              city_field=city_field,
+                                              if_under_construction=False,
+                                              build_time=0,
+                                              energy_allocated=10)
+        wind_plant.resources_allocation_reset()
+        self.assertEqual(wind_plant.energy_allocated, 0)
+
+    def test_key_resources_interface(self):
+        user = User.objects.create_user(username='test_username', password='12345', email='random@wp.pl')
+        city = City.objects.create(name='Wrocław', user=user)
+        city_field1 = CityField.objects.create(city=city, row=1, col=1)
+        city_field2 = CityField.objects.create(city=city, row=2, col=1)
+        wind_plant = WindPlant.objects.create(city=city,
+                                              city_field=city_field1,
+                                              if_under_construction=False,
+                                              build_time=0,
+                                              energy_allocated=10)
+        water_tower = WaterTower.objects.create(city=city,
+                                                city_field=city_field2,
+                                                if_under_construction=False,
+                                                build_time=0,
+                                                water_allocated=10)
+        self.assertEqual(wind_plant.producted_resources_allocation(), 10)
+        self.assertEqual(water_tower.producted_resources_allocation(), 10)
+
+    def test_return_type_of_field_method(self):
+        user = User.objects.create_user(username='test_username', password='12345', email='random@wp.pl')
+        city = City.objects.create(name='Wrocław', user=user)
+        city_field1 = CityField.objects.create(city=city, row=1, col=1, if_electricity=True)
+        city_field2 = CityField.objects.create(city=city, row=2, col=1, if_waterworks=True)
+        self.assertEqual(city_field1.return_list_of_possible_buildings_related_with_type_of_field(), electricity_buildings)
+        self.assertEqual(city_field2.return_list_of_possible_buildings_related_with_type_of_field(), waterworks_buildings)
 

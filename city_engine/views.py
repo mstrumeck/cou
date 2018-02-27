@@ -12,7 +12,8 @@ from player.models import Profile
 from .main_view_data.main import \
     create_list_of_buildings_under_construction, \
     calculate_max_population, \
-    calculate_energy_production_in_city, calculate_water_production_in_city, calculate_energy_usage_in_city, calculate_energy_allocation_in_city, \
+    calculate_energy_production_in_city, calculate_energy_usage_in_city, calculate_energy_allocation_in_city,\
+    calculate_water_production_in_city, calculate_water_usage_in_city, calculate_water_allocation_in_city,\
     calculate_current_population, \
     create_list_of_buildings
 from .turn_data.main import \
@@ -31,9 +32,11 @@ def main_view(request):
 
     # City.energy_production = calculate_energy_production_in_city(city)
     # City.energy_used = calculate_energy_usage_in_city(city)
-    city_energy_bilans = calculate_energy_production_in_city(city) - calculate_energy_usage_in_city(city)
+    # city_energy_bilans = calculate_energy_allocation_in_city(city) - calculate_energy_usage_in_city(city)
+    city_energy_bilans = calculate_energy_production_in_city(city) - calculate_energy_allocation_in_city(city)
 
-    City.water_production = calculate_water_production_in_city(city)
+    # City.water_production = calculate_water_production_in_city(city)
+    city_water_bilans = calculate_water_production_in_city(city) - calculate_water_allocation_in_city(city)
 
     profile = Profile.objects.get(user_id=request.user.id)
     income = Citizen.objects.filter(city=city).aggregate(Sum('income'))['income__sum']
@@ -53,7 +56,9 @@ def main_view(request):
                                               'energy': calculate_energy_production_in_city(city),
                                               'energy_bilans': city_energy_bilans,
                                               'energy_allocated': calculate_energy_allocation_in_city(city),
-                                              'water': City.water_production,
+                                              'water': calculate_water_production_in_city(city),
+                                              'water_bilans': city_water_bilans,
+                                              'water_allocated': calculate_water_allocation_in_city(city),
                                               'hex_table': mark_safe(new_board.hex_table),
                                               'hex_detail_info_table': mark_safe(new_hex_detail.hex_detail_info_table),
                                               'buildings': buildings,
@@ -80,4 +85,3 @@ def turn_calculations(request):
 def build(request, row, col, build_type):
     build_building(request, row, col, build_type)
     return HttpResponseRedirect(reverse('city_engine:main_view'))
-

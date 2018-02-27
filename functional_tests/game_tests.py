@@ -1,7 +1,7 @@
 import time
 from django.db.models import Sum
 from django.test import override_settings
-from city_engine.models import City,CityField, \
+from city_engine.models import City, CityField, \
     WindPlant, CoalPlant, RopePlant, \
     WaterTower
 from .base import BaseTestForOnePlayer, BaseTestForTwoPlayers
@@ -69,6 +69,15 @@ class CreateBuildingsTestForOnePlayer(BaseTestForOnePlayer):
         self.assertEqual(CoalPlant.objects.filter(city=self.city).count(), 1)
         self.assertEqual(RopePlant.objects.filter(city=self.city).count(), 1)
         self.assertEqual(WaterTower.objects.filter(city=self.city).count(), 1)
+
+        self.assertEqual([booleans['if_electricity'] for booleans in
+                          WindPlant.objects.filter(city=self.city).values('if_electricity')], [True])
+        self.assertEqual([booleans['if_electricity'] for booleans in
+                          CoalPlant.objects.filter(city=self.city).values('if_electricity')], [True])
+        self.assertEqual([booleans['if_electricity'] for booleans in
+                          RopePlant.objects.filter(city=self.city).values('if_electricity')], [True])
+        self.assertEqual([booleans['if_waterworks'] for booleans in
+                          WaterTower.objects.filter(city=self.city).values('if_waterworks')], [True])
 
     def test_energy_allocation(self):
         self.browser.get(self.live_server_url)

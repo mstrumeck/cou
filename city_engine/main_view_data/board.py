@@ -28,20 +28,17 @@ class Board(object):
         self.hex_with_builds = []
         self.hex_with_electricity = []
         self.hex_with_waterworks = []
-        # self.allocate_resources()
-        # ResourceAllocation(self.city)
+        ResourceAllocation(self.city)
         self.map_board_info()
         self.generate_board()
 
     def generate_board(self):
-        counter = 0
         for row in range(self.ROW_NUM):
             if row % 2 == 0:
                 self.hex_table += "<div class='hex-row even'>"
             elif row % 2 != 0:
                 self.hex_table += "<div class='hex-row'>"
             for col in range(int(self.HEX_NUM_IN_ROW)):
-                counter += 1
                 self.hex_table += Hex(row, col, self.hex_with_builds,
                                       self.hex_with_electricity,
                                       self.hex_with_waterworks).create()
@@ -153,14 +150,15 @@ class HexDetail(object):
     def add_electricity_details(self, build):
         hex_detail_box = ''
         hex_detail_box += '<p name="detailEnergy">Produkowana energia: ' + str(build.total_production()) + '</p>'
+        hex_detail_box += '<p>Zalokowana energia: ' + str(build.energy_allocated)+'</p>'
         if build is WindPlant:
             hex_detail_box += '<p>Liczba turbin: '
         else:
             hex_detail_box += '<p>Liczba reaktorów: '
             hex_detail_box += str(build.power_nodes)+'/'+str(build.max_power_nodes)+'</p>'
         hex_detail_box += '<p>Woda: '+str(build.water)+'/'+str(build.water_required)+'</p>'
-        hex_detail_box += '<p>total_energy_allocation' +str(build.energy_allocated)+'</p>'
-        hex_detail_box += '<p>if_ele '+str(build.city_field.if_electricity)+'</p>'
+        hex_detail_box += '<p>if_ele_city_field = '+str(build.city_field.if_electricity)+'</p>'
+        hex_detail_box += '<p>if_ele_build = '+str(build.if_electricity)+'</p>'
         return hex_detail_box
 
     def add_waterworks_details(self, build):
@@ -171,146 +169,107 @@ class HexDetail(object):
         return hex_detail_box
 
 
-# class ResourceAllocation(object):
-#     def __init__(self, city):
-#         self.city = city
-#         self.clean_resource_data()
-#         self.water_allocation()
-#         self.energy_allocation()
-#         # self.allocate_resources()
-#
-#     def create_allocation_pattern(self, hex_id):
-#         first_circle, second_circle, third_circle, fourth_circle = [], [], [], []
-#         for x in range(1, int(Board.HEX_NUM_IN_ROW+1)):
-#             first_calculations = [
-#             hex_id + x,
-#             hex_id + Board.HEX_NUM_IN_ROW + x,
-#             hex_id + Board.HEX_NUM_IN_ROW,
-#             hex_id + Board.HEX_NUM_IN_ROW - x,
-#             hex_id - x,
-#             hex_id - Board.HEX_NUM_IN_ROW - x,
-#             hex_id - Board.HEX_NUM_IN_ROW,
-#             hex_id - Board.HEX_NUM_IN_ROW + x,
-#             ]
-#             shuffle(first_calculations)
-#             for result in first_calculations:
-#                 if result > 0:
-#                     first_circle.append(result)
-#             yield first_circle
-#             first_circle = []
-#
-#             if x >= 2:
-#                 second_calculations = [
-#                     hex_id + (x - x * Board.HEX_NUM_IN_ROW) - 1 - x,
-#                     hex_id + (x - x * Board.HEX_NUM_IN_ROW) - x,
-#                     hex_id + (x - x * Board.HEX_NUM_IN_ROW) + 1 - x,
-#                     hex_id + (x + x * Board.HEX_NUM_IN_ROW) - 1 - x,
-#                     hex_id + (x + x * Board.HEX_NUM_IN_ROW) - x,
-#                     hex_id + (x + x * Board.HEX_NUM_IN_ROW) + 1 - x,
-#                     hex_id + (x * Board.HEX_NUM_IN_ROW) - (2 - x) - x,
-#                     hex_id - (x * Board.HEX_NUM_IN_ROW) - (2 - x) - x,
-#                     hex_id + (x * Board.HEX_NUM_IN_ROW) + (2 + x) - x,
-#                     hex_id - (x * Board.HEX_NUM_IN_ROW) + (2 + x) - x
-#                 ]
-#                 shuffle(second_calculations)
-#                 for result in second_calculations:
-#                     if result > 0:
-#                         second_circle.append(result)
-#                 yield second_circle
-#                 second_circle = []
-#
-#                 if x % 2 == 0:
-#                     third_calculations = [
-#                         hex_id + (x * Board.HEX_NUM_IN_ROW) - 3,
-#                        hex_id - (x * Board.HEX_NUM_IN_ROW) - 3,
-#                         hex_id + (x * Board.HEX_NUM_IN_ROW) + 3,
-#                         hex_id - (x * Board.HEX_NUM_IN_ROW) + 3,
-#                     ]
-#                     shuffle(third_calculations)
-#                     for result in third_calculations:
-#                         if result > 0:
-#                             third_circle.append(result)
-#                     yield third_circle
-#                     third_circle = []
-#
-#                 elif x % 3 == 0:
-#                     fourth_calculations = [
-#                         hex_id + (x * Board.HEX_NUM_IN_ROW) - 3,
-#                         hex_id - (x * Board.HEX_NUM_IN_ROW) - 3,
-#                         hex_id + (x * Board.HEX_NUM_IN_ROW) + 3,
-#                         hex_id - (x * Board.HEX_NUM_IN_ROW) + 3,
-#                         hex_id + (x * Board.HEX_NUM_IN_ROW) - 4,
-#                         hex_id - (x * Board.HEX_NUM_IN_ROW) - 4,
-#                         hex_id + (x * Board.HEX_NUM_IN_ROW) + 4,
-#                         hex_id - (x * Board.HEX_NUM_IN_ROW) + 4
-#                     ]
-#                     shuffle(fourth_calculations)
-#                     for result in fourth_calculations:
-#                         if result > 0:
-#                             fourth_circle.append(result)
-#                     yield fourth_circle
-#                     fourth_circle = []
-#
-#     def clean_resource_data(self):
-#         for models in list_of_models:
-#             list = models.objects.filter(city=self.city)
-#             for building in list:
-#                 building.energy = 0
-#                 building.water = 0
-#                 building.save()
-#
-#     def energy_allocation(self):
-#         for models in electricity_buildings:
-#             list_of_buildings = models.objects.filter(city=self.city)
-#             for building in list_of_buildings:
-#                 building.energy_allocated = 0
-#                 building.save()
-#                 pattern = self.create_allocation_pattern(building.city_field.id)
-#                 while building.energy_allocated < building.total_production():
-#                     try:
-#                         next_value = next(pattern)
-#                     except(StopIteration):
-#                         break
-#                     for field in next_value:
-#                         if CityField.objects.filter(city=self.city, field_id=field):
-#                             if CityField.objects.get(city=self.city, field_id=field).if_waterworks is True:
-#                                 energy_deficit = building.total_production() - building.energy_allocated
-#                                 waterworks = WaterTower.objects.get(city=self.city, city_field=field)
-#                                 if waterworks.energy == 0:
-#                                     if waterworks.energy_required <= energy_deficit:
-#                                         waterworks.energy += waterworks.energy_required
-#                                         building.energy_allocated += waterworks.energy_required
-#                                     else:
-#                                         waterworks.energy += energy_deficit
-#                                         building.energy_allocated += energy_deficit
-#                                 waterworks.save()
-#                                 building.save()
-#
-#     def water_allocation(self):
-#         for models in waterworks_buildings:
-#             list_of_buildings = models.objects.filter(city=self.city)
-#             for building in list_of_buildings:
-#                 building.water_allocated = 0
-#                 building.save()
-#                 pattern = self.create_allocation_pattern(building.city_field.id)
-#                 while building.water_allocated < building.total_production():
-#                     try:
-#                         next_value = next(pattern)
-#                     except(StopIteration):
-#                         break
-#                     for field in next_value:
-#                         if CityField.objects.filter(city=self.city, field_id=field):
-#                             if CityField.objects.get(city=self.city, field_id=field).if_electricity is True:
-#                                 water_deficit = building.total_production() - building.water_allocated
-#                                 for electric_building in electricity_buildings:
-#                                     if electric_building.objects.filter(city=self.city, city_field=field):
-#                                         power_plant = electric_building.objects.get(city=self.city, city_field=field)
-#                                         if power_plant.water == 0:
-#                                             if power_plant.water_required <= water_deficit:
-#                                                 power_plant.water += power_plant.water_required
-#                                                 building.water_allocated += power_plant.water_required
-#                                             else:
-#                                                 power_plant.water += water_deficit
-#                                                 building.water_allocated += water_deficit
-#                                         power_plant.save()
-#                                         building.save()
+class ResourceAllocation(object):
+    def __init__(self, city):
+        self.city = city
+        self.clean_resource_data()
+        self.all_resource_allocation()
+
+    def create_allocation_pattern(self, row, col):
+        first_alloc = []
+        for hex_in_row in range(1, int(Board.HEX_NUM_IN_ROW+1)):
+            allocation_pattern = [
+                (row - hex_in_row, col - hex_in_row),
+                (row - hex_in_row, col),
+                (row - hex_in_row, col + hex_in_row),
+                (row + hex_in_row, col),
+                (row + hex_in_row, col - hex_in_row),
+                (row + hex_in_row, col + hex_in_row),
+                (row, col - hex_in_row),
+                (row, col + hex_in_row)
+            ]
+            for calculations in allocation_pattern:
+                if calculations[0] >= 0 or calculations[1] >= 0:
+                    first_alloc.append(calculations)
+            shuffle(first_alloc)
+            yield first_alloc
+            first_alloc = []
+            yield self.return_next_alloc(hex_in_row, hex_in_row+1, row, col)
+
+    def return_next_alloc(self, hex_in_row, wave, row, col):
+        allocation = []
+        allocation_pattern = [
+            (row + hex_in_row, col - hex_in_row + wave),
+            (row + hex_in_row, col + hex_in_row - wave),
+            (row - hex_in_row, col + hex_in_row - wave),
+            (row - hex_in_row, col - hex_in_row + wave)
+        ]
+        for calculation in allocation_pattern:
+            if calculation[0] >= 0 or calculation[1] >= 0:
+                allocation.append(calculation)
+        shuffle(allocation)
+        return allocation
+
+    def clean_resource_data(self):
+        for models in list_of_models:
+            list_of_buildings = models.objects.filter(city=self.city)
+            for building in list_of_buildings:
+                building.energy = 0
+                building.water = 0
+                building.save()
+
+    def all_resource_allocation(self):
+        for building_category in list_of_buildings_categories:
+            for models in building_category:
+                list_of_buildings = models.objects.filter(city=self.city)
+                for building in list_of_buildings:
+                    building.resources_allocation_reset()
+                    building.save()
+                    pattern = self.create_allocation_pattern(building.city_field.row, building.city_field.col)
+                    while building.producted_resources_allocation() < building.total_production():
+                        try:
+                            next_value = next(pattern)
+                        except(StopIteration):
+                            break
+                        for field in next_value:
+                            if CityField.objects.filter(city=self.city, row=field[0], col=field[1]):
+                                city_field_for_building = CityField.objects.get(city=self.city, row=field[0], col=field[1])
+                                if city_field_for_building.if_electricity is False and building.if_electricity is True:
+                                    self.energy_allocation(building, city_field_for_building)
+                                elif city_field_for_building.if_waterworks is False and building.if_waterworks is True:
+                                    self.water_allocation(building, city_field_for_building)
+
+    def energy_allocation(self, building, city_field_of_building):
+        energy_left = building.total_production() - building.energy_allocated
+        if city_field_of_building.return_list_of_possible_buildings_related_with_type_of_field():
+            for building_type in city_field_of_building.return_list_of_possible_buildings_related_with_type_of_field():
+                if building_type.objects.filter(city_field=city_field_of_building, city=self.city,
+                                                if_electricity=False):
+                    target_build = building_type.objects.get(city_field=city_field_of_building, city=self.city,
+                                                             if_electricity=False)
+                    energy_to_fill = target_build.energy_required - target_build.energy
+                    if energy_left > energy_to_fill:
+                        building.energy_allocated += energy_to_fill
+                        target_build.energy += energy_to_fill
+                    elif energy_left < energy_to_fill:
+                        building.energy_allocated += energy_left
+                        target_build.energy += energy_left
+                    target_build.save()
+                    building.save()
+
+    def water_allocation(self, building, city_field_of_building):
+        water_left = building.total_production() - building.water_allocated
+        if city_field_of_building.return_list_of_possible_buildings_related_with_type_of_field():
+            for building_type in city_field_of_building.return_list_of_possible_buildings_related_with_type_of_field():
+                if building_type.objects.filter(city_field=city_field_of_building, city=self.city, if_waterworks=False):
+                    target_build = building_type.objects.get(city_field=city_field_of_building, city=self.city,
+                                                             if_waterworks=False)
+                    water_to_fill = target_build.water_required - target_build.water
+                    if water_left > water_to_fill:
+                        building.water_allocated += water_to_fill
+                        target_build.water += water_to_fill
+                    elif water_left < water_to_fill:
+                        building.water_allocated += water_left
+                        target_build.water += water_left
+                    target_build.save()
+                    building.save()

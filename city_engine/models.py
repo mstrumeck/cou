@@ -7,7 +7,7 @@ class City(models.Model):
     user = models.ForeignKey(User)
     name = models.TextField(max_length=15, unique=True)
     cash = models.DecimalField(default=10000, decimal_places=2, max_digits=20)
-    water_production = models.PositiveIntegerField(default=0)
+    # water_production = models.PositiveIntegerField(default=0)
     publish = models.DateField(auto_now_add=True)
     updated = models.DateField(auto_now=True)
 
@@ -24,11 +24,21 @@ class CityField(models.Model):
     if_electricity = models.BooleanField(default=False)
     if_waterworks = models.BooleanField(default=False)
 
+    def return_list_of_possible_buildings_related_with_type_of_field(self):
+        if self.if_electricity is True:
+            return electricity_buildings
+        elif self.if_waterworks is True:
+            return waterworks_buildings
+
 
 class Building(models.Model):
     city = models.ForeignKey(City)
     city_field = models.ForeignKey(CityField)
     if_under_construction = models.BooleanField(default=True)
+    if_residential = models.BooleanField(default=False)
+    if_production = models.BooleanField(default=False)
+    if_electricity = models.BooleanField(default=False)
+    if_waterworks = models.BooleanField(default=False)
     build_cost = models.PositiveIntegerField(default=0)
     maintenance_cost = models.PositiveIntegerField(default=0)
     build_time = models.PositiveIntegerField()
@@ -74,15 +84,22 @@ class ProductionBuilding(Building):
 
 
 class PowerPlant(Building):
-    name = models.CharField(max_length=20)
+    name = models.CharField(default="Elektrownia Wiatrowa", max_length=20)
     power_nodes = models.PositiveIntegerField(default=0)
     max_power_nodes = models.PositiveIntegerField(default=1)
     energy_production = models.PositiveIntegerField(default=0)
     total_energy_production = models.PositiveIntegerField(default=0)
     energy_allocated = models.PositiveIntegerField(default=0)
+    if_electricity = models.BooleanField(default=True)
 
     class Meta:
         abstract = True
+
+    def resources_allocation_reset(self):
+        self.energy_allocated = 0
+
+    def producted_resources_allocation(self):
+        return self.energy_allocated
 
     def total_production(self):
         if self.current_employees is 0 or self.max_employees is 0:
@@ -195,12 +212,20 @@ class CoalPlant(PowerPlant):
 
 
 class Waterworks(Building):
+    name = models.CharField(max_length=20)
     water_allocated = models.PositiveIntegerField(default=0)
     water_production = models.PositiveIntegerField(default=0)
     total_water_production = models.PositiveIntegerField(default=0)
+    if_waterworks = models.BooleanField(default=True)
 
     class Meta:
         abstract = True
+
+    def resources_allocation_reset(self):
+        self.water_allocated = 0
+
+    def producted_resources_allocation(self):
+        return self.water_allocated
 
     def total_production(self):
         if self.current_employees is 0 or self.max_employees is 0:

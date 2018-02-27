@@ -23,10 +23,6 @@ class CityFixture(test.TestCase):
         assign_city_fields_to_board(city)
         assign_city_fields_to_board(second_city)
 
-        # for field_id in range(1, int(Board.HEX_NUM) + 1):
-        #     CityField.objects.create(city=city, field_id=field_id).save()
-        #     CityField.objects.create(city=second_city, field_id=field_id).save()
-
         CityField.objects.get(row=0, col=0, city=city).if_production = True
         CityField.objects.get(row=0, col=1, city=city).if_residential = True
         CityField.objects.get(row=0, col=2, city=city).if_electricity = True

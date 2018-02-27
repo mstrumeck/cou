@@ -20,11 +20,19 @@
 <p>Energia - produkowana: {{ energy }}</p>
 <p>Energia - ulokowana: {{ energy_allocated }}</p>
 <p>Energia - bilans: {{ energy_bilans }}</p>
-<p>Woda: {{ water }}</p>
+<p>Woda - produkowana: {{ water }}</p>
+<p>Woda - ulokowana: {{ water_allocated }}</p>
+<p>Woda - bilans: {{ water_bilans }}</p>
 <p>Koszty utrzymania: {{ total_cost_of_maintenance }}</p>
 <p>{{ profile.current_turn }}/12</p>
-{% if profile.current_turn <= 11 %}
-    <button><a href="{% url 'city_engine:turn_calculations' %}">Kolejna tura</a></button>
+{% if city.cash > 0 %}
+    {% if profile.current_turn <= 11 %}
+        <button><a href="{% url 'city_engine:turn_calculations' %}">Kolejna tura</a></button>
+{% endif %}
+{% endif %}
+
+{% if city.cash <= 0 %}
+<h1>BANKRUT</h1>
 {% endif %}
 
 {% if buildings %}
