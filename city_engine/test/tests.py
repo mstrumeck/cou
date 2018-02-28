@@ -17,10 +17,7 @@ from player.models import Profile
 from django.db.models import Sum
 from city_engine.turn_data.build import build_building
 from city_engine.views import main_view
-from city_engine.main_view_data.main import calculate_energy_production_in_city, calculate_energy_usage_in_city, calculate_energy_allocation_in_city, \
-    calculate_water_production_in_city, \
-    create_list_of_buildings_under_construction, \
-    create_list_of_buildings
+# from city_engine.main_view_data.main import CityStatsCenter
 from city_engine.turn_data.main import calculate_maintenance_cost
 
 
@@ -38,53 +35,41 @@ class CityViewTests(CityFixture):
     def test_total_energy_production_view(self):
         total_energy = 0
         response = self.client.get('/main_view/')
-        user = User.objects.get(username='test_username')
-        city = City.objects.get(user=user)
+
         self.assertTemplateUsed(response, 'main_view.html')
         for models in electricity_buildings:
-            list_of_buildings = models.objects.filter(city=city)
+            list_of_buildings = models.objects.filter(city=self.city)
             for building in list_of_buildings:
                 total_energy += building.total_production()
 
-        self.assertEqual(total_energy, calculate_energy_production_in_city(city))
-        self.assertContains(response, 'Energia - bilans: {}'.format(
-            calculate_energy_production_in_city(city) - calculate_energy_allocation_in_city(city),
-            calculate_energy_production_in_city(city)))
-
-    # calculate_energy_production_in_city(city) - calculate_energy_allocation_in_city(city)
+        self.assertEqual(total_energy, self.city_stats.energy_production)
 
     def test_total_water_production_view(self):
         response = self.client.get('/main_view/')
-        user = User.objects.get(username='test_username')
-        city = City.objects.get(user=user)
         self.assertTemplateUsed(response, 'main_view.html')
 
-        self.assertTrue(response, 'Woda: {}'.format(calculate_water_production_in_city(city)))
+        self.assertTrue(response, 'Woda: {}'.format(self.city_stats.water_production))
 
     def test_cash_info_view(self):
         response = self.client.get('/main_view/')
-        user = User.objects.get(username='test_username')
-        city = City.objects.get(user=user)
         self.assertTemplateUsed(response, 'main_view.html')
 
-        total_cost = calculate_maintenance_cost(list_of_models, city)
+        total_cost = calculate_maintenance_cost(list_of_models, self.city)
 
         self.assertContains(response, 'Koszty utrzymania: {}'.format(total_cost))
 
     def test_buildings_under_construction_view(self):
         response = self.client.get('/main_view/')
-        user = User.objects.get(username='test_username')
-        city = City.objects.get(user=user)
         self.assertTemplateUsed(response, 'main_view.html')
         name, cur, end = [], [], []
         for model in list_of_models:
-            for objects in model.objects.filter(city=city):
+            for objects in model.objects.filter(city=self.city):
                 if objects.if_under_construction is True:
                     name.append(objects.name)
                     cur.append(objects.current_build_time)
                     end.append(objects.build_time)
 
-        first_list = create_list_of_buildings_under_construction(city)
+        first_list = self.city_stats.building_under_construction
         second_list = zip(name, cur, end)
 
         for name, cur, end in first_list:
@@ -99,11 +84,9 @@ class CityViewTests(CityFixture):
 
     def test_buildings_view(self):
         response = self.client.get('/main_view/')
-        user = User.objects.get(username='test_username')
-        city = City.objects.get(user=user)
         self.assertTemplateUsed(response, 'main_view.html')
 
-        for building_name in create_list_of_buildings(city):
+        for building_name in self.city_stats.list_of_buildings:
             self.assertContains(response, building_name)
 
     def test_building_buttons(self):
@@ -143,7 +126,6 @@ class CityViewTests(CityFixture):
 class TurnSystemTests(CityFixture):
 
     def test_turn_view(self):
-        city = City.objects.get(name='Wrocław')
         user = User.objects.get(username='test_username')
         profile = Profile.objects.get(user=user)
         response = self.client.get('/main_view/')

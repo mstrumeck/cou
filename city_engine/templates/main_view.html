@@ -17,13 +17,28 @@
 
 <p>Miasto: {{ city.name }}</p>
 <p>Pieniądze: {{ city.cash }}</p>
-<p>Energia - produkowana: {{ energy }}</p>
-<p>Energia - ulokowana: {{ energy_allocated }}</p>
-<p>Energia - bilans: {{ energy_bilans }}</p>
-<p>Woda - produkowana: {{ water }}</p>
-<p>Woda - ulokowana: {{ water_allocated }}</p>
-<p>Woda - bilans: {{ water_bilans }}</p>
 <p>Koszty utrzymania: {{ total_cost_of_maintenance }}</p>
+
+<h1>Statystyki</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Energia</th>
+            <th>Woda</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for resources in city_resources_stats %}
+            <tr>
+                {% for stats in resources %}
+                <th>{{ stats }}</th>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
 <p>{{ profile.current_turn }}/12</p>
 {% if city.cash > 0 %}
     {% if profile.current_turn <= 11 %}

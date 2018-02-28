@@ -5,8 +5,6 @@ from city_engine.models import City, CityField, \
     WindPlant, CoalPlant, RopePlant, \
     WaterTower
 from .base import BaseTestForOnePlayer, BaseTestForTwoPlayers
-from city_engine.main_view_data.main import \
-    calculate_energy_production_in_city, calculate_water_production_in_city, calculate_energy_usage_in_city
 
 
 @override_settings(DEBUG=True)
@@ -57,13 +55,7 @@ class CreateBuildingsTestForOnePlayer(BaseTestForOnePlayer):
         self.browser.find_element_by_link_text('Kolejna tura').click()
         time.sleep(1)
 
-        City.energy_production = calculate_energy_production_in_city(self.city)
-        City.energy_used = calculate_energy_usage_in_city(self.city)
-        city_energy_bilans = City.energy_production - City.energy_used
-
-        self.assertEqual(city_energy_bilans, -1)
-        # self.assertContains(self.client.get('/main_view/'), 'Energia: {}'.format(city_energy_bilans))
-        # self.assertContains(self.client.get('/main_view/'), 'Woda: {}'.format(calculate_water_production_in_city(self.city)))
+        self.assertEqual(self.city_stats.energy_bilans, 0)
 
         self.assertEqual(WindPlant.objects.filter(city=self.city).count(), 1)
         self.assertEqual(CoalPlant.objects.filter(city=self.city).count(), 1)

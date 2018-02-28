@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
-
 from city_engine.main_view_data.board import assign_city_fields_to_board
 from city_engine.models import ProductionBuilding, Residential, City, CityField
 from city_engine.test.tests import CityFixture
@@ -12,17 +11,17 @@ class CitizenFixture(TestCase):
     def setUp(self):
         user = User.objects.create_user(username='test_username', password='12345', email='random@wp.pl')
         self.client.login(username='test_username', password='12345', email='random@wp.pl')
-        city = City.objects.create(name='Wrocław', user=user, cash=1000)
+        self.city = City.objects.create(name='Wrocław', user=user, cash=1000)
 
-        assign_city_fields_to_board(city)
+        assign_city_fields_to_board(self.city)
 
         factory = ProductionBuilding()
         factory.max_employees = 20
         factory.current_employees = 0
         factory.production_level = 0
         factory.build_time = 3
-        factory.city = city
-        factory.city_field = CityField.objects.get(row=0, col=0, city=city)
+        factory.city = self.city
+        factory.city_field = CityField.objects.get(row=0, col=0, city=self.city)
         factory.save()
 
         residential = Residential()
@@ -30,14 +29,14 @@ class CitizenFixture(TestCase):
         residential.current_population = 4
         residential.residential_level = 0
         residential.build_time = 3
-        residential.city = city
-        residential.city_field = CityField.objects.get(row=0, col=1, city=city)
+        residential.city = self.city
+        residential.city_field = CityField.objects.get(row=0, col=1, city=self.city)
         residential.save()
 
         first_citizen = Citizen()
         first_citizen.age = 22
         first_citizen.health = 20
-        first_citizen.city = city
+        first_citizen.city = self.city
         first_citizen.income = 100
         first_citizen.residential = residential
         first_citizen.production_building = factory
@@ -46,7 +45,7 @@ class CitizenFixture(TestCase):
         second_citizen = Citizen()
         second_citizen.age = 60
         second_citizen.health = 10
-        second_citizen.city = city
+        second_citizen.city = self.city
         second_citizen.income = 100
         second_citizen.residential = residential
         second_citizen.production_building = factory
@@ -56,7 +55,7 @@ class CitizenFixture(TestCase):
         third_citizen.age = 40
         third_citizen.health = 25
         third_citizen.income = 10
-        third_citizen.city = city
+        third_citizen.city = self.city
         third_citizen.residential = residential
         third_citizen.production_building = factory
         third_citizen.save()
@@ -65,7 +64,7 @@ class CitizenFixture(TestCase):
 class CreateCitizensTest(CityFixture):
 
     def test_saving_and_retreving_citizens(self):
-        city = City.objects.get(name='Wrocław')
+        # city = City.objects.get(name='Wrocław')
 
         saved_citizen = Citizen.objects.all()
         self.assertEqual(saved_citizen.count(), 3)
@@ -82,6 +81,6 @@ class CreateCitizensTest(CityFixture):
         self.assertEqual(second_saved_citizen.health, 10)
         self.assertEqual(third_saved_citizen.health, 25)
 
-        self.assertEqual(first_saved_citizen.city, city)
-        self.assertEqual(second_saved_citizen.city, city)
-        self.assertEqual(third_saved_citizen.city, city)
+        self.assertEqual(first_saved_citizen.city, self.city)
+        self.assertEqual(second_saved_citizen.city, self.city)
+        self.assertEqual(third_saved_citizen.city, self.city)
