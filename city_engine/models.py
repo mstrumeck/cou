@@ -7,7 +7,6 @@ class City(models.Model):
     user = models.ForeignKey(User)
     name = models.TextField(max_length=15, unique=True)
     cash = models.DecimalField(default=10000, decimal_places=2, max_digits=20)
-    # water_production = models.PositiveIntegerField(default=0)
     publish = models.DateField(auto_now_add=True)
     updated = models.DateField(auto_now=True)
 
@@ -19,6 +18,7 @@ class CityField(models.Model):
     city = models.ForeignKey(City)
     col = models.PositiveIntegerField()
     row = models.PositiveIntegerField()
+    pollution = models.PositiveIntegerField(default=0)
     if_residential = models.BooleanField(default=False)
     if_production = models.BooleanField(default=False)
     if_electricity = models.BooleanField(default=False)
@@ -29,6 +29,8 @@ class CityField(models.Model):
             return electricity_buildings
         elif self.if_waterworks is True:
             return waterworks_buildings
+        else:
+            return None
 
 
 class Building(models.Model):
@@ -52,7 +54,8 @@ class Building(models.Model):
     water = models.PositiveIntegerField(default=0)
     water_required = models.PositiveIntegerField(default=0)
     crime = models.PositiveIntegerField(default=0)
-    pollution = models.PositiveIntegerField(default=0)
+    pollution_rate = models.FloatField(default=0.0)
+    pollution_product = models.PositiveIntegerField(default=0)
     recycling = models.PositiveIntegerField(default=0)
     city_communication = models.PositiveIntegerField(default=0)
 
@@ -73,18 +76,32 @@ class Building(models.Model):
             return False
 
 
-class Residential(Building):
-    current_population = models.PositiveIntegerField(default=0)
-    max_population = models.PositiveIntegerField()
-    residential_level = models.PositiveIntegerField()
+class ZoneBuildings(Building):
+    ZONE_VALUE_CHOICES = (
+        ("$", "$"),
+        ("$$", "$$"),
+        ("$$$", "$$$")
+    )
+    zone_value = models.CharField(choices=ZONE_VALUE_CHOICES, default="$", max_length=3)
+    if_under_construction = models.BooleanField(default=False)
+
+    class Meta:
+        abstract = True
 
 
-class ProductionBuilding(Building):
+class Residential(ZoneBuildings):
+    population = models.PositiveIntegerField(default=0)
+    max_population = models.PositiveIntegerField(default=0)
+    if_residential = models.BooleanField(default=True)
+
+
+class ProductionBuilding(ZoneBuildings):
     production_level = models.PositiveIntegerField()
+    if_production = models.BooleanField(default=True)
 
 
 class PowerPlant(Building):
-    name = models.CharField(default="Elektrownia Wiatrowa", max_length=20)
+    name = models.CharField( max_length=20)
     power_nodes = models.PositiveIntegerField(default=0)
     max_power_nodes = models.PositiveIntegerField(default=1)
     energy_production = models.PositiveIntegerField(default=0)
@@ -94,6 +111,9 @@ class PowerPlant(Building):
 
     class Meta:
         abstract = True
+
+    def pollution_calculation(self):
+        return (self.power_nodes + self.current_employees) * self.pollution_rate
 
     def resources_allocation_reset(self):
         self.energy_allocated = 0
@@ -141,6 +161,7 @@ class WindPlant(PowerPlant):
     build_cost = models.PositiveIntegerField(default=100)
     maintenance_cost = models.PositiveIntegerField(default=10)
     water_required = models.PositiveIntegerField(default=10)
+    pollution_rate = models.FloatField(default=1.8)
 
     def build_status(self):
         if self.if_under_construction is True:
@@ -167,6 +188,7 @@ class RopePlant(PowerPlant):
     build_cost = models.PositiveIntegerField(default=200)
     maintenance_cost = models.PositiveIntegerField(default=20)
     water_required = models.PositiveIntegerField(default=15)
+    pollution_rate = models.FloatField(default=1.3)
 
     def build_status(self):
         if self.if_under_construction is True:
@@ -192,6 +214,7 @@ class CoalPlant(PowerPlant):
     build_cost = models.PositiveIntegerField(default=150)
     maintenance_cost = models.PositiveIntegerField(default=15)
     water_required = models.PositiveIntegerField(default=20)
+    pollution_rate = models.FloatField(default=1.5)
 
     def build_status(self):
         if self.if_under_construction is True:
@@ -215,11 +238,14 @@ class Waterworks(Building):
     name = models.CharField(max_length=20)
     water_allocated = models.PositiveIntegerField(default=0)
     water_production = models.PositiveIntegerField(default=0)
-    total_water_production = models.PositiveIntegerField(default=0)
     if_waterworks = models.BooleanField(default=True)
+    pollution_rate = models.FloatField(default=0.5)
 
     class Meta:
         abstract = True
+
+    def pollution_calculation(self):
+        return self.current_employees * self.pollution_rate
 
     def resources_allocation_reset(self):
         self.water_allocated = 0

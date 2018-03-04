@@ -203,3 +203,28 @@ class ModelsTests(TestCase):
         self.assertEqual(city_field1.return_list_of_possible_buildings_related_with_type_of_field(), electricity_buildings)
         self.assertEqual(city_field2.return_list_of_possible_buildings_related_with_type_of_field(), waterworks_buildings)
 
+    def test_pollution_calculations(self):
+        user = User.objects.create_user(username='test_username', password='12345', email='random@wp.pl')
+        city = City.objects.create(name='Wrocław', user=user)
+        city_field1 = CityField.objects.create(city=city, row=1, col=1, if_electricity=True)
+        city_field2 = CityField.objects.create(city=city, row=2, col=1, if_waterworks=True)
+        wind_plant = WindPlant.objects.create(city=city,
+                                              city_field=city_field1,
+                                              if_under_construction=False,
+                                              build_time=0,
+                                              energy_allocated=10,
+                                              max_employees=5,
+                                              current_employees=5,
+                                              power_nodes=1,
+                                              )
+        water_tower = WaterTower.objects.create(city=city,
+                                                city_field=city_field2,
+                                                if_under_construction=False,
+                                                build_time=0,
+                                                water_allocated=10,
+                                                max_employees=5,
+                                                current_employees=5,
+                                                )
+        self.assertEqual(wind_plant.pollution_calculation(), 10.8)
+        self.assertEqual(water_tower.pollution_calculation(), 2.5)
+

@@ -114,6 +114,7 @@ class HexDetail(object):
 
         if CityField.objects.filter(row=row, col=col, city=self.city):
             build_field = CityField.objects.get(row=row, col=col, city=self.city)
+            hex_detail_box += "<p>Zanieczyszczenie: {}</p>".format(build_field.pollution)
 
             if build_field.if_residential is True:
                 residential = Residential.objects.get(city_field=build_field.id, city=self.city)
@@ -164,7 +165,7 @@ class HexDetail(object):
     def add_waterworks_details(self, build):
         hex_detail_box = ''
         hex_detail_box += '<p name="detailWater">Pompowana woda: '+str(build.total_production())+'</p>'
-        hex_detail_box += '<p name="detailWater">Energia: '+str(build.energy)+'/'+str(build.energy_required)+'</p>'
+        hex_detail_box += '<p>Energia: '+str(build.energy)+'/'+str(build.energy_required)+'</p>'
         hex_detail_box += '<p>Woda allocated: '+str(build.water_allocated)+'</p>'
         return hex_detail_box
 
@@ -172,18 +173,18 @@ class HexDetail(object):
 class ResourceAllocation(object):
     def __init__(self, city):
         self.city = city
+        self.clean_city_field_data()
         self.clean_resource_data()
         self.all_resource_allocation()
+        self.pollution_allocation()
 
     def create_allocation_pattern(self, row, col):
         first_alloc = []
         for hex_in_row in range(1, int(Board.HEX_NUM_IN_ROW+1)):
             allocation_pattern = [
-                (row - hex_in_row, col - hex_in_row),
                 (row - hex_in_row, col),
                 (row - hex_in_row, col + hex_in_row),
                 (row + hex_in_row, col),
-                (row + hex_in_row, col - hex_in_row),
                 (row + hex_in_row, col + hex_in_row),
                 (row, col - hex_in_row),
                 (row, col + hex_in_row)
@@ -209,6 +210,28 @@ class ResourceAllocation(object):
                 allocation.append(calculation)
         shuffle(allocation)
         return allocation
+
+    def return_first_allocation(self, row, col):
+        alloc = []
+        hex_in_row = 1
+        allocation_pattern = [
+            (row - hex_in_row, col),
+            (row - hex_in_row, col + hex_in_row),
+            (row + hex_in_row, col),
+            (row + hex_in_row, col + hex_in_row),
+            (row, col - hex_in_row),
+            (row, col + hex_in_row)
+        ]
+        for calculations in allocation_pattern:
+            if calculations[0] >= 0 or calculations[1] >= 0:
+                alloc.append(calculations)
+        shuffle(alloc)
+        return alloc
+
+    def clean_city_field_data(self):
+        for field in CityField.objects.filter(city=self.city):
+            field.pollution = 0
+            field.save()
 
     def clean_resource_data(self):
         for models in list_of_models:
@@ -273,3 +296,17 @@ class ResourceAllocation(object):
                         target_build.water += water_left
                     target_build.save()
                     building.save()
+
+    def pollution_allocation(self):
+        for field in CityField.objects.filter(city=self.city):
+            if field.return_list_of_possible_buildings_related_with_type_of_field():
+                for building in field.return_list_of_possible_buildings_related_with_type_of_field():
+                    if building.objects.filter(city_field=field, city=self.city):
+                        target_build = building.objects.get(city_field=field, city=self.city)
+                        allocation_pattern = self.return_first_allocation(field.row, field.col)
+                        for corr in allocation_pattern:
+                            if CityField.objects.filter(city=self.city, row=corr[0], col=corr[1]):
+                                target_city_field = CityField.objects.get(city=self.city, row=corr[0], col=corr[1])
+                                target_city_field.pollution += (target_build.pollution_calculation() / len(allocation_pattern))
+                                field.pollution += (target_build.pollution_calculation() / len(allocation_pattern))
+                                target_city_field.save()

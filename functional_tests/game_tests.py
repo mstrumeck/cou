@@ -7,7 +7,7 @@ from city_engine.models import City, CityField, \
 from .base import BaseTestForOnePlayer, BaseTestForTwoPlayers
 
 
-@override_settings(DEBUG=True)
+# @override_settings(DEBUG=True)
 class CreateBuildingsTestForOnePlayer(BaseTestForOnePlayer):
 
     def test_create_buildings(self):
@@ -70,7 +70,7 @@ class CreateBuildingsTestForOnePlayer(BaseTestForOnePlayer):
                           RopePlant.objects.filter(city=self.city).values('if_electricity')], [True])
         self.assertEqual([booleans['if_waterworks'] for booleans in
                           WaterTower.objects.filter(city=self.city).values('if_waterworks')], [True])
-
+#
     def test_energy_allocation(self):
         self.browser.get(self.live_server_url)
         self.browser.find_element_by_link_text('Zaloguj').click()
@@ -152,7 +152,24 @@ class CreateBuildingForManyPlayers(BaseTestForTwoPlayers):
 
         self.browser.find_element_by_name('detailEnergy').is_displayed()
 
+        self.browser.find_element_by_name('Wodociagi').click()
+        self.browser.find_element_by_name('WaterTower').click()
+        time.sleep(3)
+        self.browser.find_element_by_css_selector('.hexagon.isHexTaken').click()
+        time.sleep(2)
+
+        self.browser.find_element_by_name('detailWater').is_displayed()
+
         self.assertEqual(WindPlant.objects.filter(city=self.first_city).count(), 1)
+        self.assertEqual(WaterTower.objects.filter(city=self.first_city).count(), 1)
+        self.browser.find_element_by_link_text('Kolejna tura').click()
+        time.sleep(1)
+        self.browser.find_element_by_link_text('Kolejna tura').click()
+        time.sleep(1)
+        self.browser.find_element_by_link_text('Kolejna tura').click()
+        time.sleep(1)
+        self.assertEqual(CityField.objects.filter(city=self.first_city).aggregate(Sum('pollution'))['pollution__sum'],
+                         3)
 
         self.browser.find_element_by_link_text('Wyloguj').click()
         time.sleep(1)
@@ -171,6 +188,21 @@ class CreateBuildingForManyPlayers(BaseTestForTwoPlayers):
         self.browser.find_element_by_css_selector('.hexagon.isHexTaken').click()
         time.sleep(2)
 
+        self.browser.find_element_by_name('Wodociagi').click()
+        self.browser.find_element_by_name('WaterTower').click()
+        time.sleep(3)
+        self.browser.find_element_by_css_selector('.hexagon.isHexTaken').click()
+        time.sleep(2)
+
+        self.browser.find_element_by_name('detailWater').is_displayed()
         self.browser.find_element_by_name('detailEnergy').is_displayed()
 
         self.assertEqual(WindPlant.objects.filter(city=self.second_city).count(), 1)
+        self.assertEqual(WaterTower.objects.filter(city=self.second_city).count(), 1)
+        self.browser.find_element_by_link_text('Kolejna tura').click()
+        time.sleep(1)
+        self.browser.find_element_by_link_text('Kolejna tura').click()
+        time.sleep(1)
+        self.browser.find_element_by_link_text('Kolejna tura').click()
+        time.sleep(1)
+        self.assertEqual(CityField.objects.filter(city=self.second_city).aggregate(Sum('pollution'))['pollution__sum'],3)

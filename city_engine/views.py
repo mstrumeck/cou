@@ -12,7 +12,7 @@ from player.models import Profile
 from .main_view_data.main import \
     CityStatsCenter
 from .turn_data.main import \
-    update_build_status, \
+    TurnCalculation, \
     calculate_maintenance_cost
 from .turn_data.build import build_building
 
@@ -57,7 +57,8 @@ def turn_calculations(request):
     profile.save()
 
     city = City.objects.get(user_id=request.user.id)
-    update_build_status(city)
+    TurnCalculation(city)
+    # city_turn_calculation.update_build_status
 
     city.cash -= calculate_maintenance_cost(list_of_models, city)
     city.save()

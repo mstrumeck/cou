@@ -3,11 +3,16 @@ from django.db.models import Sum
 from city_engine.main_view_data.board import Board
 
 
-def update_build_status(city):
-    for model in list_of_models:
-        for building in model.objects.filter(city=city):
-            building.build_status()
-    city.save()
+class TurnCalculation(object):
+    def __init__(self, city):
+        self.city = city
+        self.update_build_status()
+
+    def update_build_status(self):
+        for model in list_of_models:
+            for building in model.objects.filter(city=self.city):
+                building.build_status()
+        self.city.save()
 
 
 def calculate_maintenance_cost(list_of_models, city):
