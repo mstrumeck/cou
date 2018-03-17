@@ -1,6 +1,8 @@
 from django import test
-from city_engine.main_view_data.main import CityStatsCenter
-from city_engine.models import City
+from city_engine.main_view_data.city_stats import CityStatsCenter
+from city_engine.main_view_data.resources_allocation import ResourceAllocation
+from city_engine.models import CityField, list_of_models, City, WindPlant, WaterTower, list_of_buildings_with_employees
+from django.db.models import Sum
 
 
 class CityStatsTests(test.TestCase):
@@ -19,3 +21,7 @@ class CityStatsTests(test.TestCase):
         self.assertEqual(self.city_stats.list_of_buildings,
                          ['Elektrownia wiatrowa', 'Elektrownia wiatrowa', 'Wieża ciśnień', 'Wieża ciśnień'])
         self.assertEqual(self.city_stats.building_under_construction, None)
+
+
+
+

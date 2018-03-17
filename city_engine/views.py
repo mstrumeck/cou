@@ -9,8 +9,9 @@ from citizen_engine.models import Citizen
 from city_engine.main_view_data.board import Board, HexDetail
 from city_engine.models import City, list_of_models, electricity_buildings, WindPlant
 from player.models import Profile
-from .main_view_data.main import \
+from .main_view_data.city_stats import \
     CityStatsCenter
+# from .main_view_data.employee_allocation import EmployeeAllocation
 from .turn_data.main import \
     TurnCalculation, \
     calculate_maintenance_cost
@@ -21,14 +22,15 @@ from .turn_data.build import build_building
 def main_view(request):
     user = User.objects.get(id=request.user.id)
     city = City.objects.get(user=user)
+    new_board = Board(city)
+    new_hex_detail = HexDetail(city)
     city_stats = CityStatsCenter(city)
-
+    # new_board = Board(city)
+    # new_hex_detail = HexDetail(city)
     city_resources_allocation_stats = zip(["Produkowana", "Ulokowana", "Bilans"],
                                           [city_stats.energy_production, city_stats.energy_allocation, city_stats.energy_bilans],
                                           [city_stats.water_production, city_stats.water_allocation, city_stats.water_bilans])
-
-    new_board = Board(city)
-    new_hex_detail = HexDetail(city)
+    # ResourceAllocation(city)
 
     profile = Profile.objects.get(user_id=request.user.id)
     income = Citizen.objects.filter(city=city).aggregate(Sum('income'))['income__sum']
@@ -47,7 +49,9 @@ def main_view(request):
                                               'hex_detail_info_table': mark_safe(new_hex_detail.hex_detail_info_table),
                                               'buildings': buildings,
                                               'buildings_under_construction': buildings_under_construction,
-                                              'total_cost_of_maintenance': total_cost_of_maintenance})
+                                              'total_cost_of_maintenance': total_cost_of_maintenance,
+                                              'current_population': city_stats.current_population,
+                                              'max_population': city_stats.max_population})
 
 
 @login_required

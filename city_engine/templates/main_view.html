@@ -19,6 +19,8 @@
 <p>Pieniądze: {{ city.cash }}</p>
 <p>Koszty utrzymania: {{ total_cost_of_maintenance }}</p>
 
+<p>Obecna populacja {{ current_population }}/{{ max_population }}</p>
+
 <h1>Statystyki</h1>
 <table class="table">
     <thead>
@@ -100,6 +102,10 @@
 <button class="buildingToHide" name='Wodociagi'>Wodociągi</button>
 <div class="buildingsToBuild">
     <button class="setBuilding" name="WaterTower">Wieża ciśnień</button>
+</div>
+<button class="buildingToHide" name="BudynkiMieszkalne">Budynki mieszkalne</button>
+<div class="buildingsToBuild">
+        <button class="setBuilding" name="Residential">$</button>
 </div>
 <div id="result"></div>
 

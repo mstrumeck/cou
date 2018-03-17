@@ -45,8 +45,6 @@ class Building(models.Model):
     maintenance_cost = models.PositiveIntegerField(default=0)
     build_time = models.PositiveIntegerField()
     current_build_time = models.PositiveIntegerField(default=1)
-    current_employees = models.PositiveIntegerField(default=0)
-    max_employees = models.PositiveIntegerField(default=0)
     trash = models.PositiveIntegerField(default=0)
     health = models.PositiveIntegerField(default=0)
     energy = models.PositiveIntegerField(default=0)
@@ -76,36 +74,81 @@ class Building(models.Model):
             return False
 
 
-class ZoneBuildings(Building):
-    ZONE_VALUE_CHOICES = (
-        ("$", "$"),
-        ("$$", "$$"),
-        ("$$$", "$$$")
-    )
-    zone_value = models.CharField(choices=ZONE_VALUE_CHOICES, default="$", max_length=3)
-    if_under_construction = models.BooleanField(default=False)
+class BuldingsWithWorkes(Building):
+    current_employees = models.PositiveIntegerField(default=0)
+    max_employees = models.PositiveIntegerField(default=0)
 
     class Meta:
         abstract = True
 
+# class ZoneBuildings(Building):
+#     ZONE_VALUE_CHOICES = (
+#         ("$", "$"),
+#         ("$$", "$$"),
+#         ("$$$", "$$$")
+#     )
+#     zone_value = models.CharField(choices=ZONE_VALUE_CHOICES, default="$", max_length=3)
+#     if_under_construction = models.BooleanField(default=False)
+#
+#     class Meta:
+#         abstract = True
 
-class Residential(ZoneBuildings):
+
+class Residential(Building):
+    name = models.CharField(max_length=20, default='Budynek Mieszkalny')
     population = models.PositiveIntegerField(default=0)
-    max_population = models.PositiveIntegerField(default=0)
+    max_population = models.PositiveIntegerField(default=30)
     if_residential = models.BooleanField(default=True)
+    build_time = models.PositiveIntegerField(default=1)
+    build_cost = models.PositiveIntegerField(default=100)
+    maintenance_cost = models.PositiveIntegerField(default=10)
+
+    # def build_status(self):
+    #     if self.if_under_construction is True:
+    #         if self.current_build_time < self.build_time:
+    #             self.current_build_time += 1
+    #             self.save()
+    #             return False
+    #         elif self.current_build_time == self.build_time:
+    #             self.if_under_construction = False
+    #             self.max_population = 50
+    #             self.save()
+    #             return True
+    #     else:
+    #         return False
 
 
-class ProductionBuilding(ZoneBuildings):
-    production_level = models.PositiveIntegerField()
+class ProductionBuilding(BuldingsWithWorkes):
+    name = models.CharField(max_length=20, default='Budynek Przemysłowy')
     if_production = models.BooleanField(default=True)
+    build_time = models.PositiveIntegerField(default=1)
+    build_cost = models.PositiveIntegerField(default=100)
+    maintenance_cost = models.PositiveIntegerField(default=10)
+    max_employees = models.PositiveIntegerField(default=20)
+
+    def type_of_work_building(self):
+        return 'PB'
+
+    # def build_status(self):
+    #     if self.if_under_construction is True:
+    #         if self.current_build_time < self.build_time:
+    #             self.current_build_time += 1
+    #             self.save()
+    #             return False
+    #         elif self.current_build_time == self.build_time:
+    #             self.if_under_construction = False
+    #             self.max_employees = 10
+    #             self.save()
+    #             return True
+    #     else:
+    #         return False
 
 
-class PowerPlant(Building):
-    name = models.CharField( max_length=20)
+class PowerPlant(BuldingsWithWorkes):
+    name = models.CharField(max_length=20)
     power_nodes = models.PositiveIntegerField(default=0)
     max_power_nodes = models.PositiveIntegerField(default=1)
     energy_production = models.PositiveIntegerField(default=0)
-    total_energy_production = models.PositiveIntegerField(default=0)
     energy_allocated = models.PositiveIntegerField(default=0)
     if_electricity = models.BooleanField(default=True)
 
@@ -117,6 +160,7 @@ class PowerPlant(Building):
 
     def resources_allocation_reset(self):
         self.energy_allocated = 0
+        self.save()
 
     def producted_resources_allocation(self):
         return self.energy_allocated
@@ -172,7 +216,6 @@ class WindPlant(PowerPlant):
             elif self.current_build_time == self.build_time:
                 self.if_under_construction = False
                 self.max_employees = 5
-                self.current_employees = 5
                 self.power_nodes = 1
                 self.max_power_nodes = 10
                 self.energy_production = 5
@@ -180,6 +223,9 @@ class WindPlant(PowerPlant):
                 return True
         else:
             return False
+
+    def type_of_work_building(self):
+        return 'WP'
 
 
 class RopePlant(PowerPlant):
@@ -207,6 +253,9 @@ class RopePlant(PowerPlant):
         else:
             return False
 
+    def type_of_work_building(self):
+        return 'RP'
+
 
 class CoalPlant(PowerPlant):
     name = models.CharField(default='Elektrownia węglowa', max_length=20)
@@ -233,8 +282,11 @@ class CoalPlant(PowerPlant):
         else:
             return False
 
+    def type_of_work_building(self):
+        return 'CP'
 
-class Waterworks(Building):
+
+class Waterworks(BuldingsWithWorkes):
     name = models.CharField(max_length=20)
     water_allocated = models.PositiveIntegerField(default=0)
     water_production = models.PositiveIntegerField(default=0)
@@ -249,6 +301,7 @@ class Waterworks(Building):
 
     def resources_allocation_reset(self):
         self.water_allocated = 0
+        self.save()
 
     def producted_resources_allocation(self):
         return self.water_allocated
@@ -283,18 +336,23 @@ class WaterTower(Waterworks):
             elif self.current_build_time == self.build_time:
                 self.if_under_construction = False
                 self.max_employees = 5
-                self.current_employees = 5
                 self.water_production = 20
                 self.save()
                 return True
         else:
             return False
 
+    def type_of_work_building(self):
+        return 'WT'
+
 
 electricity_buildings = [WindPlant, RopePlant, CoalPlant]
 waterworks_buildings = [WaterTower]
-list_of_buildings_categories = [electricity_buildings, waterworks_buildings]
+# list_of_buildings_categories = [electricity_buildings, waterworks_buildings]
+list_of_buildings_categories = electricity_buildings + waterworks_buildings
+list_of_buildings_with_employees = electricity_buildings + [WaterTower] + [ProductionBuilding]
 list_of_models = [ProductionBuilding, Residential]
+list_of_all_buildings = electricity_buildings + waterworks_buildings + list_of_models
 
 for electricity in electricity_buildings:
     list_of_models.append(electricity)

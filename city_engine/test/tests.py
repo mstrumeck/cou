@@ -13,6 +13,7 @@ from city_engine.models import City, CityField, \
     electricity_buildings, waterworks_buildings, \
     list_of_models, \
     CoalPlant
+from city_engine.main_view_data.global_variables import HEX_NUM
 from player.models import Profile
 from django.db.models import Sum
 from city_engine.turn_data.build import build_building
@@ -113,7 +114,7 @@ class CityViewTests(CityFixture):
         self.assertTemplateUsed(self.response, 'main_view.html')
         self.assertContains(self.response, city.name)
 
-        for hex_num in range(1, Board.HEX_NUM+1):
+        for hex_num in range(1, HEX_NUM+1):
             self.assertContains(self.response, 'Podgląd hexa {}'.format(hex_num))
 
         self.assertContains(self.response, 'Budowa')

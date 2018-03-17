@@ -1,9 +1,9 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
 from city_engine.main_view_data.board import assign_city_fields_to_board
-from city_engine.models import ProductionBuilding, Residential, City, CityField
-from city_engine.test.tests import CityFixture
+from city_engine.models import ProductionBuilding, Residential, City, CityField, WindPlant
 from .models import Citizen
+from .citizen_creation import CreateCitizen
 
 
 class CitizenFixture(TestCase):
@@ -39,7 +39,8 @@ class CitizenFixture(TestCase):
         first_citizen.city = self.city
         first_citizen.income = 100
         first_citizen.residential = residential
-        first_citizen.production_building = factory
+        first_citizen.type_of_work = 'PB'
+        first_citizen.work_in_production = factory
         first_citizen.save()
 
         second_citizen = Citizen()
@@ -48,7 +49,8 @@ class CitizenFixture(TestCase):
         second_citizen.city = self.city
         second_citizen.income = 100
         second_citizen.residential = residential
-        second_citizen.production_building = factory
+        second_citizen.type_of_work = 'PB'
+        second_citizen.work_in_production = factory
         second_citizen.save()
 
         third_citizen = Citizen()
@@ -57,11 +59,12 @@ class CitizenFixture(TestCase):
         third_citizen.income = 10
         third_citizen.city = self.city
         third_citizen.residential = residential
-        third_citizen.production_building = factory
+        third_citizen.type_of_work = 'PB'
+        third_citizen.work_in_production = factory
         third_citizen.save()
 
 
-class CreateCitizensTest(CityFixture):
+class CreateCitizensTest(CitizenFixture):
 
     def test_saving_and_retreving_citizens(self):
         # city = City.objects.get(name='Wrocław')
@@ -84,3 +87,31 @@ class CreateCitizensTest(CityFixture):
         self.assertEqual(first_saved_citizen.city, self.city)
         self.assertEqual(second_saved_citizen.city, self.city)
         self.assertEqual(third_saved_citizen.city, self.city)
+
+
+class CitizenCreationsTest(TestCase):
+    fixtures = ['basic_fixture_resources_and_employees.json']
+
+    def setUp(self):
+        self.city = City.objects.get(id=1)
+        self.target_production = "WP"
+
+    def test_create(self):
+        self.assertEqual(Citizen.objects.filter(city=self.city).count(), 0)
+        CreateCitizen(self.city, self.target_production)
+        self.assertEqual(Citizen.objects.filter(city=self.city).count(), 1)
+
+    def test_choose_residential(self):
+        residential = Residential.objects.get(id=1)
+        self.assertEqual(CreateCitizen(self.city, self.target_production).choose_residential(), residential)
+
+    def test_set_place_of_work(self):
+        windplant = WindPlant.objects.get(id=1)
+        windplant.current_employees = 0
+        windplant.save()
+        CreateCitizen(self.city, self.target_production)
+        for x in Citizen.objects.filter(city=self.city).values('id'):
+            cit_id = x['id']
+        citizen = Citizen.objects.get(id=cit_id)
+        self.assertEqual(citizen.type_of_work, self.target_production)
+        self.assertEqual(citizen.work_in_windplant, windplant)

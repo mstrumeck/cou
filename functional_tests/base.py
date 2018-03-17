@@ -3,7 +3,7 @@ from selenium import webdriver
 from django.contrib.auth.models import User
 from city_engine.main_view_data.board import assign_city_fields_to_board
 from city_engine.main_view_data.board import Board
-from city_engine.main_view_data.main import CityStatsCenter
+from city_engine.main_view_data.city_stats import CityStatsCenter
 from city_engine.models import City, CityField, \
     WindPlant, CoalPlant, RopePlant, \
     WaterTower

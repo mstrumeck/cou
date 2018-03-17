@@ -2,7 +2,7 @@ import random
 import string
 import time
 from django.contrib.auth.models import User
-from city_engine.main_view_data.board import Board
+from city_engine.main_view_data.board import HEX_NUM
 from django.test.utils import override_settings
 from city_engine.models import City, CityField
 from .base import BaseTestForOnePlayer, BaseTest
@@ -27,7 +27,7 @@ class SignupAndLoginTestForOnePlayer(BaseTest):
         time.sleep(1)
         self.assertIn('Miasto {}'.format('Wrocław'), self.browser.title)
         city1 = City.objects.get(name='Wrocław')
-        self.assertEqual(CityField.objects.filter(city=city1).count(), Board.HEX_NUM)
+        self.assertEqual(CityField.objects.filter(city=city1).count(), HEX_NUM)
 
         self.browser.find_element_by_link_text('Wyloguj').click()
         self.browser.find_element_by_link_text('Rejestracja').click()
@@ -43,7 +43,7 @@ class SignupAndLoginTestForOnePlayer(BaseTest):
         self.browser.find_element_by_tag_name('button').click()
         time.sleep(1)
         city2 = City.objects.get(name='Oleśnica')
-        self.assertEqual(CityField.objects.filter(city=city2).count(), Board.HEX_NUM)
+        self.assertEqual(CityField.objects.filter(city=city2).count(), HEX_NUM)
 
     def test_login_with_provided_account_info(self):
         username = 'test_username'

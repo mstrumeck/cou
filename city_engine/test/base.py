@@ -2,7 +2,7 @@ from django import test
 from django.contrib.auth.models import User
 from city_engine.main_view_data.board import Board, assign_city_fields_to_board
 from citizen_engine.models import Citizen
-from city_engine.main_view_data.main import CityStatsCenter
+from city_engine.main_view_data.city_stats import CityStatsCenter
 from city_engine.models import City, CityField, \
     Residential, \
     ProductionBuilding, \
@@ -138,7 +138,8 @@ class CityFixture(test.TestCase):
         first_citizen.city = self.city
         first_citizen.income = 100
         first_citizen.residential = first_residential
-        first_citizen.production_building = first_factory
+        first_citizen.type_of_work = 'PB'
+        first_citizen.work_in_production = first_factory
         first_citizen.save()
 
         second_citizen = Citizen()
@@ -147,7 +148,8 @@ class CityFixture(test.TestCase):
         second_citizen.city = self.city
         second_citizen.income = 100
         second_citizen.residential = first_residential
-        second_citizen.production_building = first_factory
+        second_citizen.type_of_work = 'PB'
+        second_citizen.work_in_production = first_factory
         second_citizen.save()
 
         third_citizen = Citizen()
@@ -156,7 +158,8 @@ class CityFixture(test.TestCase):
         third_citizen.income = 10
         third_citizen.city = self.city
         third_citizen.residential = first_residential
-        third_citizen.production_building = first_factory
+        third_citizen.type_of_work = 'PB'
+        third_citizen.work_in_production = first_factory
         third_citizen.save()
 
         self.city_stats = CityStatsCenter(self.city)

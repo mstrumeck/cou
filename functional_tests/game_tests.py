@@ -4,10 +4,10 @@ from django.test import override_settings
 from city_engine.models import City, CityField, \
     WindPlant, CoalPlant, RopePlant, \
     WaterTower
-from .base import BaseTestForOnePlayer, BaseTestForTwoPlayers
+from .base import BaseTestForOnePlayer, BaseTestForTwoPlayers, BaseTest
 
 
-# @override_settings(DEBUG=True)
+@override_settings(DEBUG=True)
 class CreateBuildingsTestForOnePlayer(BaseTestForOnePlayer):
 
     def test_create_buildings(self):
@@ -70,7 +70,7 @@ class CreateBuildingsTestForOnePlayer(BaseTestForOnePlayer):
                           RopePlant.objects.filter(city=self.city).values('if_electricity')], [True])
         self.assertEqual([booleans['if_waterworks'] for booleans in
                           WaterTower.objects.filter(city=self.city).values('if_waterworks')], [True])
-#
+
     def test_energy_allocation(self):
         self.browser.get(self.live_server_url)
         self.browser.find_element_by_link_text('Zaloguj').click()
@@ -146,7 +146,7 @@ class CreateBuildingForManyPlayers(BaseTestForTwoPlayers):
         self.assertIn('Miasto {}'.format(City.objects.get(name='Wrocław').name), self.browser.title)
         self.browser.find_element_by_name('Budynki_elektryczne').click()
         self.browser.find_element_by_name('WindPlant').click()
-        time.sleep(3)
+        time.sleep(2)
         self.browser.find_element_by_css_selector('.hexagon.isHexTaken').click()
         time.sleep(2)
 
@@ -154,7 +154,7 @@ class CreateBuildingForManyPlayers(BaseTestForTwoPlayers):
 
         self.browser.find_element_by_name('Wodociagi').click()
         self.browser.find_element_by_name('WaterTower').click()
-        time.sleep(3)
+        time.sleep(2)
         self.browser.find_element_by_css_selector('.hexagon.isHexTaken').click()
         time.sleep(2)
 
@@ -168,8 +168,6 @@ class CreateBuildingForManyPlayers(BaseTestForTwoPlayers):
         time.sleep(1)
         self.browser.find_element_by_link_text('Kolejna tura').click()
         time.sleep(1)
-        self.assertEqual(CityField.objects.filter(city=self.first_city).aggregate(Sum('pollution'))['pollution__sum'],
-                         3)
 
         self.browser.find_element_by_link_text('Wyloguj').click()
         time.sleep(1)
@@ -184,13 +182,13 @@ class CreateBuildingForManyPlayers(BaseTestForTwoPlayers):
         self.assertIn('Miasto {}'.format(City.objects.get(name='Łódź').name), self.browser.title)
         self.browser.find_element_by_name('Budynki_elektryczne').click()
         self.browser.find_element_by_name('WindPlant').click()
-        time.sleep(3)
+        time.sleep(2)
         self.browser.find_element_by_css_selector('.hexagon.isHexTaken').click()
         time.sleep(2)
 
         self.browser.find_element_by_name('Wodociagi').click()
         self.browser.find_element_by_name('WaterTower').click()
-        time.sleep(3)
+        time.sleep(2)
         self.browser.find_element_by_css_selector('.hexagon.isHexTaken').click()
         time.sleep(2)
 
@@ -205,4 +203,49 @@ class CreateBuildingForManyPlayers(BaseTestForTwoPlayers):
         time.sleep(1)
         self.browser.find_element_by_link_text('Kolejna tura').click()
         time.sleep(1)
-        self.assertEqual(CityField.objects.filter(city=self.second_city).aggregate(Sum('pollution'))['pollution__sum'],3)
+
+# @override_settings(DEBUG=True)
+class CitizenTests(BaseTest):
+    fixtures = ['basic_fixture_functional.json']
+
+    def test_citizen_allocation(self):
+        city = City.objects.get(id=1)
+        self.browser.get(self.live_server_url)
+        self.browser.find_element_by_link_text('Zaloguj').click()
+        time.sleep(1)
+        first_username_field = self.browser.find_element_by_id('id_username')
+        first_password_field = self.browser.find_element_by_id('id_password')
+        first_username_field.send_keys('Michał')
+        first_password_field.send_keys('Zapomnij#123')
+        self.browser.find_element_by_tag_name('button').click()
+        time.sleep(1)
+        self.assertIn('Miasto {}'.format(city.name), self.browser.title)
+        self.assertEqual(WindPlant.objects.filter(city=city).count(), 2)
+        self.assertEqual(WaterTower.objects.filter(city=city).count(), 2)
+
+        self.browser.find_element_by_name('BudynkiMieszkalne').click()
+        self.browser.find_element_by_name('Residential').click()
+        self.browser.find_element_by_css_selector('.hexagon.isHexTaken').click()
+
+        self.browser.find_element_by_link_text('Kolejna tura').click()
+        time.sleep(1)
+
+        self.browser.find_element_by_link_text('Kolejna tura').click()
+        time.sleep(1)
+
+        self.browser.find_element_by_link_text('Kolejna tura').click()
+        time.sleep(1)
+
+        self.browser.find_element_by_link_text('Kolejna tura').click()
+        time.sleep(1)
+
+        self.browser.find_element_by_link_text('Kolejna tura').click()
+        time.sleep(1)
+
+        self.assertIn(CityField.objects.filter(city=city).aggregate(Sum('pollution'))['pollution__sum'], range(6, 20))
+
+        for wind_plant in WindPlant.objects.filter(city=city):
+            assert wind_plant.current_employees <= wind_plant.max_employees
+
+        for water_tower in WaterTower.objects.filter(city=city):
+            assert water_tower.current_employees <= water_tower.max_employees

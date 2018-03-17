@@ -4,7 +4,9 @@ from city_engine.models import Residential, ProductionBuilding, \
     WaterTower, \
     list_of_models, electricity_buildings, waterworks_buildings
 from random import shuffle
-from city_engine.main_view_data.board import Board
+# from city_engine.main_view_data.board import Board
+from citizen_engine.models import Citizen
+from django.db.models import Sum
 
 
 class CityStatsCenter(object):
@@ -22,6 +24,9 @@ class CityStatsCenter(object):
 
         self.building_under_construction = self.building_stats.list_of_buildings_under_construction()
         self.list_of_buildings = self.building_stats.list_of_buildings()
+
+        self.current_population = Citizen.objects.filter(city=self.city).count()
+        self.max_population = self.populations_stats.calculate_max_population()
 
     def create_stats_for_city(self):
         self.energy_stats = CityEnergyStats(self.city)
@@ -125,17 +130,15 @@ class CityPopulationStats(object):
         self.city = city
 
     def calculate_max_population(self):
-        max_population = 0
-        for city_field in CityField.objects.filter(city=self.city):
-            if city_field.if_residential is True:
-                max_population += Residential.objects.get(city_field=city_field).max_population
-        return max_population
+        if Residential.objects.filter(city=self.city).aggregate(Sum('max_population'))['max_population__sum']:
+            return Residential.objects.filter(city=self.city).aggregate(Sum('max_population'))['max_population__sum']
+        else:
+            return 0
+        # max_population = 0
+        # for city_field in CityField.objects.filter(city=self.city):
+        #     if city_field.if_residential is True:
+        #         max_population += Residential.objects.get(city_field=city_field).max_population
+        # return max_population
 
-    def calculate_current_population(self):
-        current_population = 0
-        for city_field in CityField.objects.filter(city=self.city):
-            if city_field.if_residential is True:
-                current_population += Residential.objects.get(city_field=city_field).current_population
-        return current_population
 
 

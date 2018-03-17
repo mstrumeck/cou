@@ -1,7 +1,8 @@
 from city_engine.models import CityField, City, \
-    electricity_buildings, waterworks_buildings, \
+    electricity_buildings, waterworks_buildings, list_of_models, \
     WindPlant, RopePlant, CoalPlant, \
-    WaterTower
+    WaterTower, \
+    Residential
 
 
 def build_building(request, row, col, build_type):
@@ -13,6 +14,8 @@ def build_building(request, row, col, build_type):
         city_field.if_electricity = True
     elif build_type in waterworks_buildings:
         city_field.if_waterworks = True
+    elif build_type in list_of_models:
+        city_field.if_residential = True
 
     city_field.save()
 
