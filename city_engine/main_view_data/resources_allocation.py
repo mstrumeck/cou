@@ -1,6 +1,7 @@
 from city_engine.main_view_data.global_variables import HEX_NUM_IN_ROW
 from random import shuffle
-from city_engine.models import CityField, list_of_models, list_of_buildings_categories, list_of_buildings_with_employees
+from city_engine.models import CityField, list_of_models, list_of_buildings_categories, electricity_buildings, waterworks_buildings
+from django.db.models import F
 
 
 class ResourceAllocation(object):
@@ -62,25 +63,23 @@ class ResourceAllocation(object):
         return alloc
 
     def clean_city_field_data(self):
-        for field in CityField.objects.filter(city=self.city):
-            field.pollution = 0
-            field.save()
+        CityField.objects.filter(city=self.city).update(pollution=0)
 
     def clean_resource_data(self):
         for models in list_of_models:
-            list_of_buildings = models.objects.filter(city=self.city)
-            for building in list_of_buildings:
-                building.energy = 0
-                building.water = 0
-                building.save()
+            models.objects.filter(city=self.city).update(energy=0, water=0)
+
+    def launch_resources_allocation_reset(self):
+        for building in electricity_buildings:
+            building.objects.filter(city=self.city).update(energy_allocated=0)
+        for building in waterworks_buildings:
+            building.objects.filter(city=self.city).update(water_allocated=0)
 
     def all_resource_allocation(self):
+        self.launch_resources_allocation_reset()
         for building_category in list_of_buildings_categories:
-            # for models in building_category:
                 list_of_buildings = building_category.objects.filter(city=self.city)
                 for building in list_of_buildings:
-                    building.resources_allocation_reset()
-                    building.save()
                     pattern = self.create_allocation_pattern(building.city_field.row, building.city_field.col)
                     while building.producted_resources_allocation() < building.total_production():
                         try:
@@ -88,7 +87,7 @@ class ResourceAllocation(object):
                         except(StopIteration):
                             break
                         for field in next_value:
-                            if CityField.objects.filter(city=self.city, row=field[0], col=field[1]):
+                            if CityField.objects.filter(city=self.city, row=field[0], col=field[1]).exists():
                                 city_field_for_building = CityField.objects.get(city=self.city, row=field[0], col=field[1])
                                 if city_field_for_building.if_electricity is False and building.if_electricity is True:
                                     self.energy_allocation(building, city_field_for_building)
@@ -100,7 +99,7 @@ class ResourceAllocation(object):
         if city_field_of_building.return_list_of_possible_buildings_related_with_type_of_field():
             for building_type in city_field_of_building.return_list_of_possible_buildings_related_with_type_of_field():
                 if building_type.objects.filter(city_field=city_field_of_building, city=self.city,
-                                                if_electricity=False):
+                                                if_electricity=False).exists():
                     target_build = building_type.objects.get(city_field=city_field_of_building, city=self.city,
                                                              if_electricity=False)
                     energy_to_fill = target_build.energy_required - target_build.energy
@@ -117,7 +116,7 @@ class ResourceAllocation(object):
         water_left = building.total_production() - building.water_allocated
         if city_field_of_building.return_list_of_possible_buildings_related_with_type_of_field():
             for building_type in city_field_of_building.return_list_of_possible_buildings_related_with_type_of_field():
-                if building_type.objects.filter(city_field=city_field_of_building, city=self.city, if_waterworks=False):
+                if building_type.objects.filter(city_field=city_field_of_building, city=self.city, if_waterworks=False).exists():
                     target_build = building_type.objects.get(city_field=city_field_of_building, city=self.city,
                                                              if_waterworks=False)
                     water_to_fill = target_build.water_required - target_build.water
@@ -134,11 +133,11 @@ class ResourceAllocation(object):
         for field in CityField.objects.filter(city=self.city):
             if field.return_list_of_possible_buildings_related_with_type_of_field():
                 for building in field.return_list_of_possible_buildings_related_with_type_of_field():
-                    if building.objects.filter(city_field=field, city=self.city):
+                    if building.objects.filter(city_field=field, city=self.city).exists():
                         target_build = building.objects.get(city_field=field, city=self.city)
                         allocation_pattern = self.return_first_allocation(field.row, field.col)
                         for corr in allocation_pattern:
-                            if CityField.objects.filter(city=self.city, row=corr[0], col=corr[1]):
+                            if CityField.objects.filter(city=self.city, row=corr[0], col=corr[1]).exists():
                                 target_city_field = CityField.objects.get(city=self.city, row=corr[0], col=corr[1])
                                 target_city_field.pollution += (target_build.pollution_calculation() / len(allocation_pattern))
                                 field.pollution += (target_build.pollution_calculation() / len(allocation_pattern))

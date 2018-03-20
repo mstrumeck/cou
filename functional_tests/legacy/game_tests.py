@@ -130,6 +130,7 @@ class CreateBuildingsTestForOnePlayer(BaseTestForOnePlayer):
         )).is_displayed()
 
 
+@override_settings(DEBUG=True)
 class CreateBuildingForManyPlayers(BaseTestForTwoPlayers):
 
     def test_create_power_plants_for_various_players(self):
@@ -204,7 +205,8 @@ class CreateBuildingForManyPlayers(BaseTestForTwoPlayers):
         self.browser.find_element_by_link_text('Kolejna tura').click()
         time.sleep(1)
 
-# @override_settings(DEBUG=True)
+
+@override_settings(DEBUG=True)
 class CitizenTests(BaseTest):
     fixtures = ['basic_fixture_functional.json']
 

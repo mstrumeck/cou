@@ -1,10 +1,4 @@
-from city_engine.models import Residential, ProductionBuilding, \
-    WindPlant,\
-    CityField, City, \
-    WaterTower, \
-    list_of_models, electricity_buildings, waterworks_buildings
-from random import shuffle
-# from city_engine.main_view_data.board import Board
+from city_engine.models import Residential, list_of_models, electricity_buildings, waterworks_buildings
 from citizen_engine.models import Citizen
 from django.db.models import Sum
 
@@ -53,16 +47,17 @@ class CityEnergyStats(object):
     def calculate_energy_allocation_in_city(self):
         energy_allocated = 0
         for models in electricity_buildings:
-            list_of_buildings = models.objects.filter(city=self.city)
-            for building in list_of_buildings:
-                energy_allocated += building.energy_allocated
-        return energy_allocated
+            list_of_buildings = models.objects.filter(city=self.city).values('energy_allocated')
+            if list_of_buildings.exists():
+                for building in list_of_buildings:
+                    energy_allocated += building['energy_allocated']
+            return energy_allocated
 
     def calculate_energy_usage_in_city(self):
         total_energy = 0
         for model in list_of_models:
-            for building in model.objects.filter(city=self):
-                total_energy += building.energy_required
+            for building in model.objects.filter(city=self).values('energy_required'):
+                total_energy += building['energy_required']
         return total_energy
 
 
@@ -84,16 +79,16 @@ class CityWaterStats(object):
     def calculate_water_usage_in_city(self):
         total_water = 0
         for model in list_of_models:
-            for buildings in model.objects.filter(city=self.city):
-                total_water += buildings.water_required
+            for buildings in model.objects.filter(city=self.city).values('water_required'):
+                total_water += buildings['water_required']
         return total_water
 
     def calculate_water_allocation_in_city(self):
         water_allocated = 0
         for models in waterworks_buildings:
-            list_of_buildings = models.objects.filter(city=self.city)
+            list_of_buildings = models.objects.filter(city=self.city).values('water_allocated')
             for building in list_of_buildings:
-                water_allocated += building.water_allocated
+                water_allocated += building['water_allocated']
         return water_allocated
 
 
@@ -104,11 +99,13 @@ class CityBuildingStats(object):
     def list_of_buildings_under_construction(self):
         building_name, building_cur, building_end = [], [], []
         for model in list_of_models:
-            for building in model.objects.filter(city=self.city):
-                if building.if_under_construction is True:
-                    building_name.append(building.name)
-                    building_cur.append(building.current_build_time)
-                    building_end.append(building.build_time)
+            for building in model.objects.filter(city=self.city).values(
+                    'if_under_construction',
+                    'name', 'current_build_time', 'build_time'):
+                if building['if_under_construction'] is True:
+                    building_name.append(building['name'])
+                    building_cur.append(building['current_build_time'])
+                    building_end.append(building['build_time'])
         if not building_name:
             return None
         return zip(building_name, building_cur, building_end)
@@ -116,10 +113,10 @@ class CityBuildingStats(object):
     def list_of_buildings(self):
         building_names = []
         for model in list_of_models:
-            for building in model.objects.filter(city=self.city):
-                if building.if_under_construction is False:
+            for building in model.objects.filter(city=self.city).values('if_under_construction', 'name'):
+                if building['if_under_construction'] is False:
                     try:
-                        building_names.append(building.name)
+                        building_names.append(building['name'])
                     except(AttributeError):
                         pass
         return building_names
@@ -134,11 +131,3 @@ class CityPopulationStats(object):
             return Residential.objects.filter(city=self.city).aggregate(Sum('max_population'))['max_population__sum']
         else:
             return 0
-        # max_population = 0
-        # for city_field in CityField.objects.filter(city=self.city):
-        #     if city_field.if_residential is True:
-        #         max_population += Residential.objects.get(city_field=city_field).max_population
-        # return max_population
-
-
-

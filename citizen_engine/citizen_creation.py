@@ -7,10 +7,10 @@ class CreateCitizen(object):
     def __init__(self, city, target_production):
         self.city = city
         self.target_production = target_production
+        self.citizen = Citizen()
         self.create()
 
     def create(self):
-        self.citizen = Citizen()
         self.citizen.city = self.city
         self.citizen.type_of_work = self.target_production
         self.set_place_of_work()

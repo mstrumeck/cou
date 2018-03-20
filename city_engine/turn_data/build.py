@@ -23,5 +23,6 @@ def build_building(request, row, col, build_type):
     building.city = city
     building.city_field = CityField.objects.get(row=row, col=col, city=city)
     city.cash -= building.build_cost
+
     city.save()
     building.save()

@@ -1,10 +1,7 @@
-from city_engine.models import list_of_models, \
-    electricity_buildings, Residential, ProductionBuilding, list_of_buildings_categories, \
-    list_of_all_buildings, list_of_buildings_with_employees, WindPlant, WaterTower
-from django.db.models import Sum
-from citizen_engine.models import Citizen, WORK_CHOICES
+from city_engine.models import ProductionBuilding, list_of_buildings_with_employees, WindPlant, WaterTower
+from citizen_engine.models import Citizen
 from city_engine.main_view_data.city_stats import CityPopulationStats
-from random import randint, choice, randrange
+from random import randint, choice
 from citizen_engine.citizen_creation import CreateCitizen
 
 
@@ -27,24 +24,19 @@ class EmployeeAllocation(object):
                         break
 
     def clean_info_about_employees(self):
-        for windplant in WindPlant.objects.filter(city=self.city):
-            windplant.current_employees = 0
-            windplant.save()
-        for watertower in WaterTower.objects.filter(city=self.city):
-            watertower.current_employees = 0
-            watertower.save()
-        for production_building in ProductionBuilding.objects.filter(city=self.city):
-            production_building.current_employees = 0
-            production_building.save()
+        WindPlant.objects.filter(city=self.city).update(current_employees=0)
+        WaterTower.objects.filter(city=self.city).update(current_employees=0)
+        ProductionBuilding.objects.filter(city=self.city).update(current_employees=0)
 
     def not_full_production_buildings(self):
         data = []
         for categories in list_of_buildings_with_employees:
-            for buildings in categories.objects.filter(city=self.city):
-                if buildings.current_employees < buildings.max_employees:
-                    data.append(buildings)
+            for buildings in categories.objects.filter(city=self.city).values(
+                    'type_of_working_building', 'current_employees', 'max_employees'):
+                if buildings['current_employees'] < buildings['max_employees']:
+                    data.append(buildings['type_of_working_building'])
         if data:
-            return choice(data).type_of_work_building()
+            return choice(data)
         else:
             return None
 

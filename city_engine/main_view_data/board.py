@@ -1,21 +1,9 @@
-from city_engine.models import CityField, City, \
-    Residential, \
-    ProductionBuilding, \
-    WindPlant, CoalPlant, RopePlant, WaterTower, \
-    electricity_buildings, waterworks_buildings, \
-    list_of_models, list_of_buildings_categories
-from random import shuffle
+from city_engine.models import CityField, waterworks_buildings
 from .resources_allocation import ResourceAllocation
 from .employee_allocation import EmployeeAllocation
 import numpy as np
 from .global_variables import HEX_NUM_IN_ROW, HEX_NUM, ROW_NUM
-from city_engine.models import list_of_models, \
-    electricity_buildings, Residential, ProductionBuilding, list_of_buildings_categories, \
-    list_of_all_buildings, list_of_buildings_with_employees, WindPlant, WaterTower
-from django.db.models import Sum
-from citizen_engine.models import Citizen, WORK_CHOICES
-# from city_engine.main_view_data.city_stats import CityPopulationStats
-from random import randint, choice, randrange
+from city_engine.models import WindPlant, electricity_buildings, Residential, ProductionBuilding
 
 
 def assign_city_fields_to_board(city):
@@ -24,7 +12,7 @@ def assign_city_fields_to_board(city):
     for num_of_row, row in enumerate(chunk_fields):
         row = list(row)
         for col in range(len(row)):
-            CityField.objects.create(city=city, row=num_of_row, col=col).save()
+            CityField.objects.create(city=city, row=num_of_row, col=col)
 
 
 class Board(object):
@@ -55,7 +43,7 @@ class Board(object):
     def map_board_info(self):
         for row in range(int(ROW_NUM)):
             for col in range(int(HEX_NUM_IN_ROW)):
-                if CityField.objects.filter(col=col, row=row, city=self.city):
+                if CityField.objects.filter(col=col, row=row, city=self.city).exists():
                     build_field = CityField.objects.get(col=col, row=row, city=self.city)
                     if build_field.if_residential is True:
                         self.hex_with_builds.append((row, col))
@@ -122,7 +110,7 @@ class HexDetail(object):
         hex_detail_box += "id='hexBox{}{}'>".format(row, col)
         hex_detail_box += "<p>Podgląd hexa "+str(hex_id)+"</p>"
 
-        if CityField.objects.filter(row=row, col=col, city=self.city):
+        if CityField.objects.filter(row=row, col=col, city=self.city).exists():
             build_field = CityField.objects.get(row=row, col=col, city=self.city)
             hex_detail_box += "<p>Zanieczyszczenie: {}</p>".format(build_field.pollution)
 

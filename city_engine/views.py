@@ -8,10 +8,10 @@ from django.utils.safestring import mark_safe
 from citizen_engine.models import Citizen
 from city_engine.main_view_data.board import Board, HexDetail
 from city_engine.models import City, list_of_models, electricity_buildings, WindPlant
+from django.db.models import F
 from player.models import Profile
 from .main_view_data.city_stats import \
     CityStatsCenter
-# from .main_view_data.employee_allocation import EmployeeAllocation
 from .turn_data.main import \
     TurnCalculation, \
     calculate_maintenance_cost
@@ -25,12 +25,9 @@ def main_view(request):
     new_board = Board(city)
     new_hex_detail = HexDetail(city)
     city_stats = CityStatsCenter(city)
-    # new_board = Board(city)
-    # new_hex_detail = HexDetail(city)
     city_resources_allocation_stats = zip(["Produkowana", "Ulokowana", "Bilans"],
                                           [city_stats.energy_production, city_stats.energy_allocation, city_stats.energy_bilans],
                                           [city_stats.water_production, city_stats.water_allocation, city_stats.water_bilans])
-    # ResourceAllocation(city)
 
     profile = Profile.objects.get(user_id=request.user.id)
     income = Citizen.objects.filter(city=city).aggregate(Sum('income'))['income__sum']
@@ -62,7 +59,6 @@ def turn_calculations(request):
 
     city = City.objects.get(user_id=request.user.id)
     TurnCalculation(city)
-    # city_turn_calculation.update_build_status
 
     city.cash -= calculate_maintenance_cost(list_of_models, city)
     city.save()

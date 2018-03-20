@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-import numpy
 
 
 class City(models.Model):
@@ -81,18 +80,6 @@ class BuldingsWithWorkes(Building):
     class Meta:
         abstract = True
 
-# class ZoneBuildings(Building):
-#     ZONE_VALUE_CHOICES = (
-#         ("$", "$"),
-#         ("$$", "$$"),
-#         ("$$$", "$$$")
-#     )
-#     zone_value = models.CharField(choices=ZONE_VALUE_CHOICES, default="$", max_length=3)
-#     if_under_construction = models.BooleanField(default=False)
-#
-#     class Meta:
-#         abstract = True
-
 
 class Residential(Building):
     name = models.CharField(max_length=20, default='Budynek Mieszkalny')
@@ -103,20 +90,6 @@ class Residential(Building):
     build_cost = models.PositiveIntegerField(default=100)
     maintenance_cost = models.PositiveIntegerField(default=10)
 
-    # def build_status(self):
-    #     if self.if_under_construction is True:
-    #         if self.current_build_time < self.build_time:
-    #             self.current_build_time += 1
-    #             self.save()
-    #             return False
-    #         elif self.current_build_time == self.build_time:
-    #             self.if_under_construction = False
-    #             self.max_population = 50
-    #             self.save()
-    #             return True
-    #     else:
-    #         return False
-
 
 class ProductionBuilding(BuldingsWithWorkes):
     name = models.CharField(max_length=20, default='Budynek Przemysłowy')
@@ -125,23 +98,7 @@ class ProductionBuilding(BuldingsWithWorkes):
     build_cost = models.PositiveIntegerField(default=100)
     maintenance_cost = models.PositiveIntegerField(default=10)
     max_employees = models.PositiveIntegerField(default=20)
-
-    def type_of_work_building(self):
-        return 'PB'
-
-    # def build_status(self):
-    #     if self.if_under_construction is True:
-    #         if self.current_build_time < self.build_time:
-    #             self.current_build_time += 1
-    #             self.save()
-    #             return False
-    #         elif self.current_build_time == self.build_time:
-    #             self.if_under_construction = False
-    #             self.max_employees = 10
-    #             self.save()
-    #             return True
-    #     else:
-    #         return False
+    type_of_working_building = models.CharField(default='PB', max_length=2)
 
 
 class PowerPlant(BuldingsWithWorkes):
@@ -206,6 +163,7 @@ class WindPlant(PowerPlant):
     maintenance_cost = models.PositiveIntegerField(default=10)
     water_required = models.PositiveIntegerField(default=10)
     pollution_rate = models.FloatField(default=1.8)
+    type_of_working_building = models.CharField(default='WP', max_length=2)
 
     def build_status(self):
         if self.if_under_construction is True:
@@ -223,9 +181,9 @@ class WindPlant(PowerPlant):
                 return True
         else:
             return False
-
-    def type_of_work_building(self):
-        return 'WP'
+    #
+    # def type_of_work_building(self):
+    #     return 'WP'
 
 
 class RopePlant(PowerPlant):
@@ -235,6 +193,7 @@ class RopePlant(PowerPlant):
     maintenance_cost = models.PositiveIntegerField(default=20)
     water_required = models.PositiveIntegerField(default=15)
     pollution_rate = models.FloatField(default=1.3)
+    type_of_working_building = models.CharField(default='RP', max_length=2)
 
     def build_status(self):
         if self.if_under_construction is True:
@@ -253,8 +212,8 @@ class RopePlant(PowerPlant):
         else:
             return False
 
-    def type_of_work_building(self):
-        return 'RP'
+    # def type_of_work_building(self):
+    #     return 'RP'
 
 
 class CoalPlant(PowerPlant):
@@ -264,6 +223,7 @@ class CoalPlant(PowerPlant):
     maintenance_cost = models.PositiveIntegerField(default=15)
     water_required = models.PositiveIntegerField(default=20)
     pollution_rate = models.FloatField(default=1.5)
+    type_of_working_building = models.CharField(default='CP', max_length=2)
 
     def build_status(self):
         if self.if_under_construction is True:
@@ -282,8 +242,8 @@ class CoalPlant(PowerPlant):
         else:
             return False
 
-    def type_of_work_building(self):
-        return 'CP'
+    # def type_of_work_building(self):
+    #     return 'CP'
 
 
 class Waterworks(BuldingsWithWorkes):
@@ -326,6 +286,7 @@ class WaterTower(Waterworks):
     build_cost = models.PositiveIntegerField(default=50)
     maintenance_cost = models.PositiveIntegerField(default=5)
     energy_required = models.PositiveIntegerField(default=3)
+    type_of_working_building = models.CharField(default='WT', max_length=2)
 
     def build_status(self):
         if self.if_under_construction is True:
@@ -342,17 +303,15 @@ class WaterTower(Waterworks):
         else:
             return False
 
-    def type_of_work_building(self):
-        return 'WT'
+    # def type_of_work_building(self):
+    #     return 'WT'
 
 
 electricity_buildings = [WindPlant, RopePlant, CoalPlant]
 waterworks_buildings = [WaterTower]
-# list_of_buildings_categories = [electricity_buildings, waterworks_buildings]
 list_of_buildings_categories = electricity_buildings + waterworks_buildings
-list_of_buildings_with_employees = electricity_buildings + [WaterTower] + [ProductionBuilding]
+list_of_buildings_with_employees = electricity_buildings + waterworks_buildings + [ProductionBuilding]
 list_of_models = [ProductionBuilding, Residential]
-list_of_all_buildings = electricity_buildings + waterworks_buildings + list_of_models
 
 for electricity in electricity_buildings:
     list_of_models.append(electricity)
