@@ -1,5 +1,29 @@
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.contrib.auth.models import User
+
+
+class CityFilter(models.Manager):
+
+    def exists_in_city(self, city):
+        if self.filter(city=city).exists():
+            return True
+        else:
+            return False
+
+    def filter_by_city(self, city):
+            return self.filter(city=city)
+
+
+class Trash(models.Model):
+    size = models.PositiveIntegerField(default=0)
+    time = models.PositiveIntegerField(default=0)
+
+    content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT)
+    object_id = models.PositiveIntegerField()
+    content_objects = GenericForeignKey()
 
 
 class City(models.Model):
@@ -44,17 +68,19 @@ class Building(models.Model):
     maintenance_cost = models.PositiveIntegerField(default=0)
     build_time = models.PositiveIntegerField()
     current_build_time = models.PositiveIntegerField(default=1)
-    trash = models.PositiveIntegerField(default=0)
-    health = models.PositiveIntegerField(default=0)
+    trash = GenericRelation(Trash)
+    #Energy
     energy = models.PositiveIntegerField(default=0)
     energy_required = models.PositiveIntegerField(default=0)
+    #Water
     water = models.PositiveIntegerField(default=0)
     water_required = models.PositiveIntegerField(default=0)
-    crime = models.PositiveIntegerField(default=0)
+    #Pollution
     pollution_rate = models.FloatField(default=0.0)
     pollution_product = models.PositiveIntegerField(default=0)
     recycling = models.PositiveIntegerField(default=0)
-    city_communication = models.PositiveIntegerField(default=0)
+    #Managers
+    objects = CityFilter()
 
     class Meta:
         abstract = True
@@ -77,6 +103,9 @@ class BuldingsWithWorkes(Building):
     current_employees = models.PositiveIntegerField(default=0)
     max_employees = models.PositiveIntegerField(default=0)
 
+    def trash_calculation(self):
+        return self.pollution_calculation() * self.pollution_rate
+
     class Meta:
         abstract = True
 
@@ -89,6 +118,12 @@ class Residential(Building):
     build_time = models.PositiveIntegerField(default=1)
     build_cost = models.PositiveIntegerField(default=100)
     maintenance_cost = models.PositiveIntegerField(default=10)
+
+    def pollution_calculation(self):
+        return self.population * self.pollution_rate
+
+    def trash_calculation(self):
+        return self.pollution_calculation() * self.population
 
 
 class ProductionBuilding(BuldingsWithWorkes):
@@ -181,9 +216,6 @@ class WindPlant(PowerPlant):
                 return True
         else:
             return False
-    #
-    # def type_of_work_building(self):
-    #     return 'WP'
 
 
 class RopePlant(PowerPlant):
@@ -212,9 +244,6 @@ class RopePlant(PowerPlant):
         else:
             return False
 
-    # def type_of_work_building(self):
-    #     return 'RP'
-
 
 class CoalPlant(PowerPlant):
     name = models.CharField(default='Elektrownia węglowa', max_length=20)
@@ -241,9 +270,6 @@ class CoalPlant(PowerPlant):
                 return True
         else:
             return False
-
-    # def type_of_work_building(self):
-    #     return 'CP'
 
 
 class Waterworks(BuldingsWithWorkes):
@@ -302,9 +328,6 @@ class WaterTower(Waterworks):
                 return True
         else:
             return False
-
-    # def type_of_work_building(self):
-    #     return 'WT'
 
 
 electricity_buildings = [WindPlant, RopePlant, CoalPlant]

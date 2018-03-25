@@ -7,7 +7,7 @@ from city_engine.models import City, CityField, \
 from .base import BaseTestForOnePlayer, BaseTestForTwoPlayers, BaseTest
 
 
-@override_settings(DEBUG=True)
+# @override_settings(DEBUG=True)
 class CreateBuildingsTestForOnePlayer(BaseTestForOnePlayer):
 
     def test_create_buildings(self):
@@ -130,7 +130,7 @@ class CreateBuildingsTestForOnePlayer(BaseTestForOnePlayer):
         )).is_displayed()
 
 
-@override_settings(DEBUG=True)
+# @override_settings(DEBUG=True)
 class CreateBuildingForManyPlayers(BaseTestForTwoPlayers):
 
     def test_create_power_plants_for_various_players(self):
@@ -206,7 +206,7 @@ class CreateBuildingForManyPlayers(BaseTestForTwoPlayers):
         time.sleep(1)
 
 
-@override_settings(DEBUG=True)
+# @override_settings(DEBUG=True)
 class CitizenTests(BaseTest):
     fixtures = ['basic_fixture_functional.json']
 

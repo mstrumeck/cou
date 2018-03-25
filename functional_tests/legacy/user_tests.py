@@ -8,7 +8,7 @@ from city_engine.models import City, CityField
 from .base import BaseTestForOnePlayer, BaseTest
 
 
-@override_settings(DEBUG=True)
+# @override_settings(DEBUG=True)
 class SignupAndLoginTestForOnePlayer(BaseTest):
 
     def test_signup_two_players(self):

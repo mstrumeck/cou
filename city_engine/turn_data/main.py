@@ -1,10 +1,14 @@
 from city_engine.models import list_of_models
 from django.db.models import Sum
+from city_engine.main_view_data.employee_allocation import EmployeeAllocation
+from city_engine.main_view_data.resources_allocation import ResourceAllocation
 
 
 class TurnCalculation(object):
     def __init__(self, city):
         self.city = city
+        EmployeeAllocation(self.city)
+        ResourceAllocation(self.city)
         self.update_build_status()
 
     def update_build_status(self):
@@ -21,5 +25,3 @@ def calculate_maintenance_cost(list_of_models, city):
         if total_cost_per_model is not None:
             total_maintenance_cost += total_cost_per_model
     return total_maintenance_cost
-
-# def update_buildings_production(city):

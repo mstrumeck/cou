@@ -23,8 +23,6 @@ class Board(object):
         self.hex_with_builds = []
         self.hex_with_electricity = []
         self.hex_with_waterworks = []
-        EmployeeAllocation(self.city)
-        ResourceAllocation(self.city)
         self.map_board_info()
         self.generate_board()
 

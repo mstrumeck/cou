@@ -3,6 +3,7 @@ from city_engine.main_view_data.city_stats import CityStatsCenter
 from city_engine.main_view_data.resources_allocation import ResourceAllocation
 from city_engine.models import CityField, list_of_models, City, WindPlant, WaterTower, list_of_buildings_with_employees
 from django.db.models import Sum
+from city_engine.turn_data.main import TurnCalculation
 
 
 class ResourcesAllocationsTests(test.TestCase):
@@ -37,9 +38,11 @@ class ResourcesAllocationsTests(test.TestCase):
 
         self.assertEqual(WindPlant.objects.filter(city=self.city).aggregate(Sum('energy_allocated'))['energy_allocated__sum'], 0)
         self.assertEqual(WaterTower.objects.filter(city=self.city).aggregate(Sum('water_allocated'))['water_allocated__sum'], 0)
-        self.RA.all_resource_allocation()
-        self.assertIn(WindPlant.objects.filter(city=self.city).aggregate(Sum('energy_allocated'))['energy_allocated__sum'], range(1, 4))
-        self.assertIn(WaterTower.objects.filter(city=self.city).aggregate(Sum('water_allocated'))['water_allocated__sum'], range(4, 20))
+        TurnCalculation(city=self.city)
+        TurnCalculation(city=self.city)
+        TurnCalculation(city=self.city)
+        self.assertIn(WindPlant.objects.filter(city=self.city).aggregate(Sum('energy_allocated'))['energy_allocated__sum'], range(4, 30))
+        self.assertIn(WaterTower.objects.filter(city=self.city).aggregate(Sum('water_allocated'))['water_allocated__sum'], range(4, 30))
 
     def test_of_resource_allocation_pattern(self):
         generator = self.RA.create_allocation_pattern(2, 3)
