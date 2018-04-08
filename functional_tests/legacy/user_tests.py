@@ -3,107 +3,61 @@ import string
 import time
 from django.contrib.auth.models import User
 from city_engine.main_view_data.board import HEX_NUM
-from django.test.utils import override_settings
 from city_engine.models import City, CityField
 from .base import BaseTestForOnePlayer, BaseTest
+from functional_tests.page_objects import Homepage, SignupPage, MainView
 
 
-# @override_settings(DEBUG=True)
-class SignupAndLoginTestForOnePlayer(BaseTest):
+class SignupAndLoginTests(BaseTest):
 
     def test_signup_two_players(self):
-        self.browser.get(self.live_server_url)
-        self.browser.find_element_by_link_text('Rejestracja').click()
+        home_page = Homepage(self.browser, self.live_server_url)
+        home_page.navigate('')
+        self.assertIn('Strona główna', self.browser.title)
+        home_page.click_registration_button()
         self.assertIn('Rejestracja', self.browser.title)
-        username_field = self.browser.find_element_by_id('id_username')
-        password_field1 = self.browser.find_element_by_id('id_password1')
-        password_field2 = self.browser.find_element_by_id('id_password2')
-        city_name_field = self.browser.find_element_by_id('id_name')
-        username_field.send_keys('test_username')
-        password_field1.send_keys('michal12345')
-        password_field2.send_keys('michal12345')
-        city_name_field.send_keys('Wrocław')
-        self.browser.find_element_by_tag_name('button').click()
-        time.sleep(1)
-        self.assertIn('Miasto {}'.format('Wrocław'), self.browser.title)
-        city1 = City.objects.get(name='Wrocław')
-        self.assertEqual(CityField.objects.filter(city=city1).count(), HEX_NUM)
+        signup_page = SignupPage(self.browser, self.live_server_url)
+        signup_page.create_account(city_name=self.city_one_name,
+                                   username=self.player_one,
+                                   password=self.password_one)
+        self.assertIn('Miasto {}'.format(self.city_one_name), self.browser.title)
+        self.assertEqual(CityField.objects.filter(
+            city=City.objects.get(name=self.city_one_name)).count(), HEX_NUM)
 
-        self.browser.find_element_by_link_text('Wyloguj').click()
-        self.browser.find_element_by_link_text('Rejestracja').click()
+        main_view = MainView(self.browser, self.live_server_url)
+        main_view.logout()
+        self.assertIn('Strona główna', self.browser.title)
+        home_page = Homepage(self.browser, self.live_server_url)
+        home_page.click_registration_button()
         self.assertIn('Rejestracja', self.browser.title)
-        username_field = self.browser.find_element_by_id('id_username')
-        password_field1 = self.browser.find_element_by_id('id_password1')
-        password_field2 = self.browser.find_element_by_id('id_password2')
-        city_name_field = self.browser.find_element_by_id('id_name')
-        username_field.send_keys('test_username2')
-        password_field1.send_keys('alicja12345')
-        password_field2.send_keys('alicja12345')
-        city_name_field.send_keys('Oleśnica')
-        self.browser.find_element_by_tag_name('button').click()
-        time.sleep(1)
-        city2 = City.objects.get(name='Oleśnica')
-        self.assertEqual(CityField.objects.filter(city=city2).count(), HEX_NUM)
-
-    def test_login_with_provided_account_info(self):
-        username = 'test_username'
-        password = 'michal12345'
-        user = User.objects.create_user(username=username, password=password)
-        City.objects.create(name='Wrocław', user=user)
-        self.browser.get(self.live_server_url)
-        self.browser.find_element_by_link_text('Zaloguj').click()
-        time.sleep(1)
-        username_field = self.browser.find_element_by_id('id_username')
-        password_field = self.browser.find_element_by_id('id_password')
-        username_field.send_keys(username)
-        password_field.send_keys(password)
-        self.browser.find_element_by_tag_name('button').click()
-        time.sleep(1)
-        self.assertIn('Miasto {}'.format('Wrocław'), self.browser.title)
+        signup_page.create_account(city_name=self.city_two_name,
+                                   username=self.player_two,
+                                   password=self.password_two)
+        self.assertIn('Miasto {}'.format(self.city_two_name), self.browser.title)
+        self.assertEqual(CityField.objects.filter(
+            city=City.objects.get(name=self.city_two_name)).count(), HEX_NUM)
 
     def test_singup_form_validation(self):
-        password1 = 'michal12345'
-        password2 = ''
-
-        for letter in range(len(password1)):
-            password2 += random.choice(string.ascii_letters)
-
-        self.browser.get(self.live_server_url)
-        self.browser.find_element_by_link_text('Rejestracja').click()
-        time.sleep(1)
-        username_field = self.browser.find_element_by_id('id_username')
-        password_field1 = self.browser.find_element_by_id('id_password1')
-        password_field2 = self.browser.find_element_by_id('id_password2')
-        city_name_field = self.browser.find_element_by_id('id_name')
-        username_field.send_keys('test_username')
-        password_field1.send_keys(password1)
-        password_field2.send_keys(password2)
-        city_name_field.send_keys('Wrocław')
-        self.browser.find_element_by_tag_name('button').click()
-        time.sleep(1)
-        error = self.browser.find_element_by_class_name('errorlist')
-        self.assertTrue(error.is_displayed())
+        home_page = Homepage(self.browser, self.live_server_url)
+        home_page.navigate('')
+        self.assertIn('Strona główna', self.browser.title)
+        home_page.click_registration_button()
+        self.assertIn('Rejestracja', self.browser.title)
+        signup_page = SignupPage(self.browser, self.live_server_url)
+        signup_page.create_fake_account(city_name=self.city_one_name,
+                                        username=self.player_one,
+                                        password=self.password_one)
+        self.assertTrue(signup_page.if_error_displayed())
 
     def test_doubled_city_name(self):
-        password = 'michal12345'
-        user = User.objects.create_user(username='test_username', password='12345', email='random@wp.pl')
-        City.objects.create(name='Wrocław', user=user, cash=100)
-        self.browser.get(self.live_server_url)
-        self.browser.find_element_by_link_text('Rejestracja').click()
-        time.sleep(1)
-        username_field = self.browser.find_element_by_id('id_username')
-        password_field1 = self.browser.find_element_by_id('id_password1')
-        password_field2 = self.browser.find_element_by_id('id_password2')
-        city_name_field = self.browser.find_element_by_id('id_name')
-        username_field.send_keys('test_username')
-        password_field1.send_keys(password)
-        password_field2.send_keys(password)
-        city_name_field.send_keys('Wrocław')
-        self.browser.find_element_by_tag_name('button').click()
-        time.sleep(1)
-        error = self.browser.find_element_by_class_name('errorlist')
-        self.assertTrue(error.is_displayed())
-
-
-
-
+        self.create_first_user()
+        home_page = Homepage(self.browser, self.live_server_url)
+        home_page.navigate('')
+        self.assertIn('Strona główna', self.browser.title)
+        home_page.click_registration_button()
+        self.assertIn('Rejestracja', self.browser.title)
+        signup_page = SignupPage(self.browser, self.live_server_url)
+        signup_page.create_fake_account(city_name=self.city_one_name,
+                                        username=self.player_one,
+                                        password=self.password_one)
+        self.assertTrue(signup_page.if_error_displayed())

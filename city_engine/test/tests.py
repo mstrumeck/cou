@@ -104,7 +104,7 @@ class CityViewTests(CityFixture):
         self.assertContains(self.response, str(coal_plant.name))
         self.assertContains(self.response, str(water_tower.name))
         self.assertContains(self.response, 'Elektrownie')
-        self.assertContains(self.response, 'Wodociągi')
+        self.assertContains(self.response, 'Wieża ciśnień')
 
     def test_city_view(self):
         user = User.objects.get(username='test_username')

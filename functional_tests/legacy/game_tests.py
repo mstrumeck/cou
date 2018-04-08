@@ -3,251 +3,168 @@ from django.db.models import Sum
 from django.test import override_settings
 from city_engine.models import City, CityField, \
     WindPlant, CoalPlant, RopePlant, \
-    WaterTower
+    WaterTower, TrashCollector
 from .base import BaseTestForOnePlayer, BaseTestForTwoPlayers, BaseTest
+from city_engine.models import list_of_buildings_in_city, Building, get_subclasses
+from functional_tests.page_objects import MainView, Homepage, LoginPage
+from django.db.models import F
+from django.contrib.auth.models import User
 
 
 # @override_settings(DEBUG=True)
-class CreateBuildingsTestForOnePlayer(BaseTestForOnePlayer):
+class GameTestForOnePlayer(BaseTest):
 
-    def test_create_buildings(self):
-        self.browser.get(self.live_server_url)
-        self.browser.find_element_by_link_text('Zaloguj').click()
-        time.sleep(1)
-        username_field = self.browser.find_element_by_id('id_username')
-        password_field = self.browser.find_element_by_id('id_password')
-        username_field.send_keys(self.username)
-        password_field.send_keys(self.password)
-        self.browser.find_element_by_tag_name('button').click()
-        time.sleep(1)
-        self.assertIn('Miasto {}'.format(City.objects.get(name='Wrocław').name), self.browser.title)
-        self.browser.find_element_by_name('Budynki_elektryczne').click()
-        self.browser.find_element_by_name('WindPlant').click()
-        self.browser.find_element_by_css_selector('.hexagon.isHexTaken').click()
+    def test_create_all_buildings(self):
+        self.create_first_user()
+        LoginPage(self.browser,
+                  self.live_server_url).navigate_to_main_throught_login(user=self.user_one,
+                                                                        username=self.player_one,
+                                                                        password=self.password_one,
+                                                                        city=self.city_one,
+                                                                        assertIn=self.assertIn,
+                                                                        assertTrue=self.assertTrue)
+        main_view = MainView(self.browser, self.live_server_url)
+        main_view.build_the_building_from_single_choice('WaterTower', '00')
+        main_view.build_the_building_from_single_choice('Residential', '01')
+        main_view.build_the_building_from_single_choice('TrashCollector', '02')
+        main_view.build_the_building_from_single_choice('ProductionBuilding', '12')
+        main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'WindPlant', '03')
+        main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'RopePlant', '10')
+        main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'CoalPlant', '11')
 
-        self.browser.find_element_by_name('Budynki_elektryczne').click()
-        time.sleep(1)
-        self.browser.find_element_by_name('CoalPlant').click()
-        self.browser.find_element_by_css_selector('.hexagon.isHexTaken').click()
-
-        self.browser.find_element_by_name('Budynki_elektryczne').click()
-        time.sleep(1)
-        self.browser.find_element_by_name('RopePlant').click()
-        self.browser.find_element_by_css_selector('.hexagon.isHexTaken').click()
-
-        self.browser.find_element_by_name('Wodociagi').click()
-        time.sleep(1)
-        self.browser.find_element_by_name('WaterTower').click()
-        self.browser.find_element_by_css_selector('.hexagon.isHexTaken').click()
-
-        time.sleep(1)
-        self.browser.find_element_by_name('detailEnergy').is_displayed()
-        self.browser.find_element_by_name('detailWater').is_displayed()
-
-        self.browser.find_element_by_link_text('Kolejna tura').click()
-        time.sleep(1)
-        self.browser.find_element_by_link_text('Kolejna tura').click()
-        time.sleep(1)
-        self.browser.find_element_by_link_text('Kolejna tura').click()
-        time.sleep(1)
-        self.browser.find_element_by_link_text('Kolejna tura').click()
-        time.sleep(1)
-        self.browser.find_element_by_link_text('Kolejna tura').click()
-        time.sleep(1)
-
-        self.assertEqual(self.city_stats.energy_bilans, 0)
-
-        self.assertEqual(WindPlant.objects.filter(city=self.city).count(), 1)
-        self.assertEqual(CoalPlant.objects.filter(city=self.city).count(), 1)
-        self.assertEqual(RopePlant.objects.filter(city=self.city).count(), 1)
-        self.assertEqual(WaterTower.objects.filter(city=self.city).count(), 1)
-
-        self.assertEqual([booleans['if_electricity'] for booleans in
-                          WindPlant.objects.filter(city=self.city).values('if_electricity')], [True])
-        self.assertEqual([booleans['if_electricity'] for booleans in
-                          CoalPlant.objects.filter(city=self.city).values('if_electricity')], [True])
-        self.assertEqual([booleans['if_electricity'] for booleans in
-                          RopePlant.objects.filter(city=self.city).values('if_electricity')], [True])
-        self.assertEqual([booleans['if_waterworks'] for booleans in
-                          WaterTower.objects.filter(city=self.city).values('if_waterworks')], [True])
+        for building_sublcass in get_subclasses(Building, 'city_engine'):
+            self.assertEqual(building_sublcass.objects.filter(city=self.city_one).count(), 1)
+        for building in list_of_buildings_in_city(abstract_class=Building, city=self.city_one, app_label='city_engine'):
+            self.assertTrue(building.if_under_construction)
+        main_view.next_turns(5)
+        for building in list_of_buildings_in_city(abstract_class=Building, city=self.city_one, app_label='city_engine'):
+            self.assertFalse(building.if_under_construction)
 
     def test_energy_allocation(self):
-        self.browser.get(self.live_server_url)
-        self.browser.find_element_by_link_text('Zaloguj').click()
-        time.sleep(1)
-        username_field = self.browser.find_element_by_id('id_username')
-        password_field = self.browser.find_element_by_id('id_password')
-        username_field.send_keys(self.username)
-        password_field.send_keys(self.password)
-        self.browser.find_element_by_tag_name('button').click()
-        time.sleep(1)
-        self.assertIn('Miasto {}'.format(City.objects.get(name='Wrocław').name), self.browser.title)
+        self.create_first_user()
+        LoginPage(self.browser,
+                  self.live_server_url).navigate_to_main_throught_login(user=self.user_one,
+                                                                        username=self.player_one,
+                                                                        password=self.password_one,
+                                                                        city=self.city_one,
+                                                                        assertIn=self.assertIn,
+                                                                        assertTrue=self.assertTrue)
+        main_view = MainView(self.browser, self.live_server_url)
+        cor_water_tower_one = '00'
+        cor_water_tower_two = '02'
+        cor_wind_plant_one = '01'
+        main_view.build_the_building_from_single_choice('WaterTower', cor_water_tower_one)
+        main_view.build_the_building_from_single_choice('WaterTower', cor_water_tower_two)
+        main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'WindPlant', cor_wind_plant_one)
 
-        self.browser.find_element_by_name('Wodociagi').click()
-        self.browser.find_element_by_name('WaterTower').click()
-        self.browser.find_element_by_xpath('//div[@id="00" and @class="hexagon isHexTaken"]').click()
+        main_view.next_turns(3)
+        self.populate_buildings_with_employees(self.city_one)
+        main_view.next_turns(5)
+        self.assertEqual(WaterTower.objects.filter(city=self.city_one).count(), 2)
+        self.assertEqual(WindPlant.objects.filter(city=self.city_one).count(), 1)
+        self.assertEqual(WindPlant.objects.get(city=self.city_one).energy_allocated,
+                         WaterTower.objects.filter(city=self.city_one).aggregate(Sum('energy'))['energy__sum'])
 
-        self.browser.find_element_by_name('Budynki_elektryczne').click()
-        self.browser.find_element_by_name('WindPlant').click()
-        self.browser.find_element_by_xpath('//div[@id="01" and @class="hexagon isHexTaken"]').click()
+        wind_plant = WindPlant.objects.get(city=self.city_one,
+                                           city_field=CityField.objects.get(city=self.city_one, row=0, col=1))
+        water_tower_one = WaterTower.objects.get(city=self.city_one,
+                                                 city_field=CityField.objects.get(city=self.city_one, row=0, col=0))
+        water_tower_two = WaterTower.objects.get(city=self.city_one,
+                                                 city_field=CityField.objects.get(city=self.city_one, row=0, col=2))
+        main_view.choose_hex(cor_water_tower_one)
+        main_view.get_element_by_xpath('//p[contains(., "Podgląd hexa 1")]').is_displayed()
+        main_view.get_element_by_xpath('//p[contains(., "Energia: {}/{}")]'.format(
+            water_tower_one.energy, water_tower_one.energy_required)).is_displayed()
 
-        self.browser.find_element_by_name('Wodociagi').click()
-        self.browser.find_element_by_name('WaterTower').click()
-        self.browser.find_element_by_xpath('//div[@id="02" and @class="hexagon isHexTaken"]').click()
+        main_view.choose_hex(cor_water_tower_two)
+        main_view.get_element_by_xpath('//p[contains(., "Podgląd hexa 3")]').is_displayed()
+        main_view.get_element_by_xpath('//p[contains(., "Energia: {}/{}")]'.format(
+           water_tower_two.energy, water_tower_two.energy_required)).is_displayed()
 
-        self.browser.find_element_by_link_text('Kolejna tura').click()
-        time.sleep(1)
-        self.browser.find_element_by_link_text('Kolejna tura').click()
-        time.sleep(1)
-        self.browser.find_element_by_link_text('Kolejna tura').click()
-        time.sleep(1)
-
-        self.assertEqual(WindPlant.objects.filter(city=self.city).count(), 1)
-        self.assertEqual(WaterTower.objects.filter(city=self.city).count(), 2)
-
-        self.assertEqual(WindPlant.objects.get(city=self.city).energy_allocated,
-                         WaterTower.objects.filter(city=self.city).aggregate(Sum('energy'))['energy__sum'])
-
-        self.browser.find_element_by_xpath('//div[@id="00" and @class="hexagon build"]').click()
-        city_field_1 = CityField.objects.get(city=self.city, row=0, col=0)
-        city_field_2 = CityField.objects.get(city=self.city, row=0, col=1)
-        city_field_3 = CityField.objects.get(city=self.city, row=0, col=2)
-
-        self.browser.find_element_by_xpath('//p[contains(., "Energia: {}/{}")]'.format(
-            WaterTower.objects.get(city=self.city, city_field=city_field_1).energy,
-            WaterTower.objects.get(city=self.city, city_field=city_field_1).energy_required
-        )).is_displayed()
-
-        self.browser.find_element_by_xpath('//p[contains(., "Woda: {}/{}")]'.format(
-            WindPlant.objects.get(city=self.city, city_field=city_field_2).water,
-            WindPlant.objects.get(city=self.city, city_field=city_field_2).water_required
-        )).is_displayed()
-
-        self.browser.find_element_by_xpath('//div[@id="02" and @class="hexagon build"]').click()
-        self.browser.find_element_by_xpath('//p[contains(., "Energia: {}/{}")]'.format(
-            WaterTower.objects.get(city=self.city, city_field=city_field_3).energy,
-            WaterTower.objects.get(city=self.city, city_field=city_field_3).energy_required
-        )).is_displayed()
+        main_view.choose_hex(cor_wind_plant_one)
+        main_view.get_element_by_xpath('//p[contains(., "Podgląd hexa 2")]').is_displayed()
+        main_view.get_element_by_xpath('//p[contains(., "Woda: {}/{}")]'.format(
+            wind_plant.water, wind_plant.water_required)).is_displayed()
 
 
-# @override_settings(DEBUG=True)
-class CreateBuildingForManyPlayers(BaseTestForTwoPlayers):
+class GameTestForTwoPlayers(BaseTest):
 
-    def test_create_power_plants_for_various_players(self):
+    def test_create_building_for_two_accounts(self):
+        self.create_first_user()
+        LoginPage(self.browser,
+                  self.live_server_url).navigate_to_main_throught_login(user=self.user_one,
+                                                                        username=self.player_one,
+                                                                        password=self.password_one,
+                                                                        city=self.city_one,
+                                                                        assertIn=self.assertIn,
+                                                                        assertTrue=self.assertTrue)
+        main_view = MainView(self.browser, self.live_server_url)
+        main_view.build_the_building_from_single_choice('WaterTower', '00')
+        main_view.build_the_building_from_single_choice('Residential', '01')
+        main_view.build_the_building_from_single_choice('TrashCollector', '02')
+        main_view.build_the_building_from_single_choice('ProductionBuilding', '12')
+        main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'WindPlant', '03')
+        main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'RopePlant', '10')
+        main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'CoalPlant', '11')
+        for building_sublcass in get_subclasses(Building, 'city_engine'):
+            self.assertEqual(building_sublcass.objects.filter(city=self.city_one).count(), 1)
+        for building in list_of_buildings_in_city(abstract_class=Building, city=self.city_one, app_label='city_engine'):
+            self.assertTrue(building.if_under_construction)
+        main_view.next_turns(5)
+        for building in list_of_buildings_in_city(abstract_class=Building, city=self.city_one, app_label='city_engine'):
+            self.assertFalse(building.if_under_construction)
+        main_view.logout()
 
-        self.browser.get(self.live_server_url)
-        self.browser.find_element_by_link_text('Zaloguj').click()
-        time.sleep(1)
-        first_username_field = self.browser.find_element_by_id('id_username')
-        first_password_field = self.browser.find_element_by_id('id_password')
-        first_username_field.send_keys(self.first_username)
-        first_password_field.send_keys(self.first_password)
-        self.browser.find_element_by_tag_name('button').click()
-        time.sleep(1)
-        self.assertIn('Miasto {}'.format(City.objects.get(name='Wrocław').name), self.browser.title)
-        self.browser.find_element_by_name('Budynki_elektryczne').click()
-        self.browser.find_element_by_name('WindPlant').click()
-        time.sleep(2)
-        self.browser.find_element_by_css_selector('.hexagon.isHexTaken').click()
-        time.sleep(2)
-
-        self.browser.find_element_by_name('detailEnergy').is_displayed()
-
-        self.browser.find_element_by_name('Wodociagi').click()
-        self.browser.find_element_by_name('WaterTower').click()
-        time.sleep(2)
-        self.browser.find_element_by_css_selector('.hexagon.isHexTaken').click()
-        time.sleep(2)
-
-        self.browser.find_element_by_name('detailWater').is_displayed()
-
-        self.assertEqual(WindPlant.objects.filter(city=self.first_city).count(), 1)
-        self.assertEqual(WaterTower.objects.filter(city=self.first_city).count(), 1)
-        self.browser.find_element_by_link_text('Kolejna tura').click()
-        time.sleep(1)
-        self.browser.find_element_by_link_text('Kolejna tura').click()
-        time.sleep(1)
-        self.browser.find_element_by_link_text('Kolejna tura').click()
-        time.sleep(1)
-
-        self.browser.find_element_by_link_text('Wyloguj').click()
-        time.sleep(1)
-        self.browser.find_element_by_link_text('Zaloguj').click()
-        time.sleep(1)
-        second_username_field = self.browser.find_element_by_id('id_username')
-        second_password_field = self.browser.find_element_by_id('id_password')
-        second_username_field.send_keys(self.second_username)
-        second_password_field.send_keys(self.second_password)
-        self.browser.find_element_by_tag_name('button').click()
-        time.sleep(1)
-        self.assertIn('Miasto {}'.format(City.objects.get(name='Łódź').name), self.browser.title)
-        self.browser.find_element_by_name('Budynki_elektryczne').click()
-        self.browser.find_element_by_name('WindPlant').click()
-        time.sleep(2)
-        self.browser.find_element_by_css_selector('.hexagon.isHexTaken').click()
-        time.sleep(2)
-
-        self.browser.find_element_by_name('Wodociagi').click()
-        self.browser.find_element_by_name('WaterTower').click()
-        time.sleep(2)
-        self.browser.find_element_by_css_selector('.hexagon.isHexTaken').click()
-        time.sleep(2)
-
-        self.browser.find_element_by_name('detailWater').is_displayed()
-        self.browser.find_element_by_name('detailEnergy').is_displayed()
-
-        self.assertEqual(WindPlant.objects.filter(city=self.second_city).count(), 1)
-        self.assertEqual(WaterTower.objects.filter(city=self.second_city).count(), 1)
-        self.browser.find_element_by_link_text('Kolejna tura').click()
-        time.sleep(1)
-        self.browser.find_element_by_link_text('Kolejna tura').click()
-        time.sleep(1)
-        self.browser.find_element_by_link_text('Kolejna tura').click()
-        time.sleep(1)
+        self.create_second_user()
+        LoginPage(self.browser,
+                  self.live_server_url).navigate_to_main_throught_login(user=self.user_two,
+                                                                        username=self.player_two,
+                                                                        password=self.password_two,
+                                                                        city=self.city_two,
+                                                                        assertIn=self.assertIn,
+                                                                        assertTrue=self.assertTrue)
+        main_view = MainView(self.browser, self.live_server_url)
+        main_view.build_the_building_from_single_choice('WaterTower', '00')
+        main_view.build_the_building_from_single_choice('Residential', '01')
+        main_view.build_the_building_from_single_choice('TrashCollector', '02')
+        main_view.build_the_building_from_single_choice('ProductionBuilding', '12')
+        main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'WindPlant', '03')
+        main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'RopePlant', '10')
+        main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'CoalPlant', '11')
+        for building_sublcass in get_subclasses(Building, 'city_engine'):
+            self.assertEqual(building_sublcass.objects.filter(city=self.city_two).count(), 1)
+        for building in list_of_buildings_in_city(abstract_class=Building, city=self.city_two, app_label='city_engine'):
+            self.assertTrue(building.if_under_construction)
+        main_view.next_turns(5)
+        for building in list_of_buildings_in_city(abstract_class=Building, city=self.city_two, app_label='city_engine'):
+            self.assertFalse(building.if_under_construction)
 
 
 # @override_settings(DEBUG=True)
 class CitizenTests(BaseTest):
-    fixtures = ['basic_fixture_functional.json']
 
     def test_citizen_allocation(self):
-        city = City.objects.get(id=1)
-        self.browser.get(self.live_server_url)
-        self.browser.find_element_by_link_text('Zaloguj').click()
-        time.sleep(1)
-        first_username_field = self.browser.find_element_by_id('id_username')
-        first_password_field = self.browser.find_element_by_id('id_password')
-        first_username_field.send_keys('Michał')
-        first_password_field.send_keys('Zapomnij#123')
-        self.browser.find_element_by_tag_name('button').click()
-        time.sleep(1)
-        self.assertIn('Miasto {}'.format(city.name), self.browser.title)
-        self.assertEqual(WindPlant.objects.filter(city=city).count(), 2)
-        self.assertEqual(WaterTower.objects.filter(city=city).count(), 2)
+        self.create_first_user()
+        LoginPage(self.browser,
+                  self.live_server_url).navigate_to_main_throught_login(user=self.user_one,
+                                                                        username=self.player_one,
+                                                                        password=self.password_one,
+                                                                        city=self.city_one,
+                                                                        assertIn=self.assertIn,
+                                                                        assertTrue=self.assertTrue)
+        main_view = MainView(self.browser, self.live_server_url)
+        main_view.build_the_building_from_single_choice('WaterTower', '10')
+        main_view.build_the_building_from_single_choice('WaterTower', '12')
+        main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'WindPlant', '11')
+        main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'WindPlant', '23')
+        main_view.next_turns(3)
+        self.assertEqual(WindPlant.objects.filter(city=self.city_one).count(), 2)
+        self.assertEqual(WaterTower.objects.filter(city=self.city_one).count(), 2)
+        main_view.build_the_building_from_single_choice('Residential', '00')
+        main_view.next_turns(3)
 
-        self.browser.find_element_by_name('BudynkiMieszkalne').click()
-        self.browser.find_element_by_name('Residential').click()
-        self.browser.find_element_by_css_selector('.hexagon.isHexTaken').click()
-
-        self.browser.find_element_by_link_text('Kolejna tura').click()
-        time.sleep(1)
-
-        self.browser.find_element_by_link_text('Kolejna tura').click()
-        time.sleep(1)
-
-        self.browser.find_element_by_link_text('Kolejna tura').click()
-        time.sleep(1)
-
-        self.browser.find_element_by_link_text('Kolejna tura').click()
-        time.sleep(1)
-
-        self.browser.find_element_by_link_text('Kolejna tura').click()
-        time.sleep(1)
-
-        self.assertIn(CityField.objects.filter(city=city).aggregate(Sum('pollution'))['pollution__sum'], range(6, 20))
-
-        for wind_plant in WindPlant.objects.filter(city=city):
+        for wind_plant in WindPlant.objects.filter(city=self.city_one):
             assert wind_plant.current_employees <= wind_plant.max_employees
 
-        for water_tower in WaterTower.objects.filter(city=city):
+        for water_tower in WaterTower.objects.filter(city=self.city_one):
             assert water_tower.current_employees <= water_tower.max_employees

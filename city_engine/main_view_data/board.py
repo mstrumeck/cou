@@ -23,6 +23,7 @@ class Board(object):
         self.hex_with_builds = []
         self.hex_with_electricity = []
         self.hex_with_waterworks = []
+        self.hex_with_trashcollector = []
         self.map_board_info()
         self.generate_board()
 
@@ -35,7 +36,8 @@ class Board(object):
             for col in range(int(HEX_NUM_IN_ROW)):
                 self.hex_table += Hex(row, col, self.hex_with_builds,
                                       self.hex_with_electricity,
-                                      self.hex_with_waterworks).create()
+                                      self.hex_with_waterworks,
+                                      self.hex_with_trashcollector).create()
             self.hex_table += "</div>"
 
     def map_board_info(self):
@@ -53,15 +55,19 @@ class Board(object):
                     elif build_field.if_waterworks is True:
                         self.hex_with_builds.append((row, col))
                         self.hex_with_waterworks.append((row, col))
+                    elif build_field.if_trashcollector is True:
+                        self.hex_with_builds.append((row, col))
+                        self.hex_with_trashcollector.append((row, col))
 
 
 class Hex(object):
-    def __init__(self, row, col, hex_with_builds, hex_with_electricity, hex_with_waterworks):
+    def __init__(self, row, col, hex_with_builds, hex_with_electricity, hex_with_waterworks, hex_with_trashcollector):
         self.col = col
         self.row = row
         self.hex_with_builds = hex_with_builds
         self.hex_with_electricity = hex_with_electricity
         self.hex_with_waterworks = hex_with_waterworks
+        self.hex_with_trashcollector = hex_with_trashcollector
         self.hexagon = ''
 
     def create(self):
@@ -79,6 +85,8 @@ class Hex(object):
             self.hexagon += "<p>Prąd</p>"
         elif (self.row, self.col) in self.hex_with_waterworks:
             self.hexagon += "<p>Wodociągi</p>"
+        elif (self.row, self.col) in self.hex_with_trashcollector:
+            self.hexagon += "<p>Wysypisko</p>"
         elif (self.row, self.col) in self.hex_with_builds:
             self.hexagon += "<p>Mieszkanie</p>"
 
@@ -142,6 +150,8 @@ class HexDetail(object):
                     hex_detail_box += self.add_electricity_details(build)
                 elif build_field.if_waterworks is True:
                     hex_detail_box += self.add_waterworks_details(build)
+                elif build_field.if_trashcollector is True:
+                    hex_detail_box += self.add_trashcollector_details(build)
                 # elif build_field.if_residential is True:
                 #     hex_detail_box += self.add_residential_details(build)
         return hex_detail_box
@@ -166,3 +176,8 @@ class HexDetail(object):
         hex_detail_box += '<p>Energia: '+str(build.energy)+'/'+str(build.energy_required)+'</p>'
         hex_detail_box += '<p>Woda allocated: '+str(build.water_allocated)+'</p>'
         return hex_detail_box
+
+    def add_trashcollector_details(self, build):
+        hex_detail_box = ''
+        hex_detail_box += '<p>Energia: '+str(build.energy)+'/'+str(build.energy_required)+'</p>'
+        return  hex_detail_box
