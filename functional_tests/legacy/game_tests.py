@@ -3,9 +3,9 @@ from django.db.models import Sum
 from django.test import override_settings
 from city_engine.models import City, CityField, \
     WindPlant, CoalPlant, RopePlant, \
-    WaterTower, TrashCollector
+    WaterTower, DumpingGround
 from .base import BaseTestForOnePlayer, BaseTestForTwoPlayers, BaseTest
-from city_engine.models import list_of_buildings_in_city, Building, get_subclasses
+from city_engine.models import list_of_buildings_in_city, Building, get_subclasses, DustCart
 from functional_tests.page_objects import MainView, Homepage, LoginPage
 from django.db.models import F
 from django.contrib.auth.models import User
@@ -26,7 +26,7 @@ class GameTestForOnePlayer(BaseTest):
         main_view = MainView(self.browser, self.live_server_url)
         main_view.build_the_building_from_single_choice('WaterTower', '00')
         main_view.build_the_building_from_single_choice('Residential', '01')
-        main_view.build_the_building_from_single_choice('TrashCollector', '02')
+        main_view.build_the_building_from_single_choice('DumpingGround', '02')
         main_view.build_the_building_from_single_choice('ProductionBuilding', '12')
         main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'WindPlant', '03')
         main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'RopePlant', '10')
@@ -88,7 +88,6 @@ class GameTestForOnePlayer(BaseTest):
 
 
 class GameTestForTwoPlayers(BaseTest):
-
     def test_create_building_for_two_accounts(self):
         self.create_first_user()
         LoginPage(self.browser,
@@ -101,7 +100,7 @@ class GameTestForTwoPlayers(BaseTest):
         main_view = MainView(self.browser, self.live_server_url)
         main_view.build_the_building_from_single_choice('WaterTower', '00')
         main_view.build_the_building_from_single_choice('Residential', '01')
-        main_view.build_the_building_from_single_choice('TrashCollector', '02')
+        main_view.build_the_building_from_single_choice('DumpingGround', '02')
         main_view.build_the_building_from_single_choice('ProductionBuilding', '12')
         main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'WindPlant', '03')
         main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'RopePlant', '10')
@@ -126,7 +125,7 @@ class GameTestForTwoPlayers(BaseTest):
         main_view = MainView(self.browser, self.live_server_url)
         main_view.build_the_building_from_single_choice('WaterTower', '00')
         main_view.build_the_building_from_single_choice('Residential', '01')
-        main_view.build_the_building_from_single_choice('TrashCollector', '02')
+        main_view.build_the_building_from_single_choice('DumpingGround', '02')
         main_view.build_the_building_from_single_choice('ProductionBuilding', '12')
         main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'WindPlant', '03')
         main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'RopePlant', '10')

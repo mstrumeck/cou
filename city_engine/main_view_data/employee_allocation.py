@@ -1,4 +1,5 @@
-from city_engine.models import ProductionBuilding, list_of_buildings_with_employees, WindPlant, WaterTower
+from city_engine.models import ProductionBuilding, list_of_buildings_with_employees,\
+    WindPlant, WaterTower, list_of_workplaces, DumpingGround, DustCart
 from citizen_engine.models import Citizen
 from city_engine.main_view_data.city_stats import CityPopulationStats
 from random import randint, choice
@@ -31,11 +32,9 @@ class EmployeeAllocation(object):
 
     def not_full_production_buildings(self):
         data = []
-        for categories in list_of_buildings_with_employees:
-            for buildings in categories.objects.filter(city=self.city).values(
-                    'type_of_working_building', 'current_employees', 'max_employees'):
-                if buildings['current_employees'] < buildings['max_employees']:
-                    data.append(buildings['type_of_working_building'])
+        for buildings in list_of_workplaces(self.city):
+            if buildings.current_employees < buildings.max_employees:
+                data.append(buildings.type_of_working_place)
         if data:
             return choice(data)
         else:
@@ -51,3 +50,9 @@ class EmployeeAllocation(object):
         for production_building in ProductionBuilding.objects.filter(city=self.city):
             production_building.current_employees = Citizen.objects.filter(city=self.city, work_in_production=production_building).count()
             production_building.save()
+        for dumping_ground in DumpingGround.objects.filter(city=self.city):
+            dumping_ground.current_employees = Citizen.objects.filter(city=self.city, work_in_dumping_ground=dumping_ground).count()
+            dumping_ground.save()
+        for dust_cart in DustCart.objects.filter(city=self.city):
+            dust_cart.current_employees = Citizen.objects.filter(city=self.city, work_in_dust_cart=dust_cart).count()
+            dust_cart.save()

@@ -1,6 +1,5 @@
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
-from model_utils.managers import InheritanceManager
 from django.db import models
 from django.contrib.auth.models import User
 from django.apps import apps
@@ -8,21 +7,21 @@ from django.apps import apps
 
 class CityFilter(models.Manager):
 
-    def exists_in_city(self, city):
-        if self.filter(city=city).exists():
+    def exists_in_city(self):
+        if self.filter(city=self.city).exists():
             return True
         else:
             return False
 
-    def filter_by_city(self, city):
-            return self.filter(city=city)
+    def filter_by_city(self):
+            return self.filter(city=self.city)
 
 
 class Trash(models.Model):
     size = models.PositiveIntegerField(default=0)
     time = models.PositiveIntegerField(default=0)
 
-    content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT)
+    content_type = models.ForeignKey(ContentType, on_delete=models.SET_NULL, null=True)
     object_id = models.PositiveIntegerField()
     content_objects = GenericForeignKey()
 
@@ -47,7 +46,7 @@ class CityField(models.Model):
     if_production = models.BooleanField(default=False)
     if_electricity = models.BooleanField(default=False)
     if_waterworks = models.BooleanField(default=False)
-    if_trashcollector = models.BooleanField(default=False)
+    if_dumping_ground = models.BooleanField(default=False)
 
     def return_list_of_possible_buildings_related_with_type_of_field(self):
         if self.if_electricity is True:
@@ -66,6 +65,7 @@ class Building(models.Model):
     if_production = models.BooleanField(default=False)
     if_electricity = models.BooleanField(default=False)
     if_waterworks = models.BooleanField(default=False)
+    if_dumping_ground = models.BooleanField(default=False)
     build_cost = models.PositiveIntegerField(default=0)
     maintenance_cost = models.PositiveIntegerField(default=0)
     build_time = models.PositiveIntegerField()
@@ -104,10 +104,13 @@ class Building(models.Model):
 class BuldingsWithWorkes(Building):
     current_employees = models.PositiveIntegerField(default=0)
     max_employees = models.PositiveIntegerField(default=0)
+    type_of_working_place = models.CharField(max_length=2)
 
     def trash_calculation(self):
         return self.pollution_calculation() * self.pollution_rate
 
+    def pollution_calculation(self):
+        return  self.pollution_rate * self.current_employees
     class Meta:
         abstract = True
 
@@ -120,6 +123,20 @@ class Residential(Building):
     build_time = models.PositiveIntegerField(default=1)
     build_cost = models.PositiveIntegerField(default=100)
     maintenance_cost = models.PositiveIntegerField(default=10)
+
+    # def build_status(self):
+    #     if self.if_under_construction is True:
+    #         if self.current_build_time < self.build_time:
+    #             self.current_build_time += 1
+    #             self.save()
+    #             return False
+    #         elif self.current_build_time == self.build_time:
+    #             self.if_under_construction = False
+    #             self.if_residential = True
+    #             self.save()
+    #             return True
+    #     else:
+    #         return False
 
     def pollution_calculation(self):
         return self.population * self.pollution_rate
@@ -135,20 +152,21 @@ class ProductionBuilding(BuldingsWithWorkes):
     build_cost = models.PositiveIntegerField(default=100)
     maintenance_cost = models.PositiveIntegerField(default=10)
     max_employees = models.PositiveIntegerField(default=20)
-    type_of_working_building = models.CharField(default='PB', max_length=2)
+    type_of_working_place = models.CharField(default='PB', max_length=2)
 
-    # def build_status(self):
-    #     if self.if_under_construction is True:
-    #         if self.current_build_time < self.build_time:
-    #             self.current_build_time += 1
-    #             self.save()
-    #             return False
-    #         elif self.current_build_time == self.build_time:
-    #             self.if_under_construction = False
-    #             self.save()
-    #             return True
-    #     else:
-    #         return False
+    def build_status(self):
+        if self.if_under_construction is True:
+            if self.current_build_time < self.build_time:
+                self.current_build_time += 1
+                self.save()
+                return False
+            elif self.current_build_time == self.build_time:
+                self.if_under_construction = False
+                self.if_production = True
+                self.save()
+                return True
+        else:
+            return False
 
 
 class PowerPlant(BuldingsWithWorkes):
@@ -213,7 +231,7 @@ class WindPlant(PowerPlant):
     maintenance_cost = models.PositiveIntegerField(default=10)
     water_required = models.PositiveIntegerField(default=10)
     pollution_rate = models.FloatField(default=1.8)
-    type_of_working_building = models.CharField(default='WP', max_length=2)
+    type_of_working_place = models.CharField(default='WP', max_length=2)
 
     def build_status(self):
         if self.if_under_construction is True:
@@ -240,7 +258,7 @@ class RopePlant(PowerPlant):
     maintenance_cost = models.PositiveIntegerField(default=20)
     water_required = models.PositiveIntegerField(default=15)
     pollution_rate = models.FloatField(default=1.3)
-    type_of_working_building = models.CharField(default='RP', max_length=2)
+    type_of_working_place = models.CharField(default='RP', max_length=2)
 
     def build_status(self):
         if self.if_under_construction is True:
@@ -267,7 +285,7 @@ class CoalPlant(PowerPlant):
     maintenance_cost = models.PositiveIntegerField(default=15)
     water_required = models.PositiveIntegerField(default=20)
     pollution_rate = models.FloatField(default=1.5)
-    type_of_working_building = models.CharField(default='CP', max_length=2)
+    type_of_working_place = models.CharField(default='CP', max_length=2)
 
     def build_status(self):
         if self.if_under_construction is True:
@@ -327,7 +345,7 @@ class WaterTower(Waterworks):
     build_cost = models.PositiveIntegerField(default=50)
     maintenance_cost = models.PositiveIntegerField(default=5)
     energy_required = models.PositiveIntegerField(default=3)
-    type_of_working_building = models.CharField(default='WT', max_length=2)
+    type_of_working_place = models.CharField(default='WT', max_length=2)
 
     def build_status(self):
         if self.if_under_construction is True:
@@ -345,12 +363,18 @@ class WaterTower(Waterworks):
             return False
 
 
-class TrashCollector(BuldingsWithWorkes):
+class DumpingGround(BuldingsWithWorkes):
     name = models.CharField(default='Wysypisko śmieci', max_length=20)
+    if_dumping_ground = models.BooleanField(default=True)
     build_time = models.PositiveIntegerField(default=2)
     build_cost = models.PositiveIntegerField(default=100)
     maintenance_cost = models.PositiveIntegerField(default=10)
     energy_required = models.PositiveIntegerField(default=1)
+    limit_of_dust_cars = models.PositiveIntegerField(default=6)
+    current_space_for_trash = models.PositiveIntegerField(default=0)
+    max_space_for_trash = models.PositiveIntegerField(default=10000)
+    pollution_rate = models.FloatField(default=3.0)
+    type_of_working_place = models.CharField(default='DG', max_length=2)
 
     def build_status(self):
         if self.if_under_construction is True:
@@ -361,16 +385,50 @@ class TrashCollector(BuldingsWithWorkes):
             elif self.current_build_time == self.build_time:
                 self.if_under_construction = False
                 self.max_employees = 5
+                DustCart.objects.create(dumping_ground=self, current_employees=0, city=self.city)
                 self.save()
                 return True
         else:
             return False
 
+
+class Vehicle(models.Model):
+    city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True)
+    name = models.CharField(max_length=20)
+    cost = models.PositiveIntegerField(default=0)
+    maintenance_cos = models.PositiveIntegerField(default=0)
+    current_employees = models.PositiveIntegerField(default=0)
+    max_employees = models.PositiveIntegerField(default=0)
+    type_of_working_place = models.CharField(max_length=2)
+
+    class Meta:
+        abstract = True
+
+
+class DustCart(Vehicle):
+    dumping_ground = models.ForeignKey(DumpingGround, on_delete=models.SET_NULL, null=True)
+    name = models.CharField(default="Śmieciarka", max_length=20)
+    cost = models.PositiveIntegerField(default=10)
+    current_employees = models.PositiveIntegerField(default=0)
+    max_employees = models.PositiveIntegerField(default=3)
+    curr_capacity = models.PositiveIntegerField(default=0)
+    max_capacity = models.PositiveIntegerField(default=60)
+    type_of_working_place = models.CharField(default='DGC', max_length=3)
+
+    def effectiveness(self):
+        return float(self.current_employees) / float(self.max_employees)
+
+    def __str__(self):
+        return self.name
+
+
 electricity_buildings = [WindPlant, RopePlant, CoalPlant]
 waterworks_buildings = [WaterTower]
-trash_collector = [TrashCollector]
+trash_collector = [DumpingGround]
+vehicles = [DustCart]
 list_of_buildings_categories = electricity_buildings + waterworks_buildings
-list_of_buildings_with_employees = electricity_buildings + waterworks_buildings + [ProductionBuilding]
+list_of_buildings_with_employees = electricity_buildings + waterworks_buildings\
+                                   + [ProductionBuilding] + [DumpingGround]
 list_of_models = [ProductionBuilding, Residential]
 
 for electricity in electricity_buildings:
@@ -383,7 +441,7 @@ for trash_building in trash_collector:
     list_of_models.append(trash_building)
 
 
-def get_subclasses(abstract_class, app_label):
+def get_subclasses(abstract_class=Building, app_label='city_engine'):
     result = []
     for model in apps.get_app_config(app_label).get_models():
         if issubclass(model, abstract_class) and model is not abstract_class:
@@ -391,11 +449,26 @@ def get_subclasses(abstract_class, app_label):
     return result
 
 
-def list_of_buildings_in_city(city, abstract_class, app_label):
+def list_of_buildings_in_city(city, abstract_class=Building, app_label='city_engine'):
     result = []
     for item in get_subclasses(abstract_class, app_label):
         if item.objects.filter(city=city).exists():
             a = item.objects.filter(city=city)
             for data in a:
                 result.append(data)
+    return result
+
+
+def list_of_workplaces(city):
+    result = []
+    for subclass in get_subclasses(BuldingsWithWorkes, 'city_engine'):
+        if subclass.objects.filter(city=city).exists():
+            a = subclass.objects.filter(city=city)
+            for building in a:
+                result.append(building)
+    for subclass in get_subclasses(Vehicle, 'city_engine'):
+        if subclass.objects.filter(city=city).exists():
+            b = subclass.objects.filter(city=city)
+            for vehicle in b:
+                result.append(vehicle)
     return result

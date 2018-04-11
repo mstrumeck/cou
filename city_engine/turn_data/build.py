@@ -1,7 +1,7 @@
 from city_engine.models import CityField, City, \
     electricity_buildings, waterworks_buildings, list_of_models, \
     WindPlant, RopePlant, CoalPlant, \
-    WaterTower, TrashCollector, \
+    WaterTower, DumpingGround, \
     Residential, ProductionBuilding
 
 
@@ -14,8 +14,8 @@ def build_building(request, row, col, build_type):
         city_field.if_electricity = True
     elif build_type in waterworks_buildings:
         city_field.if_waterworks = True
-    elif build_type is TrashCollector:
-        city_field.if_trashcollector = True
+    elif build_type is DumpingGround:
+        city_field.if_dumping_ground = True
     elif build_type is Residential:
         city_field.if_residential = True
     elif build_type is ProductionBuilding:

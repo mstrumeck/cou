@@ -8,7 +8,6 @@ from django.utils.safestring import mark_safe
 from citizen_engine.models import Citizen
 from city_engine.main_view_data.board import Board, HexDetail
 from city_engine.models import City, list_of_models, electricity_buildings, WindPlant, Building, list_of_buildings_in_city
-from django.db.models import F
 from player.models import Profile
 from .main_view_data.city_stats import \
     CityStatsCenter

@@ -1,16 +1,7 @@
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from selenium import webdriver
 import random
 import string
 from selenium.webdriver.support.ui import WebDriverWait
 import time
-from django.contrib.auth.models import User
-from city_engine.main_view_data.board import assign_city_fields_to_board
-from city_engine.main_view_data.board import Board
-from city_engine.main_view_data.city_stats import CityStatsCenter
-from city_engine.models import City, CityField, \
-    WindPlant, CoalPlant, RopePlant, \
-    WaterTower
 
 
 class BasePage(object):
@@ -87,8 +78,6 @@ class MainView(BasePage):
         time.sleep(1)
         self.choose_the_building(building_name)
         self.choose_hex(hex_id)
-
-    # def check_if_buildings_are_under_construction(self):
 
     def next_turn(self):
         return self.get_element_by_text('Kolejna tura').click()

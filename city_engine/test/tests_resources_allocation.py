@@ -1,7 +1,6 @@
 from django import test
-from city_engine.main_view_data.city_stats import CityStatsCenter
 from city_engine.main_view_data.resources_allocation import ResourceAllocation
-from city_engine.models import CityField, list_of_models, City, WindPlant, WaterTower, list_of_buildings_with_employees
+from city_engine.models import CityField, list_of_models, City, WindPlant, WaterTower
 from django.db.models import Sum
 from city_engine.turn_data.main import TurnCalculation
 
@@ -57,3 +56,5 @@ class ResourcesAllocationsTests(test.TestCase):
             generator_data = next(generator)
             for test_corr in test_lists:
                 self.assertIn(test_corr, generator_data)
+
+# python manage.py dumpdata city_engine auth.user --indent=2 --output=city_engine/fixtures/basic_fixture_resources_and_employees2.json

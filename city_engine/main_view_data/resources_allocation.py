@@ -1,7 +1,10 @@
 from city_engine.main_view_data.global_variables import HEX_NUM_IN_ROW
 from random import shuffle
-from city_engine.models import CityField, list_of_models, list_of_buildings_categories, electricity_buildings, waterworks_buildings
+from city_engine.models import CityField, list_of_models,\
+    list_of_buildings_categories, electricity_buildings, waterworks_buildings,\
+    DumpingGround, DustCart, list_of_buildings_in_city, get_subclasses
 from django.db.models import F
+from city_engine.main_view_data.trash_management import CollectGarbage
 
 
 class ResourceAllocation(object):
@@ -11,6 +14,8 @@ class ResourceAllocation(object):
         self.clean_resource_data()
         self.all_resource_allocation()
         self.pollution_allocation()
+        CollectGarbage(self.city).collect_garbage()
+        # self.collect_garbage()
 
     def create_allocation_pattern(self, row, col):
         first_alloc = []
@@ -93,6 +98,8 @@ class ResourceAllocation(object):
                                     self.energy_allocation(building, city_field_for_building)
                                 elif city_field_for_building.if_waterworks is False and building.if_waterworks is True:
                                     self.water_allocation(building, city_field_for_building)
+                                elif building.if_dumping_ground is True:
+                                    self.collect_garbage(building)
 
     def energy_allocation(self, building, city_field_of_building):
         energy_left = building.total_production() - building.energy_allocated
@@ -142,3 +149,35 @@ class ResourceAllocation(object):
                                 target_city_field.pollution += (target_build.pollution_calculation() / len(allocation_pattern))
                                 field.pollution += (target_build.pollution_calculation() / len(allocation_pattern))
                                 target_city_field.save()
+
+    # def collect_garbage(self):
+    #     if DumpingGround.objects.filter(city=self.city).exists():
+    #         for dumping_ground in DumpingGround.objects.filter(city=self.city):
+    #             if dumping_ground.max_space_for_trash > dumping_ground.current_space_for_trash:
+    #                 for dust_cart in DustCart.objects.filter(dumping_ground=dumping_ground):
+    #                     pattern = self.create_allocation_pattern(dumping_ground.city_field.row, dumping_ground.city_field.col)
+    #                     while dust_cart.curr_capacity < (dust_cart.max_capacity * dust_cart.effectiveness()):
+    #                         try:
+    #                             next_value = next(pattern)
+    #                         except(StopIteration):
+    #                             break
+    #                         for field in next_value:
+    #                             if CityField.objects.filter(city=self.city, row=field[0], col=field[1]).exists():
+    #                                 city_field_of_target = CityField.objects.filter(city=self.city, row=field[0], col=field[1])
+    #                                 for building_model in get_subclasses():
+    #                                     if building_model.objects.filter(city_field=city_field_of_target).exists():
+    #                                         building_with_trash = building_model.objects.get(city_field=city_field_of_target)
+    #                                         if building_with_trash.trash.all().exists():
+    #                                             for trash in building_with_trash.trash.all():
+    #                                                 if dust_cart.curr_capacity < (dust_cart.max_capacity * dust_cart.effectiveness()):
+    #                                                     dust_cart.curr_capacity += trash.size
+    #                                                     dust_cart.save()
+    #                                                     # print(dust_cart.curr_capacity, 'dust_car - after loading')
+    #                                                     trash.delete()
+    #                     # print(dumping_ground.current_space_for_trash, 'dumping ground before')
+    #                     dumping_ground.current_space_for_trash += dust_cart.curr_capacity
+    #                     dust_cart.curr_capacity = 0
+    #                     dumping_ground.save()
+    #                     dust_cart.save()
+    #                     # print(dumping_ground.current_space_for_trash, 'dumping_ground after')
+    #                     # print(dust_cart.curr_capacity, 'dust_cart-empty')

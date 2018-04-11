@@ -1,6 +1,6 @@
 from .models import Citizen
 from random import choice, randrange
-from city_engine.models import Residential, City, WaterTower, ProductionBuilding, WindPlant
+from city_engine.models import Residential, City, WaterTower, ProductionBuilding, WindPlant, DustCart, DumpingGround
 
 
 class CreateCitizen(object):
@@ -41,3 +41,15 @@ class CreateCitizen(object):
                                                  if production.current_employees < production.max_employees]
             if building_with_vacancies:
                 self.citizen.work_in_production = choice(building_with_vacancies)
+
+        elif self.target_production == 'DGC':
+            building_with_vacancies = [dust_cart for dust_cart in DustCart.objects.filter(city=self.city)
+                                       if dust_cart.current_employees < dust_cart.max_employees]
+            if building_with_vacancies:
+                self.citizen.work_in_dust_cart = choice(building_with_vacancies)
+
+        elif self.target_production == 'DG':
+            building_with_vacancies = [dumping_ground for dumping_ground in DumpingGround.objects.filter(city=self.city)
+                                       if dumping_ground.current_employees < dumping_ground.max_employees]
+            if building_with_vacancies:
+                self.citizen.work_in_dumping_ground = choice(building_with_vacancies)

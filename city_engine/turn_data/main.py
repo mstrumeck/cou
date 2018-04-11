@@ -2,11 +2,13 @@ from city_engine.models import list_of_models
 from django.db.models import Sum
 from city_engine.main_view_data.employee_allocation import EmployeeAllocation
 from city_engine.main_view_data.resources_allocation import ResourceAllocation
+from city_engine.main_view_data.trash_management import TrashManagement
 
 
 class TurnCalculation(object):
     def __init__(self, city):
         self.city = city
+        TrashManagement(self.city).run()
         EmployeeAllocation(self.city)
         ResourceAllocation(self.city)
         self.update_build_status()

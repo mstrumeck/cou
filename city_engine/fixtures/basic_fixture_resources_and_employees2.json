@@ -1,0 +1,573 @@
+[
+{
+  "model": "city_engine.trash",
+  "pk": 1,
+  "fields": {
+    "size": 1,
+    "time": 3,
+    "content_type": 15,
+    "object_id": 2
+  }
+},
+{
+  "model": "city_engine.trash",
+  "pk": 2,
+  "fields": {
+    "size": 1,
+    "time": 3,
+    "content_type": 15,
+    "object_id": 1
+  }
+},
+{
+  "model": "city_engine.trash",
+  "pk": 3,
+  "fields": {
+    "size": 3,
+    "time": 2,
+    "content_type": 12,
+    "object_id": 1
+  }
+},
+{
+  "model": "city_engine.trash",
+  "pk": 4,
+  "fields": {
+    "size": 3,
+    "time": 2,
+    "content_type": 12,
+    "object_id": 2
+  }
+},
+{
+  "model": "city_engine.trash",
+  "pk": 5,
+  "fields": {
+    "size": 1,
+    "time": 2,
+    "content_type": 15,
+    "object_id": 2
+  }
+},
+{
+  "model": "city_engine.trash",
+  "pk": 6,
+  "fields": {
+    "size": 1,
+    "time": 2,
+    "content_type": 15,
+    "object_id": 1
+  }
+},
+{
+  "model": "city_engine.trash",
+  "pk": 7,
+  "fields": {
+    "size": 19,
+    "time": 1,
+    "content_type": 12,
+    "object_id": 1
+  }
+},
+{
+  "model": "city_engine.trash",
+  "pk": 8,
+  "fields": {
+    "size": 19,
+    "time": 1,
+    "content_type": 12,
+    "object_id": 2
+  }
+},
+{
+  "model": "city_engine.trash",
+  "pk": 9,
+  "fields": {
+    "size": 1,
+    "time": 1,
+    "content_type": 15,
+    "object_id": 2
+  }
+},
+{
+  "model": "city_engine.trash",
+  "pk": 10,
+  "fields": {
+    "size": 1,
+    "time": 1,
+    "content_type": 15,
+    "object_id": 1
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 1,
+  "fields": {
+    "city": 1,
+    "col": 0,
+    "row": 0,
+    "pollution": 0,
+    "if_residential": false,
+    "if_production": false,
+    "if_electricity": false,
+    "if_waterworks": false,
+    "if_dumping_ground": false
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 2,
+  "fields": {
+    "city": 1,
+    "col": 1,
+    "row": 0,
+    "pollution": 1,
+    "if_residential": false,
+    "if_production": false,
+    "if_electricity": false,
+    "if_waterworks": false,
+    "if_dumping_ground": false
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 3,
+  "fields": {
+    "city": 1,
+    "col": 2,
+    "row": 0,
+    "pollution": 2,
+    "if_residential": false,
+    "if_production": false,
+    "if_electricity": false,
+    "if_waterworks": false,
+    "if_dumping_ground": false
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 4,
+  "fields": {
+    "city": 1,
+    "col": 3,
+    "row": 0,
+    "pollution": 1,
+    "if_residential": false,
+    "if_production": false,
+    "if_electricity": false,
+    "if_waterworks": false,
+    "if_dumping_ground": false
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 5,
+  "fields": {
+    "city": 1,
+    "col": 0,
+    "row": 1,
+    "pollution": 1,
+    "if_residential": false,
+    "if_production": false,
+    "if_electricity": false,
+    "if_waterworks": false,
+    "if_dumping_ground": false
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 6,
+  "fields": {
+    "city": 1,
+    "col": 1,
+    "row": 1,
+    "pollution": 1,
+    "if_residential": false,
+    "if_production": false,
+    "if_electricity": true,
+    "if_waterworks": false,
+    "if_dumping_ground": false
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 7,
+  "fields": {
+    "city": 1,
+    "col": 2,
+    "row": 1,
+    "pollution": 1,
+    "if_residential": false,
+    "if_production": false,
+    "if_electricity": true,
+    "if_waterworks": false,
+    "if_dumping_ground": false
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 8,
+  "fields": {
+    "city": 1,
+    "col": 3,
+    "row": 1,
+    "pollution": 1,
+    "if_residential": false,
+    "if_production": false,
+    "if_electricity": false,
+    "if_waterworks": false,
+    "if_dumping_ground": true
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 9,
+  "fields": {
+    "city": 1,
+    "col": 0,
+    "row": 2,
+    "pollution": 0,
+    "if_residential": false,
+    "if_production": false,
+    "if_electricity": false,
+    "if_waterworks": false,
+    "if_dumping_ground": false
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 10,
+  "fields": {
+    "city": 1,
+    "col": 1,
+    "row": 2,
+    "pollution": 1,
+    "if_residential": false,
+    "if_production": false,
+    "if_electricity": false,
+    "if_waterworks": true,
+    "if_dumping_ground": false
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 11,
+  "fields": {
+    "city": 1,
+    "col": 2,
+    "row": 2,
+    "pollution": 2,
+    "if_residential": true,
+    "if_production": false,
+    "if_electricity": false,
+    "if_waterworks": false,
+    "if_dumping_ground": false
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 12,
+  "fields": {
+    "city": 1,
+    "col": 3,
+    "row": 2,
+    "pollution": 1,
+    "if_residential": false,
+    "if_production": false,
+    "if_electricity": false,
+    "if_waterworks": false,
+    "if_dumping_ground": false
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 13,
+  "fields": {
+    "city": 1,
+    "col": 0,
+    "row": 3,
+    "pollution": 0,
+    "if_residential": false,
+    "if_production": false,
+    "if_electricity": false,
+    "if_waterworks": false,
+    "if_dumping_ground": false
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 14,
+  "fields": {
+    "city": 1,
+    "col": 1,
+    "row": 3,
+    "pollution": 0,
+    "if_residential": false,
+    "if_production": false,
+    "if_electricity": false,
+    "if_waterworks": true,
+    "if_dumping_ground": false
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 15,
+  "fields": {
+    "city": 1,
+    "col": 2,
+    "row": 3,
+    "pollution": 0,
+    "if_residential": false,
+    "if_production": false,
+    "if_electricity": false,
+    "if_waterworks": false,
+    "if_dumping_ground": false
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 16,
+  "fields": {
+    "city": 1,
+    "col": 3,
+    "row": 3,
+    "pollution": 0,
+    "if_residential": false,
+    "if_production": false,
+    "if_electricity": false,
+    "if_waterworks": false,
+    "if_dumping_ground": false
+  }
+},
+{
+  "model": "city_engine.residential",
+  "pk": 1,
+  "fields": {
+    "city": 1,
+    "city_field": 11,
+    "if_under_construction": false,
+    "if_production": false,
+    "if_electricity": false,
+    "if_waterworks": false,
+    "if_dumping_ground": false,
+    "current_build_time": 1,
+    "energy": 0,
+    "energy_required": 0,
+    "water": 0,
+    "water_required": 0,
+    "pollution_rate": 0.0,
+    "pollution_product": 0,
+    "recycling": 0,
+    "name": "Budynek Mieszkalny",
+    "population": 0,
+    "max_population": 30,
+    "if_residential": true,
+    "build_time": 1,
+    "build_cost": 100,
+    "maintenance_cost": 10
+  }
+},
+{
+  "model": "city_engine.windplant",
+  "pk": 1,
+  "fields": {
+    "city": 1,
+    "city_field": 6,
+    "if_under_construction": false,
+    "if_residential": false,
+    "if_production": false,
+    "if_waterworks": false,
+    "if_dumping_ground": false,
+    "current_build_time": 3,
+    "energy": 0,
+    "energy_required": 0,
+    "water": 10,
+    "pollution_product": 0,
+    "recycling": 0,
+    "current_employees": 5,
+    "max_employees": 5,
+    "power_nodes": 1,
+    "max_power_nodes": 10,
+    "energy_production": 5,
+    "energy_allocated": 2,
+    "if_electricity": true,
+    "name": "Elektrownia wiatrowa",
+    "build_time": 3,
+    "build_cost": 100,
+    "maintenance_cost": 10,
+    "water_required": 10,
+    "pollution_rate": 1.8,
+    "type_of_working_place": "WP"
+  }
+},
+{
+  "model": "city_engine.windplant",
+  "pk": 2,
+  "fields": {
+    "city": 1,
+    "city_field": 7,
+    "if_under_construction": false,
+    "if_residential": false,
+    "if_production": false,
+    "if_waterworks": false,
+    "if_dumping_ground": false,
+    "current_build_time": 3,
+    "energy": 0,
+    "energy_required": 0,
+    "water": 10,
+    "pollution_product": 0,
+    "recycling": 0,
+    "current_employees": 5,
+    "max_employees": 5,
+    "power_nodes": 1,
+    "max_power_nodes": 10,
+    "energy_production": 5,
+    "energy_allocated": 2,
+    "if_electricity": true,
+    "name": "Elektrownia wiatrowa",
+    "build_time": 3,
+    "build_cost": 100,
+    "maintenance_cost": 10,
+    "water_required": 10,
+    "pollution_rate": 1.8,
+    "type_of_working_place": "WP"
+  }
+},
+{
+  "model": "city_engine.watertower",
+  "pk": 1,
+  "fields": {
+    "city": 1,
+    "city_field": 14,
+    "if_under_construction": false,
+    "if_residential": false,
+    "if_production": false,
+    "if_electricity": false,
+    "if_dumping_ground": false,
+    "current_build_time": 1,
+    "energy": 1,
+    "water": 0,
+    "water_required": 0,
+    "pollution_product": 0,
+    "recycling": 0,
+    "current_employees": 5,
+    "max_employees": 5,
+    "water_allocated": 10,
+    "water_production": 20,
+    "if_waterworks": true,
+    "pollution_rate": 0.5,
+    "name": "Wie\u017ca ci\u015bnie\u0144",
+    "build_time": 1,
+    "build_cost": 50,
+    "maintenance_cost": 5,
+    "energy_required": 3,
+    "type_of_working_place": "WT"
+  }
+},
+{
+  "model": "city_engine.watertower",
+  "pk": 2,
+  "fields": {
+    "city": 1,
+    "city_field": 10,
+    "if_under_construction": false,
+    "if_residential": false,
+    "if_production": false,
+    "if_electricity": false,
+    "if_dumping_ground": false,
+    "current_build_time": 1,
+    "energy": 3,
+    "water": 0,
+    "water_required": 0,
+    "pollution_product": 0,
+    "recycling": 0,
+    "current_employees": 5,
+    "max_employees": 5,
+    "water_allocated": 10,
+    "water_production": 20,
+    "if_waterworks": true,
+    "pollution_rate": 0.5,
+    "name": "Wie\u017ca ci\u015bnie\u0144",
+    "build_time": 1,
+    "build_cost": 50,
+    "maintenance_cost": 5,
+    "energy_required": 3,
+    "type_of_working_place": "WT"
+  }
+},
+{
+  "model": "city_engine.dumpingground",
+  "pk": 1,
+  "fields": {
+    "city": 1,
+    "city_field": 8,
+    "if_under_construction": false,
+    "if_residential": false,
+    "if_production": false,
+    "if_electricity": false,
+    "if_waterworks": false,
+    "current_build_time": 2,
+    "energy": 0,
+    "water": 0,
+    "water_required": 0,
+    "pollution_product": 0,
+    "recycling": 0,
+    "current_employees": 0,
+    "max_employees": 5,
+    "name": "Wysypisko \u015bmieci",
+    "if_dumping_ground": true,
+    "build_time": 2,
+    "build_cost": 100,
+    "maintenance_cost": 10,
+    "energy_required": 1,
+    "limit_of_dust_cars": 6,
+    "current_space_for_trash": 0,
+    "max_space_for_trash": 10000,
+    "pollution_rate": 3.0
+  }
+},
+{
+  "model": "city_engine.dustcart",
+  "pk": 1,
+  "fields": {
+    "maintenance_cos": 0,
+    "dumping_ground": 1,
+    "name": "\u015amieciarka",
+    "cost": 10,
+    "current_employees": 3,
+    "max_employees": 3,
+    "curr_capacity": 0,
+    "max_capacity": 60,
+    "type_of_working_place": "DGC"
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$36000$2MFgg5Lg6821$MW325JJT6IxAanSRxxJuYWkl8Wd7vopUMJ4I1f3cyMQ=",
+    "last_login": "2018-04-09T17:17:54.812Z",
+    "is_superuser": false,
+    "username": "Micha\u0142",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2018-04-09T17:17:54.384Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "city_engine.city",
+  "pk": 1,
+  "fields": {
+    "user": 1,
+    "name": "Wroc\u0142aw",
+    "cash": "9280.00",
+    "publish": "2018-04-09",
+    "updated": "2018-04-09"
+  }
+}
+]

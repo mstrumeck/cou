@@ -11,6 +11,23 @@ from city_engine.models import City, CityField, \
     electricity_buildings, waterworks_buildings, \
     list_of_models
 
+class BaseFixture(test.TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='Michał', password='12345', email='random@wp.pl')
+        self.client.login(username='Michał', password='12345', email='random@wp.pl')
+        self.city = City.objects.create(name='Wrocław', user=self.user)
+        assign_city_fields_to_board(self.city)
+
+        field_one = CityField.objects.get(row=0, col=1, city=self.city).if_production = True
+        field_two = CityField.objects.get(row=0, col=2, city=self.city).if_residential = True
+        field_three = CityField.objects.get(row=1, col=1, city=self.city).if_electricity = True
+        field_four = CityField.objects.get(row=1, col=1, city=self.city).if_production = True
+
+        WindPlant.objects.create(city=self.city, city_field=field_one, if_electricity=True, if_under_construction=True, current_employees=5)
+        WindPlant.objects.create(city=self.city)
+        WaterTower.objects.create(city=self.city)
+        WaterTower.objects.create(city=self.city)
+
 
 class CityFixture(test.TestCase):
     def setUp(self):

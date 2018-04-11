@@ -1,9 +1,9 @@
-from city_engine.models import CityField, waterworks_buildings
+from city_engine.models import CityField, waterworks_buildings, DustCart
 from .resources_allocation import ResourceAllocation
 from .employee_allocation import EmployeeAllocation
 import numpy as np
 from .global_variables import HEX_NUM_IN_ROW, HEX_NUM, ROW_NUM
-from city_engine.models import WindPlant, electricity_buildings, Residential, ProductionBuilding
+from city_engine.models import WindPlant, electricity_buildings, Residential, ProductionBuilding, trash_collector
 
 
 def assign_city_fields_to_board(city):
@@ -55,7 +55,7 @@ class Board(object):
                     elif build_field.if_waterworks is True:
                         self.hex_with_builds.append((row, col))
                         self.hex_with_waterworks.append((row, col))
-                    elif build_field.if_trashcollector is True:
+                    elif build_field.if_dumping_ground is True:
                         self.hex_with_builds.append((row, col))
                         self.hex_with_trashcollector.append((row, col))
 
@@ -136,6 +136,9 @@ class HexDetail(object):
             elif build_field.if_waterworks is True:
                 hex_detail_box += self.add_build_details(build_field, waterworks_buildings)
 
+            elif build_field.if_dumping_ground is True:
+                hex_detail_box += self.add_build_details(build_field, trash_collector)
+
         hex_detail_box += "</div>"
         return hex_detail_box
 
@@ -150,7 +153,7 @@ class HexDetail(object):
                     hex_detail_box += self.add_electricity_details(build)
                 elif build_field.if_waterworks is True:
                     hex_detail_box += self.add_waterworks_details(build)
-                elif build_field.if_trashcollector is True:
+                elif build_field.if_dumping_ground is True:
                     hex_detail_box += self.add_trashcollector_details(build)
                 # elif build_field.if_residential is True:
                 #     hex_detail_box += self.add_residential_details(build)
@@ -179,5 +182,9 @@ class HexDetail(object):
 
     def add_trashcollector_details(self, build):
         hex_detail_box = ''
-        hex_detail_box += '<p>Energia: '+str(build.energy)+'/'+str(build.energy_required)+'</p>'
-        return  hex_detail_box
+        hex_detail_box += '<p>Energia: {}/{}</p>'.format(build.energy, build.energy_required)
+        hex_detail_box += '<p>Wysypisko: {}/{}</p>'.format(build.current_space_for_trash, build.max_space_for_trash)
+        hex_detail_box += '<p>Lista śmieciarek:</p>'
+        for carts in DustCart.objects.filter(dumping_ground=build):
+            hex_detail_box += '<p>{}: załoga {}/{}</p>'.format(carts, carts.current_employees, carts.max_employees)
+        return hex_detail_box
