@@ -9,8 +9,8 @@ class TurnCalculation(object):
     def __init__(self, city):
         self.city = city
         TrashManagement(self.city).run()
-        EmployeeAllocation(self.city)
-        ResourceAllocation(self.city)
+        EmployeeAllocation(self.city).run()
+        ResourceAllocation(self.city).run()
         self.update_build_status()
 
     def update_build_status(self):

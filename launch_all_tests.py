@@ -19,4 +19,5 @@ def run_tests_with_coverage():
                                          functional_tests.legacy.user_tests \
                                          functional_tests.trashcollector_tests")
 
+# run_tests_with_coverage()
 run_tests()

@@ -6,11 +6,7 @@
     "city": 1,
     "col": 0,
     "row": 0,
-    "pollution": 0,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": false
+    "pollution": 0
   }
 },
 {
@@ -20,11 +16,7 @@
     "city": 1,
     "col": 1,
     "row": 0,
-    "pollution": 0,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": false
+    "pollution": 0
   }
 },
 {
@@ -34,11 +26,7 @@
     "city": 1,
     "col": 2,
     "row": 0,
-    "pollution": 0,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": false
+    "pollution": 0
   }
 },
 {
@@ -48,11 +36,7 @@
     "city": 1,
     "col": 3,
     "row": 0,
-    "pollution": 0,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": false
+    "pollution": 0
   }
 },
 {
@@ -62,11 +46,7 @@
     "city": 1,
     "col": 0,
     "row": 1,
-    "pollution": 0,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": false
+    "pollution": 0
   }
 },
 {
@@ -76,11 +56,7 @@
     "city": 1,
     "col": 1,
     "row": 1,
-    "pollution": 0,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": true,
-    "if_waterworks": false
+    "pollution": 0
   }
 },
 {
@@ -90,11 +66,7 @@
     "city": 1,
     "col": 2,
     "row": 1,
-    "pollution": 0,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": true,
-    "if_waterworks": false
+    "pollution": 0
   }
 },
 {
@@ -104,11 +76,7 @@
     "city": 1,
     "col": 3,
     "row": 1,
-    "pollution": 0,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": false
+    "pollution": 0
   }
 },
 {
@@ -118,11 +86,7 @@
     "city": 1,
     "col": 0,
     "row": 2,
-    "pollution": 0,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": false
+    "pollution": 0
   }
 },
 {
@@ -132,11 +96,7 @@
     "city": 1,
     "col": 1,
     "row": 2,
-    "pollution": 0,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": true
+    "pollution": 0
   }
 },
 {
@@ -146,11 +106,7 @@
     "city": 1,
     "col": 2,
     "row": 2,
-    "pollution": 0,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": true
+    "pollution": 0
   }
 },
 {
@@ -160,11 +116,7 @@
     "city": 1,
     "col": 3,
     "row": 2,
-    "pollution": 0,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": false
+    "pollution": 0
   }
 },
 {
@@ -174,11 +126,7 @@
     "city": 1,
     "col": 0,
     "row": 3,
-    "pollution": 0,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": false
+    "pollution": 0
   }
 },
 {
@@ -188,11 +136,7 @@
     "city": 1,
     "col": 1,
     "row": 3,
-    "pollution": 0,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": false
+    "pollution": 0
   }
 },
 {
@@ -202,11 +146,7 @@
     "city": 1,
     "col": 2,
     "row": 3,
-    "pollution": 0,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": false
+    "pollution": 0
   }
 },
 {
@@ -216,11 +156,7 @@
     "city": 1,
     "col": 3,
     "row": 3,
-    "pollution": 0,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": false
+    "pollution": 0
   }
 },
 {
@@ -230,21 +166,16 @@
     "city": 1,
     "city_field": 6,
     "if_under_construction": false,
-    "if_residential": false,
-    "if_production": false,
-    "if_waterworks": false,
     "current_build_time": 3,
-    "trash": 0,
     "energy": 0,
     "energy_required": 0,
     "water": 0,
     "pollution_product": 0,
     "recycling": 0,
-    "current_employees": 0,
     "max_employees": 5,
     "power_nodes": 1,
     "max_power_nodes": 10,
-    "energy_production": 5,
+    "energy_production": 15,
     "energy_allocated": 0,
     "if_electricity": true,
     "name": "Elektrownia wiatrowa",
@@ -262,21 +193,16 @@
     "city": 1,
     "city_field": 7,
     "if_under_construction": false,
-    "if_residential": false,
-    "if_production": false,
-    "if_waterworks": false,
     "current_build_time": 3,
-    "trash": 0,
     "energy": 0,
     "energy_required": 0,
     "water": 0,
     "pollution_product": 0,
     "recycling": 0,
-    "current_employees": 0,
     "max_employees": 5,
     "power_nodes": 1,
     "max_power_nodes": 10,
-    "energy_production": 5,
+    "energy_production": 15,
     "energy_allocated": 0,
     "if_electricity": true,
     "name": "Elektrownia wiatrowa",
@@ -294,17 +220,12 @@
     "city": 1,
     "city_field": 10,
     "if_under_construction": false,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
     "current_build_time": 1,
-    "trash": 0,
     "energy": 0,
     "water": 0,
     "water_required": 0,
     "pollution_product": 0,
     "recycling": 0,
-    "current_employees": 0,
     "max_employees": 5,
     "water_allocated": 0,
     "water_production": 20,
@@ -324,17 +245,12 @@
     "city": 1,
     "city_field": 11,
     "if_under_construction": false,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
     "current_build_time": 1,
-    "trash": 0,
     "energy": 0,
     "water": 0,
     "water_required": 0,
     "pollution_product": 0,
     "recycling": 0,
-    "current_employees": 0,
     "max_employees": 5,
     "water_allocated": 0,
     "water_production": 20,
@@ -351,8 +267,8 @@
   "model": "auth.user",
   "pk": 1,
   "fields": {
-    "password": "pbkdf2_sha256$36000$G5EmfpBKdgmE$CX7fkyruYJAgfOntZTAPPZo2JWcfYYz3I74oTcrQ1ac=",
-    "last_login": "2018-03-09T20:50:39.524Z",
+    "password": "pbkdf2_sha256$36000$5PTE7noVGkce$CthypHVtV9hCw+WyM+CKiqktGNvkonypp4WkKfhmZmo=",
+    "last_login": "2018-04-22T19:07:31.505Z",
     "is_superuser": false,
     "username": "Micha\u0142",
     "first_name": "",
@@ -360,7 +276,7 @@
     "email": "",
     "is_staff": false,
     "is_active": true,
-    "date_joined": "2018-03-09T20:50:39.255Z",
+    "date_joined": "2018-04-22T19:07:30.915Z",
     "groups": [],
     "user_permissions": []
   }
@@ -371,9 +287,9 @@
   "fields": {
     "user": 1,
     "name": "Wroc\u0142aw",
-    "cash": "9610.00",
-    "publish": "2018-03-09",
-    "updated": "2018-03-09"
+    "cash": "9620.00",
+    "publish": "2018-04-22",
+    "updated": "2018-04-22"
   }
 }
 ]

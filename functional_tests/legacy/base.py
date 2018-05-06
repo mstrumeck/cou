@@ -3,13 +3,14 @@ from selenium import webdriver
 from django.contrib.auth.models import User
 from city_engine.main_view_data.board import assign_city_fields_to_board
 from city_engine.main_view_data.board import Board
+from city_engine.test.base import TestHelper
 from city_engine.main_view_data.city_stats import CityStatsCenter
 from city_engine.models import City, CityField, \
     WindPlant, CoalPlant, RopePlant, \
     WaterTower, list_of_buildings_in_city, Building
 
 
-class BaseTest(StaticLiveServerTestCase):
+class BaseTest(StaticLiveServerTestCase, TestHelper):
     def setUp(self):
         self.browser = webdriver.Chrome()
         self.player_one = "Michał"

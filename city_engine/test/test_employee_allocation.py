@@ -1,5 +1,5 @@
 from django import test
-from city_engine.main_view_data.resources_allocation import ResourceAllocation
+from city_engine.test.base import TestHelper
 from city_engine.models import CityField, list_of_models, Residential, City, WindPlant, WaterTower, \
     list_of_buildings_with_employees, ProductionBuilding, DustCart, DumpingGround
 from django.db.models import Sum
@@ -7,55 +7,43 @@ from citizen_engine.models import Citizen
 from city_engine.main_view_data.employee_allocation import EmployeeAllocation
 
 
-class EmployeeAllocationTest(test.TestCase):
+class EmployeeAllocationTest(test.TestCase, TestHelper):
     fixtures = ['basic_fixture_resources_and_employees.json']
 
     def setUp(self):
         self.city = City.objects.get(id=1)
         self.EA = EmployeeAllocation(city=self.city)
 
-    def test_clean_info_about_employees(self):
-        self.assertEqual(WindPlant.objects.filter(city=self.city).aggregate(Sum('current_employees'))['current_employees__sum'], 10)
-        self.assertEqual(WaterTower.objects.filter(city=self.city).aggregate(Sum('current_employees'))['current_employees__sum'], 10)
-        self.EA.clean_info_about_employees()
-        self.assertEqual(WindPlant.objects.filter(city=self.city).aggregate(Sum('current_employees'))['current_employees__sum'], 0)
-        self.assertEqual(WaterTower.objects.filter(city=self.city).aggregate(Sum('current_employees'))['current_employees__sum'], 0)
-
     def test_not_full_production_buildings(self):
+        self.assertIn(self.EA.not_full_production_buildings(), [WindPlant.objects.get(id=1), WindPlant.objects.get(id=2)
+                                                                , WaterTower.objects.get(id=1), WaterTower.objects.get(id=2)])
+
+        self.populate_city(self.city)
+
         self.assertEqual(self.EA.not_full_production_buildings(), None)
-        self.EA.clean_info_about_employees()
-        self.assertIn(self.EA.not_full_production_buildings(), ['WP', 'WT', 'PB'])
 
     def test_update_employee_allocation(self):
-        self.EA.clean_info_about_employees()
+        self.assertEqual(sum([wp.employee.count() for wp in WindPlant.objects.filter(city=self.city)]), 0)
+        self.assertEqual(sum([wt.employee.count() for wt in WaterTower.objects.filter(city=self.city)]), 0)
+        self.assertEqual(sum([pb.employee.count() for pb in ProductionBuilding.objects.filter(city=self.city)]), 0)
 
-        self.assertEqual(WindPlant.objects.filter(city=self.city).aggregate(Sum('current_employees'))['current_employees__sum'], 0)
-        self.assertEqual(WaterTower.objects.filter(city=self.city).aggregate(Sum('current_employees'))['current_employees__sum'], 0)
-        self.assertEqual(ProductionBuilding.objects.filter(city=self.city).aggregate(Sum('current_employees'))['current_employees__sum'], None)
+        self.populate_city(self.city)
 
-        for x in range(4):
-            self.EA.update_population()
-
-        self.assertEqual(WindPlant.objects.filter(city=self.city).aggregate(Sum('current_employees'))['current_employees__sum'], 10)
-        self.assertEqual(WaterTower.objects.filter(city=self.city).aggregate(Sum('current_employees'))['current_employees__sum'], 10)
+        self.assertEqual(sum([wp.employee.count() for wp in WindPlant.objects.filter(city=self.city)]), 10)
+        self.assertEqual(sum([wt.employee.count() for wt in WaterTower.objects.filter(city=self.city)]), 10)
 
     def test_update_population(self):
-        self.EA.clean_info_about_employees()
         self.assertEqual(Citizen.objects.filter(city=self.city).count(), 0)
-        self.EA.update_population()
+        self.EA.run()
         self.assertIn(Citizen.objects.filter(city=self.city).count(), [x for x in range(21)])
 
     def test_employee_to_vehicle_allocation(self):
-        self.EA.clean_info_about_employees()
         city_field_one = CityField.objects.get(id=1)
         city_field_two = CityField.objects.get(id=2)
         residential = Residential.objects.create(city=self.city, if_under_construction=False, city_field=city_field_two)
         dumping_ground = DumpingGround.objects.create(city=self.city, if_under_construction=False, city_field=city_field_one)
         dust_cart = DustCart.objects.create(city=self.city, dumping_ground=dumping_ground)
-        self.assertEqual(dust_cart.current_employees, 0)
-        self.EA.update_population()
-        self.EA.update_population()
+        self.assertEqual(dust_cart.employee.count(), 0)
+        self.populate_city(self.city)
         dust_cart = DustCart.objects.latest('id')
-        self.assertEqual(dust_cart.current_employees, 3)
-        self.assertEqual(Citizen.objects.filter(city=self.city, work_in_dust_cart=True).count(), 3)
-
+        self.assertEqual(dust_cart.employee.count(), 3)

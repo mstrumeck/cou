@@ -1,6 +1,7 @@
-from city_engine.models import Residential, list_of_models, electricity_buildings, waterworks_buildings
+from city_engine.models import Residential, list_of_models, waterworks_buildings, PowerPlant, WindPlant, Waterworks, Building
 from citizen_engine.models import Citizen
 from django.db.models import Sum
+from city_engine.abstract import RootClass
 
 
 class CityStatsCenter(object):
@@ -29,105 +30,52 @@ class CityStatsCenter(object):
         self.building_stats = CityBuildingStats(self.city)
 
 
-class CityEnergyStats(object):
-    def __init__(self, city):
-        self.city = city
+class CityEnergyStats(RootClass):
 
     def city_energy_bilans(self):
         return self.calculate_energy_production_in_city() - self.calculate_energy_allocation_in_city()
 
     def calculate_energy_production_in_city(self):
-        energy = 0
-        for models in electricity_buildings:
-            list_of_buildings = models.objects.filter(city=self.city)
-            for building in list_of_buildings:
-                energy += building.total_production()
-        return energy
+        return sum([b.total_production() for b in self.list_of_buildings_in_city(abstract_class=PowerPlant)])
 
     def calculate_energy_allocation_in_city(self):
-        energy_allocated = 0
-        for models in electricity_buildings:
-            list_of_buildings = models.objects.filter(city=self.city).values('energy_allocated')
-            if list_of_buildings.exists():
-                for building in list_of_buildings:
-                    energy_allocated += building['energy_allocated']
-            return energy_allocated
+        return sum([b.energy_allocated for b in self.list_of_buildings_in_city(abstract_class=PowerPlant)])
 
     def calculate_energy_usage_in_city(self):
-        total_energy = 0
-        for model in list_of_models:
-            for building in model.objects.filter(city=self).values('energy_required'):
-                total_energy += building['energy_required']
-        return total_energy
+        return sum([b.energy_required for b in self.list_of_buildings_in_city()])
 
 
-class CityWaterStats(object):
-    def __init__(self, city):
-        self.city = city
+class CityWaterStats(RootClass):
 
     def city_water_bilans(self):
         return self.calculate_water_production_in_city() - self.calculate_water_allocation_in_city()
 
     def calculate_water_production_in_city(self):
-        water = 0
-        for models in waterworks_buildings:
-            list_of_buildings = models.objects.filter(city=self.city)
-            for building in list_of_buildings:
-                water += building.total_production()
-        return water
+        return sum([b.total_production() for b in self.list_of_buildings_in_city(abstract_class=Waterworks)])
 
     def calculate_water_usage_in_city(self):
-        total_water = 0
-        for model in list_of_models:
-            for buildings in model.objects.filter(city=self.city).values('water_required'):
-                total_water += buildings['water_required']
-        return total_water
+        return sum([b.water_required for b in self.list_of_buildings_in_city()])
 
     def calculate_water_allocation_in_city(self):
-        water_allocated = 0
-        for models in waterworks_buildings:
-            list_of_buildings = models.objects.filter(city=self.city).values('water_allocated')
-            for building in list_of_buildings:
-                water_allocated += building['water_allocated']
-        return water_allocated
+        return sum([b.water_allocated for b in self.list_of_buildings_in_city(abstract_class=Waterworks)])
 
 
-class CityBuildingStats(object):
-    def __init__(self, city):
-        self.city = city
+class CityBuildingStats(RootClass):
 
     def list_of_buildings_under_construction(self):
-        building_name, building_cur, building_end = [], [], []
-        for model in list_of_models:
-            for building in model.objects.filter(city=self.city).values(
-                    'if_under_construction',
-                    'name', 'current_build_time', 'build_time'):
-                if building['if_under_construction'] is True:
-                    building_name.append(building['name'])
-                    building_cur.append(building['current_build_time'])
-                    building_end.append(building['build_time'])
-        if not building_name:
-            return None
-        return zip(building_name, building_cur, building_end)
+        return [[b['name'], b['current_build_time'], b['build_time']] for b in self.list_of_buildings_in_city_with_values(
+            'if_under_construction', 'name', 'current_build_time', 'build_time') if b['if_under_construction'] is True]
 
     def list_of_buildings(self):
-        building_names = []
-        for model in list_of_models:
-            for building in model.objects.filter(city=self.city).values('if_under_construction', 'name'):
-                if building['if_under_construction'] is False:
-                    try:
-                        building_names.append(building['name'])
-                    except(AttributeError):
-                        pass
-        return building_names
+        return [b['name'] for b in self.list_of_buildings_in_city_with_values('if_under_construction', 'name')
+                if b['if_under_construction'] is False]
 
 
-class CityPopulationStats(object):
-    def __init__(self, city):
-        self.city = city
+class CityPopulationStats(RootClass):
 
     def calculate_max_population(self):
-        if Residential.objects.filter(city=self.city).aggregate(Sum('max_population'))['max_population__sum']:
-            return Residential.objects.filter(city=self.city).aggregate(Sum('max_population'))['max_population__sum']
+        total = Residential.objects.filter(city=self.city).aggregate(Sum('max_population'))['max_population__sum']
+        if total:
+            return total
         else:
             return 0

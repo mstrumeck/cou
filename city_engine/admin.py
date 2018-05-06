@@ -16,7 +16,7 @@ admin.site.register(Residential, ResidentialAdmin)
 
 
 class ProductionAdmin(admin.ModelAdmin):
-    list_display = ['city_field', 'current_employees']
+    list_display = ['city_field']
 admin.site.register(ProductionBuilding, ProductionAdmin)
 
 

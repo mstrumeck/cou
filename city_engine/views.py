@@ -31,10 +31,6 @@ def main_view(request):
     profile = Profile.objects.get(user_id=request.user.id)
     income = Citizen.objects.filter(city=city).aggregate(Sum('income'))['income__sum']
 
-    buildings = city_stats.list_of_buildings
-    buildings_under_construction = city_stats.building_under_construction
-
-    total_cost_of_maintenance = calculate_maintenance_cost(list_of_models, city)
     city.save()
 
     return render(request, 'main_view.html', {'city': city,
@@ -43,9 +39,9 @@ def main_view(request):
                                               'city_resources_stats': city_resources_allocation_stats,
                                               'hex_table': mark_safe(new_board.hex_table),
                                               'hex_detail_info_table': mark_safe(new_hex_detail.hex_detail_info_table),
-                                              'buildings': buildings,
-                                              'buildings_under_construction': buildings_under_construction,
-                                              'total_cost_of_maintenance': total_cost_of_maintenance,
+                                              'buildings': city_stats.list_of_buildings,
+                                              'buildings_under_construction': city_stats.building_under_construction,
+                                              'total_cost_of_maintenance': calculate_maintenance_cost(list_of_models, city),
                                               'current_population': city_stats.current_population,
                                               'max_population': city_stats.max_population})
 

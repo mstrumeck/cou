@@ -39,8 +39,6 @@ class CitizenFixture(TestCase):
         first_citizen.city = self.city
         first_citizen.income = 100
         first_citizen.residential = residential
-        first_citizen.type_of_work = 'PB'
-        first_citizen.work_in_production = factory
         first_citizen.save()
 
         second_citizen = Citizen()
@@ -49,8 +47,6 @@ class CitizenFixture(TestCase):
         second_citizen.city = self.city
         second_citizen.income = 100
         second_citizen.residential = residential
-        second_citizen.type_of_work = 'PB'
-        second_citizen.work_in_production = factory
         second_citizen.save()
 
         third_citizen = Citizen()
@@ -59,15 +55,12 @@ class CitizenFixture(TestCase):
         third_citizen.income = 10
         third_citizen.city = self.city
         third_citizen.residential = residential
-        third_citizen.type_of_work = 'PB'
-        third_citizen.work_in_production = factory
         third_citizen.save()
 
 
 class CreateCitizensTest(CitizenFixture):
 
     def test_saving_and_retreving_citizens(self):
-        # city = City.objects.get(name='Wrocław')
 
         saved_citizen = Citizen.objects.all()
         self.assertEqual(saved_citizen.count(), 3)
@@ -94,24 +87,17 @@ class CitizenCreationsTest(TestCase):
 
     def setUp(self):
         self.city = City.objects.get(id=1)
-        self.target_production = "WP"
 
-    def test_create(self):
+    def test_create_with_workplace(self):
         self.assertEqual(Citizen.objects.filter(city=self.city).count(), 0)
-        CreateCitizen(self.city, self.target_production)
+        CreateCitizen().create_with_workplace(city=self.city, workplace=WindPlant.objects.latest('id'))
+        self.assertEqual(Citizen.objects.filter(city=self.city).count(), 1)
+
+    def test_create_without_workplace(self):
+        self.assertEqual(Citizen.objects.filter(city=self.city).count(), 0)
+        CreateCitizen().create_without_workplace(city=self.city)
         self.assertEqual(Citizen.objects.filter(city=self.city).count(), 1)
 
     def test_choose_residential(self):
         residential = Residential.objects.get(id=1)
-        self.assertEqual(CreateCitizen(self.city, self.target_production).choose_residential(), residential)
-
-    def test_set_place_of_work(self):
-        windplant = WindPlant.objects.get(id=1)
-        windplant.current_employees = 0
-        windplant.save()
-        CreateCitizen(self.city, self.target_production)
-        for x in Citizen.objects.filter(city=self.city).values('id'):
-            cit_id = x['id']
-        citizen = Citizen.objects.get(id=cit_id)
-        self.assertEqual(citizen.type_of_work, self.target_production)
-        self.assertEqual(citizen.work_in_windplant, windplant)
+        self.assertEqual(CreateCitizen().choose_residential(self.city), residential)

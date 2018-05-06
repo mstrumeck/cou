@@ -3,19 +3,51 @@ from django.contrib.auth.models import User
 from city_engine.main_view_data.board import Board, assign_city_fields_to_board
 from citizen_engine.models import Citizen
 from city_engine.main_view_data.city_stats import CityStatsCenter
+from citizen_engine.citizen_creation import CreateCitizen
+from django.apps import apps
 from city_engine.models import City, CityField, \
     Residential, \
     ProductionBuilding, \
     WindPlant, CoalPlant, RopePlant, \
     WaterTower, \
     electricity_buildings, waterworks_buildings, \
-    list_of_models
+    BuldingsWithWorkes, Building, Vehicle
+
+
+class TestHelper(object):
+
+    def populate_city(self, city):
+        for workplace in self.list_of_workplaces(city):
+            for employ in range(workplace.max_employees):
+                CreateCitizen().create_with_workplace(city=city, workplace=workplace)
+
+    def list_of_workplaces(self, city):
+        result = []
+        for subclass in self.get_subclasses(BuldingsWithWorkes, 'city_engine'):
+            if subclass.objects.filter(city=city).exists():
+                a = subclass.objects.filter(city=city)
+                for building in a:
+                    result.append(building)
+        for subclass in self.get_subclasses(Vehicle, 'city_engine'):
+            if subclass.objects.filter(city=city).exists():
+                b = subclass.objects.filter(city=city)
+                for vehicle in b:
+                    result.append(vehicle)
+        return result
+
+    def get_subclasses(self, abstract_class=Building, app_label='city_engine'):
+        result = []
+        for model in apps.get_app_config(app_label).get_models():
+            if issubclass(model, abstract_class) and model is not abstract_class:
+                result.append(model)
+        return result
+
 
 class BaseFixture(test.TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='Michał', password='12345', email='random@wp.pl')
         self.client.login(username='Michał', password='12345', email='random@wp.pl')
-        self.city = City.objects.create(name='Wrocław', user=self.user)
+        self.city = City.objects.create_with_workplace(name='Wrocław', user=self.user)
         assign_city_fields_to_board(self.city)
 
         field_one = CityField.objects.get(row=0, col=1, city=self.city).if_production = True
@@ -148,35 +180,5 @@ class CityFixture(test.TestCase):
         waterwork.if_under_construction = False
         waterwork.city_field = CityField.objects.get(row=1, col=1, city=self.city)
         waterwork.save()
-
-        first_citizen = Citizen()
-        first_citizen.age = 22
-        first_citizen.health = 20
-        first_citizen.city = self.city
-        first_citizen.income = 100
-        first_citizen.residential = first_residential
-        first_citizen.type_of_work = 'PB'
-        first_citizen.work_in_production = first_factory
-        first_citizen.save()
-
-        second_citizen = Citizen()
-        second_citizen.age = 60
-        second_citizen.health = 10
-        second_citizen.city = self.city
-        second_citizen.income = 100
-        second_citizen.residential = first_residential
-        second_citizen.type_of_work = 'PB'
-        second_citizen.work_in_production = first_factory
-        second_citizen.save()
-
-        third_citizen = Citizen()
-        third_citizen.age = 40
-        third_citizen.health = 25
-        third_citizen.income = 10
-        third_citizen.city = self.city
-        third_citizen.residential = first_residential
-        third_citizen.type_of_work = 'PB'
-        third_citizen.work_in_production = first_factory
-        third_citizen.save()
 
         self.city_stats = CityStatsCenter(self.city)

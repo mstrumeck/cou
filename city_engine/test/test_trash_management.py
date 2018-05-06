@@ -1,6 +1,9 @@
 from django import test
 from city_engine.main_view_data.trash_management import TrashManagement
-from city_engine.models import City, list_of_models, Trash, list_of_buildings_in_city, WindPlant, WaterTower
+from city_engine.main_view_data.employee_allocation import EmployeeAllocation
+from city_engine.models import City, list_of_models, Trash, \
+    list_of_buildings_in_city, WindPlant, WaterTower, DumpingGround, CityField, Building
+from django.apps import apps
 
 
 class CityStatsTests(test.TestCase):
@@ -9,13 +12,22 @@ class CityStatsTests(test.TestCase):
     def setUp(self):
         self.city = City.objects.get(id=1)
         self.TM = TrashManagement(self.city)
+        self.EA = EmployeeAllocation(self.city)
+        self.EA.run()
+        self.EA.run()
 
-    # def print_all_building_in_the_city(self):
-    #     result = []
-    #     for building_type in list_of_models:
-    #         if building_type.objects.exists_in_city():
-    #             result += building_type.objects.filter_by_city()
-    #     return result
+    def test_generate_trash_except_dumping_ground(self):
+        dg = DumpingGround.objects.create(city=self.city, city_field=CityField.objects.get(id=2))
+        result = []
+        for trash in dg.trash.values():
+            result.append(trash)
+        self.assertEqual(result, [])
+
+        self.TM.generate_trash()
+
+        for trash in dg.trash.values():
+            result.append(trash)
+        self.assertEqual(result, [])
 
     def test_generate_trash(self):
         result = []

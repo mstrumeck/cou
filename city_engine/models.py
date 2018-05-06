@@ -42,30 +42,20 @@ class CityField(models.Model):
     col = models.PositiveIntegerField()
     row = models.PositiveIntegerField()
     pollution = models.PositiveIntegerField(default=0)
-    if_residential = models.BooleanField(default=False)
-    if_production = models.BooleanField(default=False)
-    if_electricity = models.BooleanField(default=False)
-    if_waterworks = models.BooleanField(default=False)
-    if_dumping_ground = models.BooleanField(default=False)
 
-    def return_list_of_possible_buildings_related_with_type_of_field(self):
-        if self.if_electricity is True:
-            return electricity_buildings
-        elif self.if_waterworks is True:
-            return waterworks_buildings
-        else:
-            return None
+    # def return_list_of_possible_buildings_related_with_type_of_field(self):
+    #     if self.if_electricity is True:
+    #         return electricity_buildings
+    #     elif self.if_waterworks is True:
+    #         return waterworks_buildings
+    #     else:
+    #         return None
 
 
 class Building(models.Model):
     city = models.ForeignKey(City)
     city_field = models.ForeignKey(CityField)
     if_under_construction = models.BooleanField(default=True)
-    if_residential = models.BooleanField(default=False)
-    if_production = models.BooleanField(default=False)
-    if_electricity = models.BooleanField(default=False)
-    if_waterworks = models.BooleanField(default=False)
-    if_dumping_ground = models.BooleanField(default=False)
     build_cost = models.PositiveIntegerField(default=0)
     maintenance_cost = models.PositiveIntegerField(default=0)
     build_time = models.PositiveIntegerField()
@@ -86,6 +76,20 @@ class Building(models.Model):
 
     class Meta:
         abstract = True
+    #
+    # def spend_resources(self):
+    #     self.spend_energy()
+    #     self.spend_water()
+    #     self.save()
+    #
+    # def spend_water(self):
+    #     if self.water > 0:
+    #         self.water -= 1
+    #
+    # def spend_energy(self):
+    #     if self.energy > 0:
+    #         self.energy -= 1
+
 
     def build_status(self):
         if self.if_under_construction is True:
@@ -102,15 +106,15 @@ class Building(models.Model):
 
 
 class BuldingsWithWorkes(Building):
-    current_employees = models.PositiveIntegerField(default=0)
     max_employees = models.PositiveIntegerField(default=0)
-    type_of_working_place = models.CharField(max_length=2)
+    employee = GenericRelation('citizen_engine.Citizen')
 
     def trash_calculation(self):
         return self.pollution_calculation() * self.pollution_rate
 
     def pollution_calculation(self):
-        return  self.pollution_rate * self.current_employees
+        return self.pollution_rate * self.employee.count()
+
     class Meta:
         abstract = True
 
@@ -152,7 +156,6 @@ class ProductionBuilding(BuldingsWithWorkes):
     build_cost = models.PositiveIntegerField(default=100)
     maintenance_cost = models.PositiveIntegerField(default=10)
     max_employees = models.PositiveIntegerField(default=20)
-    type_of_working_place = models.CharField(default='PB', max_length=2)
 
     def build_status(self):
         if self.if_under_construction is True:
@@ -162,7 +165,6 @@ class ProductionBuilding(BuldingsWithWorkes):
                 return False
             elif self.current_build_time == self.build_time:
                 self.if_under_construction = False
-                self.if_production = True
                 self.save()
                 return True
         else:
@@ -181,7 +183,7 @@ class PowerPlant(BuldingsWithWorkes):
         abstract = True
 
     def pollution_calculation(self):
-        return (self.power_nodes + self.current_employees) * self.pollution_rate
+        return (self.power_nodes + self.employee.count()) * self.pollution_rate
 
     def resources_allocation_reset(self):
         self.energy_allocated = 0
@@ -191,34 +193,34 @@ class PowerPlant(BuldingsWithWorkes):
         return self.energy_allocated
 
     def total_production(self):
-        if self.current_employees is 0 or self.max_employees is 0:
+        if self.employee.count() is 0 or self.max_employees is 0:
             return 0
         else:
             if self.water is 0:
-                water_productivity = 0
+                water_productivity = 0.0
             else:
                 water_productivity = float(self.water) / float(self.water_required)
-        employees_productivity = float(self.current_employees) / float(self.max_employees)
-        productivity = int(water_productivity + employees_productivity)/2
+        employees_productivity = float(self.employee.count()) / float(self.max_employees)
+        productivity = (water_productivity + employees_productivity)/2
         total = (productivity * int(self.energy_production)) * int(self.power_nodes)
         return int(total)
 
-    def build_status(self):
-        if self.if_under_construction is True:
-            if self.current_build_time < self.build_time:
-                self.current_build_time += 1
-                self.save()
-                return False
-            elif self.current_build_time == self.build_time:
-                self.if_under_construction = False
-                self.max_employees = 1
-                self.power_nodes = 1
-                self.max_power_nodes = 2
-                self.energy_production = 1
-                self.save()
-                return True
-        else:
-            return False
+    # def build_status(self):
+    #     if self.if_under_construction is True:
+    #         if self.current_build_time < self.build_time:
+    #             self.current_build_time += 1
+    #             self.save()
+    #             return False
+    #         elif self.current_build_time == self.build_time:
+    #             self.if_under_construction = False
+    #             self.max_employees = 1
+    #             self.power_nodes = 1
+    #             self.max_power_nodes = 2
+    #             self.energy_production = 1
+    #             self.save()
+    #             return True
+    #     else:
+    #         return False
 
     def __str__(self):
         return self.name
@@ -231,7 +233,6 @@ class WindPlant(PowerPlant):
     maintenance_cost = models.PositiveIntegerField(default=10)
     water_required = models.PositiveIntegerField(default=10)
     pollution_rate = models.FloatField(default=1.8)
-    type_of_working_place = models.CharField(default='WP', max_length=2)
 
     def build_status(self):
         if self.if_under_construction is True:
@@ -244,7 +245,7 @@ class WindPlant(PowerPlant):
                 self.max_employees = 5
                 self.power_nodes = 1
                 self.max_power_nodes = 10
-                self.energy_production = 5
+                self.energy_production = 15
                 self.save()
                 return True
         else:
@@ -258,7 +259,6 @@ class RopePlant(PowerPlant):
     maintenance_cost = models.PositiveIntegerField(default=20)
     water_required = models.PositiveIntegerField(default=15)
     pollution_rate = models.FloatField(default=1.3)
-    type_of_working_place = models.CharField(default='RP', max_length=2)
 
     def build_status(self):
         if self.if_under_construction is True:
@@ -271,7 +271,7 @@ class RopePlant(PowerPlant):
                 self.max_employees = 10
                 self.power_nodes = 1
                 self.max_power_nodes = 4
-                self.energy_production = 30
+                self.energy_production = 50
                 self.save()
                 return True
         else:
@@ -285,7 +285,6 @@ class CoalPlant(PowerPlant):
     maintenance_cost = models.PositiveIntegerField(default=15)
     water_required = models.PositiveIntegerField(default=20)
     pollution_rate = models.FloatField(default=1.5)
-    type_of_working_place = models.CharField(default='CP', max_length=2)
 
     def build_status(self):
         if self.if_under_construction is True:
@@ -298,7 +297,7 @@ class CoalPlant(PowerPlant):
                 self.max_employees = 15
                 self.power_nodes = 1
                 self.max_power_nodes = 4
-                self.energy_production = 20
+                self.energy_production = 40
                 self.save()
                 return True
         else:
@@ -316,7 +315,7 @@ class Waterworks(BuldingsWithWorkes):
         abstract = True
 
     def pollution_calculation(self):
-        return self.current_employees * self.pollution_rate
+        return self.employee.count() * self.pollution_rate
 
     def resources_allocation_reset(self):
         self.water_allocated = 0
@@ -326,14 +325,14 @@ class Waterworks(BuldingsWithWorkes):
         return self.water_allocated
 
     def total_production(self):
-        if self.current_employees is 0 or self.max_employees is 0:
+        if self.employee.count() is 0 or self.max_employees is 0:
             return 0
         else:
             if self.energy is 0:
-                energy_productivity = 0
+                energy_productivity = 0.0
             else:
                 energy_productivity = float(self.energy)/float(self.energy_required)
-            employees_productivity = float(self.current_employees)/float(self.max_employees)
+            employees_productivity = float(self.employee.count())/float(self.max_employees)
             productivity = float((energy_productivity+employees_productivity)/2)
             total = (productivity * int(self.water_production))
             return int(total)
@@ -345,7 +344,6 @@ class WaterTower(Waterworks):
     build_cost = models.PositiveIntegerField(default=50)
     maintenance_cost = models.PositiveIntegerField(default=5)
     energy_required = models.PositiveIntegerField(default=3)
-    type_of_working_place = models.CharField(default='WT', max_length=2)
 
     def build_status(self):
         if self.if_under_construction is True:
@@ -374,7 +372,6 @@ class DumpingGround(BuldingsWithWorkes):
     current_space_for_trash = models.PositiveIntegerField(default=0)
     max_space_for_trash = models.PositiveIntegerField(default=10000)
     pollution_rate = models.FloatField(default=3.0)
-    type_of_working_place = models.CharField(default='DG', max_length=2)
 
     def build_status(self):
         if self.if_under_construction is True:
@@ -385,7 +382,7 @@ class DumpingGround(BuldingsWithWorkes):
             elif self.current_build_time == self.build_time:
                 self.if_under_construction = False
                 self.max_employees = 5
-                DustCart.objects.create(dumping_ground=self, current_employees=0, city=self.city)
+                DustCart.objects.create(dumping_ground=self, city=self.city)
                 self.save()
                 return True
         else:
@@ -397,9 +394,8 @@ class Vehicle(models.Model):
     name = models.CharField(max_length=20)
     cost = models.PositiveIntegerField(default=0)
     maintenance_cos = models.PositiveIntegerField(default=0)
-    current_employees = models.PositiveIntegerField(default=0)
     max_employees = models.PositiveIntegerField(default=0)
-    type_of_working_place = models.CharField(max_length=2)
+    employee = GenericRelation('citizen_engine.Citizen')
 
     class Meta:
         abstract = True
@@ -409,14 +405,12 @@ class DustCart(Vehicle):
     dumping_ground = models.ForeignKey(DumpingGround, on_delete=models.SET_NULL, null=True)
     name = models.CharField(default="Śmieciarka", max_length=20)
     cost = models.PositiveIntegerField(default=10)
-    current_employees = models.PositiveIntegerField(default=0)
     max_employees = models.PositiveIntegerField(default=3)
     curr_capacity = models.PositiveIntegerField(default=0)
     max_capacity = models.PositiveIntegerField(default=60)
-    type_of_working_place = models.CharField(default='DGC', max_length=3)
 
     def effectiveness(self):
-        return float(self.current_employees) / float(self.max_employees)
+        return float(self.employee.count()) / float(self.max_employees)
 
     def __str__(self):
         return self.name

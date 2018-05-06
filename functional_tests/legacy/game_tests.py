@@ -56,10 +56,9 @@ class GameTestForOnePlayer(BaseTest):
         main_view.build_the_building_from_single_choice('WaterTower', cor_water_tower_one)
         main_view.build_the_building_from_single_choice('WaterTower', cor_water_tower_two)
         main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'WindPlant', cor_wind_plant_one)
+        main_view.build_the_building_from_single_choice('Residential', '11')
 
-        main_view.next_turns(3)
-        self.populate_buildings_with_employees(self.city_one)
-        main_view.next_turns(5)
+        main_view.next_turns(8)
         self.assertEqual(WaterTower.objects.filter(city=self.city_one).count(), 2)
         self.assertEqual(WindPlant.objects.filter(city=self.city_one).count(), 1)
         self.assertEqual(WindPlant.objects.get(city=self.city_one).energy_allocated,
@@ -72,17 +71,14 @@ class GameTestForOnePlayer(BaseTest):
         water_tower_two = WaterTower.objects.get(city=self.city_one,
                                                  city_field=CityField.objects.get(city=self.city_one, row=0, col=2))
         main_view.choose_hex(cor_water_tower_one)
-        main_view.get_element_by_xpath('//p[contains(., "Podgląd hexa 1")]').is_displayed()
         main_view.get_element_by_xpath('//p[contains(., "Energia: {}/{}")]'.format(
             water_tower_one.energy, water_tower_one.energy_required)).is_displayed()
 
         main_view.choose_hex(cor_water_tower_two)
-        main_view.get_element_by_xpath('//p[contains(., "Podgląd hexa 3")]').is_displayed()
         main_view.get_element_by_xpath('//p[contains(., "Energia: {}/{}")]'.format(
            water_tower_two.energy, water_tower_two.energy_required)).is_displayed()
 
         main_view.choose_hex(cor_wind_plant_one)
-        main_view.get_element_by_xpath('//p[contains(., "Podgląd hexa 2")]').is_displayed()
         main_view.get_element_by_xpath('//p[contains(., "Woda: {}/{}")]'.format(
             wind_plant.water, wind_plant.water_required)).is_displayed()
 
@@ -163,7 +159,7 @@ class CitizenTests(BaseTest):
         main_view.next_turns(3)
 
         for wind_plant in WindPlant.objects.filter(city=self.city_one):
-            assert wind_plant.current_employees <= wind_plant.max_employees
+            assert wind_plant.employee.count() <= wind_plant.max_employees
 
         for water_tower in WaterTower.objects.filter(city=self.city_one):
-            assert water_tower.current_employees <= water_tower.max_employees
+            assert water_tower.employee.count() <= water_tower.max_employees

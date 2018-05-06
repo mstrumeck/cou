@@ -10,16 +10,16 @@ def build_building(request, row, col, build_type):
     city = City.objects.get(user_id=request.user.id)
     city_field = CityField.objects.get(row=row, col=col, city_id=city.id)
 
-    if build_type in electricity_buildings:
-        city_field.if_electricity = True
-    elif build_type in waterworks_buildings:
-        city_field.if_waterworks = True
-    elif build_type is DumpingGround:
-        city_field.if_dumping_ground = True
-    elif build_type is Residential:
-        city_field.if_residential = True
-    elif build_type is ProductionBuilding:
-        city_field.if_production = True
+    # if hasattr(build_type, 'if_electricity'):
+    #     city_field.if_electricity = True
+    # if hasattr(build_type, 'if_waterworks'):
+    #     city_field.if_waterworks = True
+    # if hasattr(build_type, 'if_residential'):
+    #     city_field.if_residential = True
+    # if hasattr(build_type, 'if_dumping_ground'):
+    #     city_field.if_dumping_ground = True
+    # if hasattr(build_type, 'if_production'):
+    #     city_field.if_production = True
 
     city_field.save()
 

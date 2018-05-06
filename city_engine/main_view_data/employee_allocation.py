@@ -1,15 +1,13 @@
-from city_engine.models import ProductionBuilding, list_of_buildings_with_employees,\
-    WindPlant, WaterTower, list_of_workplaces, DumpingGround, DustCart
 from citizen_engine.models import Citizen
 from city_engine.main_view_data.city_stats import CityPopulationStats
 from random import randint, choice
 from citizen_engine.citizen_creation import CreateCitizen
-from cou.redis import r
+from city_engine.abstract import RootClass
 
 
-class EmployeeAllocation(object):
-    def __init__(self, city):
-        self.city = city
+class EmployeeAllocation(RootClass):
+
+    def run(self):
         self.update_population()
 
     def update_population(self):
@@ -20,39 +18,16 @@ class EmployeeAllocation(object):
                 for citizen in range(randint(0, dif_population)):
                     target_production = self.not_full_production_buildings()
                     if target_production is not None:
-                        CreateCitizen(self.city, target_production)
-                        self.update_employee_allocation()
+                        CreateCitizen().create_with_workplace(self.city, target_production)
                     else:
                         break
 
-    def clean_info_about_employees(self):
-        WindPlant.objects.filter(city=self.city).update(current_employees=0)
-        WaterTower.objects.filter(city=self.city).update(current_employees=0)
-        ProductionBuilding.objects.filter(city=self.city).update(current_employees=0)
-
     def not_full_production_buildings(self):
         data = []
-        for buildings in list_of_workplaces(self.city):
-            if buildings.current_employees < buildings.max_employees:
-                data.append(buildings.type_of_working_place)
+        for buildings in self.list_of_workplaces():
+            if buildings.employee.count() < buildings.max_employees:
+                data.append(buildings)
         if data:
             return choice(data)
         else:
             return None
-
-    def update_employee_allocation(self):
-        for windplant in WindPlant.objects.filter(city=self.city):
-            windplant.current_employees = Citizen.objects.filter(city=self.city, work_in_windplant=windplant).count()
-            windplant.save()
-        for watertower in WaterTower.objects.filter(city=self.city):
-            watertower.current_employees = Citizen.objects.filter(city=self.city, work_in_watertower=watertower).count()
-            watertower.save()
-        for production_building in ProductionBuilding.objects.filter(city=self.city):
-            production_building.current_employees = Citizen.objects.filter(city=self.city, work_in_production=production_building).count()
-            production_building.save()
-        for dumping_ground in DumpingGround.objects.filter(city=self.city):
-            dumping_ground.current_employees = Citizen.objects.filter(city=self.city, work_in_dumping_ground=dumping_ground).count()
-            dumping_ground.save()
-        for dust_cart in DustCart.objects.filter(city=self.city):
-            dust_cart.current_employees = Citizen.objects.filter(city=self.city, work_in_dust_cart=dust_cart).count()
-            dust_cart.save()

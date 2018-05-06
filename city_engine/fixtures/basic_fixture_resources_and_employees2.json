@@ -1,117 +1,12 @@
 [
 {
-  "model": "city_engine.trash",
-  "pk": 1,
-  "fields": {
-    "size": 1,
-    "time": 3,
-    "content_type": 15,
-    "object_id": 2
-  }
-},
-{
-  "model": "city_engine.trash",
-  "pk": 2,
-  "fields": {
-    "size": 1,
-    "time": 3,
-    "content_type": 15,
-    "object_id": 1
-  }
-},
-{
-  "model": "city_engine.trash",
-  "pk": 3,
-  "fields": {
-    "size": 3,
-    "time": 2,
-    "content_type": 12,
-    "object_id": 1
-  }
-},
-{
-  "model": "city_engine.trash",
-  "pk": 4,
-  "fields": {
-    "size": 3,
-    "time": 2,
-    "content_type": 12,
-    "object_id": 2
-  }
-},
-{
-  "model": "city_engine.trash",
-  "pk": 5,
-  "fields": {
-    "size": 1,
-    "time": 2,
-    "content_type": 15,
-    "object_id": 2
-  }
-},
-{
-  "model": "city_engine.trash",
-  "pk": 6,
-  "fields": {
-    "size": 1,
-    "time": 2,
-    "content_type": 15,
-    "object_id": 1
-  }
-},
-{
-  "model": "city_engine.trash",
-  "pk": 7,
-  "fields": {
-    "size": 19,
-    "time": 1,
-    "content_type": 12,
-    "object_id": 1
-  }
-},
-{
-  "model": "city_engine.trash",
-  "pk": 8,
-  "fields": {
-    "size": 19,
-    "time": 1,
-    "content_type": 12,
-    "object_id": 2
-  }
-},
-{
-  "model": "city_engine.trash",
-  "pk": 9,
-  "fields": {
-    "size": 1,
-    "time": 1,
-    "content_type": 15,
-    "object_id": 2
-  }
-},
-{
-  "model": "city_engine.trash",
-  "pk": 10,
-  "fields": {
-    "size": 1,
-    "time": 1,
-    "content_type": 15,
-    "object_id": 1
-  }
-},
-{
   "model": "city_engine.cityfield",
   "pk": 1,
   "fields": {
     "city": 1,
     "col": 0,
     "row": 0,
-    "pollution": 0,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": false,
-    "if_dumping_ground": false
+    "pollution": 0
   }
 },
 {
@@ -121,12 +16,7 @@
     "city": 1,
     "col": 1,
     "row": 0,
-    "pollution": 1,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": false,
-    "if_dumping_ground": false
+    "pollution": 0
   }
 },
 {
@@ -136,12 +26,7 @@
     "city": 1,
     "col": 2,
     "row": 0,
-    "pollution": 2,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": false,
-    "if_dumping_ground": false
+    "pollution": 0
   }
 },
 {
@@ -151,12 +36,7 @@
     "city": 1,
     "col": 3,
     "row": 0,
-    "pollution": 1,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": false,
-    "if_dumping_ground": false
+    "pollution": 0
   }
 },
 {
@@ -166,12 +46,7 @@
     "city": 1,
     "col": 0,
     "row": 1,
-    "pollution": 1,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": false,
-    "if_dumping_ground": false
+    "pollution": 0
   }
 },
 {
@@ -181,12 +56,7 @@
     "city": 1,
     "col": 1,
     "row": 1,
-    "pollution": 1,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": true,
-    "if_waterworks": false,
-    "if_dumping_ground": false
+    "pollution": 0
   }
 },
 {
@@ -196,12 +66,7 @@
     "city": 1,
     "col": 2,
     "row": 1,
-    "pollution": 1,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": true,
-    "if_waterworks": false,
-    "if_dumping_ground": false
+    "pollution": 0
   }
 },
 {
@@ -211,12 +76,7 @@
     "city": 1,
     "col": 3,
     "row": 1,
-    "pollution": 1,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": false,
-    "if_dumping_ground": true
+    "pollution": 0
   }
 },
 {
@@ -226,12 +86,7 @@
     "city": 1,
     "col": 0,
     "row": 2,
-    "pollution": 0,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": false,
-    "if_dumping_ground": false
+    "pollution": 0
   }
 },
 {
@@ -241,12 +96,7 @@
     "city": 1,
     "col": 1,
     "row": 2,
-    "pollution": 1,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": true,
-    "if_dumping_ground": false
+    "pollution": 0
   }
 },
 {
@@ -256,12 +106,7 @@
     "city": 1,
     "col": 2,
     "row": 2,
-    "pollution": 2,
-    "if_residential": true,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": false,
-    "if_dumping_ground": false
+    "pollution": 0
   }
 },
 {
@@ -271,12 +116,7 @@
     "city": 1,
     "col": 3,
     "row": 2,
-    "pollution": 1,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": false,
-    "if_dumping_ground": false
+    "pollution": 0
   }
 },
 {
@@ -286,12 +126,7 @@
     "city": 1,
     "col": 0,
     "row": 3,
-    "pollution": 0,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": false,
-    "if_dumping_ground": false
+    "pollution": 0
   }
 },
 {
@@ -301,12 +136,7 @@
     "city": 1,
     "col": 1,
     "row": 3,
-    "pollution": 0,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": true,
-    "if_dumping_ground": false
+    "pollution": 0
   }
 },
 {
@@ -316,12 +146,7 @@
     "city": 1,
     "col": 2,
     "row": 3,
-    "pollution": 0,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": false,
-    "if_dumping_ground": false
+    "pollution": 0
   }
 },
 {
@@ -331,12 +156,7 @@
     "city": 1,
     "col": 3,
     "row": 3,
-    "pollution": 0,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": false,
-    "if_dumping_ground": false
+    "pollution": 0
   }
 },
 {
@@ -344,12 +164,8 @@
   "pk": 1,
   "fields": {
     "city": 1,
-    "city_field": 11,
+    "city_field": 8,
     "if_under_construction": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": false,
-    "if_dumping_ground": false,
     "current_build_time": 1,
     "energy": 0,
     "energy_required": 0,
@@ -374,30 +190,24 @@
     "city": 1,
     "city_field": 6,
     "if_under_construction": false,
-    "if_residential": false,
-    "if_production": false,
-    "if_waterworks": false,
-    "if_dumping_ground": false,
     "current_build_time": 3,
     "energy": 0,
     "energy_required": 0,
-    "water": 10,
+    "water": 0,
     "pollution_product": 0,
     "recycling": 0,
-    "current_employees": 5,
     "max_employees": 5,
     "power_nodes": 1,
     "max_power_nodes": 10,
-    "energy_production": 5,
-    "energy_allocated": 2,
+    "energy_production": 15,
+    "energy_allocated": 0,
     "if_electricity": true,
     "name": "Elektrownia wiatrowa",
     "build_time": 3,
     "build_cost": 100,
     "maintenance_cost": 10,
     "water_required": 10,
-    "pollution_rate": 1.8,
-    "type_of_working_place": "WP"
+    "pollution_rate": 1.8
   }
 },
 {
@@ -407,30 +217,24 @@
     "city": 1,
     "city_field": 7,
     "if_under_construction": false,
-    "if_residential": false,
-    "if_production": false,
-    "if_waterworks": false,
-    "if_dumping_ground": false,
     "current_build_time": 3,
     "energy": 0,
     "energy_required": 0,
-    "water": 10,
+    "water": 0,
     "pollution_product": 0,
     "recycling": 0,
-    "current_employees": 5,
     "max_employees": 5,
     "power_nodes": 1,
     "max_power_nodes": 10,
-    "energy_production": 5,
-    "energy_allocated": 2,
+    "energy_production": 15,
+    "energy_allocated": 0,
     "if_electricity": true,
     "name": "Elektrownia wiatrowa",
     "build_time": 3,
     "build_cost": 100,
     "maintenance_cost": 10,
     "water_required": 10,
-    "pollution_rate": 1.8,
-    "type_of_working_place": "WP"
+    "pollution_rate": 1.8
   }
 },
 {
@@ -438,21 +242,16 @@
   "pk": 1,
   "fields": {
     "city": 1,
-    "city_field": 14,
+    "city_field": 10,
     "if_under_construction": false,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_dumping_ground": false,
     "current_build_time": 1,
-    "energy": 1,
+    "energy": 0,
     "water": 0,
     "water_required": 0,
     "pollution_product": 0,
     "recycling": 0,
-    "current_employees": 5,
     "max_employees": 5,
-    "water_allocated": 10,
+    "water_allocated": 0,
     "water_production": 20,
     "if_waterworks": true,
     "pollution_rate": 0.5,
@@ -460,8 +259,7 @@
     "build_time": 1,
     "build_cost": 50,
     "maintenance_cost": 5,
-    "energy_required": 3,
-    "type_of_working_place": "WT"
+    "energy_required": 3
   }
 },
 {
@@ -469,21 +267,16 @@
   "pk": 2,
   "fields": {
     "city": 1,
-    "city_field": 10,
+    "city_field": 11,
     "if_under_construction": false,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_dumping_ground": false,
     "current_build_time": 1,
-    "energy": 3,
+    "energy": 0,
     "water": 0,
     "water_required": 0,
     "pollution_product": 0,
     "recycling": 0,
-    "current_employees": 5,
     "max_employees": 5,
-    "water_allocated": 10,
+    "water_allocated": 0,
     "water_production": 20,
     "if_waterworks": true,
     "pollution_rate": 0.5,
@@ -491,8 +284,7 @@
     "build_time": 1,
     "build_cost": 50,
     "maintenance_cost": 5,
-    "energy_required": 3,
-    "type_of_working_place": "WT"
+    "energy_required": 3
   }
 },
 {
@@ -500,19 +292,14 @@
   "pk": 1,
   "fields": {
     "city": 1,
-    "city_field": 8,
+    "city_field": 12,
     "if_under_construction": false,
-    "if_residential": false,
-    "if_production": false,
-    "if_electricity": false,
-    "if_waterworks": false,
     "current_build_time": 2,
     "energy": 0,
     "water": 0,
     "water_required": 0,
     "pollution_product": 0,
     "recycling": 0,
-    "current_employees": 0,
     "max_employees": 5,
     "name": "Wysypisko \u015bmieci",
     "if_dumping_ground": true,
@@ -530,23 +317,22 @@
   "model": "city_engine.dustcart",
   "pk": 1,
   "fields": {
+    "city": 1,
     "maintenance_cos": 0,
     "dumping_ground": 1,
     "name": "\u015amieciarka",
     "cost": 10,
-    "current_employees": 3,
     "max_employees": 3,
     "curr_capacity": 0,
-    "max_capacity": 60,
-    "type_of_working_place": "DGC"
+    "max_capacity": 60
   }
 },
 {
   "model": "auth.user",
   "pk": 1,
   "fields": {
-    "password": "pbkdf2_sha256$36000$2MFgg5Lg6821$MW325JJT6IxAanSRxxJuYWkl8Wd7vopUMJ4I1f3cyMQ=",
-    "last_login": "2018-04-09T17:17:54.812Z",
+    "password": "pbkdf2_sha256$36000$pLSg7NAsDSIH$Etzt6n0N4/hZ2ME4WO1mhRPIBtUKZxvCz/zwTFYJgfI=",
+    "last_login": "2018-04-21T19:54:18.265Z",
     "is_superuser": false,
     "username": "Micha\u0142",
     "first_name": "",
@@ -554,7 +340,7 @@
     "email": "",
     "is_staff": false,
     "is_active": true,
-    "date_joined": "2018-04-09T17:17:54.384Z",
+    "date_joined": "2018-04-21T19:54:17.602Z",
     "groups": [],
     "user_permissions": []
   }
@@ -566,8 +352,8 @@
     "user": 1,
     "name": "Wroc\u0142aw",
     "cash": "9280.00",
-    "publish": "2018-04-09",
-    "updated": "2018-04-09"
+    "publish": "2018-04-21",
+    "updated": "2018-04-21"
   }
 }
 ]
