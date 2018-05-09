@@ -7,7 +7,7 @@ from city_engine.test.base import TestHelper
 from city_engine.main_view_data.city_stats import CityStatsCenter
 from city_engine.models import City, CityField, \
     WindPlant, CoalPlant, RopePlant, \
-    WaterTower, list_of_buildings_in_city, Building
+    WaterTower, Building
 
 
 class BaseTest(StaticLiveServerTestCase, TestHelper):
@@ -33,11 +33,6 @@ class BaseTest(StaticLiveServerTestCase, TestHelper):
         self.user_two = User.objects.create_user(username=self.player_two, password=self.password_two)
         self.city_two = City.objects.create(name=self.city_two_name, user=self.user_two)
         assign_city_fields_to_board(self.city_two)
-
-    def populate_buildings_with_employees(self, city):
-        for building in list_of_buildings_in_city(city=city, abstract_class=Building, app_label='city_engine'):
-            building.current_employees = building.max_employees
-            building.save()
 
 
 class BaseTestForOnePlayer(StaticLiveServerTestCase):

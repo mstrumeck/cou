@@ -1,4 +1,4 @@
-from city_engine.models import Residential, list_of_models, waterworks_buildings, PowerPlant, WindPlant, Waterworks, Building
+from city_engine.models import Residential, PowerPlant, Waterworks
 from citizen_engine.models import Citizen
 from django.db.models import Sum
 from city_engine.abstract import RootClass

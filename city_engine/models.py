@@ -3,6 +3,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.contrib.auth.models import User
 from django.apps import apps
+from django.db.models import F
+
 
 
 class CityFilter(models.Manager):
@@ -43,14 +45,6 @@ class CityField(models.Model):
     row = models.PositiveIntegerField()
     pollution = models.PositiveIntegerField(default=0)
 
-    # def return_list_of_possible_buildings_related_with_type_of_field(self):
-    #     if self.if_electricity is True:
-    #         return electricity_buildings
-    #     elif self.if_waterworks is True:
-    #         return waterworks_buildings
-    #     else:
-    #         return None
-
 
 class Building(models.Model):
     city = models.ForeignKey(City)
@@ -76,33 +70,14 @@ class Building(models.Model):
 
     class Meta:
         abstract = True
-    #
-    # def spend_resources(self):
-    #     self.spend_energy()
-    #     self.spend_water()
-    #     self.save()
-    #
-    # def spend_water(self):
-    #     if self.water > 0:
-    #         self.water -= 1
-    #
-    # def spend_energy(self):
-    #     if self.energy > 0:
-    #         self.energy -= 1
-
 
     def build_status(self):
-        if self.if_under_construction is True:
-            if self.current_build_time < self.build_time:
-                self.current_build_time += 1
-                self.save()
-                return False
-            elif self.current_build_time == self.build_time:
-                self.if_under_construction = False
-                self.save()
-                return True
-        else:
-            return False
+        if self.current_build_time < self.build_time:
+            self.current_build_time = F('current_build_time') + 1
+            self.save()
+        elif self.current_build_time == self.build_time:
+            self.if_under_construction = False
+            self.save()
 
 
 class BuldingsWithWorkes(Building):
@@ -128,20 +103,6 @@ class Residential(Building):
     build_cost = models.PositiveIntegerField(default=100)
     maintenance_cost = models.PositiveIntegerField(default=10)
 
-    # def build_status(self):
-    #     if self.if_under_construction is True:
-    #         if self.current_build_time < self.build_time:
-    #             self.current_build_time += 1
-    #             self.save()
-    #             return False
-    #         elif self.current_build_time == self.build_time:
-    #             self.if_under_construction = False
-    #             self.if_residential = True
-    #             self.save()
-    #             return True
-    #     else:
-    #         return False
-
     def pollution_calculation(self):
         return self.population * self.pollution_rate
 
@@ -158,17 +119,12 @@ class ProductionBuilding(BuldingsWithWorkes):
     max_employees = models.PositiveIntegerField(default=20)
 
     def build_status(self):
-        if self.if_under_construction is True:
-            if self.current_build_time < self.build_time:
-                self.current_build_time += 1
-                self.save()
-                return False
-            elif self.current_build_time == self.build_time:
-                self.if_under_construction = False
-                self.save()
-                return True
-        else:
-            return False
+        if self.current_build_time < self.build_time:
+            self.current_build_time = F('current_build_time') + 1
+            self.save()
+        elif self.current_build_time == self.build_time:
+            self.if_under_construction = False
+            self.save()
 
 
 class PowerPlant(BuldingsWithWorkes):
@@ -205,23 +161,6 @@ class PowerPlant(BuldingsWithWorkes):
         total = (productivity * int(self.energy_production)) * int(self.power_nodes)
         return int(total)
 
-    # def build_status(self):
-    #     if self.if_under_construction is True:
-    #         if self.current_build_time < self.build_time:
-    #             self.current_build_time += 1
-    #             self.save()
-    #             return False
-    #         elif self.current_build_time == self.build_time:
-    #             self.if_under_construction = False
-    #             self.max_employees = 1
-    #             self.power_nodes = 1
-    #             self.max_power_nodes = 2
-    #             self.energy_production = 1
-    #             self.save()
-    #             return True
-    #     else:
-    #         return False
-
     def __str__(self):
         return self.name
 
@@ -235,21 +174,16 @@ class WindPlant(PowerPlant):
     pollution_rate = models.FloatField(default=1.8)
 
     def build_status(self):
-        if self.if_under_construction is True:
-            if self.current_build_time < self.build_time:
-                self.current_build_time += 1
-                self.save()
-                return False
-            elif self.current_build_time == self.build_time:
-                self.if_under_construction = False
-                self.max_employees = 5
-                self.power_nodes = 1
-                self.max_power_nodes = 10
-                self.energy_production = 15
-                self.save()
-                return True
-        else:
-            return False
+        if self.current_build_time < self.build_time:
+            self.current_build_time = F('current_build_time') + 1
+            self.save()
+        elif self.current_build_time == self.build_time:
+            self.if_under_construction = False
+            self.max_employees = F('max_employees') + 5
+            self.power_nodes = F('power_nodes') + 1
+            self.max_power_nodes = F('max_power_nodes') + 10
+            self.energy_production = F('energy_production') + 15
+            self.save()
 
 
 class RopePlant(PowerPlant):
@@ -261,21 +195,16 @@ class RopePlant(PowerPlant):
     pollution_rate = models.FloatField(default=1.3)
 
     def build_status(self):
-        if self.if_under_construction is True:
-            if self.current_build_time < self.build_time:
-                self.current_build_time += 1
-                self.save()
-                return False
-            elif self.current_build_time == self.build_time:
-                self.if_under_construction = False
-                self.max_employees = 10
-                self.power_nodes = 1
-                self.max_power_nodes = 4
-                self.energy_production = 50
-                self.save()
-                return True
-        else:
-            return False
+        if self.current_build_time < self.build_time:
+            self.current_build_time = F('current_build_time') + 1
+            self.save()
+        elif self.current_build_time == self.build_time:
+            self.if_under_construction = False
+            self.max_employees = F('max_employees') + 10
+            self.power_nodes = F('power_nodes') + 1
+            self.max_power_nodes = F('max_power_nodes') + 4
+            self.energy_production = F('energy_production') + 50
+            self.save()
 
 
 class CoalPlant(PowerPlant):
@@ -287,21 +216,16 @@ class CoalPlant(PowerPlant):
     pollution_rate = models.FloatField(default=1.5)
 
     def build_status(self):
-        if self.if_under_construction is True:
-            if self.current_build_time < self.build_time:
-                self.current_build_time += 1
-                self.save()
-                return False
-            elif self.current_build_time == self.build_time:
-                self.if_under_construction = False
-                self.max_employees = 15
-                self.power_nodes = 1
-                self.max_power_nodes = 4
-                self.energy_production = 40
-                self.save()
-                return True
-        else:
-            return False
+        if self.current_build_time < self.build_time:
+            self.current_build_time = F('current_build_time') + 1
+            self.save()
+        elif self.current_build_time == self.build_time:
+            self.if_under_construction = False
+            self.max_employees = F('max_employees') + 15
+            self.power_nodes = F('power_nodes') + 1
+            self.max_power_nodes = F('max_power_nodes') + 4
+            self.energy_production = F('energy_production') + 40
+            self.save()
 
 
 class Waterworks(BuldingsWithWorkes):
@@ -346,19 +270,14 @@ class WaterTower(Waterworks):
     energy_required = models.PositiveIntegerField(default=3)
 
     def build_status(self):
-        if self.if_under_construction is True:
-            if self.current_build_time < self.build_time:
-                self.current_build_time += 1
-                self.save()
-                return False
-            elif self.current_build_time == self.build_time:
-                self.if_under_construction = False
-                self.max_employees = 5
-                self.water_production = 20
-                self.save()
-                return True
-        else:
-            return False
+        if self.current_build_time < self.build_time:
+            self.current_build_time = F('current_build_time') + 1
+            self.save()
+        elif self.current_build_time == self.build_time:
+            self.if_under_construction = False
+            self.max_employees = F('max_employees') + 5
+            self.water_production = F('water_production') + 20
+            self.save()
 
 
 class DumpingGround(BuldingsWithWorkes):
@@ -374,19 +293,14 @@ class DumpingGround(BuldingsWithWorkes):
     pollution_rate = models.FloatField(default=3.0)
 
     def build_status(self):
-        if self.if_under_construction is True:
-            if self.current_build_time < self.build_time:
-                self.current_build_time += 1
-                self.save()
-                return False
-            elif self.current_build_time == self.build_time:
-                self.if_under_construction = False
-                self.max_employees = 5
-                DustCart.objects.create(dumping_ground=self, city=self.city)
-                self.save()
-                return True
-        else:
-            return False
+        if self.current_build_time < self.build_time:
+            self.current_build_time = F('current_build_time') + 1
+            self.save()
+        elif self.current_build_time == self.build_time:
+            self.if_under_construction = False
+            self.max_employees = F('max_employees') + 5
+            DustCart.objects.create(dumping_ground=self, city=self.city)
+            self.save()
 
 
 class Vehicle(models.Model):
@@ -415,54 +329,3 @@ class DustCart(Vehicle):
     def __str__(self):
         return self.name
 
-
-electricity_buildings = [WindPlant, RopePlant, CoalPlant]
-waterworks_buildings = [WaterTower]
-trash_collector = [DumpingGround]
-vehicles = [DustCart]
-list_of_buildings_categories = electricity_buildings + waterworks_buildings
-list_of_buildings_with_employees = electricity_buildings + waterworks_buildings\
-                                   + [ProductionBuilding] + [DumpingGround]
-list_of_models = [ProductionBuilding, Residential]
-
-for electricity in electricity_buildings:
-    list_of_models.append(electricity)
-
-for waterworks in waterworks_buildings:
-    list_of_models.append(waterworks)
-
-for trash_building in trash_collector:
-    list_of_models.append(trash_building)
-
-
-def get_subclasses(abstract_class=Building, app_label='city_engine'):
-    result = []
-    for model in apps.get_app_config(app_label).get_models():
-        if issubclass(model, abstract_class) and model is not abstract_class:
-            result.append(model)
-    return result
-
-
-def list_of_buildings_in_city(city, abstract_class=Building, app_label='city_engine'):
-    result = []
-    for item in get_subclasses(abstract_class, app_label):
-        if item.objects.filter(city=city).exists():
-            a = item.objects.filter(city=city)
-            for data in a:
-                result.append(data)
-    return result
-
-
-def list_of_workplaces(city):
-    result = []
-    for subclass in get_subclasses(BuldingsWithWorkes, 'city_engine'):
-        if subclass.objects.filter(city=city).exists():
-            a = subclass.objects.filter(city=city)
-            for building in a:
-                result.append(building)
-    for subclass in get_subclasses(Vehicle, 'city_engine'):
-        if subclass.objects.filter(city=city).exists():
-            b = subclass.objects.filter(city=city)
-            for vehicle in b:
-                result.append(vehicle)
-    return result

@@ -1,20 +1,21 @@
 from django import test
 from city_engine.main_view_data.resources_allocation import ResourceAllocation
-from city_engine.main_view_data.employee_allocation import EmployeeAllocation
-from city_engine.models import CityField, list_of_models, City, WindPlant, WaterTower, Residential
+from city_engine.models import CityField, City, WindPlant, WaterTower
 from django.db.models import Sum
 from city_engine.turn_data.main import TurnCalculation
+from city_engine.test.base import TestHelper
 
 
-class ResourcesAllocationsTests(test.TestCase):
+class ResourcesAllocationsTests(test.TestCase, TestHelper):
     fixtures = ['basic_fixture_resources_and_employees2.json']
 
     def setUp(self):
-        self.city = City.objects.get(id=1)
+        self.city = City.objects.latest('id')
         self.RA = ResourceAllocation(city=self.city)
-        self.EA = EmployeeAllocation(city=self.city)
-        for x in range(5):
-            self.EA.run()
+        self.populate_city()
+
+    def test_check_if_resources_allocation_is_needed(self):
+        self.assertEqual(self.RA.check_if_energy_allocation_is_needed(), 7)
 
     def test_data_cleaning(self):
         self.RA.clean_resource_data()
@@ -43,7 +44,7 @@ class ResourcesAllocationsTests(test.TestCase):
         self.assertNotEqual(WaterTower.objects.latest('id').total_production(), 0)
         self.assertEqual(WaterTower.objects.latest('id').water_allocated, 0)
         self.assertEqual(WindPlant.objects.latest('id').water, 0)
-        self.RA.water_allocation(WaterTower.objects.latest('id'), WindPlant.objects.latest('id'))
+        self.RA.water_allocation(WaterTower.objects.latest('id'), WaterTower.objects.latest('id').total_production(), WindPlant.objects.latest('id'))
         self.assertEqual(WaterTower.objects.latest('id').water_allocated, WindPlant.objects.latest('id').water_required)
         self.assertEqual(WindPlant.objects.latest('id').water, WindPlant.objects.latest('id').water_required)
 
@@ -57,7 +58,7 @@ class ResourcesAllocationsTests(test.TestCase):
         self.assertNotEqual(WindPlant.objects.latest('id').total_production(), 0)
         self.assertEqual(WindPlant.objects.latest('id').energy_allocated, 0)
         self.assertEqual(WaterTower.objects.latest('id').energy, 0)
-        self.RA.energy_allocation(WindPlant.objects.latest('id'), WaterTower.objects.latest('id'))
+        self.RA.energy_allocation(WindPlant.objects.latest('id'), WindPlant.objects.latest('id').total_production(), WaterTower.objects.latest('id'))
         self.assertEqual(WindPlant.objects.latest('id').energy_allocated, WaterTower.objects.latest('id').energy_required)
         self.assertEqual(WaterTower.objects.latest('id').energy, WaterTower.objects.latest('id').energy_required)
 
@@ -72,7 +73,7 @@ class ResourcesAllocationsTests(test.TestCase):
         self.assertEqual(WaterTower.objects.filter(city=self.city).aggregate(Sum('water_allocated'))['water_allocated__sum'], 0)
 
         for x in range(3):
-            TurnCalculation(city=self.city)
+            TurnCalculation(city=self.city).run()
 
         self.assertIn(WindPlant.objects.filter(city=self.city).aggregate(Sum('energy_allocated'))['energy_allocated__sum'], range(5, 25))
         self.assertIn(WaterTower.objects.filter(city=self.city).aggregate(Sum('water_allocated'))['water_allocated__sum'], range(5, 25))

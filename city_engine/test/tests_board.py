@@ -1,8 +1,8 @@
 from django import test
 from city_engine.main_view_data.trash_management import TrashManagement
 from city_engine.main_view_data.employee_allocation import EmployeeAllocation
-from city_engine.models import City, list_of_models, Trash, \
-    list_of_buildings_in_city, WindPlant, WaterTower, DumpingGround, CityField, Building, BuldingsWithWorkes, Residential
+from city_engine.models import City, Trash, \
+    WindPlant, WaterTower, DumpingGround, CityField, Building, BuldingsWithWorkes, Residential
 from django.apps import apps
 from .base import TestHelper
 from city_engine.main_view_data.board import Board, HexDetail

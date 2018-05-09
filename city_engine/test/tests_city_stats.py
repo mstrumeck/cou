@@ -2,7 +2,7 @@ from django import test
 from city_engine.main_view_data.city_stats import CityStatsCenter, CityEnergyStats, CityWaterStats, CityBuildingStats, CityPopulationStats
 from city_engine.main_view_data.employee_allocation import EmployeeAllocation
 from city_engine.main_view_data.resources_allocation import ResourceAllocation
-from city_engine.models import CityField, list_of_models, City, WindPlant, WaterTower, list_of_buildings_with_employees
+from city_engine.models import CityField, City, WindPlant, WaterTower
 from django.db.models import Sum
 from .base import TestHelper
 
@@ -12,7 +12,7 @@ class CityStatsTests(test.TestCase, TestHelper):
 
     def setUp(self):
         self.city = City.objects.latest('id')
-        self.populate_city(self.city)
+        self.populate_city()
 
     def test_city_stats_center_methods(self):
         city_stats = CityStatsCenter(city=self.city)

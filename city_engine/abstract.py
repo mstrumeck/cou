@@ -1,7 +1,6 @@
 from abc import ABC
 from django.apps import apps
 from city_engine.models import Building, BuldingsWithWorkes, Vehicle
-from random import shuffle
 
 
 class RootClass(ABC):
@@ -52,6 +51,15 @@ class RootClass(ABC):
         for item in self.get_subclasses(abstract_class=Building, app_label='city_engine'):
             if item.objects.filter(city=self.city).exists():
                 a = item.objects.filter(city=self.city).values(*args)
+                for data in a:
+                    result.append(data)
+        return result
+
+    def list_of_buildings_in_city_with_only(self, *args):
+        result = []
+        for item in self.get_subclasses(abstract_class=Building, app_label='city_engine'):
+            if item.objects.filter(city=self.city).exists():
+                a = item.objects.filter(city=self.city).only(*args)
                 for data in a:
                     result.append(data)
         return result

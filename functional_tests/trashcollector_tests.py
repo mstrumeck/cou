@@ -1,8 +1,9 @@
 from functional_tests.page_objects import MainView, LoginPage
-from city_engine.models import CityField, \
-    WindPlant, DumpingGround, DustCart, list_of_buildings_in_city
+from city_engine.models import CityField, City, \
+    WindPlant, DumpingGround, DustCart
 from .legacy.base import BaseTest
 from django.db.models import Sum
+from city_engine.abstract import RootClass
 
 
 class TrashCollectorTest(BaseTest):
@@ -24,7 +25,7 @@ class TrashCollectorTest(BaseTest):
 
     def list_of_all_trashes_in_city(self):
         result = []
-        for building in list_of_buildings_in_city(city=self.city_one):
+        for building in RootClass(city=City.objects.latest('id')).list_of_buildings_in_city():
             for trash in building.trash.all():
                 result.append(trash)
         return result

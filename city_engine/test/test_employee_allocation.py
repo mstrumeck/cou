@@ -1,7 +1,7 @@
 from django import test
 from city_engine.test.base import TestHelper
-from city_engine.models import CityField, list_of_models, Residential, City, WindPlant, WaterTower, \
-    list_of_buildings_with_employees, ProductionBuilding, DustCart, DumpingGround
+from city_engine.models import CityField, Residential, City, WindPlant, WaterTower, \
+    ProductionBuilding, DustCart, DumpingGround
 from django.db.models import Sum
 from citizen_engine.models import Citizen
 from city_engine.main_view_data.employee_allocation import EmployeeAllocation
@@ -18,7 +18,7 @@ class EmployeeAllocationTest(test.TestCase, TestHelper):
         self.assertIn(self.EA.not_full_production_buildings(), [WindPlant.objects.get(id=1), WindPlant.objects.get(id=2)
                                                                 , WaterTower.objects.get(id=1), WaterTower.objects.get(id=2)])
 
-        self.populate_city(self.city)
+        self.populate_city()
 
         self.assertEqual(self.EA.not_full_production_buildings(), None)
 
@@ -27,7 +27,7 @@ class EmployeeAllocationTest(test.TestCase, TestHelper):
         self.assertEqual(sum([wt.employee.count() for wt in WaterTower.objects.filter(city=self.city)]), 0)
         self.assertEqual(sum([pb.employee.count() for pb in ProductionBuilding.objects.filter(city=self.city)]), 0)
 
-        self.populate_city(self.city)
+        self.populate_city()
 
         self.assertEqual(sum([wp.employee.count() for wp in WindPlant.objects.filter(city=self.city)]), 10)
         self.assertEqual(sum([wt.employee.count() for wt in WaterTower.objects.filter(city=self.city)]), 10)
@@ -44,6 +44,6 @@ class EmployeeAllocationTest(test.TestCase, TestHelper):
         dumping_ground = DumpingGround.objects.create(city=self.city, if_under_construction=False, city_field=city_field_one)
         dust_cart = DustCart.objects.create(city=self.city, dumping_ground=dumping_ground)
         self.assertEqual(dust_cart.employee.count(), 0)
-        self.populate_city(self.city)
+        self.populate_city()
         dust_cart = DustCart.objects.latest('id')
         self.assertEqual(dust_cart.employee.count(), 3)

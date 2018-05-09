@@ -1,28 +1,19 @@
 from django.contrib.auth.models import User
 from django import test
 from django.urls import resolve
-from citizen_engine.models import Citizen
-from django.test.client import RequestFactory
-from django.http import HttpRequest
 from .base import TestHelper, CityFixture
-from city_engine.main_view_data.board import Board, HexDetail
 from city_engine.models import City, CityField, \
     Residential, \
     ProductionBuilding, \
-    WindPlant, RopePlant, CoalPlant, WaterTower, \
-    electricity_buildings, waterworks_buildings, \
-    list_of_models, \
+    WindPlant, RopePlant, CoalPlant, WaterTower,  PowerPlant, \
     CoalPlant
-from city_engine.main_view_data.global_variables import HEX_NUM
 from player.models import Profile
-from django.db.models import Sum
-from city_engine.turn_data.build import build_building
 from city_engine.views import main_view
-# from city_engine.main_view_data.main import CityStatsCenter
-from city_engine.turn_data.main import calculate_maintenance_cost
+from city_engine.turn_data.main import TurnCalculation
+from city_engine.abstract import RootClass
 
 
-class CityViewTests(CityFixture):
+class CityViewTests(CityFixture, RootClass):
 
     def test_call_view_loads(self):
         response = self.client.get('/main_view/')
@@ -38,7 +29,7 @@ class CityViewTests(CityFixture):
         response = self.client.get('/main_view/')
 
         self.assertTemplateUsed(response, 'main_view.html')
-        for models in electricity_buildings:
+        for models in self.get_subclasses(abstract_class=PowerPlant, app_label='city_engine'):
             list_of_buildings = models.objects.filter(city=self.city)
             for building in list_of_buildings:
                 total_energy += building.total_production()
@@ -55,7 +46,7 @@ class CityViewTests(CityFixture):
         response = self.client.get('/main_view/')
         self.assertTemplateUsed(response, 'main_view.html')
 
-        total_cost = calculate_maintenance_cost(list_of_models, self.city)
+        total_cost = TurnCalculation(self.city).calculate_maintenance_cost()
 
         self.assertContains(response, 'Koszty utrzymania: {}'.format(total_cost))
 
@@ -63,7 +54,7 @@ class CityViewTests(CityFixture):
         response = self.client.get('/main_view/')
         self.assertTemplateUsed(response, 'main_view.html')
         name, cur, end = [], [], []
-        for model in list_of_models:
+        for model in self.get_subclasses_of_all_buildings():
             for objects in model.objects.filter(city=self.city):
                 if objects.if_under_construction is True:
                     name.append(objects.name)
@@ -201,7 +192,7 @@ class ModelsTests(test.TestCase, TestHelper):
                                                 water_allocated=10,
                                                 max_employees=5,
                                                 )
-        self.populate_city(self.city)
+        self.populate_city()
         self.assertEqual(wind_plant.pollution_calculation(), 10.8)
         self.assertEqual(water_tower.pollution_calculation(), 2.5)
 

@@ -1,29 +1,26 @@
-from city_engine.models import list_of_models
-from django.db.models import Sum
 from city_engine.main_view_data.employee_allocation import EmployeeAllocation
 from city_engine.main_view_data.resources_allocation import ResourceAllocation
 from city_engine.main_view_data.trash_management import TrashManagement
+from city_engine.abstract import RootClass
 
 
-class TurnCalculation(object):
-    def __init__(self, city):
-        self.city = city
+class TurnCalculation(RootClass):
+
+    def run(self):
         TrashManagement(self.city).run()
         EmployeeAllocation(self.city).run()
         ResourceAllocation(self.city).run()
+        self.execute_maintenance()
         self.update_build_status()
-
-    def update_build_status(self):
-        for model in list_of_models:
-            for building in model.objects.filter(city=self.city):
-                building.build_status()
         self.city.save()
 
+    def update_build_status(self):
+        for building in self.list_of_buildings_in_city_with_only('if_under_construction'):
+            if building.if_under_construction is True:
+                building.build_status()
 
-def calculate_maintenance_cost(list_of_models, city):
-    total_maintenance_cost = 0
-    for model in list_of_models:
-        total_cost_per_model = model.objects.filter(city=city).aggregate(Sum('maintenance_cost'))['maintenance_cost__sum']
-        if total_cost_per_model is not None:
-            total_maintenance_cost += total_cost_per_model
-    return total_maintenance_cost
+    def calculate_maintenance_cost(self):
+        return sum([b['maintenance_cost'] for b in self.list_of_buildings_in_city_with_values('maintenance_cost')])
+
+    def execute_maintenance(self):
+        self.city.cash - self.calculate_maintenance_cost()

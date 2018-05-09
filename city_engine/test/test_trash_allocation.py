@@ -1,10 +1,8 @@
 from django import test
 from city_engine.main_view_data.trash_management import TrashManagement, CollectGarbage
-from city_engine.models import DumpingGround, City, DustCart, CityField, WindPlant, WaterTower, Building, list_of_workplaces
+from city_engine.models import DumpingGround, City, DustCart, CityField, WindPlant, WaterTower, Building
 import random
 from city_engine.main_view_data.global_variables import HEX_NUM_IN_ROW
-from citizen_engine.models import Citizen
-from citizen_engine.citizen_creation import CreateCitizen
 from city_engine.test.base import TestHelper
 
 
@@ -17,7 +15,7 @@ class TestTrashAllocation(test.TestCase, TestHelper):
         self.collect_garbage = CollectGarbage(city=self.city)
         self.wind_plant = WindPlant.objects.latest('id')
         self.water_tower = WaterTower.objects.latest('id')
-        self.populate_city(self.city)
+        self.populate_city()
 
     def test_of_collect_garbage(self):
         DumpingGround.objects.update(current_space_for_trash=0)

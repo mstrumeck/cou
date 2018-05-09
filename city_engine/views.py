@@ -7,14 +7,14 @@ from django.shortcuts import render
 from django.utils.safestring import mark_safe
 from citizen_engine.models import Citizen
 from city_engine.main_view_data.board import Board, HexDetail
-from city_engine.models import City, list_of_models, electricity_buildings, WindPlant, Building, list_of_buildings_in_city
+from city_engine.models import City
 from player.models import Profile
 from .main_view_data.city_stats import \
     CityStatsCenter
 from .turn_data.main import \
-    TurnCalculation, \
-    calculate_maintenance_cost
+    TurnCalculation
 from .turn_data.build import build_building
+from django.db.models import F
 
 
 @login_required
@@ -41,7 +41,7 @@ def main_view(request):
                                               'hex_detail_info_table': mark_safe(new_hex_detail.hex_detail_info_table),
                                               'buildings': city_stats.list_of_buildings,
                                               'buildings_under_construction': city_stats.building_under_construction,
-                                              'total_cost_of_maintenance': calculate_maintenance_cost(list_of_models, city),
+                                              'total_cost_of_maintenance': TurnCalculation(city).calculate_maintenance_cost(),
                                               'current_population': city_stats.current_population,
                                               'max_population': city_stats.max_population})
 
@@ -49,14 +49,11 @@ def main_view(request):
 @login_required
 def turn_calculations(request):
     profile = Profile.objects.get(user_id=request.user.id)
-    profile.current_turn += 1
+    profile.current_turn = F('current_turn') + 1
     profile.save()
 
     city = City.objects.get(user_id=request.user.id)
-    TurnCalculation(city)
-
-    city.cash -= calculate_maintenance_cost(list_of_models, city)
-    city.save()
+    TurnCalculation(city).run()
 
     return HttpResponseRedirect(reverse('city_engine:main_view'))
 

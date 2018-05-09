@@ -5,8 +5,9 @@ from city_engine.models import City, CityField, \
     WindPlant, CoalPlant, RopePlant, \
     WaterTower, DumpingGround
 from .base import BaseTestForOnePlayer, BaseTestForTwoPlayers, BaseTest
-from city_engine.models import list_of_buildings_in_city, Building, get_subclasses, DustCart
+from city_engine.models import Building, DustCart
 from functional_tests.page_objects import MainView, Homepage, LoginPage
+from city_engine.abstract import RootClass
 from django.db.models import F
 from django.contrib.auth.models import User
 
@@ -32,12 +33,12 @@ class GameTestForOnePlayer(BaseTest):
         main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'RopePlant', '10')
         main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'CoalPlant', '11')
 
-        for building_sublcass in get_subclasses(Building, 'city_engine'):
+        for building_sublcass in RootClass(self.city_one).get_subclasses_of_all_buildings():
             self.assertEqual(building_sublcass.objects.filter(city=self.city_one).count(), 1)
-        for building in list_of_buildings_in_city(abstract_class=Building, city=self.city_one, app_label='city_engine'):
+        for building in RootClass(self.city_one).list_of_buildings_in_city():
             self.assertTrue(building.if_under_construction)
         main_view.next_turns(5)
-        for building in list_of_buildings_in_city(abstract_class=Building, city=self.city_one, app_label='city_engine'):
+        for building in RootClass(self.city_one).list_of_buildings_in_city():
             self.assertFalse(building.if_under_construction)
 
     def test_energy_allocation(self):
@@ -101,12 +102,12 @@ class GameTestForTwoPlayers(BaseTest):
         main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'WindPlant', '03')
         main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'RopePlant', '10')
         main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'CoalPlant', '11')
-        for building_sublcass in get_subclasses(Building, 'city_engine'):
+        for building_sublcass in RootClass(self.city_one).get_subclasses_of_all_buildings():
             self.assertEqual(building_sublcass.objects.filter(city=self.city_one).count(), 1)
-        for building in list_of_buildings_in_city(abstract_class=Building, city=self.city_one, app_label='city_engine'):
+        for building in RootClass(self.city_one).list_of_buildings_in_city():
             self.assertTrue(building.if_under_construction)
         main_view.next_turns(5)
-        for building in list_of_buildings_in_city(abstract_class=Building, city=self.city_one, app_label='city_engine'):
+        for building in RootClass(self.city_one).list_of_buildings_in_city():
             self.assertFalse(building.if_under_construction)
         main_view.logout()
 
@@ -126,12 +127,12 @@ class GameTestForTwoPlayers(BaseTest):
         main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'WindPlant', '03')
         main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'RopePlant', '10')
         main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'CoalPlant', '11')
-        for building_sublcass in get_subclasses(Building, 'city_engine'):
+        for building_sublcass in RootClass(self.city_one).get_subclasses_of_all_buildings():
             self.assertEqual(building_sublcass.objects.filter(city=self.city_two).count(), 1)
-        for building in list_of_buildings_in_city(abstract_class=Building, city=self.city_two, app_label='city_engine'):
+        for building in RootClass(self.city_one).list_of_buildings_in_city():
             self.assertTrue(building.if_under_construction)
         main_view.next_turns(5)
-        for building in list_of_buildings_in_city(abstract_class=Building, city=self.city_two, app_label='city_engine'):
+        for building in RootClass(self.city_one).list_of_buildings_in_city():
             self.assertFalse(building.if_under_construction)
 
 

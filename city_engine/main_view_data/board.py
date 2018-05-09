@@ -1,9 +1,8 @@
-from city_engine.models import CityField, waterworks_buildings, DustCart
+from city_engine.models import CityField, DustCart
 import numpy as np
 from django.db.models import Sum
 from .global_variables import HEX_NUM_IN_ROW, HEX_NUM, ROW_NUM
 from city_engine.models import WindPlant, BuldingsWithWorkes, PowerPlant, Waterworks, DumpingGround, Residential
-from citizen_engine.models import Citizen
 from city_engine.abstract import RootClass
 
 

@@ -1,46 +1,22 @@
 from django import test
 from django.contrib.auth.models import User
-from city_engine.main_view_data.board import Board, assign_city_fields_to_board
-from citizen_engine.models import Citizen
+from city_engine.main_view_data.board import assign_city_fields_to_board
 from city_engine.main_view_data.city_stats import CityStatsCenter
+from city_engine.abstract import RootClass
 from citizen_engine.citizen_creation import CreateCitizen
-from django.apps import apps
 from city_engine.models import City, CityField, \
     Residential, \
     ProductionBuilding, \
     WindPlant, CoalPlant, RopePlant, \
-    WaterTower, \
-    electricity_buildings, waterworks_buildings, \
-    BuldingsWithWorkes, Building, Vehicle
+    WaterTower
 
 
-class TestHelper(object):
+class TestHelper(RootClass):
 
-    def populate_city(self, city):
-        for workplace in self.list_of_workplaces(city):
+    def populate_city(self):
+        for workplace in self.list_of_workplaces():
             for employ in range(workplace.max_employees):
-                CreateCitizen().create_with_workplace(city=city, workplace=workplace)
-
-    def list_of_workplaces(self, city):
-        result = []
-        for subclass in self.get_subclasses(BuldingsWithWorkes, 'city_engine'):
-            if subclass.objects.filter(city=city).exists():
-                a = subclass.objects.filter(city=city)
-                for building in a:
-                    result.append(building)
-        for subclass in self.get_subclasses(Vehicle, 'city_engine'):
-            if subclass.objects.filter(city=city).exists():
-                b = subclass.objects.filter(city=city)
-                for vehicle in b:
-                    result.append(vehicle)
-        return result
-
-    def get_subclasses(self, abstract_class=Building, app_label='city_engine'):
-        result = []
-        for model in apps.get_app_config(app_label).get_models():
-            if issubclass(model, abstract_class) and model is not abstract_class:
-                result.append(model)
-        return result
+                CreateCitizen().create_with_workplace(city=self.city, workplace=workplace)
 
 
 class BaseFixture(test.TestCase):
@@ -50,10 +26,10 @@ class BaseFixture(test.TestCase):
         self.city = City.objects.create_with_workplace(name='Wrocław', user=self.user)
         assign_city_fields_to_board(self.city)
 
-        field_one = CityField.objects.get(row=0, col=1, city=self.city).if_production = True
-        field_two = CityField.objects.get(row=0, col=2, city=self.city).if_residential = True
-        field_three = CityField.objects.get(row=1, col=1, city=self.city).if_electricity = True
-        field_four = CityField.objects.get(row=1, col=1, city=self.city).if_production = True
+        field_one = CityField.objects.get(row=0, col=1, city=self.city)
+        field_two = CityField.objects.get(row=0, col=2, city=self.city)
+        field_three = CityField.objects.get(row=1, col=1, city=self.city)
+        field_four = CityField.objects.get(row=1, col=1, city=self.city)
 
         WindPlant.objects.create(city=self.city, city_field=field_one, if_electricity=True, if_under_construction=True, current_employees=5)
         WindPlant.objects.create(city=self.city)

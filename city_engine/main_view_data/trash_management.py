@@ -36,7 +36,7 @@ class CollectGarbage(RootClass):
 
     def existing_dust_carts(self, dg):
         if DustCart.objects.filter(dumping_ground=dg).exists():
-            return [dg for dg in DustCart.objects.filter(dumping_ground=dg)]
+            return [dc for dc in DustCart.objects.filter(dumping_ground=dg)]
         return []
 
     def city_field_from_corr(self, corr):
@@ -62,18 +62,20 @@ class CollectGarbage(RootClass):
                 if self.list_of_trash_for_building(building):
                     for trash in self.list_of_trash_for_building(building):
                         if dc.curr_capacity < self.max_capacity_of_cart(dc):
-                            dc.curr_capacity += trash.size
+                            dc.curr_capacity = F('curr_capacity') + trash.size
                             dc.save()
+                            dc.refresh_from_db()
                             trash.delete()
 
     def max_capacity_of_cart(self, dc):
         return dc.max_capacity * dc.effectiveness()
 
     def unload_trashes_from_cart(self, dc, dg):
-        dg.current_space_for_trash += dc.curr_capacity
+        dg.current_space_for_trash = F('current_space_for_trash') + dc.curr_capacity
         dc.curr_capacity = 0
         dg.save()
         dc.save()
+        dg.refresh_from_db()
 
     def run(self):
         for dg in self.existing_dumping_grounds_with_slots():
