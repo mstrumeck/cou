@@ -4,11 +4,12 @@ from city_engine.main_view_data.board import assign_city_fields_to_board
 from city_engine.main_view_data.city_stats import CityStatsCenter
 from city_engine.abstract import RootClass
 from citizen_engine.citizen_creation import CreateCitizen
+from  city_engine.abstract import RootClass
 from city_engine.models import City, CityField, \
     Residential, \
     ProductionBuilding, \
     WindPlant, CoalPlant, RopePlant, \
-    WaterTower
+    WaterTower, Vehicle
 
 
 class TestHelper(RootClass):
@@ -42,7 +43,8 @@ class CityFixture(test.TestCase):
         first_user = User.objects.create_user(username='test_username', password='12345', email='random@wp.pl')
         self.client.login(username='test_username', password='12345', email='random@wp.pl')
         self.city = City.objects.create(name='Wrocław', user=first_user, cash=10000)
-        self.city_stats = CityStatsCenter(self.city)
+        self.data = RootClass(self.city)
+        self.city_stats = CityStatsCenter(self.city, self.data)
 
         second_user = User.objects.create_user(username='test_username_2', password='54321', email='random2@wp.pl')
         second_city = City.objects.create(name='Łódź', user=second_user, cash=10000)
@@ -157,4 +159,4 @@ class CityFixture(test.TestCase):
         waterwork.city_field = CityField.objects.get(row=1, col=1, city=self.city)
         waterwork.save()
 
-        self.city_stats = CityStatsCenter(self.city)
+        self.city_stats = CityStatsCenter(self.city, self.data)

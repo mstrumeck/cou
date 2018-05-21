@@ -6,19 +6,6 @@ from django.apps import apps
 from django.db.models import F
 
 
-
-class CityFilter(models.Manager):
-
-    def exists_in_city(self):
-        if self.filter(city=self.city).exists():
-            return True
-        else:
-            return False
-
-    def filter_by_city(self):
-            return self.filter(city=self.city)
-
-
 class Trash(models.Model):
     size = models.PositiveIntegerField(default=0)
     time = models.PositiveIntegerField(default=0)
@@ -65,8 +52,6 @@ class Building(models.Model):
     pollution_rate = models.FloatField(default=0.0)
     pollution_product = models.PositiveIntegerField(default=0)
     recycling = models.PositiveIntegerField(default=0)
-    #Managers
-    objects = CityFilter()
 
     class Meta:
         abstract = True
@@ -145,7 +130,7 @@ class PowerPlant(BuldingsWithWorkes):
         self.energy_allocated = 0
         self.save()
 
-    def producted_resources_allocation(self):
+    def resources_allocated(self):
         return self.energy_allocated
 
     def total_production(self):
@@ -245,7 +230,7 @@ class Waterworks(BuldingsWithWorkes):
         self.water_allocated = 0
         self.save()
 
-    def producted_resources_allocation(self):
+    def resources_allocated(self):
         return self.water_allocated
 
     def total_production(self):

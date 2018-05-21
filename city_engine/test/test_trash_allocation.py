@@ -4,6 +4,7 @@ from city_engine.models import DumpingGround, City, DustCart, CityField, WindPla
 import random
 from city_engine.main_view_data.global_variables import HEX_NUM_IN_ROW
 from city_engine.test.base import TestHelper
+from city_engine.abstract import RootClass
 
 
 class TestTrashAllocation(test.TestCase, TestHelper):
@@ -11,8 +12,9 @@ class TestTrashAllocation(test.TestCase, TestHelper):
 
     def setUp(self):
         self.city = City.objects.latest('id')
-        self.trash_management = TrashManagement(city=self.city)
-        self.collect_garbage = CollectGarbage(city=self.city)
+        self.RC = RootClass(self.city)
+        self.trash_management = TrashManagement(city=self.city, data=self.RC)
+        self.collect_garbage = CollectGarbage(city=self.city, data=self.RC)
         self.wind_plant = WindPlant.objects.latest('id')
         self.water_tower = WaterTower.objects.latest('id')
         self.populate_city()
@@ -96,7 +98,3 @@ class TestTrashAllocation(test.TestCase, TestHelper):
         self.collect_garbage.unload_trashes_from_cart(dc=DustCart.objects.latest('id'), dg=DumpingGround.objects.latest('id'))
         self.assertEqual(DustCart.objects.latest('id').curr_capacity, 0)
         self.assertEqual(DumpingGround.objects.latest('id').current_space_for_trash, 40)
-
-    def test_collect_garbage(self):
-        self.assertEqual(self.collect_garbage.get_subclasses_of_all_buildings(),
-                         self.collect_garbage.get_subclasses(abstract_class=Building, app_label='city_engine'))

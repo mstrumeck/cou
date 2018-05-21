@@ -5,109 +5,62 @@ from city_engine.abstract import RootClass
 from django.db.models import F
 
 
-class ResourceAllocation(RootClass):
+class ResourceAllocation(object):
+
+    def __init__(self, city, data):
+        self.city = city
+        self.data = data
 
     def run(self):
         self.clean_city_field_data()
-        self.clean_resource_data()
-        self.launch_resources_allocation_reset()
         self.all_resource_allocation()
         self.pollution_allocation()
-        CollectGarbage(self.city).run()
+        CollectGarbage(self.city, self.data).run()
 
     def clean_city_field_data(self):
         CityField.objects.filter(city=self.city).update(pollution=0)
 
-    def clean_resource_data(self):
-        for models in self.get_subclasses_of_all_buildings():
-            models.objects.filter(city=self.city).update(energy=0, water=0)
-
-    def launch_resources_allocation_reset(self):
-        for energy_building in self.get_subclasses(abstract_class=PowerPlant, app_label='city_engine'):
-            energy_building.objects.filter(city=self.city).update(energy_allocated=0)
-        for waterwork_building in self.get_subclasses(abstract_class=Waterworks, app_label='city_engine'):
-            waterwork_building.objects.filter(city=self.city).update(water_allocated=0)
-
-    def check_if_energy_allocation_is_needed(self):
-        return sum([b['energy_required'] - b['energy'] for b in
-                    self.list_of_buildings_in_city_with_values('energy', 'energy_required')])
-
-    def check_if_water_allocation_is_needed(self):
-        return sum([b['water_required'] - b['water'] for b in
-                    self.list_of_buildings_in_city_with_values('water', 'water_required')])
-
     def all_resource_allocation(self):
-        self.energy_resources_allocation()
-        self.water_resources_allocation()
+        for dataset in self.data.datasets_for_turn_calculation():
+            self.resource_allocation(dataset)
         self.pollution_allocation()
 
-    def energy_resources_allocation(self):
-        builds_in_city = {(b.city_field.row, b.city_field.col): b for b in
-                          self.list_of_building_in_city_excluding(WindPlant)}
-        for power_plant in self.list_of_buildings_in_city(abstract_class=PowerPlant):
-            if self.check_if_energy_allocation_is_needed() > 0 and power_plant.if_under_construction is False:
-                power_plant_total_production = power_plant.total_production()
-                pattern = AllocationPattern().create_allocation_pattern(power_plant.city_field.row, power_plant.city_field.col)
-                if power_plant.energy_allocated < power_plant_total_production:
-                    while power_plant.energy_allocated < power_plant_total_production:
-                        try:
-                            next_value = next(pattern)
-                        except(StopIteration):
-                            break
-                        for field in next_value:
-                            if field in builds_in_city:
-                                self.energy_allocation(power_plant, power_plant_total_production, builds_in_city[(field)])
-            else:
-                break
+    def if_building_exist(self, field, dataset):
+        if field in dataset['list_without_source']:
+            return dataset['list_without_source'][field]
 
-    def water_resources_allocation(self):
-        builds_in_city = {(b.city_field.row, b.city_field.col): b for b in
-                          self.list_of_building_in_city_excluding(WaterTower)}
-        for water_tower in self.list_of_buildings_in_city(abstract_class=Waterworks):
-            if self.check_if_water_allocation_is_needed() > 0 and water_tower.if_under_construction is False:
-                water_tower_total_production = water_tower.total_production()
-                pattern = AllocationPattern().create_allocation_pattern(water_tower.city_field.row, water_tower.city_field.col)
-                while water_tower.water_allocated < water_tower_total_production:
+    def update_attr(self, ob, val_to_up, val):
+        setattr(ob, val_to_up, getattr(ob, val_to_up) + val)
+
+    def resource_allocation(self, dataset):
+        for provider_ob in dataset['list_of_source']:
+            resource_required = dataset['resource_required']
+            resource = dataset['resource']
+            allocated_resource = dataset['allocated_resource']
+            pattern = AllocationPattern().create_allocation_pattern(provider_ob.city_field.row, provider_ob.city_field.col)
+            provider_total_production = provider_ob.total_production()
+            if getattr(provider_ob, allocated_resource) < provider_total_production:
+                while getattr(provider_ob, allocated_resource) < provider_total_production:
                     try:
-                        next_value = next(pattern)
+                        next_corrs = next(pattern)
                     except(StopIteration):
                         break
-                    for field in next_value:
-                        if field in builds_in_city:
-                            self.water_allocation(water_tower, water_tower_total_production, builds_in_city[(field)])
-            else:
-                break
-
-    def energy_allocation(self, power_plant, power_plant_total_production, build_to_energize):
-        energy_left = power_plant_total_production - power_plant.energy_allocated
-        energy_to_fill = build_to_energize.energy_required - build_to_energize.energy
-        if energy_left >= energy_to_fill:
-            power_plant.energy_allocated = F('energy_allocated') + energy_to_fill
-            build_to_energize.energy = F('energy') + energy_to_fill
-        elif energy_left < energy_to_fill:
-            power_plant.energy_allocated = F('energy_allocated') + energy_left
-            build_to_energize.energy = F('energy') + energy_left
-        build_to_energize.save()
-        power_plant.save()
-        build_to_energize.refresh_from_db()
-        power_plant.refresh_from_db()
-
-    def water_allocation(self, water_tower, water_tower_total_production, build_to_hydrated):
-        water_left = water_tower_total_production - water_tower.water_allocated
-        water_to_fill = build_to_hydrated.water_required - build_to_hydrated.water
-        if water_left >= water_to_fill:
-            water_tower.water_allocated = F('water_allocated') + water_to_fill
-            build_to_hydrated.water = F('water') + water_to_fill
-        elif water_left < water_to_fill:
-            water_tower.water_allocated = F('water_allocated') + water_left
-            build_to_hydrated.water = F('water') + water_left
-        build_to_hydrated.save()
-        water_tower.save()
-        build_to_hydrated.refresh_from_db()
-        water_tower.refresh_from_db()
+                    for field in next_corrs:
+                        if self.if_building_exist(field, dataset):
+                            target_ob = self.if_building_exist(field, dataset)
+                            resource_left = provider_total_production - getattr(provider_ob, allocated_resource)
+                            resource_to_fill = getattr(target_ob, resource_required) - getattr(target_ob,resource)
+                            if resource_left >= resource_to_fill:
+                                self.update_attr(provider_ob, allocated_resource, resource_to_fill)
+                                self.update_attr(target_ob, resource, resource_to_fill)
+                            elif resource_left < resource_to_fill:
+                                self.update_attr(provider_ob, allocated_resource, resource_left)
+                                self.update_attr(target_ob, resource, resource_left)
+                            provider_ob.save()
+                            target_ob.save()
 
     def pollution_allocation(self):
-        build = {(b.city_field): b for b in self.list_of_buildings_in_city()}
+        build = {(b.city_field): b for b in self.data.list_of_buildings}
         for field in CityField.objects.filter(city=self.city):
             if field in build:
                 target_build = build[field]

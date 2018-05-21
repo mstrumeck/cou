@@ -19,6 +19,12 @@ class TestRootClass(test.TestCase):
     def setUp(self):
         self.RC = InheritClass(city=City.objects.latest('id'))
 
+    # def test_dataset_for_water_allocation(self):
+    #     # print(self.RC.power_plant_buildings)
+    #     self.RA = ResourceAllocation(city=City.objects.latest('id'), data=self.RC)
+    #     self.RC.create_dataset_for_turn_calculation()
+    #     self.RA.resource_allocation(self.RC.powerplant_resources_allocation)
+
     def test_get_subclasses(self):
         self.assertEqual(self.RC.get_subclasses(abstract_class=PowerPlant, app_label='city_engine'),
                          [WindPlant, RopePlant, CoalPlant])
@@ -30,22 +36,9 @@ class TestRootClass(test.TestCase):
                          [Residential, ProductionBuilding, WindPlant, RopePlant, CoalPlant, WaterTower, DumpingGround])
 
     def test_list_of_building_in_city(self):
-        self.assertEqual(self.RC.list_of_buildings_in_city(),
+        self.assertEqual(self.RC.list_of_buildings,
                          [Residential.objects.latest('id'), WindPlant.objects.get(id=1), WindPlant.objects.get(id=2),
                           WaterTower.objects.get(id=1), WaterTower.objects.get(id=2), DumpingGround.objects.latest('id')])
-
-    def test_list_of_building_in_city_excluding(self):
-        self.assertEqual(self.RC.list_of_building_in_city_excluding(WindPlant),
-                         [Residential.objects.latest('id'), WaterTower.objects.get(id=1), WaterTower.objects.get(id=2),
-                          DumpingGround.objects.latest('id')])
-        self.assertEqual(self.RC.list_of_building_in_city_excluding(WaterTower),
-                         [Residential.objects.latest('id'), WindPlant.objects.get(id=1), WindPlant.objects.get(id=2),
-                          DumpingGround.objects.latest('id')]
-                         )
-        self.assertEqual(self.RC.list_of_building_in_city_excluding(DumpingGround),
-                         [Residential.objects.latest('id'), WindPlant.objects.get(id=1), WindPlant.objects.get(id=2),
-                          WaterTower.objects.get(id=1), WaterTower.objects.get(id=2)]
-                         )
 
     def test_list_of_workplaces(self):
         self.assertEqual(self.RC.list_of_workplaces(),

@@ -25,7 +25,7 @@ class TrashCollectorTest(BaseTest):
 
     def list_of_all_trashes_in_city(self):
         result = []
-        for building in RootClass(city=City.objects.latest('id')).list_of_buildings_in_city():
+        for building in RootClass(city=City.objects.latest('id')).list_of_buildings:
             for trash in building.trash.all():
                 result.append(trash)
         return result

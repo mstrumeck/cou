@@ -172,8 +172,8 @@ class ModelsTests(test.TestCase, TestHelper):
                                                 if_under_construction=False,
                                                 build_time=0,
                                                 water_allocated=10)
-        self.assertEqual(wind_plant.producted_resources_allocation(), 10)
-        self.assertEqual(water_tower.producted_resources_allocation(), 10)
+        self.assertEqual(wind_plant.resources_allocated(), 10)
+        self.assertEqual(water_tower.resources_allocated(), 10)
 
     def test_pollution_calculations(self):
         Residential.objects.create(city=self.city, city_field=CityField.objects.latest('id'))

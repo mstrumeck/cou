@@ -15,15 +15,16 @@ def assign_city_fields_to_board(city):
             CityField.objects.create(city=city, row=num_of_row, col=col)
 
 
-class Board(RootClass):
+class Board(object):
 
-    def __init__(self, city):
+    def __init__(self, city, data):
         self.city = city
+        self.data = data
         self.hex_table = ''
         self.generate_board()
 
     def generate_board(self):
-        builds = {(b.city_field.row, b.city_field.col): b for b in self.list_of_buildings_in_city()}
+        builds = {(b.city_field.row, b.city_field.col): b for b in self.data.list_of_buildings}
         for row in range(ROW_NUM):
             if row % 2 == 0:
                 self.hex_table += "<div class='hex-row even'>"
@@ -63,9 +64,11 @@ class Hex(object):
         return self.hexagon
 
 
-class HexDetail(RootClass):
-    def __init__(self, city):
+class HexDetail(object):
+
+    def __init__(self, city,  data):
         self.city = city
+        self.data = data
         self.hex_detail_info_table = ''
         self.generate_hex_detail()
 
@@ -76,7 +79,7 @@ class HexDetail(RootClass):
         return self.hex_detail_info_table
 
     def add_hex_detail_box(self, row, col):
-        builds = {(b.city_field.row, b.city_field.col): b for b in self.list_of_buildings_in_city()}
+        builds = {(b.city_field.row, b.city_field.col): b for b in self.data.list_of_buildings}
         hex_detail_box = "<div class='hexInfoBoxDetail' "
         hex_detail_box += "id='hexBox{}{}'>".format(row, col)
 

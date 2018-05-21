@@ -15,15 +15,16 @@ from .turn_data.main import \
     TurnCalculation
 from .turn_data.build import build_building
 from django.db.models import F
+from city_engine.abstract import RootClass
 
 
 @login_required
 def main_view(request):
-    user = User.objects.get(id=request.user.id)
-    city = City.objects.get(user=user)
-    new_board = Board(city)
-    new_hex_detail = HexDetail(city)
-    city_stats = CityStatsCenter(city)
+    city = City.objects.get(user_id=request.user.id)
+    data = RootClass(city)
+    new_board = Board(city, data)
+    new_hex_detail = HexDetail(city, data)
+    city_stats = CityStatsCenter(city, data)
     city_resources_allocation_stats = zip(["Produkowana", "Ulokowana", "Bilans"],
                                           [city_stats.energy_production, city_stats.energy_allocation, city_stats.energy_bilans],
                                           [city_stats.water_production, city_stats.water_allocation, city_stats.water_bilans])

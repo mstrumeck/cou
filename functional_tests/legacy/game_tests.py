@@ -35,10 +35,10 @@ class GameTestForOnePlayer(BaseTest):
 
         for building_sublcass in RootClass(self.city_one).get_subclasses_of_all_buildings():
             self.assertEqual(building_sublcass.objects.filter(city=self.city_one).count(), 1)
-        for building in RootClass(self.city_one).list_of_buildings_in_city():
+        for building in RootClass(self.city_one).list_of_buildings:
             self.assertTrue(building.if_under_construction)
         main_view.next_turns(5)
-        for building in RootClass(self.city_one).list_of_buildings_in_city():
+        for building in RootClass(self.city_one).list_of_buildings:
             self.assertFalse(building.if_under_construction)
 
     def test_energy_allocation(self):
@@ -104,10 +104,10 @@ class GameTestForTwoPlayers(BaseTest):
         main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'CoalPlant', '11')
         for building_sublcass in RootClass(self.city_one).get_subclasses_of_all_buildings():
             self.assertEqual(building_sublcass.objects.filter(city=self.city_one).count(), 1)
-        for building in RootClass(self.city_one).list_of_buildings_in_city():
+        for building in RootClass(self.city_one).list_of_buildings:
             self.assertTrue(building.if_under_construction)
         main_view.next_turns(5)
-        for building in RootClass(self.city_one).list_of_buildings_in_city():
+        for building in RootClass(self.city_one).list_of_buildings:
             self.assertFalse(building.if_under_construction)
         main_view.logout()
 
@@ -127,12 +127,12 @@ class GameTestForTwoPlayers(BaseTest):
         main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'WindPlant', '03')
         main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'RopePlant', '10')
         main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'CoalPlant', '11')
-        for building_sublcass in RootClass(self.city_one).get_subclasses_of_all_buildings():
+        for building_sublcass in RootClass(self.city_two).get_subclasses_of_all_buildings():
             self.assertEqual(building_sublcass.objects.filter(city=self.city_two).count(), 1)
-        for building in RootClass(self.city_one).list_of_buildings_in_city():
+        for building in RootClass(self.city_two).list_of_buildings:
             self.assertTrue(building.if_under_construction)
         main_view.next_turns(5)
-        for building in RootClass(self.city_one).list_of_buildings_in_city():
+        for building in RootClass(self.city_two).list_of_buildings:
             self.assertFalse(building.if_under_construction)
 
 

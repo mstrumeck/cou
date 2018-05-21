@@ -4,30 +4,38 @@ from city_engine.abstract import RootClass
 from city_engine.main_view_data.allocation_pattern import AllocationPattern
 
 
-class TrashManagement(RootClass):
+class TrashManagement(object):
+
+    def __init__(self, city, data):
+        self.city = city
+        self.data = data
 
     def run(self):
         self.generate_trash()
         self.update_trash_time()
 
     def generate_trash(self):
-        for building in self.list_of_building_in_city_excluding(DumpingGround):
+        for building in self.data.list_of_building_in_city_excluding(DumpingGround):
             if building.trash_calculation() > 0:
                 building.trash.create(size=building.trash_calculation())
 
     def update_trash_time(self):
-        for building in self.list_of_buildings_in_city():
+        for building in self.data.list_of_buildings:
             building.trash.update(time=F('time')+1)
 
     def list_of_all_trashes_in_city(self):
         result = []
-        for building in self.list_of_buildings_in_city():
+        for building in self.data.list_of_buildings:
             for trash in building.trash.all():
                 result.append(trash)
         return result
 
 
-class CollectGarbage(RootClass):
+class CollectGarbage(object):
+
+    def __init__(self, city, data):
+        self.city = city
+        self.data = data
 
     def existing_dumping_grounds_with_slots(self):
         if DumpingGround.objects.filter(city=self.city).exists():
@@ -45,7 +53,7 @@ class CollectGarbage(RootClass):
         return None
 
     def search_building_with_corr(self, city_field):
-        for building_model in self.get_subclasses(abstract_class=Building, app_label='city_engine'):
+        for building_model in self.data.subclasses_of_all_buildings:
             if building_model.objects.filter(city_field=city_field).exists():
                 return building_model.objects.get(city_field=city_field)
 

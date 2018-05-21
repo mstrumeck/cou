@@ -5,14 +5,16 @@ from city_engine.models import CityField, Residential, City, WindPlant, WaterTow
 from django.db.models import Sum
 from citizen_engine.models import Citizen
 from city_engine.main_view_data.employee_allocation import EmployeeAllocation
+from city_engine.abstract import RootClass
 
 
 class EmployeeAllocationTest(test.TestCase, TestHelper):
     fixtures = ['basic_fixture_resources_and_employees.json']
 
     def setUp(self):
-        self.city = City.objects.get(id=1)
-        self.EA = EmployeeAllocation(city=self.city)
+        self.city = City.objects.latest('id')
+        self.RC = RootClass(self.city)
+        self.EA = EmployeeAllocation(city=self.city, data=self.RC)
 
     def test_not_full_production_buildings(self):
         self.assertIn(self.EA.not_full_production_buildings(), [WindPlant.objects.get(id=1), WindPlant.objects.get(id=2)
