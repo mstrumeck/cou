@@ -1,13 +1,11 @@
 from city_engine.models import DumpingGround, DustCart, CityField, Building
 from django.db.models import F
 from city_engine.abstract import RootClass
-from city_engine.main_view_data.allocation_pattern import AllocationPattern
 
 
 class TrashManagement(object):
 
-    def __init__(self, city, data):
-        self.city = city
+    def __init__(self, data):
         self.data = data
 
     def run(self):
@@ -47,33 +45,10 @@ class CollectGarbage(object):
             return [dc for dc in DustCart.objects.filter(dumping_ground=dg)]
         return []
 
-    def city_field_from_corr(self, corr):
-        if CityField.objects.filter(city=self.city, row=corr[0], col=corr[1]).exists():
-            return CityField.objects.get(city=self.city, row=corr[0], col=corr[1])
-        return None
-
-    def search_building_with_corr(self, city_field):
-        for building_model in self.data.subclasses_of_all_buildings:
-            if building_model.objects.filter(city_field=city_field).exists():
-                return building_model.objects.get(city_field=city_field)
-
     def list_of_trash_for_building(self, building):
         if building.trash.all().exists():
             return [trash for trash in building.trash.all()]
         return []
-
-    def collect_trash_by_dust_cart(self, dc, next_corr):
-        if self.city_field_from_corr(next_corr):
-            city_field = self.city_field_from_corr(next_corr)
-            if self.search_building_with_corr(city_field):
-                building = self.search_building_with_corr(city_field)
-                if self.list_of_trash_for_building(building):
-                    for trash in self.list_of_trash_for_building(building):
-                        if dc.curr_capacity < self.max_capacity_of_cart(dc):
-                            dc.curr_capacity = F('curr_capacity') + trash.size
-                            dc.save()
-                            dc.refresh_from_db()
-                            trash.delete()
 
     def max_capacity_of_cart(self, dc):
         return dc.max_capacity * dc.effectiveness()
@@ -85,15 +60,24 @@ class CollectGarbage(object):
         dc.save()
         dg.refresh_from_db()
 
+    def collect_trash_by_dust_cart(self, dc, building):
+        for trash in self.list_of_trash_for_building(building):
+            if dc.curr_capacity < self.max_capacity_of_cart(dc):
+                dc.curr_capacity = F('curr_capacity') + trash.size
+                dc.save()
+                dc.refresh_from_db()
+                trash.delete()
+
     def run(self):
+        buildings_with_trash = {(b.city_field.row, b.city_field.col): b for b in self.data.list_of_buildings
+                                if not isinstance(b, DumpingGround)}
         for dg in self.existing_dumping_grounds_with_slots():
             for dc in self.existing_dust_carts(dg):
-                pattern = AllocationPattern().create_allocation_pattern(dg.city_field.row, dg.city_field.col)
-                while dc.curr_capacity < self.max_capacity_of_cart(dc):
-                    try:
-                        root = next(pattern)
-                    except(StopIteration):
-                        break
-                    for corr in root:
-                        self.collect_trash_by_dust_cart(dc, corr)
+                pattern = sorted(buildings_with_trash, key=lambda x: (abs(x[0] - dg.city_field.row),
+                                                                      abs(x[1] - dg.city_field.col)))
+                guard = 0
+                while dc.curr_capacity < self.max_capacity_of_cart(dc) and guard < len(pattern):
+                    target = pattern[guard]
+                    self.collect_trash_by_dust_cart(dc, buildings_with_trash[target])
+                    guard += 1
                 self.unload_trashes_from_cart(dc, dg)

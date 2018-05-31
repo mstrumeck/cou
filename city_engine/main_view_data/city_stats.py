@@ -14,9 +14,13 @@ class CityStatsCenter(object):
         self.energy_allocation = self.energy_stats.calculate_energy_allocation_in_city()
         self.energy_production = self.energy_stats.calculate_energy_production_in_city()
 
-        self.water_bilans = self.water_stats.city_water_bilans()
-        self.water_production = self.water_stats.calculate_water_production_in_city()
-        self.water_allocation = self.water_stats.calculate_water_allocation_in_city()
+        self.raw_water_bilans = self.raw_water_stats.raw_city_water_bilans()
+        self.raw_water_production = self.raw_water_stats.calculate_raw_water_production_in_city()
+        self.raw_water_allocation = self.raw_water_stats.calculate_raw_water_allocation_in_city()
+
+        self.clean_water_bilans = self.clean_water_stats.clean_city_water_bilans()
+        self.clean_water_production = self.clean_water_stats.calculate_clean_water_production_in_city()
+        self.clean_water_allocation = self.clean_water_stats.calculate_clean_water_allocated_in_city()
 
         self.building_under_construction = self.building_stats.list_of_buildings_under_construction()
         self.list_of_buildings = self.building_stats.list_of_buildings()
@@ -26,7 +30,8 @@ class CityStatsCenter(object):
 
     def create_stats_for_city(self):
         self.energy_stats = CityEnergyStats(self.city, self.data)
-        self.water_stats = CityWaterStats(self.city, self.data)
+        self.raw_water_stats = CityRawWaterStats(self.city, self.data)
+        self.clean_water_stats = CityCleanWaterStats(self.city, self.data)
         self.populations_stats = CityPopulationStats(self.city)
         self.building_stats = CityBuildingStats(self.city, self.data)
 
@@ -50,23 +55,42 @@ class CityEnergyStats(object):
         return sum([b.energy_required for b in self.data.list_of_buildings])
 
 
-class CityWaterStats(object):
+class CityRawWaterStats(object):
 
     def __init__(self, city, data):
         self.city = city
         self.data = data
 
-    def city_water_bilans(self):
-        return self.calculate_water_production_in_city() - self.calculate_water_allocation_in_city()
+    def raw_city_water_bilans(self):
+        return self.calculate_raw_water_production_in_city() - self.calculate_raw_water_allocation_in_city()
 
-    def calculate_water_production_in_city(self):
+    def calculate_raw_water_production_in_city(self):
         return sum([b.total_production() for b in self.data.waterworks_buildings])
 
-    def calculate_water_usage_in_city(self):
-        return sum([b.water_required for b in self.data.list_of_buildings])
+    def calculate_raw_water_usage_in_city(self):
+        return sum([b.raw_water for b in self.data.sewageworks_buildings])
 
-    def calculate_water_allocation_in_city(self):
-        return sum([b.water_allocated for b in self.data.waterworks_buildings])
+    def calculate_raw_water_allocation_in_city(self):
+        return sum([b.raw_water_allocated for b in self.data.waterworks_buildings])
+
+
+class CityCleanWaterStats(object):
+
+    def __init__(self, city, data):
+        self.city = city
+        self.data = data
+
+    def calculate_clean_water_production_in_city(self):
+        return sum([b.total_production() for b in self.data.sewageworks_buildings])
+
+    def calculate_clean_water_usage_in_city(self):
+        return sum([b.water for b in self.data.list_of_buildings])
+
+    def calculate_clean_water_allocated_in_city(self):
+        return sum([b.clean_water_allocated for b in self.data.sewageworks_buildings])
+
+    def clean_city_water_bilans(self):
+        return self.calculate_clean_water_production_in_city() - self.calculate_clean_water_allocated_in_city()
 
 
 class CityBuildingStats(object):

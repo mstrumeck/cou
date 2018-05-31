@@ -1,6 +1,6 @@
 from abc import ABC
 from django.apps import apps
-from city_engine.models import Building, BuldingsWithWorkes, Vehicle, PowerPlant, Waterworks, WindPlant
+from city_engine.models import Building, BuldingsWithWorkes, Vehicle, PowerPlant, Waterworks, WindPlant, SewageWorks
 from itertools import chain
 
 
@@ -15,6 +15,8 @@ class RootClass(object):
 
         self.waterworks_buildings = [b for b in self.list_of_buildings if isinstance(b, Waterworks)]
 
+        self.sewageworks_buildings = [b for b in self.list_of_buildings if isinstance(b, SewageWorks)]
+
         self.list_of_building_with_values = self.list_of_buildings_in_city_with_values(
             'if_under_construction', 'name', 'current_build_time', 'build_time', 'maintenance_cost')
         self.list_of_buildings_only = self.list_of_buildings_in_city_with_only('if_under_construction')
@@ -24,18 +26,23 @@ class RootClass(object):
             'list_of_source': [b for b in self.power_plant_buildings if b.if_under_construction is False],
             'list_without_source': {(b.city_field.row, b.city_field.col): b for b in self.list_of_buildings if not isinstance(b, PowerPlant)},
             'allocated_resource': 'energy_allocated',
-            'resource_required': 'energy_required',
-            'resource': 'energy'
+            'msg': 'power'
         }
-        water_resources_allocation_dataset = {
+        raw_water_resources_allocation_dataset = {
             'list_of_source': [b for b in self.waterworks_buildings if b.if_under_construction is False],
-            'list_without_source': {(b.city_field.row, b.city_field.col): b for b in self.list_of_buildings if not isinstance(b, Waterworks)},
-            'allocated_resource': 'water_allocated',
-            'resource_required': 'water_required',
-            'resource': 'water'
+            'list_without_source': {(b.city_field.row, b.city_field.col): b for b in self.list_of_buildings if isinstance(b, SewageWorks)},
+            'allocated_resource': 'raw_water_allocated',
+            'msg': 'raw_water'
         }
-        return [power_resources_allocation_dataset, water_resources_allocation_dataset]
-
+        clean_water_resources_allocation_dataset = {
+            'list_of_source': [b for b in self.sewageworks_buildings if b.if_under_construction is False],
+            'list_without_source': {(b.city_field.row, b.city_field.col): b for b in self.list_of_buildings
+                                    if not isinstance(b, SewageWorks) and not isinstance(b, Waterworks)},
+            'allocated_resource': 'clean_water_allocated',
+            'msg': 'clean_water'
+        }
+        return [power_resources_allocation_dataset, raw_water_resources_allocation_dataset,
+                clean_water_resources_allocation_dataset]
 
     def get_subclasses(self, abstract_class, app_label):
         return [model for model in apps.get_app_config(app_label).get_models()

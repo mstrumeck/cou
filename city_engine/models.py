@@ -87,6 +87,8 @@ class Residential(Building):
     build_time = models.PositiveIntegerField(default=1)
     build_cost = models.PositiveIntegerField(default=100)
     maintenance_cost = models.PositiveIntegerField(default=10)
+    water_required = models.PositiveIntegerField(default=5)
+    energy_required = models.PositiveIntegerField(default=5)
 
     def pollution_calculation(self):
         return self.population * self.pollution_rate
@@ -109,6 +111,8 @@ class ProductionBuilding(BuldingsWithWorkes):
             self.save()
         elif self.current_build_time == self.build_time:
             self.if_under_construction = False
+            self.water_required = F('water_required') + 5
+            self.energy_required = F('energy_required') + 5
             self.save()
 
 
@@ -126,12 +130,20 @@ class PowerPlant(BuldingsWithWorkes):
     def pollution_calculation(self):
         return (self.power_nodes + self.employee.count()) * self.pollution_rate
 
-    def resources_allocation_reset(self):
-        self.energy_allocated = 0
+    def allocate_resource_in_target(self, target, tp):
+        if hasattr(target, 'energy') and not isinstance(target, PowerPlant):
+            rl = tp - self.energy_allocated
+            rtf = target.energy_required - target.energy
+            if rl >= rtf:
+                self.energy_allocated = F('energy_allocated') + rtf
+                target.energy = F('energy') + rtf
+            elif rl < rtf:
+                self.energy_allocated = F('energy_allocated') + rl
+                target.energy = F('energy') + rl
         self.save()
-
-    def resources_allocated(self):
-        return self.energy_allocated
+        target.save()
+        self.refresh_from_db()
+        target.refresh_from_db()
 
     def total_production(self):
         if self.employee.count() is 0 or self.max_employees is 0:
@@ -155,7 +167,6 @@ class WindPlant(PowerPlant):
     build_time = models.PositiveIntegerField(default=3)
     build_cost = models.PositiveIntegerField(default=100)
     maintenance_cost = models.PositiveIntegerField(default=10)
-    water_required = models.PositiveIntegerField(default=10)
     pollution_rate = models.FloatField(default=1.8)
 
     def build_status(self):
@@ -168,6 +179,7 @@ class WindPlant(PowerPlant):
             self.power_nodes = F('power_nodes') + 1
             self.max_power_nodes = F('max_power_nodes') + 10
             self.energy_production = F('energy_production') + 15
+            self.water_required = F('water_required') + 10
             self.save()
 
 
@@ -189,6 +201,7 @@ class RopePlant(PowerPlant):
             self.power_nodes = F('power_nodes') + 1
             self.max_power_nodes = F('max_power_nodes') + 4
             self.energy_production = F('energy_production') + 50
+            self.water_required = F('water_required') + 15
             self.save()
 
 
@@ -197,7 +210,6 @@ class CoalPlant(PowerPlant):
     build_time = models.PositiveIntegerField(default=4)
     build_cost = models.PositiveIntegerField(default=150)
     maintenance_cost = models.PositiveIntegerField(default=15)
-    water_required = models.PositiveIntegerField(default=20)
     pollution_rate = models.FloatField(default=1.5)
 
     def build_status(self):
@@ -210,28 +222,37 @@ class CoalPlant(PowerPlant):
             self.power_nodes = F('power_nodes') + 1
             self.max_power_nodes = F('max_power_nodes') + 4
             self.energy_production = F('energy_production') + 40
+            self.water_required = F('water_required') + 20
             self.save()
 
 
 class Waterworks(BuldingsWithWorkes):
     name = models.CharField(max_length=20)
-    water_allocated = models.PositiveIntegerField(default=0)
-    water_production = models.PositiveIntegerField(default=0)
+    raw_water_allocated = models.PositiveIntegerField(default=0)
+    raw_water_production = models.PositiveIntegerField(default=0)
     if_waterworks = models.BooleanField(default=True)
     pollution_rate = models.FloatField(default=0.5)
 
     class Meta:
         abstract = True
 
+    def allocate_resource_in_target(self, target, tp):
+        if hasattr(target, 'raw_water'):
+            rl = tp - self.raw_water_allocated
+            rtf = target.raw_water_required - target.raw_water
+            if rl >= rtf:
+                self.raw_water_allocated = F('raw_water_allocated') + rtf
+                target.raw_water = F('raw_water') + rtf
+            elif rl < rtf:
+                self.raw_water_allocated = F('raw_water_allocated') + rl
+                target.raw_water = F('raw_water') + rl
+            self.save()
+            target.save()
+            self.refresh_from_db()
+            target.refresh_from_db()
+
     def pollution_calculation(self):
         return self.employee.count() * self.pollution_rate
-
-    def resources_allocation_reset(self):
-        self.water_allocated = 0
-        self.save()
-
-    def resources_allocated(self):
-        return self.water_allocated
 
     def total_production(self):
         if self.employee.count() is 0 or self.max_employees is 0:
@@ -243,7 +264,7 @@ class Waterworks(BuldingsWithWorkes):
                 energy_productivity = float(self.energy)/float(self.energy_required)
             employees_productivity = float(self.employee.count())/float(self.max_employees)
             productivity = float((energy_productivity+employees_productivity)/2)
-            total = (productivity * int(self.water_production))
+            total = (productivity * int(self.raw_water_production))
             return int(total)
 
 
@@ -261,8 +282,50 @@ class WaterTower(Waterworks):
         elif self.current_build_time == self.build_time:
             self.if_under_construction = False
             self.max_employees = F('max_employees') + 5
-            self.water_production = F('water_production') + 20
+            self.raw_water_production = F('raw_water_production') + 20
             self.save()
+
+
+class SewageWorks(BuldingsWithWorkes):
+    name = models.CharField(default='Oczyszczalnia ścieków', max_length=30)
+    build_time = models.PositiveIntegerField(default=2)
+    build_cost = models.PositiveIntegerField(default=75)
+    maintenance_cost = models.PositiveIntegerField(default=10)
+    energy_required = models.PositiveIntegerField(default=5)
+    pollution_rate = models.FloatField(default=2.0)
+    raw_water = models.PositiveIntegerField(default=0)
+    raw_water_required = models.PositiveIntegerField(default=0)
+    clean_water_allocated = models.PositiveIntegerField(default=0)
+
+    def build_status(self):
+        if self.current_build_time < self.build_time:
+            self.current_build_time = F('current_build_time') + 1
+            self.save()
+        elif self.current_build_time == self.build_time:
+            self.if_under_construction = False
+            self.max_employees = F('max_employees') + 3
+            self.raw_water_required = F('raw_water_required') + 1000
+            self.save()
+
+    def allocate_resource_in_target(self, target, tp):
+        if hasattr(target, 'water'):
+            rl = tp - self.clean_water_allocated
+            rtf = target.water_required - target.water
+            if rl >= rtf:
+                self.clean_water_allocated = F('clean_water_allocated') + rtf
+                target.water = F('water') + rtf
+            elif rl < rtf:
+                self.clean_water_allocated = F('clean_water_allocated') + rl
+                target.water = F('water') + rl
+        self.save()
+        target.save()
+        self.refresh_from_db()
+        target.refresh_from_db()
+
+    def total_production(self):
+        if self.raw_water <= self.raw_water_required:
+            return self.raw_water
+        return self.raw_water_required
 
 
 class DumpingGround(BuldingsWithWorkes):
@@ -284,6 +347,7 @@ class DumpingGround(BuldingsWithWorkes):
         elif self.current_build_time == self.build_time:
             self.if_under_construction = False
             self.max_employees = F('max_employees') + 5
+            self.water_required = F('water_required') + 10
             DustCart.objects.create(dumping_ground=self, city=self.city)
             self.save()
 
@@ -314,3 +378,6 @@ class DustCart(Vehicle):
     def __str__(self):
         return self.name
 
+
+def update_attr(ob, val_to_up, val):
+    setattr(ob, val_to_up, getattr(ob, val_to_up) + val)

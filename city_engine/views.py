@@ -27,10 +27,12 @@ def main_view(request):
     city_stats = CityStatsCenter(city, data)
     city_resources_allocation_stats = zip(["Produkowana", "Ulokowana", "Bilans"],
                                           [city_stats.energy_production, city_stats.energy_allocation, city_stats.energy_bilans],
-                                          [city_stats.water_production, city_stats.water_allocation, city_stats.water_bilans])
+                                          [city_stats.clean_water_production, city_stats.clean_water_allocation, city_stats.clean_water_bilans],
+                                          [city_stats.raw_water_production, city_stats.raw_water_allocation, city_stats.raw_water_bilans])
 
     profile = Profile.objects.get(user_id=request.user.id)
     income = Citizen.objects.filter(city=city).aggregate(Sum('income'))['income__sum']
+    total_cost_of_main = sum([b['maintenance_cost'] for b in data.list_of_building_with_values])
 
     city.save()
 
@@ -42,7 +44,7 @@ def main_view(request):
                                               'hex_detail_info_table': mark_safe(new_hex_detail.hex_detail_info_table),
                                               'buildings': city_stats.list_of_buildings,
                                               'buildings_under_construction': city_stats.building_under_construction,
-                                              'total_cost_of_maintenance': TurnCalculation(city).calculate_maintenance_cost(),
+                                              'total_cost_of_maintenance': total_cost_of_main,
                                               'current_population': city_stats.current_population,
                                               'max_population': city_stats.max_population})
 
@@ -54,7 +56,9 @@ def turn_calculations(request):
     profile.save()
 
     city = City.objects.get(user_id=request.user.id)
-    TurnCalculation(city).run()
+    data = RootClass(city)
+    TurnCalculation(city, data).run()
+    city.save()
 
     return HttpResponseRedirect(reverse('city_engine:main_view'))
 

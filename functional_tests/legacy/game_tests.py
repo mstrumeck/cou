@@ -1,15 +1,10 @@
-import time
 from django.db.models import Sum
-from django.test import override_settings
 from city_engine.models import City, CityField, \
     WindPlant, CoalPlant, RopePlant, \
-    WaterTower, DumpingGround
-from .base import BaseTestForOnePlayer, BaseTestForTwoPlayers, BaseTest
-from city_engine.models import Building, DustCart
+    WaterTower, DumpingGround, Residential
+from .base import BaseTestForOnePlayer, BaseTestForTwoPlayers, BaseTest, TestHelper
 from functional_tests.page_objects import MainView, Homepage, LoginPage
 from city_engine.abstract import RootClass
-from django.db.models import F
-from django.contrib.auth.models import User
 
 
 # @override_settings(DEBUG=True)
@@ -25,6 +20,7 @@ class GameTestForOnePlayer(BaseTest):
                                                                         assertIn=self.assertIn,
                                                                         assertTrue=self.assertTrue)
         main_view = MainView(self.browser, self.live_server_url)
+        main_view.build_the_building_from_single_choice('SewageWorks', '13')
         main_view.build_the_building_from_single_choice('WaterTower', '00')
         main_view.build_the_building_from_single_choice('Residential', '01')
         main_view.build_the_building_from_single_choice('DumpingGround', '02')
@@ -60,10 +56,12 @@ class GameTestForOnePlayer(BaseTest):
         main_view.build_the_building_from_single_choice('Residential', '11')
 
         main_view.next_turns(8)
+        th = TestHelper(self.city_one)
         self.assertEqual(WaterTower.objects.filter(city=self.city_one).count(), 2)
         self.assertEqual(WindPlant.objects.filter(city=self.city_one).count(), 1)
-        self.assertEqual(WindPlant.objects.get(city=self.city_one).energy_allocated,
-                         WaterTower.objects.filter(city=self.city_one).aggregate(Sum('energy'))['energy__sum'])
+        self.assertEqual(WindPlant.objects.get(city=self.city_one).energy_allocated, sum([b.energy for b in th.list_of_buildings]))
+        self.assertEqual(WaterTower.objects.filter(city=self.city_one).aggregate(Sum('energy'))['energy__sum'], 6)
+        self.assertEqual(Residential.objects.latest('id').energy, 1)
 
         wind_plant = WindPlant.objects.get(city=self.city_one,
                                            city_field=CityField.objects.get(city=self.city_one, row=0, col=1))
@@ -95,6 +93,7 @@ class GameTestForTwoPlayers(BaseTest):
                                                                         assertIn=self.assertIn,
                                                                         assertTrue=self.assertTrue)
         main_view = MainView(self.browser, self.live_server_url)
+        main_view.build_the_building_from_single_choice('SewageWorks', '13')
         main_view.build_the_building_from_single_choice('WaterTower', '00')
         main_view.build_the_building_from_single_choice('Residential', '01')
         main_view.build_the_building_from_single_choice('DumpingGround', '02')
@@ -120,6 +119,7 @@ class GameTestForTwoPlayers(BaseTest):
                                                                         assertIn=self.assertIn,
                                                                         assertTrue=self.assertTrue)
         main_view = MainView(self.browser, self.live_server_url)
+        main_view.build_the_building_from_single_choice('SewageWorks', '13')
         main_view.build_the_building_from_single_choice('WaterTower', '00')
         main_view.build_the_building_from_single_choice('Residential', '01')
         main_view.build_the_building_from_single_choice('DumpingGround', '02')

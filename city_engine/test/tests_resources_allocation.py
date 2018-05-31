@@ -1,7 +1,9 @@
 from django import test
 from city_engine.main_view_data.resources_allocation import ResourceAllocation
-from city_engine.models import CityField, City, WindPlant, WaterTower, Residential, DumpingGround
+from city_engine.models import CityField, City, WindPlant, WaterTower, Residential, DumpingGround, SewageWorks
 from django.db.models import Sum
+from city_engine.main_view_data.trash_management import TrashManagement
+from city_engine.main_view_data.employee_allocation import EmployeeAllocation
 from city_engine.turn_data.main import TurnCalculation
 from city_engine.test.base import TestHelper
 from city_engine.abstract import RootClass
@@ -18,7 +20,7 @@ class ResourcesAllocationsTests(test.TestCase, TestHelper):
 
     def test_pollution_cleaning(self):
         self.RA.pollution_allocation()
-        self.assertEqual(CityField.objects.filter(city=self.city).aggregate(Sum('pollution'))['pollution__sum'], 18)
+        self.assertEqual(CityField.objects.filter(city=self.city).aggregate(Sum('pollution'))['pollution__sum'], 29)
         self.RA.clean_city_field_data()
         self.assertEqual(CityField.objects.filter(city=self.city).aggregate(Sum('pollution'))['pollution__sum'], 0)
 
@@ -26,29 +28,25 @@ class ResourcesAllocationsTests(test.TestCase, TestHelper):
         self.RA.clean_city_field_data()
         self.assertEqual(CityField.objects.filter(city=self.city).aggregate(Sum('pollution'))['pollution__sum'], 0)
         self.RA.pollution_allocation()
-        self.assertEqual(CityField.objects.filter(city=self.city).aggregate(Sum('pollution'))['pollution__sum'], 18)
-
-    def test_update_attr(self):
-        ob = WindPlant.objects.latest('id')
-        self.assertEqual(ob.water, 0)
-        self.RA.update_attr(ob, 'water', 5)
-        self.assertEqual(ob.water, 5)
+        self.assertEqual(CityField.objects.filter(city=self.city).aggregate(Sum('pollution'))['pollution__sum'], 29)
 
     def test_resources_allocation(self):
-        for building in WindPlant.objects.filter(city=self.city):
-            building.resources_allocation_reset()
-
-        for building in WaterTower.objects.filter(city=self.city):
-            building.resources_allocation_reset()
+        WindPlant.objects.update(energy_allocated=0)
+        WaterTower.objects.update(raw_water_allocated=0)
+        SewageWorks.objects.update(clean_water_allocated=0)
 
         self.assertEqual(WindPlant.objects.filter(city=self.city).aggregate(Sum('energy_allocated'))['energy_allocated__sum'], 0)
-        self.assertEqual(WaterTower.objects.filter(city=self.city).aggregate(Sum('water_allocated'))['water_allocated__sum'], 0)
+        self.assertEqual(WaterTower.objects.filter(city=self.city).aggregate(Sum('raw_water_allocated'))['raw_water_allocated__sum'], 0)
+        self.assertEqual(SewageWorks.objects.filter(city=self.city).aggregate(Sum('clean_water_allocated'))['clean_water_allocated__sum'], 0)
 
         for x in range(3):
-            TurnCalculation(city=self.city).run()
+            TurnCalculation(city=self.city, data=self.RC).run()
 
         self.assertIn(WindPlant.objects.filter(city=self.city).aggregate(Sum('energy_allocated'))['energy_allocated__sum'], range(5, 25))
-        self.assertIn(WaterTower.objects.filter(city=self.city).aggregate(Sum('water_allocated'))['water_allocated__sum'], range(5, 25))
+        self.assertIn(WaterTower.objects.filter(city=self.city).aggregate(Sum('raw_water_allocated'))['raw_water_allocated__sum'], range(5, 50))
+        self.assertIn(SewageWorks.objects.filter(city=self.city).aggregate(Sum('clean_water_allocated'))['clean_water_allocated__sum'], range(5, 40))
 
+        self.assertNotEqual(sum([b.energy for b in self.RC.list_of_buildings]), 0)
+        self.assertNotEqual(sum([b.water for b in self.RC.list_of_buildings]), 0)
 
 # python manage.py dumpdata citizen_engine city_engine auth.user --indent=2 --output=city_engine/fixtures/basic_fixture_resources_and_employees2.json

@@ -1,23 +1,22 @@
 from city_engine.main_view_data.employee_allocation import EmployeeAllocation
 from city_engine.main_view_data.resources_allocation import ResourceAllocation
-from city_engine.main_view_data.trash_management import TrashManagement
-from city_engine.abstract import RootClass
-from city_engine.models import CityField, Vehicle
+from city_engine.main_view_data.trash_management import TrashManagement, CollectGarbage
 
 
 class TurnCalculation(object):
 
-    def __init__(self, city):
+    def __init__(self, city, data):
         self.city = city
-        self.data = RootClass(self.city)
+        self.data = data
 
     def run(self):
-        TrashManagement(self.city, self.data).run()
+        TrashManagement(self.data).run()
         EmployeeAllocation(self.city, self.data).run()
         ResourceAllocation(self.city, self.data).run()
+        CollectGarbage(self.city, self.data).run()
         self.execute_maintenance()
         self.update_build_status()
-        self.city.save()
+        # self.city.save()
 
     def update_build_status(self):
         for building in self.data.list_of_buildings_only:

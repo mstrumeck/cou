@@ -68,7 +68,7 @@ class TrashCollectorTest(BaseTest):
         self.assertEqual(dumping_ground.employee.count(), 5)
         self.assertGreater(dumping_ground.current_space_for_trash, 100)
         self.assertEqual(dust_cart.employee.count(), 3)
-        self.assertEqual(CityField.objects.filter(city=self.city_one).aggregate(Sum('pollution'))['pollution__sum'], 36)
+        self.assertGreater(CityField.objects.filter(city=self.city_one).aggregate(Sum('pollution'))['pollution__sum'], 36)
 
     # def test_with_various_number_of_drivers(self):
     #     self.create_first_user()

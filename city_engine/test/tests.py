@@ -36,19 +36,23 @@ class CityViewTests(CityFixture, RootClass):
 
         self.assertEqual(total_energy, self.city_stats.energy_production)
 
-    def test_total_water_production_view(self):
+    def test_total_clean_water_production_view(self):
         response = self.client.get('/main_view/')
         self.assertTemplateUsed(response, 'main_view.html')
 
-        self.assertTrue(response, 'Woda: {}'.format(self.city_stats.water_production))
+        self.assertTrue(response, 'Oczyszczona woda: {}'.format(self.city_stats.clean_water_production))
 
-    def test_cash_info_view(self):
+    def test_total_raw_water_production_view(self):
         response = self.client.get('/main_view/')
         self.assertTemplateUsed(response, 'main_view.html')
+        self.assertTrue(response, 'Surowa woda: {}'.format(self.city_stats.raw_water_production))
 
-        total_cost = TurnCalculation(self.city).calculate_maintenance_cost()
-
-        self.assertContains(response, 'Koszty utrzymania: {}'.format(total_cost))
+    # def test_cash_info_view(self):
+    #     response = self.client.get('/main_view/')
+    #     self.assertTemplateUsed(response, 'main_view.html')
+    #
+    #     total_cost = TurnCalculation(self.city, self.data).calculate_maintenance_cost()
+    #     self.assertContains(response, 'Koszty utrzymania: {}'.format(total_cost))
 
     def test_buildings_under_construction_view(self):
         response = self.client.get('/main_view/')
@@ -143,38 +147,6 @@ class ModelsTests(test.TestCase, TestHelper):
         city_field = CityField.objects.create(city=self.city, row=1, col=1)
         self.assertTrue(isinstance(city_field, CityField))
 
-    def test_water_allocation_reset_method(self):
-        water_tower = WaterTower.objects.create(city=self.city,
-                                                city_field=self.city_field1,
-                                                if_under_construction=False,
-                                                build_time=0,
-                                                water_allocated=10)
-        water_tower.resources_allocation_reset()
-        self.assertEqual(water_tower.water_allocated, 0)
-
-    def test_energy_allocation_reset_method(self):
-        wind_plant = WindPlant.objects.create(city=self.city,
-                                              city_field=self.city_field1,
-                                              if_under_construction=False,
-                                              build_time=0,
-                                              energy_allocated=10)
-        wind_plant.resources_allocation_reset()
-        self.assertEqual(wind_plant.energy_allocated, 0)
-
-    def test_key_resources_interface(self):
-        wind_plant = WindPlant.objects.create(city=self.city,
-                                              city_field=self.city_field1,
-                                              if_under_construction=False,
-                                              build_time=0,
-                                              energy_allocated=10)
-        water_tower = WaterTower.objects.create(city=self.city,
-                                                city_field=self.city_field2,
-                                                if_under_construction=False,
-                                                build_time=0,
-                                                water_allocated=10)
-        self.assertEqual(wind_plant.resources_allocated(), 10)
-        self.assertEqual(water_tower.resources_allocated(), 10)
-
     def test_pollution_calculations(self):
         Residential.objects.create(city=self.city, city_field=CityField.objects.latest('id'))
         wind_plant = WindPlant.objects.create(city=self.city,
@@ -189,7 +161,7 @@ class ModelsTests(test.TestCase, TestHelper):
                                                 city_field=self.city_field2,
                                                 if_under_construction=False,
                                                 build_time=0,
-                                                water_allocated=10,
+                                                raw_water_allocated=10,
                                                 max_employees=5,
                                                 )
         self.populate_city()

@@ -2,7 +2,7 @@ from city_engine.models import CityField, DustCart
 import numpy as np
 from django.db.models import Sum
 from .global_variables import HEX_NUM_IN_ROW, HEX_NUM, ROW_NUM
-from city_engine.models import WindPlant, BuldingsWithWorkes, PowerPlant, Waterworks, DumpingGround, Residential
+from city_engine.models import WindPlant, BuldingsWithWorkes, PowerPlant, Waterworks, DumpingGround, Residential, SewageWorks
 from city_engine.abstract import RootClass
 
 
@@ -89,6 +89,7 @@ class HexDetail(object):
                 build = builds[(row, col)]
                 hex_detail_box += "<p>{}</p>".format(build.name)
                 hex_detail_box += "<p>Zanieczyszczenie: {}</p>".format(build_field.pollution)
+                hex_detail_box += '<p>Woda: {}/{}</p>'.format(build.water, build.water_required)
                 if isinstance(build, BuldingsWithWorkes):
                     hex_detail_box += '<p name="detailEmployees">Pracownicy: {}/{}</p>'.format(build.employee.count(), build.max_employees)
                     if isinstance(build, Waterworks):
@@ -99,9 +100,18 @@ class HexDetail(object):
                         hex_detail_box += self.add_trashcollector_details(build)
                     elif isinstance(build, Residential):
                         hex_detail_box += '<p>Populacja: {}/{}</p>'.format(build.population, build.max_population)
+                    elif isinstance(build, SewageWorks):
+                        hex_detail_box += self.add_sewage_works_details(build)
 
         hex_detail_box += "</div>"
         return hex_detail_box
+
+    def add_sewage_works_details(self, build):
+        hex_detail_box = ''
+        hex_detail_box += '<p>Pompowana czysta woda: {}/{}</p>'.format(build.clean_water_allocated, build.total_production())
+        hex_detail_box += '<p>Przepustowość : {}</p>'.format(build.raw_water_required)
+        return hex_detail_box
+
 
     def add_electricity_details(self, build):
         hex_detail_box = ''
@@ -112,15 +122,14 @@ class HexDetail(object):
         else:
             hex_detail_box += '<p>Liczba reaktorów: '
             hex_detail_box += str(build.power_nodes)+'/'+str(build.max_power_nodes)+'</p>'
-        hex_detail_box += '<p>Woda: '+str(build.water)+'/'+str(build.water_required)+'</p>'
         hex_detail_box += '<p>Śmieci: {}</p>'.format(build.trash.aggregate(Sum('size'))['size__sum'])
         return hex_detail_box
 
     def add_waterworks_details(self, build):
         hex_detail_box = ''
-        hex_detail_box += '<p name="detailWater">Pompowana woda: '+str(build.total_production())+'</p>'
+        hex_detail_box += '<p name="detailWater">Pompowana surowa woda: '+str(build.total_production())+'</p>'
         hex_detail_box += '<p>Energia: '+str(build.energy)+'/'+str(build.energy_required)+'</p>'
-        hex_detail_box += '<p>Woda allocated: '+str(build.water_allocated)+'</p>'
+        hex_detail_box += '<p>Surowa woda zalokowana: '+str(build.raw_water_allocated)+'</p>'
         hex_detail_box += '<p>Śmieci: {}</p>'.format(build.trash.aggregate(Sum('size'))['size__sum'])
         return hex_detail_box
 

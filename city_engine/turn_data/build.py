@@ -1,7 +1,7 @@
 from city_engine.models import CityField, City, \
     WindPlant, RopePlant, CoalPlant, \
     WaterTower, DumpingGround, \
-    Residential, ProductionBuilding
+    Residential, ProductionBuilding, SewageWorks
 
 
 def build_building(request, row, col, build_type):

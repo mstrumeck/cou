@@ -17,7 +17,8 @@ def run_tests_with_coverage():
                                          player \
                                          functional_tests.legacy.game_tests \
                                          functional_tests.legacy.user_tests \
-                                         functional_tests.trashcollector_tests")
+                                         functional_tests.trashcollector_tests \
+                                         functional_tests.resource_allocation_tests")
 
 # run_tests_with_coverage()
 run_tests()

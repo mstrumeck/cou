@@ -13,7 +13,7 @@ class TestTrashAllocation(test.TestCase, TestHelper):
     def setUp(self):
         self.city = City.objects.latest('id')
         self.RC = RootClass(self.city)
-        self.trash_management = TrashManagement(city=self.city, data=self.RC)
+        self.trash_management = TrashManagement(data=self.RC)
         self.collect_garbage = CollectGarbage(city=self.city, data=self.RC)
         self.wind_plant = WindPlant.objects.latest('id')
         self.water_tower = WaterTower.objects.latest('id')
@@ -26,8 +26,8 @@ class TestTrashAllocation(test.TestCase, TestHelper):
         self.trash_management.generate_trash()
         self.collect_garbage.run()
         dumping_ground = DumpingGround.objects.latest('id')
-        self.assertNotEqual(self.trash_management.list_of_all_trashes_in_city(), [])
-        self.assertGreater(dumping_ground.current_space_for_trash, 20)
+        self.assertEqual(self.trash_management.list_of_all_trashes_in_city(), [])
+        self.assertGreater(dumping_ground.current_space_for_trash, 40)
 
     def test_existing_dumping_grounds_with_slots(self):
         self.assertEqual(self.collect_garbage.existing_dumping_grounds_with_slots(), [DumpingGround.objects.latest('id')])
@@ -39,17 +39,6 @@ class TestTrashAllocation(test.TestCase, TestHelper):
         self.assertEqual(self.collect_garbage.existing_dust_carts(dg), [DustCart.objects.latest('id')])
         DustCart.objects.latest('id').delete()
         self.assertEqual(self.collect_garbage.existing_dust_carts(dg), [])
-
-    def test_city_field_from_corr(self):
-        for z in range(30):
-            x = random.randint(0, HEX_NUM_IN_ROW-1)
-            y = random.randint(0, HEX_NUM_IN_ROW-1)
-            self.assertEqual(self.collect_garbage.city_field_from_corr((x, y)), CityField.objects.get(row=x, col=y, city=self.city))
-
-    def test_search_building_with_corr(self):
-        self.assertEqual(self.collect_garbage.search_building_with_corr(CityField.objects.get(id=7)), self.wind_plant)
-        self.assertEqual(self.collect_garbage.search_building_with_corr(CityField.objects.get(id=11)), self.water_tower)
-        self.assertEqual(self.collect_garbage.search_building_with_corr(CityField.objects.get(id=1)), None)
 
     def delete_all_trashes(self, building):
         for trash in self.collect_garbage.list_of_trash_for_building(building):
