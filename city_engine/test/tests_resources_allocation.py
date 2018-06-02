@@ -21,11 +21,11 @@ class ResourcesAllocationsTests(test.TestCase, TestHelper):
     def test_pollution_cleaning(self):
         self.RA.pollution_allocation()
         self.assertEqual(CityField.objects.filter(city=self.city).aggregate(Sum('pollution'))['pollution__sum'], 29)
-        self.RA.clean_city_field_data()
+        self.RA.clean_allocation_data()
         self.assertEqual(CityField.objects.filter(city=self.city).aggregate(Sum('pollution'))['pollution__sum'], 0)
 
     def test_pollution_allocation(self):
-        self.RA.clean_city_field_data()
+        self.RA.clean_allocation_data()
         self.assertEqual(CityField.objects.filter(city=self.city).aggregate(Sum('pollution'))['pollution__sum'], 0)
         self.RA.pollution_allocation()
         self.assertEqual(CityField.objects.filter(city=self.city).aggregate(Sum('pollution'))['pollution__sum'], 29)

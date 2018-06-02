@@ -1,6 +1,7 @@
 from city_engine.models import CityField
 from django.db.models import F
 from city_engine.main_view_data.global_variables import HEX_NUM_IN_ROW, ROW_NUM
+from city_engine.models import PowerPlant
 
 
 class ResourceAllocation(object):
@@ -10,12 +11,23 @@ class ResourceAllocation(object):
         self.data = data
 
     def run(self):
-        self.clean_city_field_data()
+        self.clean_allocation_data()
         self.all_resource_allocation()
         self.pollution_allocation()
 
-    def clean_city_field_data(self):
+    def clean_allocation_data(self):
         CityField.objects.filter(city=self.city).update(pollution=0)
+        for b in self.data.power_plant_buildings:
+            b.energy_allocated = 0
+        for b in self.data.waterworks_buildings:
+            b.raw_water_allocated = 0
+        for b in self.data.sewageworks_buildings:
+            b.raw_water = 0
+            b.clean_water_allocated = 0
+        for b in self.data.list_of_buildings:
+            b.water = 0
+            b.energy = 0
+            b.save()
 
     def all_resource_allocation(self):
         for dataset in self.data.datasets_for_turn_calculation():
@@ -34,20 +46,6 @@ class ResourceAllocation(object):
                 key = pattern[guard]
                 provider_ob.allocate_resource_in_target(dataset['list_without_source'][key], provider_total_production)
                 guard += 1
-
-    # def pollution_allocation(self):
-    #     build = {b.city_field: b for b in self.data.list_of_buildings}
-    #     for field in CityField.objects.filter(city=self.city):
-    #         if field in build:
-    #             target_build = build[field]
-    #             pattern = AllocationPattern().return_first_allocation(field.row, field.col) #DOKONCZ
-    #             for corr in pattern:
-    #                 if CityField.objects.filter(city=self.city, row=corr[0], col=corr[1]).exists():
-    #                     target_city_field = CityField.objects.get(city=self.city, row=corr[0], col=corr[1])
-    #                     target_city_field.pollution += (target_build.pollution_calculation() / len(pattern))
-    #                     field.pollution = F('pollution') + (target_build.pollution_calculation() / len(pattern))
-    #                     target_city_field.save()
-    #                     target_city_field.refresh_from_db()
 
     def pollution_allocation(self):
         builds = {b.city_field: b for b in self.data.list_of_buildings}

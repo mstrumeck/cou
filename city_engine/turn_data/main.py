@@ -1,6 +1,7 @@
 from city_engine.main_view_data.employee_allocation import EmployeeAllocation
 from city_engine.main_view_data.resources_allocation import ResourceAllocation
 from city_engine.main_view_data.trash_management import TrashManagement, CollectGarbage
+from city_engine.models import Farm
 
 
 class TurnCalculation(object):
@@ -16,7 +17,11 @@ class TurnCalculation(object):
         CollectGarbage(self.city, self.data).run()
         self.execute_maintenance()
         self.update_build_status()
-        # self.city.save()
+        self.update_harvest_status()
+
+    def update_harvest_status(self):
+        for farm in [b for b in self.data.list_of_buildings if isinstance(b, Farm)]:
+            farm.update_harvest()
 
     def update_build_status(self):
         for building in self.data.list_of_buildings_only:

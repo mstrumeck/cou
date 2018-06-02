@@ -1,5 +1,4 @@
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db.models import Sum
 from django.shortcuts import HttpResponseRedirect
@@ -11,8 +10,7 @@ from city_engine.models import City
 from player.models import Profile
 from .main_view_data.city_stats import \
     CityStatsCenter
-from .turn_data.main import \
-    TurnCalculation
+from .turn_data.main import TurnCalculation
 from .turn_data.build import build_building
 from django.db.models import F
 from city_engine.abstract import RootClass
@@ -51,13 +49,14 @@ def main_view(request):
 
 @login_required
 def turn_calculations(request):
-    profile = Profile.objects.get(user_id=request.user.id)
-    profile.current_turn = F('current_turn') + 1
-    profile.save()
 
     city = City.objects.get(user_id=request.user.id)
     data = RootClass(city)
     TurnCalculation(city, data).run()
+
+    profile = Profile.objects.get(user_id=request.user.id)
+    profile.current_turn = F('current_turn') + 1
+    profile.save()
     city.save()
 
     return HttpResponseRedirect(reverse('city_engine:main_view'))

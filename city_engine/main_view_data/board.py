@@ -90,6 +90,7 @@ class HexDetail(object):
                 hex_detail_box += "<p>{}</p>".format(build.name)
                 hex_detail_box += "<p>Zanieczyszczenie: {}</p>".format(build_field.pollution)
                 hex_detail_box += '<p>Woda: {}/{}</p>'.format(build.water, build.water_required)
+                hex_detail_box += "<p>Energia : {}/{}</p>".format(build.energy, build.energy_required)
                 if isinstance(build, BuldingsWithWorkes):
                     hex_detail_box += '<p name="detailEmployees">Pracownicy: {}/{}</p>'.format(build.employee.count(), build.max_employees)
                     if isinstance(build, Waterworks):
@@ -128,7 +129,6 @@ class HexDetail(object):
     def add_waterworks_details(self, build):
         hex_detail_box = ''
         hex_detail_box += '<p name="detailWater">Pompowana surowa woda: '+str(build.total_production())+'</p>'
-        hex_detail_box += '<p>Energia: '+str(build.energy)+'/'+str(build.energy_required)+'</p>'
         hex_detail_box += '<p>Surowa woda zalokowana: '+str(build.raw_water_allocated)+'</p>'
         hex_detail_box += '<p>Śmieci: {}</p>'.format(build.trash.aggregate(Sum('size'))['size__sum'])
         return hex_detail_box

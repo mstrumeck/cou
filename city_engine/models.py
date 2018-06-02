@@ -2,7 +2,6 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.contrib.auth.models import User
-from django.apps import apps
 from django.db.models import F
 
 
@@ -255,7 +254,7 @@ class Waterworks(BuldingsWithWorkes):
         return self.employee.count() * self.pollution_rate
 
     def total_production(self):
-        if self.employee.count() is 0 or self.max_employees is 0:
+        if self.employee.count() is 0:
             return 0
         else:
             if self.energy is 0:
@@ -323,9 +322,91 @@ class SewageWorks(BuldingsWithWorkes):
         target.refresh_from_db()
 
     def total_production(self):
-        if self.raw_water <= self.raw_water_required:
-            return self.raw_water
-        return self.raw_water_required
+        if self.energy is 0:
+            return 0
+        else:
+            energy_productivity = float(self.energy) / float(self.energy_required)
+        try:
+            employee_productivity = float(self.employee.count()) / float(self.max_employees)
+            productivity = float((employee_productivity + energy_productivity)/2)
+            if self.raw_water <= self.raw_water_required:
+                return int(self.raw_water * productivity)
+            return int(self.raw_water_required * productivity)
+        except(ZeroDivisionError):
+            return 0
+
+
+class Farm(BuldingsWithWorkes):
+    build_time = models.PositiveIntegerField(default=1)
+    build_cost = models.PositiveIntegerField(default=200)
+    maintenance_cost = models.PositiveIntegerField(default=20)
+    energy_required = models.PositiveIntegerField(default=20)
+    water_required = models.PositiveIntegerField(default=40)
+    crops = models.PositiveIntegerField(default=0)
+    harvest = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        abstract = True
+
+    def build_status(self):
+        if self.current_build_time < self.build_time:
+            self.current_build_time = F('current_build_time') + 1
+            self.save()
+        elif self.current_build_time == self.build_time:
+            self.if_under_construction = False
+            self.max_employees = F('max_employees') + 5
+            self.save()
+
+    def update_harvest(self):
+        if self.harvest < 5:
+            self.harvest = F('harvest') + 1
+            self.save()
+            self.refresh_from_db()
+        elif self.harvest == 5:
+            self.harvest = 0
+            self.veg.create(size=60)
+            self.save()
+            self.refresh_from_db()
+
+    def __str__(self):
+        return self.name
+
+
+class PotatoFarm(Farm):
+    name = models.CharField(default='Farma ziemniaków', max_length=20)
+    veg = GenericRelation('city_engine.Potato')
+
+
+class BeanFarm(Farm):
+    name = models.CharField(default='Farma fasoli', max_length=15)
+    veg = GenericRelation('city_engine.Bean')
+
+
+class LettuceFarm(Farm):
+    name = models.CharField(default='Farma sałaty', max_length=15)
+    veg = GenericRelation('city_engine.Lettuce')
+
+
+class KindOfCultivation(models.Model):
+    size = models.PositiveIntegerField(default=60)
+    content_type = models.ForeignKey(ContentType, on_delete=models.SET_NULL, null=True)
+    object_id = models.PositiveIntegerField()
+    content_objects = GenericForeignKey()
+
+    class Meta:
+        abstract = True
+
+
+class Bean(KindOfCultivation):
+    name = models.CharField(default='Fasola', max_length=10)
+
+
+class Potato(KindOfCultivation):
+    name = models.CharField(default='Ziemniaki', max_length=10)
+
+
+class Lettuce(KindOfCultivation):
+    name = models.CharField(default='Sałata', max_length=10)
 
 
 class DumpingGround(BuldingsWithWorkes):
@@ -363,6 +444,9 @@ class Vehicle(models.Model):
     class Meta:
         abstract = True
 
+    def __str__(self):
+        return self.name
+
 
 class DustCart(Vehicle):
     dumping_ground = models.ForeignKey(DumpingGround, on_delete=models.SET_NULL, null=True)
@@ -375,9 +459,3 @@ class DustCart(Vehicle):
     def effectiveness(self):
         return float(self.employee.count()) / float(self.max_employees)
 
-    def __str__(self):
-        return self.name
-
-
-def update_attr(ob, val_to_up, val):
-    setattr(ob, val_to_up, getattr(ob, val_to_up) + val)

@@ -1,7 +1,5 @@
-from abc import ABC
 from django.apps import apps
 from city_engine.models import Building, BuldingsWithWorkes, Vehicle, PowerPlant, Waterworks, WindPlant, SewageWorks
-from itertools import chain
 
 
 class RootClass(object):
