@@ -3,6 +3,7 @@ from django import test
 from city_engine.test.base import TestHelper
 from city_engine.models import CityField,Residential, City, WindPlant, WaterTower
 from city_engine.abstract import RootClass
+from django.contrib.auth.models import User
 
 
 class TestTurnCalculation(test.TestCase, TestHelper):
@@ -10,7 +11,7 @@ class TestTurnCalculation(test.TestCase, TestHelper):
 
     def setUp(self):
         self.city = City.objects.latest('id')
-        self.data = RootClass(city=self.city)
+        self.data = RootClass(city=self.city, user=User.objects.latest('id'))
 
     def test_calculate_maintanance_cost(self):
         self.assertEqual(TurnCalculation(self.city, self.data).calculate_maintenance_cost(), 40)

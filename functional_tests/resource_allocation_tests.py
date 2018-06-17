@@ -21,6 +21,7 @@ class ResourceAllocationTest(BaseTest):
         main_view.build_the_building_from_single_choice('Residential', '01')
         main_view.build_the_building_from_single_choice('DumpingGround', '02')
         main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'WindPlant', '03')
+        main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'WindPlant', '10')
 
         self.assertEqual(WindPlant.objects.filter(city=self.city_one).aggregate(Sum('energy_allocated'))['energy_allocated__sum'], 0)
         self.assertEqual(WaterTower.objects.filter(city=self.city_one).aggregate(Sum('raw_water_allocated'))['raw_water_allocated__sum'], 0)

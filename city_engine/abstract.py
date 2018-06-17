@@ -3,8 +3,11 @@ from city_engine.models import Building, BuldingsWithWorkes, Vehicle, PowerPlant
 
 
 class RootClass(object):
-    def __init__(self, city):
+    def __init__(self, city, user):
         self.city = city
+
+        self.user = user
+
         self.subclasses_of_all_buildings = self.get_subclasses_of_all_buildings()
 
         self.list_of_buildings = self.clean_list(self.get_quersies_of_buildings())

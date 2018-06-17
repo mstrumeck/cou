@@ -91,6 +91,7 @@ class HexDetail(object):
                 hex_detail_box += "<p>Zanieczyszczenie: {}</p>".format(build_field.pollution)
                 hex_detail_box += '<p>Woda: {}/{}</p>'.format(build.water, build.water_required)
                 hex_detail_box += "<p>Energia : {}/{}</p>".format(build.energy, build.energy_required)
+                hex_detail_box += "<p>W trakcie budowy: {}</p>".format(build.if_under_construction)
                 if isinstance(build, BuldingsWithWorkes):
                     hex_detail_box += '<p name="detailEmployees">Pracownicy: {}/{}</p>'.format(build.employee.count(), build.max_employees)
                     if isinstance(build, Waterworks):

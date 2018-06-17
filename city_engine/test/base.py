@@ -24,18 +24,15 @@ class BaseFixture(test.TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='Michał', password='12345', email='random@wp.pl')
         self.client.login(username='Michał', password='12345', email='random@wp.pl')
-        self.city = City.objects.create_with_workplace(name='Wrocław', user=self.user)
+        self.city = City.objects.create(name='Wrocław', user=self.user)
         assign_city_fields_to_board(self.city)
 
-        field_one = CityField.objects.get(row=0, col=1, city=self.city)
-        field_two = CityField.objects.get(row=0, col=2, city=self.city)
+        self.field_one = CityField.objects.get(row=0, col=1, city=self.city)
+        self.field_two = CityField.objects.get(row=0, col=2, city=self.city)
         field_three = CityField.objects.get(row=1, col=1, city=self.city)
         field_four = CityField.objects.get(row=1, col=1, city=self.city)
 
-        WindPlant.objects.create(city=self.city, city_field=field_one, if_electricity=True, if_under_construction=True, current_employees=5)
-        WindPlant.objects.create(city=self.city)
-        WaterTower.objects.create(city=self.city)
-        WaterTower.objects.create(city=self.city)
+        self.data = RootClass(self.city, user=self.user)
 
 
 class CityFixture(test.TestCase):
@@ -43,7 +40,7 @@ class CityFixture(test.TestCase):
         first_user = User.objects.create_user(username='test_username', password='12345', email='random@wp.pl')
         self.client.login(username='test_username', password='12345', email='random@wp.pl')
         self.city = City.objects.create(name='Wrocław', user=first_user, cash=10000)
-        self.data = RootClass(self.city)
+        self.data = RootClass(self.city, user=first_user)
         self.city_stats = CityStatsCenter(self.city, self.data)
 
         second_user = User.objects.create_user(username='test_username_2', password='54321', email='random2@wp.pl')

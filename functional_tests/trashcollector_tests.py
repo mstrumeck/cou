@@ -4,6 +4,7 @@ from city_engine.models import CityField, City, \
 from .legacy.base import BaseTest
 from django.db.models import Sum
 from city_engine.abstract import RootClass
+from django.contrib.auth.models import User
 
 
 class TrashCollectorTest(BaseTest):
@@ -25,7 +26,7 @@ class TrashCollectorTest(BaseTest):
 
     def list_of_all_trashes_in_city(self):
         result = []
-        for building in RootClass(city=City.objects.latest('id')).list_of_buildings:
+        for building in RootClass(city=City.objects.latest('id'), user=User.objects.latest('id')).list_of_buildings:
             for trash in building.trash.all():
                 result.append(trash)
         return result

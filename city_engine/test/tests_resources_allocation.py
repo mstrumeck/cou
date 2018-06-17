@@ -7,6 +7,7 @@ from city_engine.main_view_data.employee_allocation import EmployeeAllocation
 from city_engine.turn_data.main import TurnCalculation
 from city_engine.test.base import TestHelper
 from city_engine.abstract import RootClass
+from django.contrib.auth.models import User
 
 
 class ResourcesAllocationsTests(test.TestCase, TestHelper):
@@ -14,7 +15,7 @@ class ResourcesAllocationsTests(test.TestCase, TestHelper):
 
     def setUp(self):
         self.city = City.objects.latest('id')
-        self.RC = RootClass(self.city)
+        self.RC = RootClass(self.city, User.objects.latest('id'))
         self.RA = ResourceAllocation(city=self.city, data=self.RC)
         self.populate_city()
 

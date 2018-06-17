@@ -1,6 +1,5 @@
 from functional_tests.page_objects import MainView, LoginPage
-from city_engine.models import CityField, City, SewageWorks, \
-    WindPlant, WaterTower, PotatoFarm, BeanFarm, LettuceFarm, Potato, Bean, Lettuce
+from city_engine.models import PotatoFarm, BeanFarm, LettuceFarm, Potato, Bean, Lettuce, CattleFarm, Milk
 from .legacy.base import BaseTest
 
 
@@ -30,3 +29,23 @@ class FoodProductionTest(BaseTest):
         self.assertIn(Potato.objects.latest('id'), pf.veg.all())
         self.assertIn(Bean.objects.latest('id'), bf.veg.all())
         self.assertIn(Lettuce.objects.latest('id'), lf.veg.all())
+
+    def test_breeding(self):
+        self.create_first_user()
+        LoginPage(self.browser,
+                  self.live_server_url).navigate_to_main_throught_login(user=self.user_one,
+                                                                        username=self.player_one,
+                                                                        password=self.password_one,
+                                                                        city=self.city_one,
+                                                                        assertIn=self.assertIn,
+                                                                        assertTrue=self.assertTrue)
+        main_view = MainView(self.browser, self.live_server_url)
+        main_view.build_the_building_from_multiple_choice('Farmy', 'CattleFarm', '20')
+        main_view.next_turn()
+        self.assertEqual(CattleFarm.objects.all().count(), 1)
+        cf = CattleFarm.objects.latest('id')
+        self.assertEqual(cf.cattle.all().count(), 1)
+        self.assertEqual(Milk.objects.all().count(), 0)
+        main_view.next_turn()
+        self.assertEqual(cf.cattle.all().count(), 1)
+        self.assertEqual(Milk.objects.all().count(), 1)

@@ -6,6 +6,7 @@ from city_engine.models import CityField, City, WindPlant, WaterTower
 from django.db.models import Sum
 from .base import TestHelper
 from city_engine.abstract import RootClass
+from django.contrib.auth.models import User
 
 
 class CityStatsTests(test.TestCase, TestHelper):
@@ -13,7 +14,7 @@ class CityStatsTests(test.TestCase, TestHelper):
 
     def setUp(self):
         self.city = City.objects.latest('id')
-        self.RC = RootClass(self.city)
+        self.RC = RootClass(self.city, User.objects.latest('id'))
         self.populate_city()
 
     def test_city_stats_center_methods(self):

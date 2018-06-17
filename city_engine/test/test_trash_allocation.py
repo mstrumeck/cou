@@ -2,6 +2,7 @@ from django import test
 from city_engine.main_view_data.trash_management import TrashManagement, CollectGarbage
 from city_engine.models import DumpingGround, City, DustCart, CityField, WindPlant, WaterTower, Building
 import random
+from django.contrib.auth.models import User
 from city_engine.main_view_data.global_variables import HEX_NUM_IN_ROW
 from city_engine.test.base import TestHelper
 from city_engine.abstract import RootClass
@@ -12,7 +13,7 @@ class TestTrashAllocation(test.TestCase, TestHelper):
 
     def setUp(self):
         self.city = City.objects.latest('id')
-        self.RC = RootClass(self.city)
+        self.RC = RootClass(self.city, User.objects.latest('id'))
         self.trash_management = TrashManagement(data=self.RC)
         self.collect_garbage = CollectGarbage(city=self.city, data=self.RC)
         self.wind_plant = WindPlant.objects.latest('id')

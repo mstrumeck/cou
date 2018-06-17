@@ -4,6 +4,7 @@ from city_engine.main_view_data.employee_allocation import EmployeeAllocation
 from city_engine.models import City, Trash, \
     WindPlant, WaterTower, DumpingGround, CityField, Building
 from django.apps import apps
+from django.contrib.auth.models import User
 from city_engine.test.base import TestHelper
 from city_engine.abstract import RootClass
 
@@ -13,7 +14,7 @@ class CityStatsTests(test.TestCase, TestHelper):
 
     def setUp(self):
         self.city = City.objects.latest('id')
-        self.RC = RootClass(self.city)
+        self.RC = RootClass(self.city, User.objects.latest('id'))
         self.TM = TrashManagement(self.RC)
         self.populate_city()
 

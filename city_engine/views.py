@@ -19,7 +19,7 @@ from city_engine.abstract import RootClass
 @login_required
 def main_view(request):
     city = City.objects.get(user_id=request.user.id)
-    data = RootClass(city)
+    data = RootClass(city, request.user)
     new_board = Board(city, data)
     new_hex_detail = HexDetail(city, data)
     city_stats = CityStatsCenter(city, data)
@@ -51,7 +51,7 @@ def main_view(request):
 def turn_calculations(request):
 
     city = City.objects.get(user_id=request.user.id)
-    data = RootClass(city)
+    data = RootClass(city, request.user)
     TurnCalculation(city, data).run()
 
     profile = Profile.objects.get(user_id=request.user.id)
