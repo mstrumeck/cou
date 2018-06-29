@@ -1,49 +1,12 @@
 from django.apps import apps
-from city_engine.models import Building, BuldingsWithWorkes, Vehicle, PowerPlant, Waterworks, WindPlant, SewageWorks
+from city_engine.models import Building, BuldingsWithWorkes, Vehicle, PowerPlant, Waterworks,\
+    WindPlant, SewageWorks, KindOfCultivation, AnimalResources, KindOfAnimal, Resource, Lettuce
+from abc import ABCMeta
+from itertools import chain
+from django.db.models import Sum
 
 
-class RootClass(object):
-    def __init__(self, city, user):
-        self.city = city
-
-        self.user = user
-
-        self.subclasses_of_all_buildings = self.get_subclasses_of_all_buildings()
-
-        self.list_of_buildings = self.clean_list(self.get_quersies_of_buildings())
-
-        self.power_plant_buildings = [b for b in self.list_of_buildings if isinstance(b, PowerPlant)]
-
-        self.waterworks_buildings = [b for b in self.list_of_buildings if isinstance(b, Waterworks)]
-
-        self.sewageworks_buildings = [b for b in self.list_of_buildings if isinstance(b, SewageWorks)]
-
-        self.list_of_building_with_values = self.list_of_buildings_in_city_with_values(
-            'if_under_construction', 'name', 'current_build_time', 'build_time', 'maintenance_cost')
-        self.list_of_buildings_only = self.list_of_buildings_in_city_with_only('if_under_construction')
-
-    def datasets_for_turn_calculation(self):
-        power_resources_allocation_dataset = {
-            'list_of_source': [b for b in self.power_plant_buildings if b.if_under_construction is False],
-            'list_without_source': {(b.city_field.row, b.city_field.col): b for b in self.list_of_buildings if not isinstance(b, PowerPlant)},
-            'allocated_resource': 'energy_allocated',
-            'msg': 'power'
-        }
-        raw_water_resources_allocation_dataset = {
-            'list_of_source': [b for b in self.waterworks_buildings if b.if_under_construction is False],
-            'list_without_source': {(b.city_field.row, b.city_field.col): b for b in self.list_of_buildings if isinstance(b, SewageWorks)},
-            'allocated_resource': 'raw_water_allocated',
-            'msg': 'raw_water'
-        }
-        clean_water_resources_allocation_dataset = {
-            'list_of_source': [b for b in self.sewageworks_buildings if b.if_under_construction is False],
-            'list_without_source': {(b.city_field.row, b.city_field.col): b for b in self.list_of_buildings
-                                    if not isinstance(b, SewageWorks) and not isinstance(b, Waterworks)},
-            'allocated_resource': 'clean_water_allocated',
-            'msg': 'clean_water'
-        }
-        return [power_resources_allocation_dataset, raw_water_resources_allocation_dataset,
-                clean_water_resources_allocation_dataset]
+class BasicAbstract(metaclass=ABCMeta):
 
     def get_subclasses(self, abstract_class, app_label):
         return [model for model in apps.get_app_config(app_label).get_models()
@@ -103,3 +66,80 @@ class RootClass(object):
                 for data in a:
                     result.append(data)
         return result
+
+
+class AbstractAdapter(BasicAbstract):
+    pass
+
+
+class ResourceRecord:
+    def __init__(self, name, size, total_size):
+        self.name = name
+        self.size = size
+        self.total_size = total_size
+
+
+class ResourcesData(BasicAbstract):
+    def __init__(self, city, user):
+        self.city = city
+        self.user = user
+        self.subclasses_of_all_resources = self.get_subclasses(Resource, 'city_engine')
+        self.resources = [ResourceRecord(self.resource_name(x),
+                                         self.resource_size(x),
+                                         self.resource_size_sum(x)) for x in self.subclasses_of_all_resources
+                          if self.resource_size_sum(x)]
+
+    def resource_name(self, sub):
+        return sub.__name__
+
+    def resource_size(self, sub):
+        return sub.objects.filter(owner=self.user).values_list('size', flat=True)
+
+    def resource_size_sum(self, sub):
+        return sub.objects.filter(owner=self.user).values('size').aggregate(Sum('size'))['size__sum']
+
+
+class RootClass(BasicAbstract):
+    def __init__(self, city, user):
+        self.city = city
+
+        self.user = user
+
+        self.subclasses_of_all_buildings = self.get_subclasses_of_all_buildings()
+
+        self.list_of_buildings = self.clean_list(self.get_quersies_of_buildings())
+
+        self.power_plant_buildings = [b for b in self.list_of_buildings if isinstance(b, PowerPlant)]
+
+        self.waterworks_buildings = [b for b in self.list_of_buildings if isinstance(b, Waterworks)]
+
+        self.sewageworks_buildings = [b for b in self.list_of_buildings if isinstance(b, SewageWorks)]
+
+        self.list_of_building_with_values = self.list_of_buildings_in_city_with_values(
+            'if_under_construction', 'name', 'current_build_time', 'build_time', 'maintenance_cost')
+        self.list_of_buildings_only = self.list_of_buildings_in_city_with_only('if_under_construction')
+
+    def datasets_for_turn_calculation(self):
+        power_resources_allocation_dataset = {
+            'list_of_source': [b for b in self.power_plant_buildings if b.if_under_construction is False],
+            'list_without_source': {(b.city_field.row, b.city_field.col): b for b in self.list_of_buildings if not isinstance(b, PowerPlant)},
+            'allocated_resource': 'energy_allocated',
+            'msg': 'power'
+        }
+        raw_water_resources_allocation_dataset = {
+            'list_of_source': [b for b in self.waterworks_buildings if b.if_under_construction is False],
+            'list_without_source': {(b.city_field.row, b.city_field.col): b for b in self.list_of_buildings if isinstance(b, SewageWorks)},
+            'allocated_resource': 'raw_water_allocated',
+            'msg': 'raw_water'
+        }
+        clean_water_resources_allocation_dataset = {
+            'list_of_source': [b for b in self.sewageworks_buildings if b.if_under_construction is False],
+            'list_without_source': {(b.city_field.row, b.city_field.col): b for b in self.list_of_buildings
+                                    if not isinstance(b, SewageWorks) and not isinstance(b, Waterworks)},
+            'allocated_resource': 'clean_water_allocated',
+            'msg': 'clean_water'
+        }
+        return [power_resources_allocation_dataset, raw_water_resources_allocation_dataset,
+                clean_water_resources_allocation_dataset]
+
+

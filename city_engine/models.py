@@ -357,14 +357,14 @@ class Farm(BuldingsWithWorkes):
             self.max_employees = F('max_employees') + 5
             self.save()
 
-    def update_harvest(self):
+    def update_harvest(self, owner):
         if self.harvest < self.crops:
             self.harvest = F('harvest') + 1
             self.save()
             self.refresh_from_db()
         elif self.harvest == self.crops:
             self.harvest = 0
-            self.veg.create(size=60)
+            self.veg.create(size=60, owner=owner)
             self.save()
             self.refresh_from_db()
 
@@ -386,60 +386,17 @@ class AnimalFarm(BuldingsWithWorkes):
 class CattleFarm(AnimalFarm):
     name = models.CharField(default='Farma byłda', max_length=15)
     cattle = GenericRelation('city_engine.Cattle')
+    cattle_herd_max_size = models.PositiveIntegerField(default=100)
 
     def farm_operation(self, owner):
         try:
             cat = self.cattle.last()
-            if cat.size < 100:
-                cat.size = F('size') + 2
+            if cat.size < self.cattle_herd_max_size:
+                cat.size = F('size') + 4
                 cat.save()
             cat.milk_production(owner=owner)
         except BaseException:
-            self.cattle.create(owner=owner)
-
-
-class KindOfAnimal(models.Model):
-    owner = models.ForeignKey(User)
-    size = models.PositiveIntegerField(default=1)
-    content_type = models.ForeignKey(ContentType, on_delete=models.SET_NULL, null=True)
-    object_id = models.PositiveIntegerField()
-    content_objects = GenericForeignKey()
-
-    class Meta:
-        abstract = True
-
-
-class Cattle(KindOfAnimal):
-    name = models.CharField(default='Bydło', max_length=6)
-    milk = GenericRelation('city_engine.Milk')
-
-    def milk_production(self, owner):
-        try:
-            milk = self.milk.last()
-            if milk.size < 100:
-                milk.size = F('size') + (self.size * 2)
-                milk.save()
-        except:
-            self.milk.create(size=0, owner=owner)
-
-
-class AnimalResources(models.Model):
-    owner = models.ForeignKey(User)
-    size = models.PositiveIntegerField(default=0)
-    content_type = models.ForeignKey(ContentType, on_delete=models.SET_NULL, null=True)
-    object_id = models.PositiveIntegerField()
-    content_objects = GenericForeignKey()
-
-    class Meta:
-        abstract = True
-
-
-class Milk(AnimalResources):
-    name = models.CharField(default='Mleko', max_length=5)
-
-
-class Beef(AnimalResources):
-    name = models.CharField(default='Wołowina', max_length=8)
+            self.cattle.create(owner=owner, size=0)
 
 
 class PotatoFarm(Farm):
@@ -460,7 +417,57 @@ class LettuceFarm(Farm):
     crops = models.PositiveIntegerField(default=5)
 
 
-class KindOfCultivation(models.Model):
+class Resource(models.Model):
+    owner = models.ForeignKey(User)
+    name = models.CharField(default='Surowiec', max_length=8)
+    size = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        abstract = True
+
+
+class KindOfAnimal(Resource):
+    size = models.PositiveIntegerField(default=0)
+    content_type = models.ForeignKey(ContentType, on_delete=models.SET_NULL, null=True)
+    object_id = models.PositiveIntegerField()
+    content_objects = GenericForeignKey()
+
+    class Meta:
+        abstract = True
+
+
+class Cattle(KindOfAnimal):
+    name = models.CharField(default='Bydło', max_length=6)
+    milk = GenericRelation('city_engine.Milk')
+    beef = GenericRelation('city_engine.Beef')
+
+    def milk_production(self, owner):
+        try:
+            milk = self.milk.last()
+            milk.size = F('size') + 4
+            milk.save()
+        except BaseException:
+            self.milk.create(size=0, owner=owner)
+
+
+class AnimalResources(Resource):
+    content_type = models.ForeignKey(ContentType, on_delete=models.SET_NULL, null=True)
+    object_id = models.PositiveIntegerField()
+    content_objects = GenericForeignKey()
+
+    class Meta:
+        abstract = True
+
+
+class Milk(AnimalResources):
+    name = models.CharField(default='Mleko', max_length=5)
+
+
+class Beef(AnimalResources):
+    name = models.CharField(default='Wołowina', max_length=8)
+
+
+class KindOfCultivation(Resource):
     size = models.PositiveIntegerField(default=60)
     content_type = models.ForeignKey(ContentType, on_delete=models.SET_NULL, null=True)
     object_id = models.PositiveIntegerField()

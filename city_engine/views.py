@@ -14,6 +14,7 @@ from .turn_data.main import TurnCalculation
 from .turn_data.build import build_building
 from django.db.models import F
 from city_engine.abstract import RootClass
+from .abstract import ResourcesData
 
 
 @login_required
@@ -48,6 +49,14 @@ def main_view(request):
 
 
 @login_required
+def resources_view(request):
+    city = City.objects.get(user_id=request.user.id)
+    rd = ResourcesData(city=city, user=request.user)
+    return render(request, 'resources_view.html', {'city': city,
+                                                   'resources': rd.resources})
+
+
+@login_required
 def turn_calculations(request):
 
     city = City.objects.get(user_id=request.user.id)
@@ -59,10 +68,10 @@ def turn_calculations(request):
     profile.save()
     city.save()
 
-    return HttpResponseRedirect(reverse('city_engine:main_view'))
+    return HttpResponseRedirect(reverse('city_engine:main'))
 
 
 @login_required
 def build(request, row, col, build_type):
     build_building(request, row, col, build_type)
-    return HttpResponseRedirect(reverse('city_engine:main_view'))
+    return HttpResponseRedirect(reverse('city_engine:main'))

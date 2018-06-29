@@ -1,9 +1,13 @@
-from city_engine.abstract import RootClass
+from city_engine.abstract import RootClass, ResourcesData
 from django.contrib.auth.models import User
 from django import test
+from city_engine.test.base import TestHelper
+from citizen_engine.models import Citizen
+from django.db.models import Sum
+from city_engine.turn_data.main import TurnCalculation
 from city_engine.models import City, WindPlant, WaterTower, PowerPlant,\
     Waterworks, RopePlant, CoalPlant, Residential, ProductionBuilding, DumpingGround, DustCart, SewageWorks, \
-    PotatoFarm, LettuceFarm, BeanFarm, CattleFarm
+    PotatoFarm, LettuceFarm, BeanFarm, CattleFarm, Farm, AnimalFarm, Lettuce
 
 
 class TestRootClass(test.TestCase):
@@ -55,7 +59,7 @@ class TestRootClass(test.TestCase):
                          [{'name': 'Budynek Mieszkalny'}, {'name': 'Elektrownia wiatrowa'},
                           {'name': 'Elektrownia wiatrowa'}, {'name': 'Wieża ciśnień'}, {'name': 'Wieża ciśnień'},
                           {'name': 'Oczyszczalnia ścieków'}, {'name': 'Wysypisko śmieci'}])
-    #
+
     def test_list_of_building_in_city_with_only(self):
         test_data = self.RC.list_of_buildings_in_city_with_only('energy', 'water', 'if_under_construction', 'name')
         self.assertEqual(test_data, [Residential.objects.latest('id'), WindPlant.objects.get(id=1),
@@ -67,3 +71,37 @@ class TestRootClass(test.TestCase):
             self.assertEqual(item.__dict__['energy'], item.energy)
             self.assertEqual(item.__dict__['water'], item.water)
             self.assertEqual(item.__dict__['if_under_construction'], item.if_under_construction)
+
+
+class TestResourcesClass(test.TestCase):
+    fixtures = ['fixture_natural_resources.json']
+
+    def setUp(self):
+        th = TestHelper(city=City.objects.latest('id'), user=User.objects.latest('id'))
+        th.populate_city()
+        self.rd = ResourcesData(city=City.objects.latest('id'), user=User.objects.latest('id'))
+
+    def test_resources_data_view(self):
+        rt = RootClass(City.objects.latest('id'), user=User.objects.latest('id'))
+        for x in range(8):
+            TurnCalculation(city=City.objects.latest('id'), data=rt).run()
+        self.rd = ResourcesData(city=City.objects.latest('id'), user=User.objects.latest('id'))
+        self.assertEqual('Cattle', self.rd.resources[0].name)
+        self.assertIn(28, list(self.rd.resources[0].size))
+        self.assertEqual(28, self.rd.resources[0].total_size)
+
+        self.assertEqual('Milk', self.rd.resources[1].name)
+        self.assertIn(24, list(self.rd.resources[1].size))
+        self.assertEqual(24, self.rd.resources[1].total_size)
+
+        self.assertEqual('Bean', self.rd.resources[2].name)
+        self.assertIn(60, list(self.rd.resources[2].size))
+        self.assertEqual(60, self.rd.resources[2].total_size)
+
+        self.assertEqual('Potato', self.rd.resources[3].name)
+        self.assertIn(60, list(self.rd.resources[3].size))
+        self.assertEqual(60, self.rd.resources[3].total_size)
+
+        self.assertEqual('Lettuce', self.rd.resources[4].name)
+        self.assertIn(60, list(self.rd.resources[4].size))
+        self.assertEqual(60, self.rd.resources[4].total_size)

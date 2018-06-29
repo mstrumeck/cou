@@ -29,9 +29,9 @@ class FarmInstancesTests(BaseFixture):
         self.assertEqual(pf.veg.all().count(), 0)
         self.assertEqual(pf.harvest, 0)
         for x in range(pf.crops):
-            pf.update_harvest()
+            pf.update_harvest(self.user)
         self.assertEqual(pf.harvest, 6)
-        pf.update_harvest()
+        pf.update_harvest(self.user)
         self.assertEqual(pf.harvest, 0)
         self.assertEqual(pf.veg.all().count(), 1)
 
@@ -40,9 +40,9 @@ class FarmInstancesTests(BaseFixture):
         self.assertEqual(bf.veg.all().count(), 0)
         self.assertEqual(bf.harvest, 0)
         for x in range(bf.crops):
-            bf.update_harvest()
+            bf.update_harvest(self.user)
         self.assertEqual(bf.harvest, 4)
-        bf.update_harvest()
+        bf.update_harvest(self.user)
         self.assertEqual(bf.harvest, 0)
         self.assertEqual(bf.veg.all().count(), 1)
 
@@ -51,9 +51,9 @@ class FarmInstancesTests(BaseFixture):
         self.assertEqual(lf.veg.all().count(), 0)
         self.assertEqual(lf.harvest, 0)
         for x in range(lf.crops):
-            lf.update_harvest()
+            lf.update_harvest(self.user)
         self.assertEqual(lf.harvest, 4)
-        lf.update_harvest()
+        lf.update_harvest(self.user)
         self.assertEqual(lf.harvest, 0)
         self.assertEqual(lf.veg.all().count(), 1)
 
@@ -91,3 +91,8 @@ class FarmInstancesTests(BaseFixture):
 
         self.assertNotEqual(Milk.objects.latest('id').size, 0)
         self.assertNotEqual(Cattle.objects.latest('id').size, 0)
+
+        for x in range(8):
+            TC.run()
+            self.assertEqual(Cattle.objects.all().count(), 1)
+            self.assertEqual(Milk.objects.all().count(), 1)

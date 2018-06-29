@@ -30,7 +30,7 @@ def signup(request):
             assign_city_fields_to_board(new_city)
 
             new_city.save()
-            return redirect('/main_view/')
+            return redirect('/main/')
     else:
         user_creation_form = UserCreationForm()
         city_creation_form = CityCreationForm()

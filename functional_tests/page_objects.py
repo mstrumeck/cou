@@ -4,12 +4,11 @@ from selenium.webdriver.support.ui import WebDriverWait
 import time
 
 
-class BasePage(object):
+class BasePage:
 
     def __init__(self, driver, static_server):
         self.driver = driver
         self.static_server = static_server
-        # self.wait = ui.WebDriverWait(self.driver, 10)
 
     def wait_for_element_with_name(self, name):
         WebDriverWait(self.driver, timeout=30).until(lambda b: b.find_element_by_name(name))
@@ -86,12 +85,21 @@ class MainView(BasePage):
         for x in range(nr_of_turns):
             self.next_turn()
 
+    def get_resources_view(self):
+        return self.get_element_by_text('Surowce').click()
+
+
+class ResourcePage(BasePage):
+
+    def navigate_to_main_view(self):
+        return self.get_element_by_text('Miasto').click()
+
 
 class LoginPage(BasePage):
 
     def navigate_to_main_throught_login(self, user, username, password, city, assertIn, assertTrue):
         homepage = Homepage(self.driver, self.static_server)
-        homepage.navigate('/main_view')
+        homepage.navigate('/main/')
         assertIn('Login', self.driver.title)
         login_page = LoginPage(self.driver, self.static_server)
         login_page.login(username, password)

@@ -1,2 +1,30 @@
 {% extends 'base_city.html' %}
 {% load staticfiles %}
+
+{% block script %}
+{% endblock %}
+
+{% block title %}Surowce{% endblock %}
+
+{% block content %}
+    <h1>Surowce dla miasta {{ city.name }}</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nazwa</th>
+                <th>Rozmiar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for resource in resources %}
+            <tr>
+                <th>{{ resource.name }}</th>
+                {% for size in resource.size %}
+                <th>{{ size }}</th>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

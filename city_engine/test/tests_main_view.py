@@ -16,17 +16,17 @@ from city_engine.abstract import RootClass
 class CityViewTests(CityFixture, RootClass):
 
     def test_call_view_loads(self):
-        response = self.client.get('/main_view/')
+        response = self.client.get('/main/')
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'main_view.html')
 
     def test_home_url_resolves_home_view(self):
-        view = resolve('/main_view/')
+        view = resolve('/main/')
         self.assertEquals(view.func, main_view)
 
     def test_total_energy_production_view(self):
         total_energy = 0
-        response = self.client.get('/main_view/')
+        response = self.client.get('/main/')
 
         self.assertTemplateUsed(response, 'main_view.html')
         for models in self.get_subclasses(abstract_class=PowerPlant, app_label='city_engine'):
@@ -37,25 +37,18 @@ class CityViewTests(CityFixture, RootClass):
         self.assertEqual(total_energy, self.city_stats.energy_production)
 
     def test_total_clean_water_production_view(self):
-        response = self.client.get('/main_view/')
+        response = self.client.get('/main/')
         self.assertTemplateUsed(response, 'main_view.html')
 
         self.assertTrue(response, 'Oczyszczona woda: {}'.format(self.city_stats.clean_water_production))
 
     def test_total_raw_water_production_view(self):
-        response = self.client.get('/main_view/')
+        response = self.client.get('/main/')
         self.assertTemplateUsed(response, 'main_view.html')
         self.assertTrue(response, 'Surowa woda: {}'.format(self.city_stats.raw_water_production))
 
-    # def test_cash_info_view(self):
-    #     response = self.client.get('/main_view/')
-    #     self.assertTemplateUsed(response, 'main_view.html')
-    #
-    #     total_cost = TurnCalculation(self.city, self.data).calculate_maintenance_cost()
-    #     self.assertContains(response, 'Koszty utrzymania: {}'.format(total_cost))
-
     def test_buildings_under_construction_view(self):
-        response = self.client.get('/main_view/')
+        response = self.client.get('/main/')
         self.assertTemplateUsed(response, 'main_view.html')
         name, cur, end = [], [], []
         for model in self.get_subclasses_of_all_buildings():
@@ -79,7 +72,7 @@ class CityViewTests(CityFixture, RootClass):
             self.assertContains(response, end)
 
     def test_buildings_view(self):
-        response = self.client.get('/main_view/')
+        response = self.client.get('/main/')
         self.assertTemplateUsed(response, 'main_view.html')
 
         for building_name in self.city_stats.list_of_buildings:
@@ -88,7 +81,7 @@ class CityViewTests(CityFixture, RootClass):
     def test_building_buttons(self):
         user = User.objects.get(username='test_username')
         city = City.objects.get(user=user)
-        self.response = self.client.get('/main_view/')
+        self.response = self.client.get('/main/')
         wind_plant = WindPlant.objects.get(city=city)
         rope_plant = RopePlant.objects.get(city=city)
         coal_plant = CoalPlant.objects.get(city=city)
@@ -105,7 +98,7 @@ class CityViewTests(CityFixture, RootClass):
         user = User.objects.get(username='test_username')
         city = City.objects.get(user=user)
 
-        self.response = self.client.get('/main_view/')
+        self.response = self.client.get('/main/')
         self.assertTemplateUsed(self.response, 'main_view.html')
         self.assertContains(self.response, city.name)
 
@@ -121,7 +114,7 @@ class TurnSystemTests(CityFixture):
     def test_turn_view(self):
         user = User.objects.get(username='test_username')
         profile = Profile.objects.get(user=user)
-        response = self.client.get('/main_view/')
+        response = self.client.get('/main/')
         self.assertTemplateUsed(response, 'main_view.html')
         self.assertContains(response, '{}/12'.format(profile.current_turn))
         self.assertContains(response, 'Kolejna tura')

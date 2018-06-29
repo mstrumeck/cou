@@ -50,4 +50,4 @@ class ResourcesAllocationsTests(test.TestCase, TestHelper):
         self.assertNotEqual(sum([b.energy for b in self.RC.list_of_buildings]), 0)
         self.assertNotEqual(sum([b.water for b in self.RC.list_of_buildings]), 0)
 
-# python manage.py dumpdata citizen_engine city_engine auth.user --indent=2 --output=city_engine/fixtures/basic_fixture_resources_and_employees2.json
+# python manage.py dumpdata citizen_engine city_engine auth.user --indent=2 --output=city_engine/fixtures/fixture_natural_resources.json

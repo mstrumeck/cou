@@ -26,7 +26,7 @@ class TurnCalculation(object):
 
     def update_harvest_status(self):
         for farm in [b for b in self.data.list_of_buildings if isinstance(b, Farm)]:
-            farm.update_harvest()
+            farm.update_harvest(self.data.user)
 
     def update_build_status(self):
         for building in self.data.list_of_buildings:

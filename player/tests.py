@@ -4,9 +4,6 @@ from .views import main_page, signup
 from django.urls import resolve
 from city_engine.models import City
 from .forms import SignUpForm
-from django.core.urlresolvers import reverse
-from django.test import Client
-import unittest
 
 
 class TestLogin(TestCase):
@@ -97,7 +94,7 @@ class SignupFormTest(TestCase):
         }
         response = self.client.post(url, data)
         self.assertEquals(response.status_code, 200)
-        self.assertTrue(City.objects.all().count(),1)
+        self.assertTrue(City.objects.all().count(), 1)
 
     # def test_contains_form(self):
     #     form = self.response.context.get('form')
@@ -115,7 +112,7 @@ class SuccessfulSignUpTests(TestCase):
             'name': 'Wrocław'
         }
         self.response = self.client.post(url, data)
-        self.home_url = '/main_view/'
+        self.home_url = '/main/'
 
     def test_redirection(self):
         self.assertRedirects(self.response, self.home_url)
@@ -148,6 +145,6 @@ class InvalidSignUpTests(TestCase):
 class SignUpFormTest(TestCase):
     def test_form_has_fields(self):
         form = SignUpForm()
-        expected = ['username','password1', 'password2',]
+        expected = ['username', 'password1', 'password2']
         actual = list(form.fields)
         self.assertSequenceEqual(expected, actual)

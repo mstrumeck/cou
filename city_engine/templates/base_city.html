@@ -16,6 +16,10 @@
 <body>
 <main class="container">
     <h1>Ekran base dla Gry</h1>
+    <ul>
+        <li><a href="{% url 'city_engine:main' %}">Miasto</a></li>
+        <li><a href="{% url 'city_engine:resources' %}">Surowce</a></li>
+    </ul>
     {% block content %}
     {% endblock %}
 </main>
