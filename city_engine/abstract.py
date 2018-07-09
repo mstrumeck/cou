@@ -1,8 +1,6 @@
 from django.apps import apps
-from city_engine.models import Building, BuldingsWithWorkes, Vehicle, PowerPlant, Waterworks,\
-    WindPlant, SewageWorks, KindOfCultivation, AnimalResources, KindOfAnimal, Resource, Lettuce
+from city_engine.models import Building, BuldingsWithWorkes, Vehicle, PowerPlant, Waterworks, SewageWorks, Resource
 from abc import ABCMeta
-from itertools import chain
 from django.db.models import Sum
 
 
@@ -72,22 +70,17 @@ class AbstractAdapter(BasicAbstract):
     pass
 
 
-class ResourceRecord:
-    def __init__(self, name, size, total_size):
-        self.name = name
-        self.size = size
-        self.total_size = total_size
-
-
 class ResourcesData(BasicAbstract):
     def __init__(self, city, user):
         self.city = city
         self.user = user
         self.subclasses_of_all_resources = self.get_subclasses(Resource, 'city_engine')
-        self.resources = [ResourceRecord(self.resource_name(x),
-                                         self.resource_size(x),
-                                         self.resource_size_sum(x)) for x in self.subclasses_of_all_resources
-                          if self.resource_size_sum(x)]
+        self.resources = {ob.__name__: self.resources_size_and_sum(ob) for ob in [sub for sub in self.subclasses_of_all_resources]
+                          if self.resources_size_and_sum(ob)[1]}
+
+    def resources_size_and_sum(self, ob):
+        data = ob.objects.filter(owner=self.user)
+        return [data, data.values('size').aggregate(Sum('size'))['size__sum']]
 
     def resource_name(self, sub):
         return sub.__name__

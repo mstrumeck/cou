@@ -14,17 +14,24 @@
             <tr>
                 <th>Nazwa</th>
                 <th>Rozmiar</th>
+                <th>Całość</th>
             </tr>
         </thead>
         <tbody>
-            {% for resource in resources %}
+            {% for name, resource in resources %}
             <tr>
-                <th>{{ resource.name }}</th>
-                {% for size in resource.size %}
-                <th>{{ size }}</th>
-                {% endfor %}
+                <th>{{ name }}</th>
+                <th>
+                {% for ob in resource.0 %}
+                    <ul>
+                        <li>{{ ob.name }}: {{ ob.size }}</li>
+                    </ul>
+                    {% endfor %}
+                </th>
+                <th>{{ resource.1 }}</th>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+
 {% endblock %}

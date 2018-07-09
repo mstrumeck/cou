@@ -2,13 +2,11 @@ from city_engine.abstract import RootClass, ResourcesData
 from django.contrib.auth.models import User
 from django import test
 from city_engine.test.base import TestHelper
-from citizen_engine.models import Citizen
-from django.db.models import Sum
 from city_engine.turn_data.main import TurnCalculation
 from city_engine.models import City, WindPlant, WaterTower, PowerPlant,\
     Waterworks, RopePlant, CoalPlant, Residential, ProductionBuilding, DumpingGround, DustCart, SewageWorks, \
-    PotatoFarm, LettuceFarm, BeanFarm, CattleFarm, Farm, AnimalFarm, Lettuce
-
+    PotatoFarm, LettuceFarm, BeanFarm, CattleFarm
+from player.models import Profile
 
 class TestRootClass(test.TestCase):
     fixtures = ['basic_fixture_resources_and_employees2.json']
@@ -82,26 +80,34 @@ class TestResourcesClass(test.TestCase):
         self.rd = ResourcesData(city=City.objects.latest('id'), user=User.objects.latest('id'))
 
     def test_resources_data_view(self):
+
         rt = RootClass(City.objects.latest('id'), user=User.objects.latest('id'))
-        for x in range(8):
-            TurnCalculation(city=City.objects.latest('id'), data=rt).run()
+        prof = Profile.objects.latest('id')
+        for x in range(11):
+            prof.current_turn += 1
+            prof.save()
+            TurnCalculation(city=City.objects.latest('id'), data=rt, profile=Profile.objects.latest('id')).run()
         self.rd = ResourcesData(city=City.objects.latest('id'), user=User.objects.latest('id'))
-        self.assertEqual('Cattle', self.rd.resources[0].name)
-        self.assertIn(28, list(self.rd.resources[0].size))
-        self.assertEqual(28, self.rd.resources[0].total_size)
 
-        self.assertEqual('Milk', self.rd.resources[1].name)
-        self.assertIn(24, list(self.rd.resources[1].size))
-        self.assertEqual(24, self.rd.resources[1].total_size)
+        for key in self.rd.resources.keys():
+            self.assertIn(key, [sub.__name__ for sub in self.rd.subclasses_of_all_resources])
 
-        self.assertEqual('Bean', self.rd.resources[2].name)
-        self.assertIn(60, list(self.rd.resources[2].size))
-        self.assertEqual(60, self.rd.resources[2].total_size)
+        self.assertEqual('Bydło', self.rd.resources['Cattle'][0][0].name)
+        self.assertEqual(10, self.rd.resources['Cattle'][0][0].size)
+        self.assertEqual(10, self.rd.resources['Cattle'][1])
 
-        self.assertEqual('Potato', self.rd.resources[3].name)
-        self.assertIn(60, list(self.rd.resources[3].size))
-        self.assertEqual(60, self.rd.resources[3].total_size)
+        self.assertEqual('Mleko', self.rd.resources['Milk'][0][0].name)
+        self.assertEqual(1036, self.rd.resources['Milk'][0][0].size)
+        self.assertEqual(1036, self.rd.resources['Milk'][1])
 
-        self.assertEqual('Lettuce', self.rd.resources[4].name)
-        self.assertIn(60, list(self.rd.resources[4].size))
-        self.assertEqual(60, self.rd.resources[4].total_size)
+        self.assertEqual('Fasola', self.rd.resources['Bean'][0][0].name)
+        self.assertEqual(16, self.rd.resources['Bean'][0][0].size)
+        self.assertEqual(16, self.rd.resources['Bean'][1])
+
+        self.assertEqual('Ziemniaki', self.rd.resources['Potato'][0][0].name)
+        self.assertEqual(20, self.rd.resources['Potato'][0][0].size)
+        self.assertEqual(20, self.rd.resources['Potato'][1])
+
+        self.assertEqual('Sałata', self.rd.resources['Lettuce'][0][0].name)
+        self.assertEqual(8, self.rd.resources['Lettuce'][0][0].size)
+        self.assertEqual(8, self.rd.resources['Lettuce'][1])

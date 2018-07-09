@@ -340,13 +340,43 @@ class Farm(BuldingsWithWorkes):
     build_time = models.PositiveIntegerField(default=1)
     build_cost = models.PositiveIntegerField(default=200)
     maintenance_cost = models.PositiveIntegerField(default=20)
-    energy_required = models.PositiveIntegerField(default=20)
-    water_required = models.PositiveIntegerField(default=40)
-    crops = models.PositiveIntegerField(default=0)
-    harvest = models.PositiveIntegerField(default=0)
+    energy_required = models.PositiveIntegerField(default=10)
+    water_required = models.PositiveIntegerField(default=20)
+
+    time_to_grow_from = models.PositiveIntegerField(default=0)
+    time_to_grow_to = models.PositiveIntegerField(default=0)
+    accumulate_harvest = models.PositiveIntegerField(default=0)
+    max_harvest = models.PositiveIntegerField(default=0)
 
     class Meta:
         abstract = True
+
+    def update_harvest(self, turn, owner):
+        if turn >= self.time_to_grow_from and turn < self.time_to_grow_to:
+            self.accumulate_harvest = F('accumulate_harvest') + self.growing()
+            self.save()
+            self.refresh_from_db()
+        elif turn >= self.time_to_grow_to and self.accumulate_harvest > 0:
+            self.veg.create(size=self.accumulate_harvest, owner=owner)
+            self.accumulate_harvest = 0
+            self.save()
+            self.refresh_from_db()
+
+    def growing(self):
+        if self.employee.count() is 0:
+            return 0
+        else:
+            if self.water is 0:
+                water_productivity = 0.0
+            else:
+                water_productivity = float(self.water) / float(self.water_required)
+            if self.energy is 0:
+                energy_productivity = 0.0
+            else:
+                energy_productivity = float(self.energy)/float(self.energy_required)
+        employees_productivity = float(self.employee.count()) / float(self.max_employees)
+        productivity = (water_productivity + employees_productivity + energy_productivity)/3
+        return int(productivity * self.max_harvest)
 
     def build_status(self):
         if self.current_build_time < self.build_time:
@@ -354,19 +384,8 @@ class Farm(BuldingsWithWorkes):
             self.save()
         elif self.current_build_time == self.build_time:
             self.if_under_construction = False
-            self.max_employees = F('max_employees') + 5
+            self.max_employees = F('max_employees') + 10
             self.save()
-
-    def update_harvest(self, owner):
-        if self.harvest < self.crops:
-            self.harvest = F('harvest') + 1
-            self.save()
-            self.refresh_from_db()
-        elif self.harvest == self.crops:
-            self.harvest = 0
-            self.veg.create(size=60, owner=owner)
-            self.save()
-            self.refresh_from_db()
 
     def __str__(self):
         return self.name
@@ -379,42 +398,85 @@ class AnimalFarm(BuldingsWithWorkes):
     energy_required = models.PositiveIntegerField(default=10)
     water_required = models.PositiveIntegerField(default=20)
 
+    def build_status(self):
+        if self.current_build_time < self.build_time:
+            self.current_build_time = F('current_build_time') + 1
+            self.save()
+        elif self.current_build_time == self.build_time:
+            self.if_under_construction = False
+            self.max_employees = F('max_employees') + 5
+            self.save()
+
     class Meta:
         abstract = True
 
 
 class CattleFarm(AnimalFarm):
     name = models.CharField(default='Farma byłda', max_length=15)
-    cattle = GenericRelation('city_engine.Cattle')
-    cattle_herd_max_size = models.PositiveIntegerField(default=100)
+    animal = GenericRelation('city_engine.Cattle')
+    pastures = models.PositiveIntegerField(default=1)
+    cattle_breeding_rate = models.FloatField(default=0.014)
+    accumulate_breding = models.FloatField(default=0)
 
-    def farm_operation(self, owner):
-        try:
-            cat = self.cattle.last()
-            if cat.size < self.cattle_herd_max_size:
-                cat.size = F('size') + 4
+    def grow(self):
+        if self.employee.count() is 0:
+            return 0
+        else:
+            if self.water is 0:
+                water_productivity = 0.0
+            else:
+                water_productivity = float(self.water) / float(self.water_required)
+            if self.energy is 0:
+                energy_productivity = 0.0
+            else:
+                energy_productivity = float(self.energy) / float(self.energy_required)
+        employees_productivity = float(self.employee.count()) / float(self.max_employees)
+        productivity = (water_productivity + employees_productivity + energy_productivity) / 3
+        return productivity
+
+    def productivity(self, cat):
+        return ((cat.size / self.pastures) ** -0.3) * 2
+
+    def farm_operation(self, turn, owner):
+        if self.animal.count() != 0:
+            cat = self.animal.last()
+            if turn != 8:
+                self.accumulate_breding = F('accumulate_breding') + (self.cattle_breeding_rate * self.grow())
+                self.save()
+                self.refresh_from_db()
+                cat.resource_production(owner, self.pastures)
+            else:
+                cat.size = F('size') + (cat.size * self.accumulate_breding * self.productivity(cat))
+                self.accumulate_breding = 0
+                self.save()
                 cat.save()
-            cat.milk_production(owner=owner)
-        except BaseException:
-            self.cattle.create(owner=owner, size=0)
+                cat.resource_production(owner, self.pastures)
+        else:
+            self.animal.create(owner=owner, size=10)
 
 
 class PotatoFarm(Farm):
     name = models.CharField(default='Farma ziemniaków', max_length=20)
     veg = GenericRelation('city_engine.Potato')
-    crops = models.PositiveIntegerField(default=6)
+    time_to_grow_from = models.PositiveIntegerField(default=2)
+    time_to_grow_to = models.PositiveIntegerField(default=6)
+    max_harvest = models.PositiveIntegerField(default=10)
 
 
 class BeanFarm(Farm):
     name = models.CharField(default='Farma fasoli', max_length=15)
     veg = GenericRelation('city_engine.Bean')
-    crops = models.PositiveIntegerField(default=4)
+    time_to_grow_from = models.PositiveIntegerField(default=4)
+    time_to_grow_to = models.PositiveIntegerField(default=8)
+    max_harvest = models.PositiveIntegerField(default=8)
 
 
 class LettuceFarm(Farm):
     name = models.CharField(default='Farma sałaty', max_length=15)
     veg = GenericRelation('city_engine.Lettuce')
-    crops = models.PositiveIntegerField(default=5)
+    time_to_grow_from = models.PositiveIntegerField(default=3)
+    time_to_grow_to = models.PositiveIntegerField(default=5)
+    max_harvest = models.PositiveIntegerField(default=12)
 
 
 class Resource(models.Model):
@@ -441,13 +503,16 @@ class Cattle(KindOfAnimal):
     milk = GenericRelation('city_engine.Milk')
     beef = GenericRelation('city_engine.Beef')
 
-    def milk_production(self, owner):
+    def resource_production(self, owner, pastures):
         try:
             milk = self.milk.last()
-            milk.size = F('size') + 4
+            milk.size = F('size') + (self.size * (6 * self.productivity(pastures)))
             milk.save()
         except BaseException:
             self.milk.create(size=0, owner=owner)
+
+    def productivity(self, pastures):
+        return ((self.size / pastures) ** -0.3) * 2
 
 
 class AnimalResources(Resource):

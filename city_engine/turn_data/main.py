@@ -6,9 +6,10 @@ from city_engine.models import Farm, AnimalFarm, Milk, Cattle
 
 class TurnCalculation(object):
 
-    def __init__(self, city, data):
+    def __init__(self, city, data, profile):
         self.city = city
         self.data = data
+        self.profile = profile
 
     def run(self):
         TrashManagement(self.data).run()
@@ -22,11 +23,11 @@ class TurnCalculation(object):
 
     def update_breeding_status(self):
         for farm in [b for b in self.data.list_of_buildings if isinstance(b, AnimalFarm)]:
-            farm.farm_operation(self.data.user)
+            farm.farm_operation(self.profile.current_turn, self.data.user)
 
     def update_harvest_status(self):
         for farm in [b for b in self.data.list_of_buildings if isinstance(b, Farm)]:
-            farm.update_harvest(self.data.user)
+            farm.update_harvest(self.profile.current_turn, self.data.user)
 
     def update_build_status(self):
         for building in self.data.list_of_buildings:

@@ -8,6 +8,7 @@ from city_engine.turn_data.main import TurnCalculation
 from city_engine.test.base import TestHelper
 from city_engine.abstract import RootClass
 from django.contrib.auth.models import User
+from player.models import Profile
 
 
 class ResourcesAllocationsTests(test.TestCase, TestHelper):
@@ -41,7 +42,7 @@ class ResourcesAllocationsTests(test.TestCase, TestHelper):
         self.assertEqual(SewageWorks.objects.filter(city=self.city).aggregate(Sum('clean_water_allocated'))['clean_water_allocated__sum'], 0)
 
         for x in range(3):
-            TurnCalculation(city=self.city, data=self.RC).run()
+            TurnCalculation(city=self.city, data=self.RC, profile=Profile.objects.latest('id')).run()
 
         self.assertIn(WindPlant.objects.filter(city=self.city).aggregate(Sum('energy_allocated'))['energy_allocated__sum'], range(5, 25))
         self.assertIn(WaterTower.objects.filter(city=self.city).aggregate(Sum('raw_water_allocated'))['raw_water_allocated__sum'], range(5, 50))

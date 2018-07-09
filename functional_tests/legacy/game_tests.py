@@ -1,11 +1,8 @@
 from django.db.models import Sum
-from city_engine.models import City, CityField, \
-    WindPlant, CoalPlant, RopePlant, \
-    WaterTower, DumpingGround, Residential
-from .base import BaseTestForOnePlayer, BaseTestForTwoPlayers, BaseTest, TestHelper
-from functional_tests.page_objects import MainView, Homepage, LoginPage
+from city_engine.models import WindPlant, WaterTower, Residential
+from .base import BaseTest, TestHelper
+from functional_tests.page_objects import MainView, LoginPage
 from city_engine.abstract import RootClass
-import time
 
 
 # @override_settings(DEBUG=True)
@@ -71,24 +68,6 @@ class GameTestForOnePlayer(BaseTest):
         self.assertEqual(WaterTower.objects.filter(city=self.city_one).aggregate(Sum('energy'))['energy__sum'], 6)
         self.assertEqual(Residential.objects.latest('id').energy, 5)
 
-        # wind_plant = WindPlant.objects.get(city=self.city_one,
-        #                                    city_field=CityField.objects.get(city=self.city_one, row=0, col=1))
-        # water_tower_one = WaterTower.objects.get(city=self.city_one,
-        #                                          city_field=CityField.objects.get(city=self.city_one, row=0, col=0))
-        # water_tower_two = WaterTower.objects.get(city=self.city_one,
-        #                                          city_field=CityField.objects.get(city=self.city_one, row=0, col=2))
-        # main_view.choose_hex(cor_water_tower_one)
-        # main_view.get_element_by_xpath('//p[contains(., "Energia: {}/{}")]'.format(
-        #     water_tower_one.energy, water_tower_one.energy_required)).is_displayed()
-        #
-        # main_view.choose_hex(cor_water_tower_two)
-        # main_view.get_element_by_xpath('//p[contains(., "Energia: {}/{}")]'.format(
-        #    water_tower_two.energy, water_tower_two.energy_required)).is_displayed()
-
-        # main_view.choose_hex(cor_wind_plant_one)
-        # main_view.get_element_by_xpath('//p[contains(., "Woda: {}/{}")]'.format(
-        #     wind_plant.water, wind_plant.water_required)).is_displayed()
-
 
 class GameTestForTwoPlayers(BaseTest):
     def test_create_building_for_two_accounts(self):
@@ -145,7 +124,6 @@ class GameTestForTwoPlayers(BaseTest):
         main_view.build_the_building_from_multiple_choice('Farmy', 'LettuceFarm', '21')
         main_view.build_the_building_from_multiple_choice('Farmy', 'BeanFarm', '22')
         main_view.build_the_building_from_multiple_choice('Farmy', 'CattleFarm', '23')
-
 
         for building_sublcass in RootClass(self.city_two, self.user_two).get_subclasses_of_all_buildings():
             self.assertEqual(building_sublcass.objects.filter(city=self.city_two).count(), 1)

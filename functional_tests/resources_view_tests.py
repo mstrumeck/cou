@@ -1,9 +1,6 @@
 from functional_tests.page_objects import MainView, LoginPage, ResourcePage
-from city_engine.models import CityField, City, SewageWorks, WindPlant, WaterTower
 from .legacy.base import BaseTest
 from city_engine.abstract import ResourcesData
-from django.db.models import Sum
-import time
 
 
 class ResourceAllocationTest(BaseTest):
@@ -19,6 +16,14 @@ class ResourceAllocationTest(BaseTest):
                                                                         assertIn=self.assertIn,
                                                                         assertTrue=self.assertTrue)
         main_view = MainView(self.browser, self.live_server_url)
+        main_view.build_the_building_from_single_choice('SewageWorks', '13')
+        main_view.build_the_building_from_single_choice('WaterTower', '00')
+        main_view.build_the_building_from_single_choice('Residential', '01')
+        main_view.build_the_building_from_single_choice('Residential', '02')
+        main_view.build_the_building_from_single_choice('WaterTower', '12')
+        main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'WindPlant', '03')
+        main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'WindPlant', '10')
+        main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'WindPlant', '11')
         main_view.build_the_building_from_multiple_choice('Farmy', 'PotatoFarm', '20')
         main_view.build_the_building_from_multiple_choice('Farmy', 'LettuceFarm', '21')
         main_view.build_the_building_from_multiple_choice('Farmy', 'BeanFarm', '22')
@@ -30,25 +35,25 @@ class ResourceAllocationTest(BaseTest):
         self.assertIn('Surowce', self.browser.title)
         rd = ResourcesData(self.city_one, self.user_one)
 
-        self.assertEqual('Cattle', rd.resources[0].name)
-        self.assertIn(28, list(rd.resources[0].size))
-        self.assertEqual(28, rd.resources[0].total_size)
+        self.assertEqual('Bydło', rd.resources['Cattle'][0][0].name)
+        self.assertEqual(10, rd.resources['Cattle'][0][0].size)
+        self.assertEqual(10, rd.resources['Cattle'][1])
 
-        self.assertEqual('Milk', rd.resources[1].name)
-        self.assertIn(24, rd.resources[1].size)
-        self.assertEqual(24, rd.resources[1].total_size)
+        self.assertEqual('Mleko', rd.resources['Milk'][0][0].name)
+        self.assertEqual(951, rd.resources['Milk'][0][0].size)
+        self.assertEqual(951, rd.resources['Milk'][1])
 
-        self.assertEqual('Bean', rd.resources[2].name)
-        self.assertIn(60, rd.resources[2].size)
-        self.assertEqual(60, rd.resources[2].total_size)
+        self.assertEqual('Fasola', rd.resources['Bean'][0][0].name)
+        self.assertIn(rd.resources['Bean'][0][0].size, [x for x in range(6, 12)])
+        self.assertIn(rd.resources['Bean'][1], [x for x in range(6, 12)])
 
-        self.assertEqual('Potato', rd.resources[3].name)
-        self.assertIn(60, rd.resources[3].size)
-        self.assertEqual(60, rd.resources[3].total_size)
+        self.assertEqual('Ziemniaki', rd.resources['Potato'][0][0].name)
+        self.assertIn(rd.resources['Potato'][0][0].size, [x for x in range(6, 14)])
+        self.assertIn(rd.resources['Potato'][1], [x for x in range(6, 14)])
 
-        self.assertEqual('Lettuce', rd.resources[4].name)
-        self.assertIn(60, rd.resources[4].size)
-        self.assertEqual(60, rd.resources[4].total_size)
+        self.assertEqual('Sałata', rd.resources['Lettuce'][0][0].name)
+        self.assertIn(rd.resources['Lettuce'][0][0].size, [x for x in range(3, 12)])
+        self.assertIn(rd.resources['Lettuce'][1], [x for x in range(3, 12)])
 
         resource_view.navigate_to_main_view()
         main_view.logout()
@@ -67,6 +72,6 @@ class ResourceAllocationTest(BaseTest):
         self.assertEqual('{}/main/resources/'.format(self.live_server_url), str(self.browser.current_url))
         self.assertIn('Surowce', self.browser.title)
         rd = ResourcesData(self.city_two, self.user_two)
-        self.assertEqual(rd.resources, [])
+        self.assertEqual(rd.resources, {})
 
 

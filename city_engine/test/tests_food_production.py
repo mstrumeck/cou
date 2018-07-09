@@ -6,6 +6,7 @@ from city_engine.models import City, CityField
 from city_engine.abstract import RootClass
 from city_engine.turn_data.main import TurnCalculation
 from django.db.models import F
+from player.models import Profile
 from city_engine.models import PotatoFarm, BeanFarm, LettuceFarm, Farm, Potato, Bean, Lettuce, KindOfCultivation,\
     Cattle, Milk, CattleFarm, Beef, KindOfAnimal, AnimalResources, AnimalFarm
 
@@ -27,53 +28,45 @@ class FarmInstancesTests(BaseFixture):
     def test_potato_creation(self):
         pf = PotatoFarm.objects.create(city=self.city, city_field=CityField.objects.latest('id'))
         self.assertEqual(pf.veg.all().count(), 0)
-        self.assertEqual(pf.harvest, 0)
-        for x in range(pf.crops):
-            pf.update_harvest(self.user)
-        self.assertEqual(pf.harvest, 6)
-        pf.update_harvest(self.user)
-        self.assertEqual(pf.harvest, 0)
-        self.assertEqual(pf.veg.all().count(), 1)
+        self.assertEqual(pf.time_to_grow_from, 2)
+        self.assertEqual(pf.time_to_grow_to, 6)
+        self.assertEqual(pf.max_harvest, 10)
 
     def test_bean_creation(self):
         bf = BeanFarm.objects.create(city=self.city, city_field=CityField.objects.latest('id'))
         self.assertEqual(bf.veg.all().count(), 0)
-        self.assertEqual(bf.harvest, 0)
-        for x in range(bf.crops):
-            bf.update_harvest(self.user)
-        self.assertEqual(bf.harvest, 4)
-        bf.update_harvest(self.user)
-        self.assertEqual(bf.harvest, 0)
-        self.assertEqual(bf.veg.all().count(), 1)
+        self.assertEqual(bf.time_to_grow_from, 4)
+        self.assertEqual(bf.time_to_grow_to, 8)
+        self.assertEqual(bf.max_harvest, 8)
 
     def test_lettuce_creation(self):
         lf = BeanFarm.objects.create(city=self.city, city_field=CityField.objects.latest('id'))
         self.assertEqual(lf.veg.all().count(), 0)
-        self.assertEqual(lf.harvest, 0)
-        for x in range(lf.crops):
-            lf.update_harvest(self.user)
-        self.assertEqual(lf.harvest, 4)
-        lf.update_harvest(self.user)
-        self.assertEqual(lf.harvest, 0)
-        self.assertEqual(lf.veg.all().count(), 1)
+        self.assertEqual(lf.time_to_grow_from, 4)
+        self.assertEqual(lf.time_to_grow_to, 8)
+        self.assertEqual(lf.max_harvest, 8)
 
     def test_cattle_creation(self):
         cf = CattleFarm.objects.create(city=self.city, city_field=self.field_one)
         self.assertEqual(Cattle.objects.all().count(), 0)
-        cf.farm_operation(self.user)
-        self.assertEqual(Cattle.objects.all().count(), 1)
+        self.assertEqual(cf.pastures, 1)
+        self.assertEqual(cf.cattle_breeding_rate, 0.014)
 
     def test_milk_creation(self):
         cf = CattleFarm.objects.create(city=self.city, city_field=self.field_one)
-        cat = cf.cattle.create(owner=self.user, size=2)
+        cf.farm_operation(1, User.objects.latest('id'))
+        cat = Cattle.objects.latest('id')
+        self.assertEqual(Cattle.objects.all().count(), 1)
+        self.assertEqual(cat.size, 10)
         self.assertEqual(Milk.objects.all().count(), 0)
-        cat.milk_production(owner=self.user)
+        cat.resource_production(owner=self.user, pastures=1)
         self.assertEqual(Milk.objects.all().count(), 1)
+        self.assertEqual(cat.size, 10)
 
     def test_breed_update(self):
         CattleFarm.objects.create(city=self.city, city_field=self.field_one)
         data = RootClass(city=self.city, user=self.user)
-        TC = TurnCalculation(city=self.city, data=data)
+        TC = TurnCalculation(city=self.city, data=data, profile=Profile.objects.latest('id'))
         self.assertEqual(Cattle.objects.all().count(), 0)
         self.assertEqual(Milk.objects.all().count(), 0)
 

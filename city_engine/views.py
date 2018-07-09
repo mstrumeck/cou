@@ -52,8 +52,9 @@ def main_view(request):
 def resources_view(request):
     city = City.objects.get(user_id=request.user.id)
     rd = ResourcesData(city=city, user=request.user)
+    resources = zip(rd.resources, rd.resources.values())
     return render(request, 'resources_view.html', {'city': city,
-                                                   'resources': rd.resources})
+                                                   'resources': resources})
 
 
 @login_required
@@ -61,7 +62,8 @@ def turn_calculations(request):
 
     city = City.objects.get(user_id=request.user.id)
     data = RootClass(city, request.user)
-    TurnCalculation(city, data).run()
+    profile = Profile.objects.get(user_id=request.user.id)
+    TurnCalculation(city, data, profile).run()
 
     profile = Profile.objects.get(user_id=request.user.id)
     profile.current_turn = F('current_turn') + 1

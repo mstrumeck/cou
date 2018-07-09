@@ -1,11 +1,9 @@
-from city_engine.models import CityField, City, \
-    WindPlant, RopePlant, CoalPlant, \
-    WaterTower, DumpingGround, \
-    Residential, ProductionBuilding, SewageWorks, PotatoFarm, BeanFarm, LettuceFarm, CattleFarm
+from city_engine.models import CityField, City
+from city_engine.abstract import AbstractAdapter
 
 
 def build_building(request, row, col, build_type):
-    build_type = eval(build_type)
+    build_type = {sub.__name__: sub for sub in AbstractAdapter().get_subclasses_of_all_buildings()}[build_type]
     city = City.objects.get(user_id=request.user.id)
     city_field = CityField.objects.get(row=row, col=col, city_id=city.id)
 

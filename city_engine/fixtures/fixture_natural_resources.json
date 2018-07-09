@@ -317,8 +317,8 @@
     "city_field": 2,
     "if_under_construction": false,
     "current_build_time": 1,
-    "energy": 0,
-    "water": 0,
+    "energy": 10,
+    "water": 20,
     "pollution_rate": 0.0,
     "pollution_product": 0,
     "recycling": 0,
@@ -326,11 +326,13 @@
     "build_time": 1,
     "build_cost": 200,
     "maintenance_cost": 20,
-    "energy_required": 20,
-    "water_required": 40,
-    "harvest": 1,
-    "name": "Farma ziemniak\u00f3w",
-    "crops": 6
+    "energy_required": 10,
+    "water_required": 20,
+    "time_to_grow_to": 6,
+    "time_to_grow_from": 2,
+    "max_harvest": 10,
+    "accumulate_harvest": 0,
+    "name": "Farma ziemniak\u00f3w"
   }
 },
 {
@@ -341,8 +343,8 @@
     "city_field": 6,
     "if_under_construction": false,
     "current_build_time": 1,
-    "energy": 0,
-    "water": 0,
+    "energy": 10,
+    "water": 20,
     "pollution_rate": 0.0,
     "pollution_product": 0,
     "recycling": 0,
@@ -350,11 +352,13 @@
     "build_time": 1,
     "build_cost": 200,
     "maintenance_cost": 20,
-    "energy_required": 20,
-    "water_required": 40,
-    "harvest": 1,
-    "name": "Farma fasoli",
-    "crops": 4
+    "energy_required": 10,
+    "water_required": 20,
+    "time_to_grow_to": 8,
+    "time_to_grow_from": 4,
+    "max_harvest": 8,
+    "accumulate_harvest": 0,
+    "name": "Farma fasoli"
   }
 },
 {
@@ -365,8 +369,8 @@
     "city_field": 10,
     "if_under_construction": false,
     "current_build_time": 1,
-    "energy": 0,
-    "water": 0,
+    "energy": 10,
+    "water": 20,
     "pollution_rate": 0.0,
     "pollution_product": 0,
     "recycling": 0,
@@ -374,11 +378,13 @@
     "build_time": 1,
     "build_cost": 200,
     "maintenance_cost": 20,
-    "energy_required": 20,
-    "water_required": 40,
-    "harvest": 1,
-    "name": "Farma sa\u0142aty",
-    "crops": 5
+    "energy_required": 10,
+    "water_required": 20,
+    "time_to_grow_to": 5,
+    "time_to_grow_from": 3,
+    "max_harvest": 12,
+    "accumulate_harvest": 0,
+    "name": "Farma sa\u0142aty"
   }
 },
 {
