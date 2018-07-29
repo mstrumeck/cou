@@ -3,7 +3,7 @@ from city_engine.models import Residential, City, WaterTower, ProductionBuilding
 from citizen_engine.models import Citizen
 
 
-class CreateCitizen(object):
+class CreateCitizen:
 
     def create_with_workplace(self, city, workplace):
         workplace.employee.create(

@@ -3,7 +3,7 @@ from city_engine.models import CityField, City, \
     WindPlant, DumpingGround, DustCart
 from .legacy.base import BaseTest
 from django.db.models import Sum
-from city_engine.abstract import RootClass
+from cou.abstract import RootClass
 from django.contrib.auth.models import User
 
 

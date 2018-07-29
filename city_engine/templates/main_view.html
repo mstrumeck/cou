@@ -17,6 +17,7 @@
 
 <p>Miasto: {{ city.name }}</p>
 <p>Pieniądze: {{ city.cash }}</p>
+<p>Masa: {{ city.mass }}</p>
 <p>Koszty utrzymania: {{ total_cost_of_maintenance }}</p>
 
 <p>Obecna populacja {{ current_population }}/{{ max_population }}</p>
@@ -52,6 +53,10 @@
 {% if city.cash <= 0 %}
 <h1>BANKRUT</h1>
 {% endif %}
+
+<p>Zapotrzebowanie na strefy mieszkalne: {{ home_demands }}</p>
+<p>Zapotrzebowanie na strefy przemysłowe: {{ industial_demands }}</p>
+<p>Zapotrzebowanie na strefy handlowe: {{ trade_demands }}</p>
 
 {% if buildings %}
 <h1><b>Lista budynków</b></h1>
@@ -113,6 +118,8 @@
     <button class="setBuilding" name="LettuceFarm">Farma sałaty</button>
     <button class="setBuilding" name="CattleFarm">Farma bydła</button>
 </div>
+<button class="setBuilding" name="MassConventer">Konwenter Masy</button>
+<button class="setBuilding" name="TradeDistrict">Strefa Handlowa</button>
 
 
 <div id="result"></div>

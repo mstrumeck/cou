@@ -1,6 +1,6 @@
 from functional_tests.page_objects import MainView, LoginPage, ResourcePage
 from .legacy.base import BaseTest
-from city_engine.abstract import ResourcesData
+from cou.abstract import ResourcesData
 
 
 class ResourceAllocationTest(BaseTest):

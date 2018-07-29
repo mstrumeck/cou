@@ -1,7 +1,8 @@
 from django.apps import apps
-from city_engine.models import Building, BuldingsWithWorkes, Vehicle, PowerPlant, Waterworks, SewageWorks, Resource
+from city_engine.models import Building, BuldingsWithWorkes, Vehicle, PowerPlant, Waterworks, SewageWorks
 from abc import ABCMeta
 from django.db.models import Sum
+from resources.models import Resource
 
 
 class BasicAbstract(metaclass=ABCMeta):
@@ -37,7 +38,7 @@ class BasicAbstract(metaclass=ABCMeta):
         result = []
         for subclass in self.get_subclasses(BuldingsWithWorkes, 'city_engine'):
             if subclass.objects.filter(city=self.city).exists():
-                a = subclass.objects.filter(city=self.city)
+                a = subclass.objects.filter(city=self.city, if_under_construction=False)
                 for building in a:
                     result.append(building)
         for subclass in self.get_subclasses(Vehicle, 'city_engine'):
@@ -74,22 +75,13 @@ class ResourcesData(BasicAbstract):
     def __init__(self, city, user):
         self.city = city
         self.user = user
-        self.subclasses_of_all_resources = self.get_subclasses(Resource, 'city_engine')
+        self.subclasses_of_all_resources = self.get_subclasses(Resource, 'resources')
         self.resources = {ob.__name__: self.resources_size_and_sum(ob) for ob in [sub for sub in self.subclasses_of_all_resources]
                           if self.resources_size_and_sum(ob)[1]}
 
     def resources_size_and_sum(self, ob):
         data = ob.objects.filter(owner=self.user)
         return [data, data.values('size').aggregate(Sum('size'))['size__sum']]
-
-    def resource_name(self, sub):
-        return sub.__name__
-
-    def resource_size(self, sub):
-        return sub.objects.filter(owner=self.user).values_list('size', flat=True)
-
-    def resource_size_sum(self, sub):
-        return sub.objects.filter(owner=self.user).values('size').aggregate(Sum('size'))['size__sum']
 
 
 class RootClass(BasicAbstract):

@@ -2,7 +2,6 @@ from citizen_engine.models import Citizen
 from city_engine.main_view_data.city_stats import CityPopulationStats
 from random import randint, choice
 from citizen_engine.citizen_creation import CreateCitizen
-from city_engine.abstract import RootClass
 
 
 class EmployeeAllocation(object):

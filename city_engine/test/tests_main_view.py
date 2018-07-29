@@ -4,13 +4,11 @@ from django.urls import resolve
 from .base import TestHelper, CityFixture
 from city_engine.models import City, CityField, \
     Residential, \
-    ProductionBuilding, \
-    WindPlant, RopePlant, CoalPlant, WaterTower,  PowerPlant, \
+    WindPlant, RopePlant, WaterTower,  PowerPlant, \
     CoalPlant
 from player.models import Profile
 from city_engine.views import main_view
-from city_engine.turn_data.main import TurnCalculation
-from city_engine.abstract import RootClass
+from cou.abstract import RootClass
 
 
 class CityViewTests(CityFixture, RootClass):

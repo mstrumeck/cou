@@ -1,10 +1,6 @@
-import random
-import string
-import time
-from django.contrib.auth.models import User
 from city_engine.main_view_data.board import HEX_NUM
 from city_engine.models import City, CityField
-from .base import BaseTestForOnePlayer, BaseTest
+from .base import BaseTest
 from functional_tests.page_objects import Homepage, SignupPage, MainView
 
 

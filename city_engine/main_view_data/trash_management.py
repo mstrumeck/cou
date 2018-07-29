@@ -1,6 +1,5 @@
-from city_engine.models import DumpingGround, DustCart, CityField, Building
+from city_engine.models import DumpingGround, DustCart
 from django.db.models import F
-from city_engine.abstract import RootClass
 
 
 class TrashManagement(object):

@@ -13,8 +13,8 @@ from .main_view_data.city_stats import \
 from .turn_data.main import TurnCalculation
 from .turn_data.build import build_building
 from django.db.models import F
-from city_engine.abstract import RootClass
-from .abstract import ResourcesData
+from cou.abstract import RootClass
+from cou.abstract import ResourcesData
 
 
 @login_required
@@ -45,7 +45,10 @@ def main_view(request):
                                               'buildings_under_construction': city_stats.building_under_construction,
                                               'total_cost_of_maintenance': total_cost_of_main,
                                               'current_population': city_stats.current_population,
-                                              'max_population': city_stats.max_population})
+                                              'max_population': city_stats.max_population,
+                                              'home_demands': city_stats.building_stats.home_areas_demand(),
+                                              'industial_demands': city_stats.building_stats.industrial_areas_demand(),
+                                              'trade_demands': city_stats.building_stats.trade_areas_demand()})
 
 
 @login_required

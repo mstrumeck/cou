@@ -2,7 +2,7 @@ from django.db.models import Sum
 from city_engine.models import WindPlant, WaterTower, Residential
 from .base import BaseTest, TestHelper
 from functional_tests.page_objects import MainView, LoginPage
-from city_engine.abstract import RootClass
+from cou.abstract import RootClass
 
 
 # @override_settings(DEBUG=True)
@@ -30,6 +30,8 @@ class GameTestForOnePlayer(BaseTest):
         main_view.build_the_building_from_multiple_choice('Farmy', 'LettuceFarm', '21')
         main_view.build_the_building_from_multiple_choice('Farmy', 'BeanFarm', '22')
         main_view.build_the_building_from_multiple_choice('Farmy', 'CattleFarm', '23')
+        main_view.build_the_building_from_single_choice('MassConventer', '30')
+        main_view.build_the_building_from_single_choice('TradeDistrict', '31')
 
         for building_sublcass in RootClass(self.city_one, self.user_one).get_subclasses_of_all_buildings():
             self.assertEqual(building_sublcass.objects.filter(city=self.city_one).count(), 1)
@@ -80,19 +82,20 @@ class GameTestForTwoPlayers(BaseTest):
                                                                         assertIn=self.assertIn,
                                                                         assertTrue=self.assertTrue)
         main_view = MainView(self.browser, self.live_server_url)
-        main_view.build_the_building_from_single_choice('SewageWorks', '13')
-        main_view.build_the_building_from_single_choice('WaterTower', '00')
-        main_view.build_the_building_from_single_choice('Residential', '01')
-        main_view.build_the_building_from_single_choice('DumpingGround', '02')
-        main_view.build_the_building_from_single_choice('ProductionBuilding', '12')
-        main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'WindPlant', '03')
-        main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'RopePlant', '10')
-        main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'CoalPlant', '11')
+        main_view.build_the_building_from_single_choice('SewageWorks', '00')
+        main_view.build_the_building_from_single_choice('WaterTower', '01')
+        main_view.build_the_building_from_single_choice('Residential', '02')
+        main_view.build_the_building_from_single_choice('DumpingGround', '03')
+        main_view.build_the_building_from_single_choice('ProductionBuilding', '10')
+        main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'WindPlant', '11')
+        main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'RopePlant', '12')
+        main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'CoalPlant', '13')
         main_view.build_the_building_from_multiple_choice('Farmy', 'PotatoFarm', '20')
         main_view.build_the_building_from_multiple_choice('Farmy', 'LettuceFarm', '21')
         main_view.build_the_building_from_multiple_choice('Farmy', 'BeanFarm', '22')
         main_view.build_the_building_from_multiple_choice('Farmy', 'CattleFarm', '23')
-
+        main_view.build_the_building_from_single_choice('MassConventer', '30')
+        main_view.build_the_building_from_single_choice('TradeDistrict', '31')
 
         for building_sublcass in RootClass(self.city_one, self.user_one).get_subclasses_of_all_buildings():
             self.assertEqual(building_sublcass.objects.filter(city=self.city_one).count(), 1)
@@ -112,18 +115,20 @@ class GameTestForTwoPlayers(BaseTest):
                                                                         assertIn=self.assertIn,
                                                                         assertTrue=self.assertTrue)
         main_view = MainView(self.browser, self.live_server_url)
-        main_view.build_the_building_from_single_choice('SewageWorks', '13')
-        main_view.build_the_building_from_single_choice('WaterTower', '00')
-        main_view.build_the_building_from_single_choice('Residential', '01')
-        main_view.build_the_building_from_single_choice('DumpingGround', '02')
-        main_view.build_the_building_from_single_choice('ProductionBuilding', '12')
-        main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'WindPlant', '03')
-        main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'RopePlant', '10')
-        main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'CoalPlant', '11')
+        main_view.build_the_building_from_single_choice('SewageWorks', '00')
+        main_view.build_the_building_from_single_choice('WaterTower', '01')
+        main_view.build_the_building_from_single_choice('Residential', '02')
+        main_view.build_the_building_from_single_choice('DumpingGround', '03')
+        main_view.build_the_building_from_single_choice('ProductionBuilding', '10')
+        main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'WindPlant', '11')
+        main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'RopePlant', '12')
+        main_view.build_the_building_from_multiple_choice('BudynkiElektryczne', 'CoalPlant', '13')
         main_view.build_the_building_from_multiple_choice('Farmy', 'PotatoFarm', '20')
         main_view.build_the_building_from_multiple_choice('Farmy', 'LettuceFarm', '21')
         main_view.build_the_building_from_multiple_choice('Farmy', 'BeanFarm', '22')
         main_view.build_the_building_from_multiple_choice('Farmy', 'CattleFarm', '23')
+        main_view.build_the_building_from_single_choice('MassConventer', '30')
+        main_view.build_the_building_from_single_choice('TradeDistrict', '31')
 
         for building_sublcass in RootClass(self.city_two, self.user_two).get_subclasses_of_all_buildings():
             self.assertEqual(building_sublcass.objects.filter(city=self.city_two).count(), 1)

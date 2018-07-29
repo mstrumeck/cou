@@ -1,12 +1,10 @@
 from django import test
 from city_engine.main_view_data.resources_allocation import ResourceAllocation
-from city_engine.models import CityField, City, WindPlant, WaterTower, Residential, DumpingGround, SewageWorks
+from city_engine.models import CityField, City, WindPlant, WaterTower, SewageWorks
 from django.db.models import Sum
-from city_engine.main_view_data.trash_management import TrashManagement
-from city_engine.main_view_data.employee_allocation import EmployeeAllocation
 from city_engine.turn_data.main import TurnCalculation
 from city_engine.test.base import TestHelper
-from city_engine.abstract import RootClass
+from cou.abstract import RootClass
 from django.contrib.auth.models import User
 from player.models import Profile
 

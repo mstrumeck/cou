@@ -18,6 +18,9 @@ class City(models.Model):
     user = models.ForeignKey(User)
     name = models.TextField(max_length=15, unique=True)
     cash = models.DecimalField(default=10000, decimal_places=2, max_digits=20)
+    mass = models.PositiveIntegerField(default=0)
+    mass_price = models.DecimalField(default=2, decimal_places=2, max_digits=20)
+    trade_zones_taxation = models.FloatField(default=0.05)
     publish = models.DateField(auto_now_add=True)
     updated = models.DateField(auto_now=True)
 
@@ -74,6 +77,22 @@ class BuldingsWithWorkes(Building):
     def pollution_calculation(self):
         return self.pollution_rate * self.employee.count()
 
+    def productivity(self):
+        if self.employee.count() is 0:
+            return 0
+        else:
+            if self.water is 0:
+                water_productivity = 0.0
+            else:
+                water_productivity = float(self.water) / float(self.water_required)
+            if self.energy is 0:
+                energy_productivity = 0.0
+            else:
+                energy_productivity = float(self.energy) / float(self.energy_required)
+        employees_productivity = float(self.employee.count()) / float(self.max_employees)
+        productivity = (water_productivity + employees_productivity + energy_productivity) / 3
+        return productivity
+
     class Meta:
         abstract = True
 
@@ -96,9 +115,48 @@ class Residential(Building):
         return self.pollution_calculation() * self.population
 
 
+class TradeDistrict(BuldingsWithWorkes):
+    name = models.CharField(default='Strefa handlowa', max_length=20)
+    build_time = models.PositiveIntegerField(default=1)
+    build_cost = models.PositiveIntegerField(default=100)
+    maintenance_cost = models.PositiveIntegerField(default=10)
+    max_employees = models.PositiveIntegerField(default=20)
+    resource_cost_per_good = models.PositiveIntegerField(default=1)
+    max_goods_stored = models.PositiveIntegerField(default=100)
+    goods_stored = models.PositiveIntegerField(default=0)
+    cash = models.PositiveIntegerField(default=100)
+    resources_stored = models.PositiveIntegerField(default=0)
+    max_resources_stored = models.PositiveIntegerField(default=100)
+    water_required = models.PositiveIntegerField(default=20)
+    energy_required = models.PositiveIntegerField(default=30)
+
+    def creating_goods(self, city):
+        self.buy_resources(city)
+        self.product_goods()
+        self.save()
+        city.save()
+
+    def buy_resources(self, city):
+        if self.resources_stored / self.max_resources_stored < 0.8:
+            resources_diff = (self.max_resources_stored - self.resources_stored) * self.productivity()
+            while self.cash > city.mass_price and city.mass > 0 and resources_diff > 0:
+                resources_diff -= 1
+                self.cash -= city.mass_price
+                city.cash += city.mass_price
+                city.mass -= 1
+                self.resources_stored += 1
+
+    def product_goods(self):
+        if self.goods_stored / self.max_goods_stored < 0.5:
+            goods_diff = (self.max_goods_stored - self.goods_stored) * self.productivity()
+            while self.resources_stored > self.resource_cost_per_good and goods_diff > 0:
+                self.resources_stored -= self.resource_cost_per_good
+                self.goods_stored += 1
+                goods_diff -= 1
+
+
 class ProductionBuilding(BuldingsWithWorkes):
-    name = models.CharField(max_length=20, default='Budynek Przemysłowy')
-    if_production = models.BooleanField(default=True)
+    name = models.CharField(max_length=20, default='Strefa przemysłowa')
     build_time = models.PositiveIntegerField(default=1)
     build_cost = models.PositiveIntegerField(default=100)
     maintenance_cost = models.PositiveIntegerField(default=10)
@@ -353,7 +411,7 @@ class Farm(BuldingsWithWorkes):
 
     def update_harvest(self, turn, owner):
         if turn >= self.time_to_grow_from and turn < self.time_to_grow_to:
-            self.accumulate_harvest = F('accumulate_harvest') + self.growing()
+            self.accumulate_harvest = F('accumulate_harvest') + int(self.productivity() * self.max_harvest)
             self.save()
             self.refresh_from_db()
         elif turn >= self.time_to_grow_to and self.accumulate_harvest > 0:
@@ -361,22 +419,6 @@ class Farm(BuldingsWithWorkes):
             self.accumulate_harvest = 0
             self.save()
             self.refresh_from_db()
-
-    def growing(self):
-        if self.employee.count() is 0:
-            return 0
-        else:
-            if self.water is 0:
-                water_productivity = 0.0
-            else:
-                water_productivity = float(self.water) / float(self.water_required)
-            if self.energy is 0:
-                energy_productivity = 0.0
-            else:
-                energy_productivity = float(self.energy)/float(self.energy_required)
-        employees_productivity = float(self.employee.count()) / float(self.max_employees)
-        productivity = (water_productivity + employees_productivity + energy_productivity)/3
-        return int(productivity * self.max_harvest)
 
     def build_status(self):
         if self.current_build_time < self.build_time:
@@ -413,40 +455,24 @@ class AnimalFarm(BuldingsWithWorkes):
 
 class CattleFarm(AnimalFarm):
     name = models.CharField(default='Farma byłda', max_length=15)
-    animal = GenericRelation('city_engine.Cattle')
+    animal = GenericRelation('resources.Cattle')
     pastures = models.PositiveIntegerField(default=1)
     cattle_breeding_rate = models.FloatField(default=0.014)
     accumulate_breding = models.FloatField(default=0)
 
-    def grow(self):
-        if self.employee.count() is 0:
-            return 0
-        else:
-            if self.water is 0:
-                water_productivity = 0.0
-            else:
-                water_productivity = float(self.water) / float(self.water_required)
-            if self.energy is 0:
-                energy_productivity = 0.0
-            else:
-                energy_productivity = float(self.energy) / float(self.energy_required)
-        employees_productivity = float(self.employee.count()) / float(self.max_employees)
-        productivity = (water_productivity + employees_productivity + energy_productivity) / 3
-        return productivity
-
-    def productivity(self, cat):
+    def cattle_farm_productivity(self, cat):
         return ((cat.size / self.pastures) ** -0.3) * 2
 
     def farm_operation(self, turn, owner):
         if self.animal.count() != 0:
             cat = self.animal.last()
             if turn != 8:
-                self.accumulate_breding = F('accumulate_breding') + (self.cattle_breeding_rate * self.grow())
+                self.accumulate_breding = F('accumulate_breding') + (self.cattle_breeding_rate * self.productivity())
                 self.save()
                 self.refresh_from_db()
                 cat.resource_production(owner, self.pastures)
             else:
-                cat.size = F('size') + (cat.size * self.accumulate_breding * self.productivity(cat))
+                cat.size = F('size') + (cat.size * self.accumulate_breding * self.cattle_farm_productivity(cat))
                 self.accumulate_breding = 0
                 self.save()
                 cat.save()
@@ -457,7 +483,7 @@ class CattleFarm(AnimalFarm):
 
 class PotatoFarm(Farm):
     name = models.CharField(default='Farma ziemniaków', max_length=20)
-    veg = GenericRelation('city_engine.Potato')
+    veg = GenericRelation('resources.Potato')
     time_to_grow_from = models.PositiveIntegerField(default=2)
     time_to_grow_to = models.PositiveIntegerField(default=6)
     max_harvest = models.PositiveIntegerField(default=10)
@@ -465,7 +491,7 @@ class PotatoFarm(Farm):
 
 class BeanFarm(Farm):
     name = models.CharField(default='Farma fasoli', max_length=15)
-    veg = GenericRelation('city_engine.Bean')
+    veg = GenericRelation('resources.Bean')
     time_to_grow_from = models.PositiveIntegerField(default=4)
     time_to_grow_to = models.PositiveIntegerField(default=8)
     max_harvest = models.PositiveIntegerField(default=8)
@@ -473,85 +499,23 @@ class BeanFarm(Farm):
 
 class LettuceFarm(Farm):
     name = models.CharField(default='Farma sałaty', max_length=15)
-    veg = GenericRelation('city_engine.Lettuce')
+    veg = GenericRelation('resources.Lettuce')
     time_to_grow_from = models.PositiveIntegerField(default=3)
     time_to_grow_to = models.PositiveIntegerField(default=5)
     max_harvest = models.PositiveIntegerField(default=12)
 
 
-class Resource(models.Model):
-    owner = models.ForeignKey(User)
-    name = models.CharField(default='Surowiec', max_length=8)
-    size = models.PositiveIntegerField(default=0)
+class MassConventer(BuldingsWithWorkes):
+    name = models.CharField(default="Konwenter Masy", max_length=16)
+    energy_required = models.PositiveIntegerField(default=5)
+    water_required = models.PositiveIntegerField(default=10)
+    mass_production_rate = models.PositiveIntegerField(default=20)
+    build_time = models.PositiveIntegerField(default=1)
+    max_employees = models.PositiveIntegerField(default=5)
 
-    class Meta:
-        abstract = True
-
-
-class KindOfAnimal(Resource):
-    size = models.PositiveIntegerField(default=0)
-    content_type = models.ForeignKey(ContentType, on_delete=models.SET_NULL, null=True)
-    object_id = models.PositiveIntegerField()
-    content_objects = GenericForeignKey()
-
-    class Meta:
-        abstract = True
-
-
-class Cattle(KindOfAnimal):
-    name = models.CharField(default='Bydło', max_length=6)
-    milk = GenericRelation('city_engine.Milk')
-    beef = GenericRelation('city_engine.Beef')
-
-    def resource_production(self, owner, pastures):
-        try:
-            milk = self.milk.last()
-            milk.size = F('size') + (self.size * (6 * self.productivity(pastures)))
-            milk.save()
-        except BaseException:
-            self.milk.create(size=0, owner=owner)
-
-    def productivity(self, pastures):
-        return ((self.size / pastures) ** -0.3) * 2
-
-
-class AnimalResources(Resource):
-    content_type = models.ForeignKey(ContentType, on_delete=models.SET_NULL, null=True)
-    object_id = models.PositiveIntegerField()
-    content_objects = GenericForeignKey()
-
-    class Meta:
-        abstract = True
-
-
-class Milk(AnimalResources):
-    name = models.CharField(default='Mleko', max_length=5)
-
-
-class Beef(AnimalResources):
-    name = models.CharField(default='Wołowina', max_length=8)
-
-
-class KindOfCultivation(Resource):
-    size = models.PositiveIntegerField(default=60)
-    content_type = models.ForeignKey(ContentType, on_delete=models.SET_NULL, null=True)
-    object_id = models.PositiveIntegerField()
-    content_objects = GenericForeignKey()
-
-    class Meta:
-        abstract = True
-
-
-class Bean(KindOfCultivation):
-    name = models.CharField(default='Fasola', max_length=10)
-
-
-class Potato(KindOfCultivation):
-    name = models.CharField(default='Ziemniaki', max_length=10)
-
-
-class Lettuce(KindOfCultivation):
-    name = models.CharField(default='Sałata', max_length=10)
+    def product_mass(self, city):
+        city.mass += int(self.mass_production_rate * self.productivity())
+        city.save()
 
 
 class DumpingGround(BuldingsWithWorkes):

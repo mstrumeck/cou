@@ -2,11 +2,10 @@ from django import test
 from city_engine.test.base import TestHelper
 from city_engine.models import CityField, Residential, City, WindPlant, WaterTower, \
     ProductionBuilding, DustCart, DumpingGround
-from django.db.models import Sum
 from django.contrib.auth.models import User
 from citizen_engine.models import Citizen
 from city_engine.main_view_data.employee_allocation import EmployeeAllocation
-from city_engine.abstract import RootClass
+from cou.abstract import RootClass
 
 
 class EmployeeAllocationTest(test.TestCase, TestHelper):

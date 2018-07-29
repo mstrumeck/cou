@@ -1,14 +1,11 @@
 from django.contrib.auth.models import User
-from django import test
-from django.urls import resolve
-from .base import TestHelper, CityFixture, BaseFixture
-from city_engine.models import City, CityField
-from city_engine.abstract import RootClass
+from city_engine.test.base import BaseFixture
+from city_engine.models import CityField
+from cou.abstract import RootClass
 from city_engine.turn_data.main import TurnCalculation
-from django.db.models import F
 from player.models import Profile
-from city_engine.models import PotatoFarm, BeanFarm, LettuceFarm, Farm, Potato, Bean, Lettuce, KindOfCultivation,\
-    Cattle, Milk, CattleFarm, Beef, KindOfAnimal, AnimalResources, AnimalFarm
+from city_engine.models import PotatoFarm, BeanFarm, LettuceFarm, Farm, CattleFarm, AnimalFarm
+from resources.models import Potato, Bean, Lettuce, KindOfCultivation, Cattle, Milk, Beef, KindOfAnimal, AnimalResources
 
 
 class FarmInstancesTests(BaseFixture):

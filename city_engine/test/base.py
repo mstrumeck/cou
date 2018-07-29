@@ -2,14 +2,13 @@ from django import test
 from django.contrib.auth.models import User
 from city_engine.main_view_data.board import assign_city_fields_to_board
 from city_engine.main_view_data.city_stats import CityStatsCenter
-from city_engine.abstract import RootClass
 from citizen_engine.citizen_creation import CreateCitizen
-from  city_engine.abstract import RootClass
+from cou.abstract import RootClass
 from city_engine.models import City, CityField, \
     Residential, \
     ProductionBuilding, \
     WindPlant, CoalPlant, RopePlant, \
-    WaterTower, Vehicle
+    WaterTower
 
 
 class TestHelper(RootClass):

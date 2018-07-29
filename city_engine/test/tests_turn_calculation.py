@@ -2,7 +2,7 @@ from city_engine.turn_data.main import TurnCalculation
 from django import test
 from city_engine.test.base import TestHelper
 from city_engine.models import City
-from city_engine.abstract import RootClass
+from cou.abstract import RootClass
 from django.contrib.auth.models import User
 from player.models import Profile
 

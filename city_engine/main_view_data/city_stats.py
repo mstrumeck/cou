@@ -1,10 +1,9 @@
-from city_engine.models import Residential, PowerPlant, Waterworks
+from city_engine.models import Residential, BuldingsWithWorkes, Vehicle, TradeDistrict
 from citizen_engine.models import Citizen
 from django.db.models import Sum
-from city_engine.abstract import RootClass
 
 
-class CityStatsCenter(object):
+class CityStatsCenter:
     def __init__(self, city, data):
         self.city = city
         self.data = data
@@ -36,7 +35,7 @@ class CityStatsCenter(object):
         self.building_stats = CityBuildingStats(self.city, self.data)
 
 
-class CityEnergyStats(object):
+class CityEnergyStats:
 
     def __init__(self, city, data):
         self.city = city
@@ -55,7 +54,7 @@ class CityEnergyStats(object):
         return sum([b.energy_required for b in self.data.list_of_buildings])
 
 
-class CityRawWaterStats(object):
+class CityRawWaterStats:
 
     def __init__(self, city, data):
         self.city = city
@@ -74,7 +73,7 @@ class CityRawWaterStats(object):
         return sum([b.raw_water_allocated for b in self.data.waterworks_buildings])
 
 
-class CityCleanWaterStats(object):
+class CityCleanWaterStats:
 
     def __init__(self, city, data):
         self.city = city
@@ -93,10 +92,30 @@ class CityCleanWaterStats(object):
         return self.calculate_clean_water_production_in_city() - self.calculate_clean_water_allocated_in_city()
 
 
-class CityBuildingStats(object):
+class CityBuildingStats:
     def __init__(self, city, data):
         self.city = city
         self.data = data
+
+    def home_areas_demand(self):
+        return "{}/{}".format(
+            sum((x.max_employees - x.employee.count() for x in self.data.list_of_buildings
+                 if isinstance(x, BuldingsWithWorkes) or isinstance(x, Vehicle))),
+            sum((x.max_employees for x in self.data.list_of_buildings
+                 if isinstance(x, BuldingsWithWorkes) or isinstance(x, Vehicle))))
+
+    def industrial_areas_demand(self):
+        return "{}/{}".format(
+            sum(x.max_employees - x.employee.count() for x in self.data.list_of_buildings
+                 if isinstance(x, TradeDistrict)),
+            sum(x.max_employees for x in self.data.list_of_buildings
+                 if isinstance(x, TradeDistrict)))
+
+    def trade_areas_demand(self):
+        return "To implement"
+        # return "{}/{}".format(
+        #     Residential.objects.filter(city=self.city).aggregate(Sum('max_population'))['max_population__sum'] - Citizen.objects.filter(city=self.city).count() ,
+        #     Residential.objects.filter(city=self.city).aggregate(Sum('max_population'))['max_population__sum'])
 
     def list_of_buildings_under_construction(self):
         return [[b['name'], b['current_build_time'], b['build_time']] for b in
@@ -107,7 +126,7 @@ class CityBuildingStats(object):
                 if b['if_under_construction'] is False]
 
 
-class CityPopulationStats(object):
+class CityPopulationStats:
 
     def __init__(self, city):
         self.city = city

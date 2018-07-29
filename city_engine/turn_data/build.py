@@ -1,5 +1,5 @@
 from city_engine.models import CityField, City
-from city_engine.abstract import AbstractAdapter
+from cou.abstract import AbstractAdapter
 
 
 def build_building(request, row, col, build_type):

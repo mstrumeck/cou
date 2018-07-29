@@ -1,12 +1,13 @@
-from city_engine.abstract import RootClass, ResourcesData
+from cou.abstract import RootClass, ResourcesData
 from django.contrib.auth.models import User
 from django import test
 from city_engine.test.base import TestHelper
 from city_engine.turn_data.main import TurnCalculation
 from city_engine.models import City, WindPlant, WaterTower, PowerPlant,\
     Waterworks, RopePlant, CoalPlant, Residential, ProductionBuilding, DumpingGround, DustCart, SewageWorks, \
-    PotatoFarm, LettuceFarm, BeanFarm, CattleFarm
+    PotatoFarm, LettuceFarm, BeanFarm, CattleFarm, MassConventer, TradeDistrict
 from player.models import Profile
+
 
 class TestRootClass(test.TestCase):
     fixtures = ['basic_fixture_resources_and_employees2.json']
@@ -28,8 +29,8 @@ class TestRootClass(test.TestCase):
 
     def test_get_subclasses_of_all_buildings(self):
         self.assertEqual(self.RC.get_subclasses_of_all_buildings(),
-                         [Residential, ProductionBuilding, WindPlant, RopePlant, CoalPlant, WaterTower,
-                          SewageWorks, CattleFarm, PotatoFarm, BeanFarm, LettuceFarm, DumpingGround])
+                         [Residential, TradeDistrict, ProductionBuilding, WindPlant, RopePlant, CoalPlant, WaterTower,
+                          SewageWorks, CattleFarm, PotatoFarm, BeanFarm, LettuceFarm, MassConventer, DumpingGround])
 
     def test_list_of_building_in_city(self):
         self.assertEqual(self.RC.list_of_buildings,

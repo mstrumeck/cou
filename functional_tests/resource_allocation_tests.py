@@ -1,5 +1,5 @@
 from functional_tests.page_objects import MainView, LoginPage
-from city_engine.models import CityField, City, SewageWorks, WindPlant, WaterTower
+from city_engine.models import SewageWorks, WindPlant, WaterTower
 from .legacy.base import BaseTest
 from django.db.models import Sum
 

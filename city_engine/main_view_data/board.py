@@ -3,16 +3,15 @@ import numpy as np
 from django.db.models import Sum
 from .global_variables import HEX_NUM_IN_ROW, HEX_NUM, ROW_NUM
 from city_engine.models import WindPlant, BuldingsWithWorkes, PowerPlant, Waterworks, DumpingGround, Residential, SewageWorks
-from city_engine.abstract import RootClass
 
 
 def assign_city_fields_to_board(city):
     fields = [x for x in range(1, int(HEX_NUM)+1)]
     chunk_fields = np.array_split(fields, HEX_NUM_IN_ROW)
-    for num_of_row, row in enumerate(chunk_fields):
-        row = list(row)
-        for col in range(len(row)):
-            CityField.objects.create(city=city, row=num_of_row, col=col)
+    for num_of_col, col in enumerate(chunk_fields):
+        col = list(col)
+        for row in range(len(col)):
+            CityField.objects.create(city=city, row=row, col=num_of_col)
 
 
 class Board(object):

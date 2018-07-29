@@ -1,11 +1,9 @@
 from django import test
 from city_engine.main_view_data.trash_management import TrashManagement, CollectGarbage
-from city_engine.models import DumpingGround, City, DustCart, CityField, WindPlant, WaterTower, Building
-import random
+from city_engine.models import DumpingGround, City, DustCart, WindPlant, WaterTower
 from django.contrib.auth.models import User
-from city_engine.main_view_data.global_variables import HEX_NUM_IN_ROW
 from city_engine.test.base import TestHelper
-from city_engine.abstract import RootClass
+from cou.abstract import RootClass
 
 
 class TestTrashAllocation(test.TestCase, TestHelper):
