@@ -20,8 +20,9 @@ class EmployeeAllocationTest(test.TestCase, TestHelper):
         self.assertIn(self.EA.not_full_production_buildings(), [WindPlant.objects.get(id=1), WindPlant.objects.get(id=2)
                                                                 , WaterTower.objects.get(id=1), WaterTower.objects.get(id=2)])
 
-        self.populate_city()
-
+        TestHelper(self.city, User.objects.latest('id')).populate_city()
+        self.RC = RootClass(self.city, user=User.objects.latest('id'))
+        self.EA = EmployeeAllocation(city=self.city, data=self.RC)
         self.assertEqual(self.EA.not_full_production_buildings(), None)
 
     def test_update_employee_allocation(self):
@@ -29,7 +30,7 @@ class EmployeeAllocationTest(test.TestCase, TestHelper):
         self.assertEqual(sum([wt.employee.count() for wt in WaterTower.objects.filter(city=self.city)]), 0)
         self.assertEqual(sum([pb.employee.count() for pb in ProductionBuilding.objects.filter(city=self.city)]), 0)
 
-        self.populate_city()
+        TestHelper(self.city, User.objects.latest('id')).populate_city()
 
         self.assertEqual(sum([wp.employee.count() for wp in WindPlant.objects.filter(city=self.city)]), 10)
         self.assertEqual(sum([wt.employee.count() for wt in WaterTower.objects.filter(city=self.city)]), 10)
@@ -37,7 +38,7 @@ class EmployeeAllocationTest(test.TestCase, TestHelper):
     def test_update_population(self):
         self.assertEqual(Citizen.objects.filter(city=self.city).count(), 0)
         self.EA.run()
-        self.assertIn(Citizen.objects.filter(city=self.city).count(), [x for x in range(21)])
+        self.assertIn(Citizen.objects.filter(city=self.city).count(), [x for x in range(30)])
 
     def test_employee_to_vehicle_allocation(self):
         city_field_one = CityField.objects.get(id=1)
@@ -46,6 +47,6 @@ class EmployeeAllocationTest(test.TestCase, TestHelper):
         dumping_ground = DumpingGround.objects.create(city=self.city, if_under_construction=False, city_field=city_field_one)
         dust_cart = DustCart.objects.create(city=self.city, dumping_ground=dumping_ground)
         self.assertEqual(dust_cart.employee.count(), 0)
-        self.populate_city()
+        TestHelper(self.city, User.objects.latest('id')).populate_city()
         dust_cart = DustCart.objects.latest('id')
         self.assertEqual(dust_cart.employee.count(), 3)

@@ -1,4 +1,4 @@
-from city_engine.models import Residential, BuldingsWithWorkes, Vehicle, TradeDistrict
+from city_engine.models import Residential, BuldingsWithWorkes, Vehicle, TradeDistrict, PowerPlant, Waterworks, SewageWorks
 from citizen_engine.models import Citizen
 from django.db.models import Sum
 
@@ -31,7 +31,7 @@ class CityStatsCenter:
         self.energy_stats = CityEnergyStats(self.city, self.data)
         self.raw_water_stats = CityRawWaterStats(self.city, self.data)
         self.clean_water_stats = CityCleanWaterStats(self.city, self.data)
-        self.populations_stats = CityPopulationStats(self.city)
+        self.populations_stats = CityPopulationStats(self.city, self.data)
         self.building_stats = CityBuildingStats(self.city, self.data)
 
 
@@ -45,10 +45,12 @@ class CityEnergyStats:
         return self.calculate_energy_production_in_city() - self.calculate_energy_allocation_in_city()
 
     def calculate_energy_production_in_city(self):
-        return sum([b.total_production() for b in self.data.power_plant_buildings])
+        return sum([b.total_production(
+            self.data.list_of_buildings[b]['people_in_charge']
+        ) for b in self.data.list_of_buildings if isinstance(b, PowerPlant)])
 
     def calculate_energy_allocation_in_city(self):
-        return sum([b.energy_allocated for b in self.data.power_plant_buildings])
+        return sum([b.energy_allocated for b in self.data.list_of_buildings if isinstance(b, PowerPlant)])
 
     def calculate_energy_usage_in_city(self):
         return sum([b.energy_required for b in self.data.list_of_buildings])
@@ -64,13 +66,15 @@ class CityRawWaterStats:
         return self.calculate_raw_water_production_in_city() - self.calculate_raw_water_allocation_in_city()
 
     def calculate_raw_water_production_in_city(self):
-        return sum([b.total_production() for b in self.data.waterworks_buildings])
+        return sum([b.total_production(
+            self.data.list_of_buildings[b]['people_in_charge']
+        ) for b in self.data.list_of_buildings if isinstance(b, Waterworks)])
 
     def calculate_raw_water_usage_in_city(self):
-        return sum([b.raw_water for b in self.data.sewageworks_buildings])
+        return sum([b.raw_water for b in self.data.list_of_buildings if isinstance(b, SewageWorks)])
 
     def calculate_raw_water_allocation_in_city(self):
-        return sum([b.raw_water_allocated for b in self.data.waterworks_buildings])
+        return sum([b.raw_water_allocated for b in self.data.list_of_buildings if isinstance(b, Waterworks)])
 
 
 class CityCleanWaterStats:
@@ -80,13 +84,15 @@ class CityCleanWaterStats:
         self.data = data
 
     def calculate_clean_water_production_in_city(self):
-        return sum([b.total_production() for b in self.data.sewageworks_buildings])
+        return sum([b.total_production(
+            self.data.list_of_buildings[b]['people_in_charge']
+        ) for b in self.data.list_of_buildings if isinstance(b, SewageWorks)])
 
     def calculate_clean_water_usage_in_city(self):
         return sum([b.water for b in self.data.list_of_buildings])
 
     def calculate_clean_water_allocated_in_city(self):
-        return sum([b.clean_water_allocated for b in self.data.sewageworks_buildings])
+        return sum([b.clean_water_allocated for b in self.data.list_of_buildings if isinstance(b, SewageWorks)])
 
     def clean_city_water_bilans(self):
         return self.calculate_clean_water_production_in_city() - self.calculate_clean_water_allocated_in_city()
@@ -99,17 +105,19 @@ class CityBuildingStats:
 
     def home_areas_demand(self):
         return "{}/{}".format(
-            sum((x.max_employees - x.employee.count() for x in self.data.list_of_buildings
-                 if isinstance(x, BuldingsWithWorkes) or isinstance(x, Vehicle))),
-            sum((x.max_employees for x in self.data.list_of_buildings
-                 if isinstance(x, BuldingsWithWorkes) or isinstance(x, Vehicle))))
+            sum((h.max_employees - self.data.list_of_buildings[h]['people_in_charge']
+                 for h in self.data.list_of_buildings
+                 if isinstance(h, BuldingsWithWorkes) or isinstance(h, Vehicle))),
+            sum((h.max_employees for h in self.data.list_of_buildings
+                 if isinstance(h, BuldingsWithWorkes) or isinstance(h, Vehicle))))
 
     def industrial_areas_demand(self):
         return "{}/{}".format(
-            sum(x.max_employees - x.employee.count() for x in self.data.list_of_buildings
-                 if isinstance(x, TradeDistrict)),
-            sum(x.max_employees for x in self.data.list_of_buildings
-                 if isinstance(x, TradeDistrict)))
+            sum(i.max_employees - self.data.list_of_buildings[i]['people_in_charge']
+                for i in self.data.list_of_buildings
+                 if isinstance(i, TradeDistrict)),
+            sum(i.max_employees for i in self.data.list_of_buildings
+                 if isinstance(i, TradeDistrict)))
 
     def trade_areas_demand(self):
         return "To implement"
@@ -118,21 +126,23 @@ class CityBuildingStats:
         #     Residential.objects.filter(city=self.city).aggregate(Sum('max_population'))['max_population__sum'])
 
     def list_of_buildings_under_construction(self):
-        return [[b['name'], b['current_build_time'], b['build_time']] for b in
-                self.data.list_of_building_with_values if b['if_under_construction'] is True]
+        return [[b.name, b.current_build_time, b.build_time] for b in
+                self.data.list_of_buildings if b.if_under_construction is True]
 
     def list_of_buildings(self):
-        return [b['name'] for b in self.data.list_of_building_with_values
-                if b['if_under_construction'] is False]
+        return [b.name for b in self.data.list_of_buildings
+                if b.if_under_construction is False]
 
 
 class CityPopulationStats:
 
-    def __init__(self, city):
+    def __init__(self, city, data):
         self.city = city
+        self.data = data
 
     def calculate_max_population(self):
-        total = Residential.objects.filter(city=self.city).aggregate(Sum('max_population'))['max_population__sum']
+        total = sum(b.max_population for b in self.data.list_of_buildings if isinstance(b, Residential))
+        # total = Residential.objects.filter(city=self.city).aggregate(Sum('max_population'))['max_population__sum']
         if total:
             return total
         else:

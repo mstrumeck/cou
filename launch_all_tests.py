@@ -6,6 +6,7 @@ def run_tests():
               ' citizen_engine'
               ' city_engine'
               ' player'
+              ' resources'
               ' functional_tests.legacy.game_tests'
               ' functional_tests.legacy.user_tests'
               ' functional_tests.trashcollector_tests'

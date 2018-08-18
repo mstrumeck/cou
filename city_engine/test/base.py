@@ -14,9 +14,9 @@ from city_engine.models import City, CityField, \
 class TestHelper(RootClass):
 
     def populate_city(self):
-        for workplace in self.list_of_workplaces():
+        for workplace in self.list_of_workplaces.keys():
             for employ in range(workplace.max_employees):
-                CreateCitizen().create_with_workplace(city=self.city, workplace=workplace)
+                CreateCitizen(self.city, self).create_with_workplace(workplace)
 
 
 class BaseFixture(test.TestCase):
@@ -155,4 +155,5 @@ class CityFixture(test.TestCase):
         waterwork.city_field = CityField.objects.get(row=1, col=1, city=self.city)
         waterwork.save()
 
+        self.data = RootClass(self.city, user=first_user)
         self.city_stats = CityStatsCenter(self.city, self.data)

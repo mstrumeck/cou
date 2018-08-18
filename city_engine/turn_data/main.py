@@ -22,22 +22,48 @@ class TurnCalculation:
         self.update_harvest_status()
         self.update_breeding_status()
         self.trade_district_actions()
+        self.save_all()
+
+    def save_all(self):
+        self.profile.current_turn += 1
+        self.profile.save()
+        self.city.save()
+        for build in self.data.list_of_buildings:
+            build.save()
+        for field in self.data.city_fields_in_city:
+            field.save()
+        for vehicle in self.data.vehicles:
+            vehicle.save()
 
     def trade_district_actions(self):
         for td in [td for td in self.data.list_of_buildings if isinstance(td, TradeDistrict)]:
-            td.creating_goods(self.city)
+            td.creating_goods(
+                self.city,
+                self.data.list_of_buildings[td]['people_in_charge']
+            )
 
     def collect_mass(self):
         for mass_collector in [mc for mc in self.data.list_of_buildings if isinstance(mc, MassConventer)]:
-            mass_collector.product_mass(self.city)
+            mass_collector.product_mass(
+                self.city,
+                self.data.list_of_buildings[mass_collector]['people_in_charge']
+            )
 
     def update_breeding_status(self):
         for farm in [b for b in self.data.list_of_buildings if isinstance(b, AnimalFarm)]:
-            farm.farm_operation(self.profile.current_turn, self.data.user)
+            farm.farm_operation(
+                self.profile.current_turn,
+                self.data.user,
+                self.data.list_of_buildings[farm]['people_in_charge']
+            )
 
     def update_harvest_status(self):
         for farm in [b for b in self.data.list_of_buildings if isinstance(b, Farm)]:
-            farm.update_harvest(self.profile.current_turn, self.data.user)
+            farm.update_harvest(
+                self.profile.current_turn,
+                self.data.user,
+                self.data.list_of_buildings[farm]['people_in_charge']
+            )
 
     def update_build_status(self):
         for building in self.data.list_of_buildings:
@@ -45,7 +71,7 @@ class TurnCalculation:
                 building.build_status()
 
     def calculate_maintenance_cost(self):
-        return sum([b['maintenance_cost'] for b in self.data.list_of_building_with_values])
+        return sum([b.maintenance_cost for b in self.data.list_of_buildings])
 
     def execute_maintenance(self):
         self.city.cash - self.calculate_maintenance_cost()

@@ -51,7 +51,7 @@ class FarmInstancesTests(BaseFixture):
 
     def test_milk_creation(self):
         cf = CattleFarm.objects.create(city=self.city, city_field=self.field_one)
-        cf.farm_operation(1, User.objects.latest('id'))
+        cf.farm_operation(1, User.objects.latest('id'), cf.employee.count())
         cat = Cattle.objects.latest('id')
         self.assertEqual(Cattle.objects.all().count(), 1)
         self.assertEqual(cat.size, 10)

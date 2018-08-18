@@ -1,12 +1,13 @@
 from django import test
 from city_engine.main_view_data.resources_allocation import ResourceAllocation
-from city_engine.models import CityField, City, WindPlant, WaterTower, SewageWorks
+from city_engine.models import CityField, City, WindPlant, WaterTower, SewageWorks, Residential
 from django.db.models import Sum
 from city_engine.turn_data.main import TurnCalculation
 from city_engine.test.base import TestHelper
 from cou.abstract import RootClass
 from django.contrib.auth.models import User
 from player.models import Profile
+from city_engine.main_view_data.employee_allocation import EmployeeAllocation
 
 
 class ResourcesAllocationsTests(test.TestCase, TestHelper):
@@ -14,21 +15,28 @@ class ResourcesAllocationsTests(test.TestCase, TestHelper):
 
     def setUp(self):
         self.city = City.objects.latest('id')
+        TestHelper(self.city, User.objects.latest('id')).populate_city()
         self.RC = RootClass(self.city, User.objects.latest('id'))
         self.RA = ResourceAllocation(city=self.city, data=self.RC)
-        self.populate_city()
 
     def test_pollution_cleaning(self):
+        self.RC = RootClass(self.city, User.objects.latest('id'))
+        self.RA = ResourceAllocation(city=self.city, data=self.RC)
         self.RA.pollution_allocation()
-        self.assertEqual(CityField.objects.filter(city=self.city).aggregate(Sum('pollution'))['pollution__sum'], 29)
+        TurnCalculation(self.city, self.RC, Profile.objects.latest('id')).save_all()
+        self.assertEqual(CityField.objects.filter(city=self.city).aggregate(Sum('pollution'))['pollution__sum'], 31)
         self.RA.clean_allocation_data()
+        TurnCalculation(self.city, self.RC, Profile.objects.latest('id')).save_all()
         self.assertEqual(CityField.objects.filter(city=self.city).aggregate(Sum('pollution'))['pollution__sum'], 0)
 
     def test_pollution_allocation(self):
+        self.RC = RootClass(self.city, User.objects.latest('id'))
+        self.RA = ResourceAllocation(city=self.city, data=self.RC)
         self.RA.clean_allocation_data()
         self.assertEqual(CityField.objects.filter(city=self.city).aggregate(Sum('pollution'))['pollution__sum'], 0)
         self.RA.pollution_allocation()
-        self.assertEqual(CityField.objects.filter(city=self.city).aggregate(Sum('pollution'))['pollution__sum'], 29)
+        TurnCalculation(self.city, self.RC, Profile.objects.latest('id')).save_all()
+        self.assertEqual(CityField.objects.filter(city=self.city).aggregate(Sum('pollution'))['pollution__sum'], 31)
 
     def test_resources_allocation(self):
         WindPlant.objects.update(energy_allocated=0)
@@ -40,6 +48,7 @@ class ResourcesAllocationsTests(test.TestCase, TestHelper):
         self.assertEqual(SewageWorks.objects.filter(city=self.city).aggregate(Sum('clean_water_allocated'))['clean_water_allocated__sum'], 0)
 
         for x in range(3):
+            self.RC = RootClass(self.city, User.objects.latest('id'))
             TurnCalculation(city=self.city, data=self.RC, profile=Profile.objects.latest('id')).run()
 
         self.assertIn(WindPlant.objects.filter(city=self.city).aggregate(Sum('energy_allocated'))['energy_allocated__sum'], range(5, 25))
@@ -48,5 +57,26 @@ class ResourcesAllocationsTests(test.TestCase, TestHelper):
 
         self.assertNotEqual(sum([b.energy for b in self.RC.list_of_buildings]), 0)
         self.assertNotEqual(sum([b.water for b in self.RC.list_of_buildings]), 0)
+
+
+class EmployeeAllocationTests(test.TestCase):
+    fixtures = ['basic_fixture_resources_and_employees2.json']
+
+    def test_employee_allocation(self):
+        self.city = City.objects.latest('id')
+        self.RC = RootClass(self.city, User.objects.latest('id'))
+        self.RA = ResourceAllocation(city=self.city, data=self.RC)
+
+        for build in self.RC.list_of_workplaces:
+            self.assertEqual(build.employee.count(), 0)
+
+        for x in range(8):
+            TurnCalculation(
+                city=self.city,
+                data=self.RC,
+                profile=Profile.objects.latest('id')).run()
+
+        for build in self.RC.list_of_workplaces:
+            self.assertLessEqual(build.employee.count(), build.max_employees)
 
 # python manage.py dumpdata citizen_engine city_engine auth.user --indent=2 --output=city_engine/fixtures/fixture_natural_resources.json

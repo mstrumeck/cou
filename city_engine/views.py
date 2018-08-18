@@ -31,7 +31,7 @@ def main_view(request):
 
     profile = Profile.objects.get(user_id=request.user.id)
     income = Citizen.objects.filter(city=city).aggregate(Sum('income'))['income__sum']
-    total_cost_of_main = sum([b['maintenance_cost'] for b in data.list_of_building_with_values])
+    total_cost_of_main = sum(b.maintenance_cost for b in data.list_of_buildings)
 
     city.save()
 
@@ -67,12 +67,7 @@ def turn_calculations(request):
     data = RootClass(city, request.user)
     profile = Profile.objects.get(user_id=request.user.id)
     TurnCalculation(city, data, profile).run()
-
-    profile = Profile.objects.get(user_id=request.user.id)
-    profile.current_turn = F('current_turn') + 1
-    profile.save()
-    city.save()
-
+    # return render(request, 'city_calculation_view.html')
     return HttpResponseRedirect(reverse('city_engine:main'))
 
 

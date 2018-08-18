@@ -4,6 +4,7 @@ from city_engine.main_view_data.board import assign_city_fields_to_board
 from city_engine.models import ProductionBuilding, Residential, City, CityField, WindPlant
 from .models import Citizen
 from .citizen_creation import CreateCitizen
+from cou.abstract import RootClass
 
 
 class CitizenFixture(TestCase):
@@ -87,17 +88,18 @@ class CitizenCreationsTest(TestCase):
 
     def setUp(self):
         self.city = City.objects.get(id=1)
+        self.RC = RootClass(self.city, User.objects.latest('id'))
 
     def test_create_with_workplace(self):
         self.assertEqual(Citizen.objects.filter(city=self.city).count(), 0)
-        CreateCitizen().create_with_workplace(city=self.city, workplace=WindPlant.objects.latest('id'))
+        CreateCitizen(self.city, self.RC).create_with_workplace(workplace=WindPlant.objects.latest('id'))
         self.assertEqual(Citizen.objects.filter(city=self.city).count(), 1)
 
     def test_create_without_workplace(self):
         self.assertEqual(Citizen.objects.filter(city=self.city).count(), 0)
-        CreateCitizen().create_without_workplace(city=self.city)
+        CreateCitizen(self.city, self.RC).create_without_workplace()
         self.assertEqual(Citizen.objects.filter(city=self.city).count(), 1)
 
     def test_choose_residential(self):
         residential = Residential.objects.get(id=1)
-        self.assertEqual(CreateCitizen().choose_residential(self.city), residential)
+        self.assertEqual(CreateCitizen(self.city, self.RC).choose_residential(), residential)

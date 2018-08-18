@@ -3,6 +3,9 @@ from city_engine.models import City
 from city_engine.models import MassConventer
 from city_engine.test.base import TestHelper
 from django.contrib.auth.models import User
+from city_engine.turn_data.main import TurnCalculation
+from cou.abstract import RootClass
+from player.models import Profile
 
 
 class TestMassConventer(test.TestCase):
@@ -20,6 +23,8 @@ class TestMassConventer(test.TestCase):
     def test_product_mass(self):
         city = City.objects.latest('id')
         self.assertEqual(city.mass, 1000)
-        self.mass_conventer.product_mass(self.city)
+        self.mass_conventer.product_mass(self.city, self.mass_conventer.employee.count())
+        RC = RootClass(self.city, User.objects.latest('id'))
+        TurnCalculation(city=self.city, data=RC, profile=Profile.objects.latest('id')).save_all()
         city = City.objects.latest('id')
         self.assertEqual(city.mass, 1020)

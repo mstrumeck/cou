@@ -11,7 +11,7 @@ from city_engine.views import main_view
 from cou.abstract import RootClass
 
 
-class CityViewTests(CityFixture, RootClass):
+class CityViewTests(CityFixture):
 
     def test_call_view_loads(self):
         response = self.client.get('/main/')
@@ -27,10 +27,13 @@ class CityViewTests(CityFixture, RootClass):
         response = self.client.get('/main/')
 
         self.assertTemplateUsed(response, 'main_view.html')
-        for models in self.get_subclasses(abstract_class=PowerPlant, app_label='city_engine'):
+        self.RC = RootClass(self.city, User.objects.latest('id'))
+        for models in self.RC.get_subclasses(abstract_class=PowerPlant, app_label='city_engine'):
             list_of_buildings = models.objects.filter(city=self.city)
             for building in list_of_buildings:
-                total_energy += building.total_production()
+                total_energy += building.total_production(
+                    self.RC.list_of_buildings[building]['people_in_charge']
+                )
 
         self.assertEqual(total_energy, self.city_stats.energy_production)
 
@@ -49,7 +52,7 @@ class CityViewTests(CityFixture, RootClass):
         response = self.client.get('/main/')
         self.assertTemplateUsed(response, 'main_view.html')
         name, cur, end = [], [], []
-        for model in self.get_subclasses_of_all_buildings():
+        for model in RootClass(self.city, User.objects.latest('id')).get_subclasses_of_all_buildings():
             for objects in model.objects.filter(city=self.city):
                 if objects.if_under_construction is True:
                     name.append(objects.name)
@@ -155,7 +158,12 @@ class ModelsTests(test.TestCase, TestHelper):
                                                 raw_water_allocated=10,
                                                 max_employees=5,
                                                 )
-        self.populate_city()
-        self.assertEqual(wind_plant.pollution_calculation(), 10.8)
-        self.assertEqual(water_tower.pollution_calculation(), 2.5)
+        self.RC = RootClass(self.city, User.objects.latest('id'))
+        TestHelper(self.city, User.objects.latest('id')).populate_city()
+        self.assertEqual(wind_plant.pollution_calculation(
+            self.RC.list_of_buildings[wind_plant]['people_in_charge']
+        ), 1.8)
+        # self.assertEqual(water_tower.pollution_calculation(
+        #     self.RC.list_of_buildings[water_tower]['people_in_charge']
+        # ), 2.5)
 

@@ -67,7 +67,7 @@ class GameTestForOnePlayer(BaseTest):
         self.assertEqual(WindPlant.objects.filter(city=self.city_one).count(), 2)
         # self.assertEqual(WindPlant.objects.get(city=self.city_one).energy_allocated, sum([b.energy for b in th.list_of_buildings]))
         self.assertEqual(sum([x.energy_allocated for x in WindPlant.objects.all()]), sum([b.energy for b in th.list_of_buildings]))
-        self.assertEqual(WaterTower.objects.filter(city=self.city_one).aggregate(Sum('energy'))['energy__sum'], 6)
+        self.assertEqual(WaterTower.objects.filter(city=self.city_one).aggregate(Sum('energy'))['energy__sum'], 7)
         self.assertEqual(Residential.objects.latest('id').energy, 5)
 
 
