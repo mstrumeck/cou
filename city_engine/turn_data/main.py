@@ -2,6 +2,7 @@ from city_engine.main_view_data.employee_allocation import EmployeeAllocation
 from city_engine.main_view_data.resources_allocation import ResourceAllocation
 from city_engine.main_view_data.trash_management import TrashManagement, CollectGarbage
 from city_engine.models import Farm, AnimalFarm, MassConventer, TradeDistrict
+from citizen_engine.social_actions import SocialAction
 
 
 class TurnCalculation:
@@ -13,6 +14,7 @@ class TurnCalculation:
 
     def run(self):
         TrashManagement(self.data).run()
+        # SocialAction(self.city, self.data).run()
         EmployeeAllocation(self.city, self.data).run()
         ResourceAllocation(self.city, self.data).run()
         CollectGarbage(self.city, self.data).run()

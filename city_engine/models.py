@@ -67,7 +67,10 @@ class Building(models.Model):
 
 class BuldingsWithWorkes(Building):
     max_employees = models.PositiveIntegerField(default=0)
-    employee = GenericRelation('citizen_engine.Citizen')
+    employee = GenericRelation(to='citizen_engine.Citizen',
+                               object_id_field='workplace_object_id',
+                               content_type_field='workplace_content_type'
+                               )
 
     def trash_calculation(self, employee):
         return float(self.pollution_calculation(employee)) * float(self.pollution_rate)
@@ -105,6 +108,10 @@ class Residential(Building):
     maintenance_cost = models.PositiveIntegerField(default=10)
     water_required = models.PositiveIntegerField(default=5)
     energy_required = models.PositiveIntegerField(default=5)
+    resident = GenericRelation(to='citizen_engine.Citizen',
+                               object_id_field='resident_object_id',
+                               content_type_field='resident_content_type'
+                               )
 
     def pollution_calculation(self, employee):
         return float(employee) * self.pollution_rate
@@ -501,7 +508,10 @@ class Vehicle(models.Model):
     cost = models.PositiveIntegerField(default=0)
     maintenance_cos = models.PositiveIntegerField(default=0)
     max_employees = models.PositiveIntegerField(default=0)
-    employee = GenericRelation('citizen_engine.Citizen')
+    employee = GenericRelation(to='citizen_engine.Citizen',
+                               object_id_field='workplace_object_id',
+                               content_type_field='workplace_content_type'
+                               )
 
     class Meta:
         abstract = True

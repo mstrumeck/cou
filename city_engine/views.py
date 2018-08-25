@@ -30,14 +30,12 @@ def main_view(request):
                                           [city_stats.raw_water_production, city_stats.raw_water_allocation, city_stats.raw_water_bilans])
 
     profile = Profile.objects.get(user_id=request.user.id)
-    income = Citizen.objects.filter(city=city).aggregate(Sum('income'))['income__sum']
     total_cost_of_main = sum(b.maintenance_cost for b in data.list_of_buildings)
 
     city.save()
 
     return render(request, 'main_view.html', {'city': city,
                                               'profile': profile,
-                                              'income': income,
                                               'city_resources_stats': city_resources_allocation_stats,
                                               'hex_table': mark_safe(new_board.hex_table),
                                               'hex_detail_info_table': mark_safe(new_hex_detail.hex_detail_info_table),
@@ -67,8 +65,8 @@ def turn_calculations(request):
     data = RootClass(city, request.user)
     profile = Profile.objects.get(user_id=request.user.id)
     TurnCalculation(city, data, profile).run()
-    # return render(request, 'city_calculation_view.html')
-    return HttpResponseRedirect(reverse('city_engine:main'))
+    return render(request, 'city_calculation_view.html')
+    # return HttpResponseRedirect(reverse('city_engine:main'))
 
 
 @login_required

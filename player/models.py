@@ -9,6 +9,9 @@ class Profile(models.Model):
     email_confirmed = models.BooleanField(default=False)
     current_turn = models.IntegerField(default=1)
 
+    chance_to_marriage_percent = models.FloatField(default=0.80)
+    chance_to_born_baby_percent = models.FloatField(default=0.60)
+
 
 @receiver(post_save, sender=User)
 def update_user_profile(sender, instance, created, **kwargs):

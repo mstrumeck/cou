@@ -6,7 +6,8 @@ from django.template.loader import render_to_string
 from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_encode
 from city_engine.main_view_data.board import assign_city_fields_to_board
-from city_engine.models import City
+from city_engine.models import City, CityField, Residential
+from citizen_engine.models import Citizen
 from player.forms import CityCreationForm
 from player.tokens import account_activation_token
 
@@ -28,6 +29,12 @@ def signup(request):
             city_name = city_creation_form.cleaned_data.get('name')
             new_city = City.objects.create(user_id=request.user.id, name=city_name)
             assign_city_fields_to_board(new_city)
+            # cf = CityField.objects.get(row=3, col=3, city=new_city)
+            # rs = Residential.objects.create(city=new_city, city_field=cf)
+            # for x in range(5):
+            #     Citizen.objects.create(
+            #
+            #     )
 
             new_city.save()
             return redirect('/main/')

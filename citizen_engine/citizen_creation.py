@@ -9,23 +9,30 @@ class CreateCitizen:
         self.data = data
 
     def create_with_workplace(self, workplace):
-        workplace.employee.create(
+        Citizen.objects.create(
             city=self.city,
             age=randrange(18, 60),
-            income=10,
             health=10,
-            resident=self.choose_residential()
+            month_of_birth=randrange(1, 12),
+            resident_object=self.choose_residential(),
+            workplace_object=workplace,
+            sex=choice(Citizen.SEX)[0],
+            father_id=0,
+            mother_id=0
         )
 
     def create_without_workplace(self):
-        Citizen.objects.create(city=self.city,
-                               age=randrange(18, 60),
-                               income=10,
-                               health=10,
-                               resident=self.choose_residential())
+        Citizen.objects.create(
+            city=self.city,
+            age=randrange(18, 60),
+            health=10,
+            month_of_birth=randrange(1, 12),
+            resident_object=self.choose_residential(),
+            sex=choice(Citizen.SEX)[0],
+            father_id=0,
+            mother_id=0
+        )
 
     def choose_residential(self):
         return choice([r for r in self.data.list_of_buildings if isinstance(r, Residential)
                        and r.max_population >= r.population])
-        # return choice([residential for residential in Residential.objects.filter(city=city)
-        #                if residential.max_population >= residential.population])
