@@ -10,6 +10,7 @@ class CitizenAbstract:
                              if p.sex == Citizen.MALE and p.age > 17]
         self.mature_females = [p for p in self.citizens_in_city
                                if p.sex == Citizen.FEMALE and p.age > 17]
+        self.matures = [p for p in self.citizens_in_city if p.age > 17]
         self.chance_to_marriage = self.chance_to_marriage_calc()
         self.chance_to_born = self.chance_to_born_baby_calc()
 

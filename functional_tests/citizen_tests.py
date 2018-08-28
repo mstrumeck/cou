@@ -231,3 +231,94 @@ class CitizenBasicTests(BaseTest):
         ca = CitizenAbstract(self.city, Profile.objects.latest('id'), RootClass(self.city, User.objects.latest('id')))
         ca.create_and_return_pairs_in_city()
         self.assertEqual(ca.pairs_in_city, {})
+
+    def test_find_home_success(self):
+        self.f = Citizen.objects.create(
+                city=self.city,
+                age=21,
+                month_of_birth=2,
+                cash=100,
+                health=5,
+                name="AnonKA",
+                surname="FeSurname",
+                sex=Citizen.FEMALE,
+            )
+        self.m = Citizen.objects.create(
+                city=self.city,
+                age=21,
+                month_of_birth=2,
+                cash=100,
+                health=5,
+                name="AnON",
+                surname="MaSurname",
+                sex=Citizen.MALE,
+            )
+        homepage = Homepage(self.browser, self.live_server_url)
+        homepage.navigate('/main/')
+        self.assertIn('Login', self.browser.title)
+        login_page = LoginPage(self.browser, self.live_server_url)
+        login_page.login(username=self.user.username, password="Zapomnij#123")
+        self.assertTrue(User.objects.latest('id').is_authenticated)
+        self.assertIn('Miasto {}'.format(self.city.name), self.browser.title)
+        main_view = MainView(self.browser, self.live_server_url)
+        self.profile.if_social_enabled = True
+        self.profile.chance_to_marriage_percent = 1.00
+        self.profile.save()
+        self.assertEqual(self.profile.chance_to_marriage_percent, 1.00)
+        self.assertTrue(self.profile.if_social_enabled)
+        self.assertEqual(Citizen.objects.count(), 2)
+        self.assertEqual(Residential.objects.latest('id').resident.count(), 0)
+        main_view.next_turn()
+        self.assertEqual(Residential.objects.latest('id').resident.count(), 2)
+        self.m = Citizen.objects.get(id=self.m.id)
+        self.f = Citizen.objects.get(id=self.f.id)
+        self.assertEqual(self.m.resident_object, Residential.objects.latest('id'))
+        self.assertEqual(self.f.resident_object, Residential.objects.latest('id'))
+
+    def test_find_home_failed(self):
+        self.r1 = Residential.objects.latest('id')
+        self.r1.max_population = 0
+        self.r1.save()
+        self.f = Citizen.objects.create(
+                city=self.city,
+                age=21,
+                month_of_birth=2,
+                cash=100,
+                health=5,
+                name="AnonKA",
+                surname="FeSurname",
+                sex=Citizen.FEMALE,
+            )
+        self.m = Citizen.objects.create(
+                city=self.city,
+                age=21,
+                month_of_birth=2,
+                cash=100,
+                health=5,
+                name="AnON",
+                surname="MaSurname",
+                sex=Citizen.MALE,
+            )
+        homepage = Homepage(self.browser, self.live_server_url)
+        homepage.navigate('/main/')
+        self.assertIn('Login', self.browser.title)
+        login_page = LoginPage(self.browser, self.live_server_url)
+        login_page.login(username=self.user.username, password="Zapomnij#123")
+        self.assertTrue(User.objects.latest('id').is_authenticated)
+        self.assertIn('Miasto {}'.format(self.city.name), self.browser.title)
+        main_view = MainView(self.browser, self.live_server_url)
+        self.profile.if_social_enabled = True
+        self.profile.chance_to_marriage_percent = 1.00
+        self.profile.save()
+        self.assertEqual(self.profile.chance_to_marriage_percent, 1.00)
+        self.assertTrue(self.profile.if_social_enabled)
+        self.assertEqual(Citizen.objects.count(), 2)
+        self.assertEqual(Residential.objects.latest('id').resident.count(), 0)
+        main_view.next_turn()
+        self.m = Citizen.objects.get(id=self.m.id)
+        self.f = Citizen.objects.get(id=self.f.id)
+        self.assertEqual(Residential.objects.latest('id').resident.count(), 0)
+        self.assertEqual(self.m.resident_object, None)
+        self.assertEqual(self.f.resident_object, None)
+
+

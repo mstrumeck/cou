@@ -14,11 +14,28 @@ class SocialAction:
     def run(self):
         self.match_marriages()
         self.born_child()
+        self.citizen_data.create_and_return_families_in_city()
+        self.find_home()
         self.save_all()
 
     def save_all(self):
         for c in self.citizen_data.citizens_in_city:
             c.save()
+
+    def find_home(self):
+        homeless = [h for h in self.citizen_data.citizens_in_city if h.resident_object is None]
+        if homeless:
+            resident_with_space = (r for r in self.city_data.list_of_buildings
+                                   if isinstance(r, Residential)
+                                   and r.max_population - self.city_data.list_of_buildings[r]['people_in_charge'] > 0)
+            if resident_with_space:
+                random.shuffle(homeless)
+                for r in resident_with_space:
+                    left = r.max_population - self.city_data.list_of_buildings[r]['people_in_charge']
+                    while left > 0 and homeless:
+                        homeless.pop().resident_object = r
+                        left -= 1
+                        self.city_data.list_of_buildings[r]['people_in_charge'] += 1
 
     def find_place_to_live(self, m, f):
         if f.resident_object and m.resident_object:
