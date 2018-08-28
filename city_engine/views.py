@@ -46,7 +46,8 @@ def main_view(request):
                                               'max_population': city_stats.max_population,
                                               'home_demands': city_stats.building_stats.home_areas_demand(),
                                               'industial_demands': city_stats.building_stats.industrial_areas_demand(),
-                                              'trade_demands': city_stats.building_stats.trade_areas_demand()})
+                                              'trade_demands': city_stats.building_stats.trade_areas_demand(),
+                                              'citizen': Citizen.objects.all()})
 
 
 @login_required
@@ -65,8 +66,8 @@ def turn_calculations(request):
     data = RootClass(city, request.user)
     profile = Profile.objects.get(user_id=request.user.id)
     TurnCalculation(city, data, profile).run()
-    return render(request, 'city_calculation_view.html')
-    # return HttpResponseRedirect(reverse('city_engine:main'))
+    # return render(request, 'city_calculation_view.html')
+    return HttpResponseRedirect(reverse('city_engine:main'))
 
 
 @login_required

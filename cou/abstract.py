@@ -32,7 +32,7 @@ class BasicAbstract(metaclass=ABCMeta):
                 for b in data:
                     result[b] = {'trash': [trash for trash in b.trash.all() if b.trash.all().exists()],
                                  'row_col_cor': (b.city_field.row, b.city_field.col),
-                                 'people_in_charge': b.population if isinstance(b, Residential) else b.employee.count()}
+                                 'people_in_charge': b.resident.count() if isinstance(b, Residential) else b.employee.count()}
         return result
 
 

@@ -2,10 +2,10 @@ from citizen_engine.models import Citizen
 
 
 class CitizenAbstract:
-    def __init__(self, city, profile):
+    def __init__(self, city, profile, city_data):
         self.city = city
         self.profile = profile
-        self.citizens_in_city = Citizen.objects.filter(city=self.city)
+        self.citizens_in_city = city_data.citizens_in_city
         self.mature_males = [p for p in self.citizens_in_city
                              if p.sex == Citizen.MALE and p.age > 17]
         self.mature_females = [p for p in self.citizens_in_city

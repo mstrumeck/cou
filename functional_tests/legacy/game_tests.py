@@ -3,7 +3,7 @@ from city_engine.models import WindPlant, WaterTower, Residential
 from .base import BaseTest, TestHelper
 from functional_tests.page_objects import MainView, LoginPage
 from cou.abstract import RootClass
-
+from django.test import override_settings
 
 # @override_settings(DEBUG=True)
 class GameTestForOnePlayer(BaseTest):

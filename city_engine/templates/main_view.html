@@ -96,6 +96,24 @@
 </table>
 {% endif %}
 
+<table class="table">
+    <thead>
+        <tr>
+            <th>Imię</th>
+            <th>Nazwisko</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for c in citizen %}
+    <tr>
+        <th>{{ c.name }}</th>
+        <th>{{ c.surname }}</th>
+        <th>{{ c.sex }}</th>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
 <button class="hex-change">Zmień hexy</button>
 
 <button class="buildingToHide" name="BudynkiElektryczne">Elektrownie</button>

@@ -14,8 +14,11 @@ class TurnCalculation:
 
     def run(self):
         TrashManagement(self.data).run()
-        # SocialAction(self.city, self.data).run()
-        EmployeeAllocation(self.city, self.data).run()
+        if self.profile.if_social_enabled:
+            SocialAction(self.city, self.profile, self.data).run()
+        else:
+            EmployeeAllocation(self.city, self.data).run()
+        # SocialAction(self.city, self.profile, self.data).run()
         ResourceAllocation(self.city, self.data).run()
         CollectGarbage(self.city, self.data).run()
         self.collect_mass()

@@ -11,6 +11,7 @@ class Profile(models.Model):
 
     chance_to_marriage_percent = models.FloatField(default=0.80)
     chance_to_born_baby_percent = models.FloatField(default=0.60)
+    if_social_enabled = models.BooleanField(default=False)
 
 
 @receiver(post_save, sender=User)

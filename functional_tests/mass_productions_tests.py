@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from selenium import webdriver
 
 
-class TrashCollectorTest(BaseTest):
+class MassCollectorTest(BaseTest):
     fixtures = ['basic_fixture_resources_and_employees.json']
 
     def setUp(self):

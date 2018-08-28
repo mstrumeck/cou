@@ -13,7 +13,8 @@ def run_tests():
               ' functional_tests.resource_allocation_tests'
               ' functional_tests.resources_view_tests'
               ' functional_tests.mass_productions_tests'
-              ' functional_tests.trade_district_tests')
+              ' functional_tests.trade_district_tests'
+              ' functional_tests.citizen_tests')
 
 
 def run_tests_with_coverage():
