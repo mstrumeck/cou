@@ -480,6 +480,41 @@ class MassConventer(BuldingsWithWorkes):
         city.mass += int(self.mass_production_rate * self.productivity(employee))
 
 
+class School(BuldingsWithWorkes):
+    name = models.CharField(default="Szkoła", max_length=6)
+    max_students = models.PositiveIntegerField(default=0)
+    age_of_start = models.PositiveIntegerField(default=0)
+    years_of_education = models.PositiveIntegerField(default=0)
+    entry_education = models.CharField(default="", max_length=10)
+    student = GenericRelation(to='citizen_engine.Citizen',
+                               object_id_field='school_object_id',
+                               content_type_field='school_content_type')
+
+    def check_for_student_in_city(self, citizens_in_city):
+        for p in [c for c in citizens_in_city if c.age >= self.age_of_start and c.education == self.entry_education]:
+            p.school_object = self
+            p.max_year_of_learning = self.years_of_education
+
+    def update_year_of_school_for_student(self, citizens_in_city):
+        for s in [c for c in citizens_in_city if c.school_object == self]:
+                s.cur_year_of_learning += 1
+
+    class Meta:
+        abstract = True
+
+
+class PrimarySchool(School):
+    name = models.CharField(default="Szkoła Podstawowa", max_length=17)
+    max_students = models.PositiveIntegerField(default=10)
+    energy_required = models.PositiveIntegerField(default=5)
+    water_required = models.PositiveIntegerField(default=10)
+    build_time = models.PositiveIntegerField(default=2)
+    max_employees = models.PositiveIntegerField(default=5)
+    age_of_start = models.PositiveIntegerField(default=8)
+    years_of_education = models.PositiveIntegerField(default=8)
+    entry_education = models.CharField(default='None', max_length=4)
+
+
 class DumpingGround(BuldingsWithWorkes):
     name = models.CharField(default='Wysypisko śmieci', max_length=20)
     if_dumping_ground = models.BooleanField(default=True)

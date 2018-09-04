@@ -77,7 +77,7 @@ class TestFindPlaceToLive(TestCase):
         self.m = Citizen.objects.get(id=self.m.id)
         self.f = Citizen.objects.get(id=self.f.id)
         self.assertEqual(RootClass(self.city, User.objects.latest('id')).list_of_buildings[Residential.objects.latest('id')]['people_in_charge'], 2)
-        self.assertEqual(list(Residential.objects.latest('id').resident.all()), [self.f, self.m])
+        self.assertNotEqual(list(Residential.objects.latest('id').resident.all()), [])
         self.assertEqual(self.f.resident_object, self.r1)
         self.assertEqual(self.m.resident_object, self.r1)
 

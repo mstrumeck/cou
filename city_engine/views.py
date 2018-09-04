@@ -15,6 +15,8 @@ from .turn_data.build import build_building
 from django.db.models import F
 from cou.abstract import RootClass
 from cou.abstract import ResourcesData
+from datetime import datetime
+from player.models import Message
 
 
 @login_required
@@ -31,7 +33,7 @@ def main_view(request):
 
     profile = Profile.objects.get(user_id=request.user.id)
     total_cost_of_main = sum(b.maintenance_cost for b in data.list_of_buildings)
-
+    msg = Message.objects.filter(profile=profile, turn=profile.current_turn-1).values('text')
     city.save()
 
     return render(request, 'main_view.html', {'city': city,
@@ -47,7 +49,8 @@ def main_view(request):
                                               'home_demands': city_stats.building_stats.home_areas_demand(),
                                               'industial_demands': city_stats.building_stats.industrial_areas_demand(),
                                               'trade_demands': city_stats.building_stats.trade_areas_demand(),
-                                              'citizen': Citizen.objects.all()})
+                                              'citizen': Citizen.objects.all(),
+                                              'msg': msg})
 
 
 @login_required

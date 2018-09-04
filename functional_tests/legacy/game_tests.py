@@ -32,6 +32,7 @@ class GameTestForOnePlayer(BaseTest):
         main_view.build_the_building_from_multiple_choice('Farmy', 'CattleFarm', '23')
         main_view.build_the_building_from_single_choice('MassConventer', '30')
         main_view.build_the_building_from_single_choice('TradeDistrict', '31')
+        main_view.build_the_building_from_single_choice('PrimarySchool', '32')
 
         for building_sublcass in RootClass(self.city_one, self.user_one).get_subclasses_of_all_buildings():
             self.assertEqual(building_sublcass.objects.filter(city=self.city_one).count(), 1)
@@ -96,6 +97,7 @@ class GameTestForTwoPlayers(BaseTest):
         main_view.build_the_building_from_multiple_choice('Farmy', 'CattleFarm', '23')
         main_view.build_the_building_from_single_choice('MassConventer', '30')
         main_view.build_the_building_from_single_choice('TradeDistrict', '31')
+        main_view.build_the_building_from_single_choice('PrimarySchool', '32')
 
         for building_sublcass in RootClass(self.city_one, self.user_one).get_subclasses_of_all_buildings():
             self.assertEqual(building_sublcass.objects.filter(city=self.city_one).count(), 1)
@@ -129,6 +131,7 @@ class GameTestForTwoPlayers(BaseTest):
         main_view.build_the_building_from_multiple_choice('Farmy', 'CattleFarm', '23')
         main_view.build_the_building_from_single_choice('MassConventer', '30')
         main_view.build_the_building_from_single_choice('TradeDistrict', '31')
+        main_view.build_the_building_from_single_choice('PrimarySchool', '32')
 
         for building_sublcass in RootClass(self.city_two, self.user_two).get_subclasses_of_all_buildings():
             self.assertEqual(building_sublcass.objects.filter(city=self.city_two).count(), 1)

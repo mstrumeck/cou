@@ -1,7 +1,10 @@
 from citizen_engine.citizen_abstract import CitizenAbstract
 from citizen_engine.models import Citizen
+from django.db.models import F
 import random, string
-from city_engine.models import Residential
+from city_engine.models import Residential, School
+from player.models import Message
+import datetime
 
 
 class SocialAction:
@@ -16,11 +19,43 @@ class SocialAction:
         self.born_child()
         self.citizen_data.create_and_return_families_in_city()
         self.find_home()
+        self.find_work()
+        self.launch_school()
         self.save_all()
 
     def save_all(self):
         for c in self.citizen_data.citizens_in_city:
+            if c.month_of_birth == self.profile.current_turn:
+                c.age += 1
             c.save()
+
+    def launch_school(self):
+        for sch in [b for b in self.city_data.list_of_workplaces if isinstance(b, School)]:
+            sch.check_for_student_in_city(self.citizen_data.citizens_in_city)
+            if self.profile.current_turn == 8:
+                sch.update_year_of_school_for_student(self.citizen_data.citizens_in_city)
+
+    def find_work(self):
+        unemployees = [u for u in self.citizen_data.citizens_in_city
+                       if u.workplace_object is None
+                       and u.resident_object is not None]
+        if unemployees:
+            not_full_workplaces = [w for w in self.city_data.list_of_workplaces
+                                  if w.max_employees - self.city_data.list_of_workplaces[w]['people_in_charge'] > 0]
+            if not_full_workplaces:
+                random.shuffle(unemployees)
+                random.shuffle(not_full_workplaces)
+                for w in not_full_workplaces:
+                    left = w.max_employees - self.city_data.list_of_workplaces[w]['people_in_charge']
+                    while left > 0 and unemployees:
+                        un = unemployees.pop()
+                        un.workplace_object = w
+                        left -= 1
+                        Message.objects.create(
+                            profile=self.profile,
+                            turn=self.profile.current_turn,
+                            text="Obywatel {} znalazł pracę w {}!".format(un, un.workplace_object))
+                        self.city_data.list_of_workplaces[w]['people_in_charge'] += 1
 
     def find_home(self):
         homeless = [h for h in self.citizen_data.citizens_in_city if h.resident_object is None]
@@ -33,7 +68,8 @@ class SocialAction:
                 for r in resident_with_space:
                     left = r.max_population - self.city_data.list_of_buildings[r]['people_in_charge']
                     while left > 0 and homeless:
-                        homeless.pop().resident_object = r
+                        hom = homeless.pop()
+                        hom.resident_object = r
                         left -= 1
                         self.city_data.list_of_buildings[r]['people_in_charge'] += 1
 
@@ -71,6 +107,10 @@ class SocialAction:
                     f.resident_object = place_to_live
                     m.resident_object = place_to_live
                     self.city_data.list_of_buildings[place_to_live]['people_in_charge'] += 1
+                    Message.objects.create(
+                        profile=self.profile,
+                        turn=self.profile.current_turn,
+                        text="New family, {} was created!".format(m.surname))
         self.citizen_data.create_and_return_pairs_in_city()
 
     def check_if_there_is_place_for_child(self, ml):
@@ -98,3 +138,7 @@ class SocialAction:
                     resident_object=ml.resident_object
                 )
                 self.city_data.list_of_buildings[ml.resident_object]['people_in_charge'] += 1
+                Message.objects.create(
+                    profile=self.profile,
+                    turn=self.profile.current_turn,
+                    text="New Citizen in family {} was born!".format(ml.surname))

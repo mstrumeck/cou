@@ -14,6 +14,12 @@ class Profile(models.Model):
     if_social_enabled = models.BooleanField(default=False)
 
 
+class Message(models.Model):
+    profile = models.ForeignKey(Profile)
+    turn = models.IntegerField(default=0)
+    text = models.TextField()
+
+
 @receiver(post_save, sender=User)
 def update_user_profile(sender, instance, created, **kwargs):
     if created:

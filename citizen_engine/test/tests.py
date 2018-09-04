@@ -126,8 +126,8 @@ class CitizenGetMarriedTests(TestCase):
         ca = CitizenAbstract(self.city, self.profile, RootClass(self.city, User.objects.latest('id')))
         ca.create_and_return_pairs_in_city()
         self.assertNotEqual(ca.pairs_in_city, {})
-
-
+#
+#
 class BornChildTests(TestCase):
     fixtures = ['basic_fixture_resources_and_employees.json']
 
@@ -162,6 +162,17 @@ class BornChildTests(TestCase):
         self.sa.match_marriages()
         self.sa.save_all()
 
+    def test(self):
+        self.profile.current_turn = 2
+        self.profile.save()
+        self.assertEqual(self.m.age, 21)
+        self.assertEqual(self.f.age, 21)
+        self.sa.save_all()
+        self.m = Citizen.objects.get(id=self.m.id)
+        self.f = Citizen.objects.get(id=self.f.id)
+        self.assertEqual(self.m.age, 22)
+        self.assertEqual(self.f.age, 22)
+#
     def test_born_child_success_scenario(self):
         self.profile.chance_to_born_baby_percent = 1.00
         self.sa.citizen_data.chance_to_born = self.sa.citizen_data.chance_to_born_baby_calc()
@@ -237,7 +248,6 @@ class CitizenCreationsTest(TestCase):
     def setUp(self):
         self.city = City.objects.get(id=1)
         self.RC = RootClass(self.city, User.objects.latest('id'))
-
 
     def test_allocate_citizen_to_res_and_work(self):
         self.assertEqual(Citizen.objects.all().count(), 0)
