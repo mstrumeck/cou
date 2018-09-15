@@ -8,6 +8,7 @@ from cou.abstract import RootClass
 from citizen_engine.social_actions import SocialAction
 from player.models import Profile
 from citizen_engine.citizen_abstract import CitizenAbstract
+from cou.global_var import MALE, FEMALE
 
 
 class CitizenGetMarriedTests(TestCase):
@@ -25,7 +26,7 @@ class CitizenGetMarriedTests(TestCase):
             health=5,
             name="AnonKA",
             surname="FeSurname",
-            sex=Citizen.FEMALE
+            sex=FEMALE
         )
         self.m = Citizen.objects.create(
             city=self.city,
@@ -35,7 +36,7 @@ class CitizenGetMarriedTests(TestCase):
             health=5,
             name="AnON",
             surname="MaSurname",
-            sex=Citizen.MALE,
+            sex=MALE,
             resident_object=Residential.objects.latest('id')
         )
 
@@ -126,8 +127,8 @@ class CitizenGetMarriedTests(TestCase):
         ca = CitizenAbstract(self.city, self.profile, RootClass(self.city, User.objects.latest('id')))
         ca.create_and_return_pairs_in_city()
         self.assertNotEqual(ca.pairs_in_city, {})
-#
-#
+
+
 class BornChildTests(TestCase):
     fixtures = ['basic_fixture_resources_and_employees.json']
 
@@ -144,7 +145,7 @@ class BornChildTests(TestCase):
             health=5,
             name="AnonKA",
             surname="FeSurname",
-            sex=Citizen.FEMALE,
+            sex=FEMALE,
             resident_object=self.r1
         )
         self.m = Citizen.objects.create(
@@ -155,7 +156,7 @@ class BornChildTests(TestCase):
             health=5,
             name="AnON",
             surname="MaSurname",
-            sex=Citizen.MALE
+            sex=MALE
         )
         self.profile.chance_to_marriage_percent = 1.00
         self.sa = SocialAction(self.city, self.profile, RootClass(self.city, User.objects.latest('id')))
@@ -172,7 +173,7 @@ class BornChildTests(TestCase):
         self.f = Citizen.objects.get(id=self.f.id)
         self.assertEqual(self.m.age, 22)
         self.assertEqual(self.f.age, 22)
-#
+
     def test_born_child_success_scenario(self):
         self.profile.chance_to_born_baby_percent = 1.00
         self.sa.citizen_data.chance_to_born = self.sa.citizen_data.chance_to_born_baby_calc()

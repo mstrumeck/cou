@@ -8,6 +8,7 @@ from citizen_engine.models import Citizen
 from citizen_engine.citizen_abstract import CitizenAbstract
 from cou.abstract import RootClass
 from django.test import override_settings
+from cou.global_var import FEMALE, MALE
 
 
 # @override_settings(DEBUG=True)
@@ -31,7 +32,7 @@ class CitizenBasicTests(BaseTest):
             health=5,
             name="AnonKA",
             surname="FeSurname",
-            sex=Citizen.FEMALE,
+            sex=FEMALE,
             resident_object=self.r1
         )
         self.m = Citizen.objects.create(
@@ -42,7 +43,7 @@ class CitizenBasicTests(BaseTest):
             health=5,
             name="AnON",
             surname="MaSurname",
-            sex=Citizen.MALE,
+            sex=MALE,
             resident_object=self.r1
 
         )
@@ -77,7 +78,7 @@ class CitizenBasicTests(BaseTest):
             health=5,
             name="AnonKA",
             surname="FeSurname",
-            sex=Citizen.FEMALE,
+            sex=FEMALE,
             resident_object=Residential.objects.latest('id')
 
         )
@@ -89,7 +90,7 @@ class CitizenBasicTests(BaseTest):
             health=5,
             name="AnON",
             surname="MaSurname",
-            sex=Citizen.MALE,
+            sex=MALE,
             resident_object=Residential.objects.latest('id')
 
         )
@@ -137,7 +138,7 @@ class CitizenBasicTests(BaseTest):
             health=5,
             name="AnonKA",
             surname="FeSurname",
-            sex=Citizen.FEMALE,
+            sex=FEMALE,
             resident_object=self.r1
 
         )
@@ -149,7 +150,7 @@ class CitizenBasicTests(BaseTest):
             health=5,
             name="AnON",
             surname="MaSurname",
-            sex=Citizen.MALE,
+            sex=MALE,
             resident_object=self.r1
         )
         self.f.partner_id = self.m.id
@@ -196,7 +197,7 @@ class CitizenBasicTests(BaseTest):
                 health=5,
                 name="AnonKA",
                 surname="FeSurname",
-                sex=Citizen.FEMALE,
+                sex=FEMALE,
                 resident_object=self.r1
             )
         self.m = Citizen.objects.create(
@@ -207,7 +208,7 @@ class CitizenBasicTests(BaseTest):
                 health=5,
                 name="AnON",
                 surname="MaSurname",
-                sex=Citizen.MALE,
+                sex=MALE,
                 resident_object=self.r2
             )
         homepage = Homepage(self.browser, self.live_server_url)
@@ -241,7 +242,7 @@ class CitizenBasicTests(BaseTest):
                 health=5,
                 name="AnonKA",
                 surname="FeSurname",
-                sex=Citizen.FEMALE,
+                sex=FEMALE,
             )
         self.m = Citizen.objects.create(
                 city=self.city,
@@ -251,7 +252,7 @@ class CitizenBasicTests(BaseTest):
                 health=5,
                 name="AnON",
                 surname="MaSurname",
-                sex=Citizen.MALE,
+                sex=MALE,
             )
         homepage = Homepage(self.browser, self.live_server_url)
         homepage.navigate('/main/')
@@ -287,7 +288,7 @@ class CitizenBasicTests(BaseTest):
                 health=5,
                 name="AnonKA",
                 surname="FeSurname",
-                sex=Citizen.FEMALE,
+                sex=FEMALE,
             )
         self.m = Citizen.objects.create(
                 city=self.city,
@@ -297,7 +298,7 @@ class CitizenBasicTests(BaseTest):
                 health=5,
                 name="AnON",
                 surname="MaSurname",
-                sex=Citizen.MALE,
+                sex=MALE,
             )
         homepage = Homepage(self.browser, self.live_server_url)
         homepage.navigate('/main/')
@@ -331,7 +332,7 @@ class CitizenBasicTests(BaseTest):
                 health=5,
                 name="AnonKA",
                 surname="FeSurname",
-                sex=Citizen.FEMALE,
+                sex=FEMALE,
                 resident_object=self.r1
         )
         self.m = Citizen.objects.create(
@@ -342,7 +343,7 @@ class CitizenBasicTests(BaseTest):
                 health=5,
                 name="AnON",
                 surname="MaSurname",
-                sex=Citizen.MALE,
+                sex=MALE,
                 resident_object=self.r1
             )
         homepage = Homepage(self.browser, self.live_server_url)
@@ -375,7 +376,7 @@ class CitizenBasicTests(BaseTest):
                 health=5,
                 name="AnonKA",
                 surname="FeSurname",
-                sex=Citizen.FEMALE,
+                sex=FEMALE,
         )
         self.m = Citizen.objects.create(
                 city=self.city,
@@ -385,7 +386,7 @@ class CitizenBasicTests(BaseTest):
                 health=5,
                 name="AnON",
                 surname="MaSurname",
-                sex=Citizen.MALE,
+                sex=MALE,
             )
         homepage = Homepage(self.browser, self.live_server_url)
         homepage.navigate('/main/')

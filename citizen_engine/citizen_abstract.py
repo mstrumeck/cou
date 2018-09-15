@@ -1,4 +1,5 @@
 from citizen_engine.models import Citizen
+from cou.global_var import MALE, FEMALE
 
 
 class CitizenAbstract:
@@ -7,9 +8,9 @@ class CitizenAbstract:
         self.profile = profile
         self.citizens_in_city = city_data.citizens_in_city
         self.mature_males = [p for p in self.citizens_in_city
-                             if p.sex == Citizen.MALE and p.age > 17]
+                             if p.sex == MALE and p.age > 17]
         self.mature_females = [p for p in self.citizens_in_city
-                               if p.sex == Citizen.FEMALE and p.age > 17]
+                               if p.sex == FEMALE and p.age > 17]
         self.matures = [p for p in self.citizens_in_city if p.age > 17]
         self.chance_to_marriage = self.chance_to_marriage_calc()
         self.chance_to_born = self.chance_to_born_baby_calc()
@@ -31,7 +32,6 @@ class CitizenAbstract:
                                            and ch.mother_id == self.pairs_in_city[pair]['Fl'].id
                                            and ch.partner_id == 0}}
                                  for pair in self.pairs_in_city}
-
 
     def chance_to_born_baby_calc(self):
         chance_to_born = {}

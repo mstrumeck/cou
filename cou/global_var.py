@@ -1,0 +1,13 @@
+TRAINEE = 'Tr'
+JUNIOR = 'Jr'
+REGULAR = 'Rg'
+PROFESSIONAL = 'Pr'
+MASTER = 'Ms'
+
+MALE = 'Ml'
+FEMALE = 'Fl'
+
+ELEMENTARY = 'EL'
+COLLEGE = 'COL'
+BACHELOR = 'BCH'
+PHD = 'PhD'

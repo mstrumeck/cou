@@ -2,26 +2,22 @@ from django.db import models
 from city_engine.models import WindPlant, WaterTower, ProductionBuilding, City, Residential, DumpingGround, DustCart, BuldingsWithWorkes
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from cou.global_var import TRAINEE, JUNIOR, MASTER, PROFESSIONAL, REGULAR,\
+    MALE, FEMALE,\
+    BACHELOR, ELEMENTARY, COLLEGE, PHD
 
 
 class Citizen(models.Model):
-    MALE = 'Ml'
-    FEMALE = 'Fl'
-    NONE = 'None'
-    ELEMENTARY = 'EL'
-    COLLEGE = 'COL'
-    BACHELOR = 'BCH'
+    EDUCATION = (
+        (ELEMENTARY, 'Elementary'),
+        (COLLEGE, 'College'),
+        (BACHELOR, 'Bachelor'),
+        (PHD, 'PhD')
+    )
 
     SEX = (
         (MALE, 'Male'),
         (FEMALE, 'Female')
-    )
-
-    EDUCATION = (
-        (NONE, 'None'),
-        (ELEMENTARY, 'Elementary'),
-        (COLLEGE, 'College'),
-        (BACHELOR, 'Bachelor')
     )
     city = models.ForeignKey(City)
     name = models.CharField(max_length=15)
@@ -29,12 +25,9 @@ class Citizen(models.Model):
     age = models.IntegerField()
     month_of_birth = models.IntegerField()
     sex = models.CharField(choices=SEX, max_length=5)
-    education = models.CharField(choices=EDUCATION, max_length=10)
+    edu_title = models.CharField(choices=EDUCATION, max_length=10, default='None')
     cash = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     health = models.IntegerField()
-
-    cur_year_of_learning = models.PositiveIntegerField(default=0)
-    max_year_of_learning = models.PositiveIntegerField(default=0)
 
     partner_id = models.PositiveIntegerField(default=0)
     father_id = models.PositiveIntegerField(default=0)
@@ -63,3 +56,36 @@ class Citizen(models.Model):
 
     def __str__(self):
         return "{} {}".format(self.name, self.surname)
+
+
+class Profession(models.Model):
+    LEVELS = (
+        (TRAINEE, "Trainee"),
+        (JUNIOR, "Junior"),
+        (REGULAR, "Regular"),
+        (PROFESSIONAL, "Professional"),
+        (MASTER, "Master")
+    )
+    citizen = models.ForeignKey(Citizen)
+    name = models.CharField(default='', max_length=15)
+    level = models.CharField(choices=LEVELS, max_length=15)
+    cur_level = models.FloatField(default=0.00)
+    if_current = models.BooleanField(default=True)
+
+
+class Education(models.Model):
+    EDUCATION = (
+        (ELEMENTARY, 'Elementary'),
+        (COLLEGE, 'College'),
+        (BACHELOR, 'Bachelor'),
+        (PHD, 'PhD')
+    )
+    citizen = models.ForeignKey(Citizen)
+    name = models.CharField(choices=EDUCATION, max_length=15)
+    effectiveness = models.FloatField(default=0.00)
+    if_current = models.BooleanField(default=True)
+    cur_year_of_learning = models.PositiveIntegerField(default=0)
+    max_year_of_learning = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return self.name

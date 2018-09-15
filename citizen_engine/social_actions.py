@@ -5,6 +5,7 @@ import random, string
 from city_engine.models import Residential, School
 from player.models import Message
 import datetime
+from cou.global_var import MALE, FEMALE
 
 
 class SocialAction:
@@ -25,15 +26,18 @@ class SocialAction:
 
     def save_all(self):
         for c in self.citizen_data.citizens_in_city:
+            # if self.citizen_data.citizens_in_city[c]['current_education']:
+            #     self.citizen_data.citizens_in_city[c]['current_education'].save()
             if c.month_of_birth == self.profile.current_turn:
                 c.age += 1
             c.save()
+            # for e in self.citizen_data.citizens_in_city[c]['educations']:
+            #     e.save()
 
     def launch_school(self):
         for sch in [b for b in self.city_data.list_of_workplaces if isinstance(b, School)]:
-            sch.check_for_student_in_city(self.citizen_data.citizens_in_city)
             if self.profile.current_turn == 8:
-                sch.update_year_of_school_for_student(self.citizen_data.citizens_in_city)
+                sch.run(self.citizen_data.citizens_in_city)
 
     def find_work(self):
         unemployees = [u for u in self.citizen_data.citizens_in_city
@@ -119,8 +123,8 @@ class SocialAction:
 
     def born_child(self):
         for family in self.citizen_data.pairs_in_city:
-            ml = self.citizen_data.pairs_in_city[family][Citizen.MALE]
-            fl = self.citizen_data.pairs_in_city[family][Citizen.FEMALE]
+            ml = self.citizen_data.pairs_in_city[family][MALE]
+            fl = self.citizen_data.pairs_in_city[family][FEMALE]
             if random.random() < self.citizen_data.chance_to_born[ml.age] \
                     and random.random() < self.citizen_data.chance_to_born[fl.age] \
                     and self.check_if_there_is_place_for_child(ml):

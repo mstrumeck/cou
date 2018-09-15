@@ -7,6 +7,7 @@ import random, string
 from cou.abstract import RootClass
 from citizen_engine.social_actions import SocialAction
 from player.models import Profile
+from cou.global_var import MALE, FEMALE
 
 
 class TestFindWork(TestCase):
@@ -27,7 +28,7 @@ class TestFindWork(TestCase):
             health=5,
             name="AnonKA",
             surname="FeSurname",
-            sex=Citizen.FEMALE,
+            sex=FEMALE,
             resident_object=self.r1
         )
         self.m = Citizen.objects.create(
@@ -38,7 +39,7 @@ class TestFindWork(TestCase):
             health=5,
             name="AnON",
             surname="MaSurname",
-            sex=Citizen.MALE,
+            sex=MALE,
             resident_object=self.r1
         )
         sa = SocialAction(self.city, self.profile, RootClass(self.city, User.objects.latest('id')))
@@ -60,7 +61,7 @@ class TestFindWork(TestCase):
                 health=5,
                 name="AnonKA",
                 surname="FeSurname",
-                sex=Citizen.FEMALE,
+                sex=FEMALE,
             )
         self.m = Citizen.objects.create(
                 city=self.city,
@@ -70,7 +71,7 @@ class TestFindWork(TestCase):
                 health=5,
                 name="AnON",
                 surname="MaSurname",
-                sex=Citizen.MALE,
+                sex=MALE,
             )
         sa = SocialAction(self.city, self.profile, RootClass(self.city, User.objects.latest('id')))
         self.assertEqual(self.f.workplace_object, None)

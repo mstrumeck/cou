@@ -7,6 +7,7 @@ import random, string
 from cou.abstract import RootClass
 from citizen_engine.social_actions import SocialAction
 from player.models import Profile
+from cou.global_var import MALE, FEMALE
 
 
 class TestFindPlaceToLive(TestCase):
@@ -31,7 +32,7 @@ class TestFindPlaceToLive(TestCase):
             health=5,
             name="AnonKA",
             surname="FeSurname",
-            sex=Citizen.FEMALE,
+            sex=FEMALE,
             resident_object=self.r1
         )
         self.m = Citizen.objects.create(
@@ -42,7 +43,7 @@ class TestFindPlaceToLive(TestCase):
             health=5,
             name="AnON",
             surname="MaSurname",
-            sex=Citizen.MALE,
+            sex=MALE,
             resident_object=self.r1
         )
         sa = SocialAction(self.city, self.profile, RootClass(self.city, User.objects.latest('id')))
@@ -57,7 +58,7 @@ class TestFindPlaceToLive(TestCase):
             health=5,
             name="AnonKA",
             surname="FeSurname",
-            sex=Citizen.FEMALE
+            sex=FEMALE
         )
         self.m = Citizen.objects.create(
             city=self.city,
@@ -67,7 +68,7 @@ class TestFindPlaceToLive(TestCase):
             health=5,
             name="AnON",
             surname="MaSurname",
-            sex=Citizen.MALE,
+            sex=MALE,
             resident_object=self.r1
         )
         sa = SocialAction(self.city, self.profile, RootClass(self.city, User.objects.latest('id')))
@@ -84,7 +85,7 @@ class TestFindPlaceToLive(TestCase):
             health=5,
             name="AnonKA",
             surname="FeSurname",
-            sex=Citizen.FEMALE
+            sex=FEMALE
         )
         self.m = Citizen.objects.create(
             city=self.city,
@@ -94,7 +95,7 @@ class TestFindPlaceToLive(TestCase):
             health=5,
             name="AnON",
             surname="MaSurname",
-            sex=Citizen.MALE,
+            sex=MALE,
             resident_object=self.r1
         )
         self.assertEqual(self.f.resident_object, None)
@@ -112,7 +113,7 @@ class TestFindPlaceToLive(TestCase):
             health=5,
             name="AnonKA",
             surname="FeSurname",
-            sex=Citizen.FEMALE,
+            sex=FEMALE,
             resident_object=self.r2
         )
         self.m = Citizen.objects.create(
@@ -123,7 +124,7 @@ class TestFindPlaceToLive(TestCase):
             health=5,
             name="AnON",
             surname="MaSurname",
-            sex=Citizen.MALE
+            sex=MALE
         )
         sa = SocialAction(self.city, self.profile, RootClass(self.city, User.objects.latest('id')))
         self.assertEqual(sa.find_place_to_live(self.m, self.f), self.r2)
@@ -139,7 +140,7 @@ class TestFindPlaceToLive(TestCase):
             health=5,
             name="AnonKA",
             surname="FeSurname",
-            sex=Citizen.FEMALE,
+            sex=FEMALE,
             resident_object=self.r2
         )
         self.m = Citizen.objects.create(
@@ -150,7 +151,7 @@ class TestFindPlaceToLive(TestCase):
             health=5,
             name="AnON",
             surname="MaSurname",
-            sex=Citizen.MALE
+            sex=MALE
         )
         self.assertEqual(self.m.resident_object, None)
         self.assertEqual(self.f.resident_object, self.r2)

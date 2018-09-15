@@ -3,7 +3,7 @@ from city_engine.models import Building, CityField, BuldingsWithWorkes, Vehicle,
 from abc import ABCMeta
 from django.db.models import Sum
 from resources.models import Resource
-from citizen_engine.models import Citizen
+from citizen_engine.models import Citizen, Education, Profession
 
 
 class BasicAbstract(metaclass=ABCMeta):
@@ -57,7 +57,10 @@ class RootClass(BasicAbstract):
     def __init__(self, city, user):
         self.city = city
         self.user = user
-        self.citizens_in_city = Citizen.objects.filter(city=self.city)
+        self.citizens_in_city = {c: {'educations': c.education_set.all(),
+                                     'professions': c.profession_set.all(),
+                                     'current_education': c.education_set.filter(if_current=True).last()}
+                                 for c in Citizen.objects.filter(city=self.city)}
         self.city_fields_in_city = {f: {
             'row_col': (f.row, f.col),
             'pollution' : f.pollution

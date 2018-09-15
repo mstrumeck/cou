@@ -5,6 +5,7 @@ from citizen_engine.models import Citizen
 from cou.abstract import RootClass
 from citizen_engine.social_actions import SocialAction
 from player.models import Profile
+from cou.global_var import FEMALE, MALE
 
 
 class TestFindPlaceToLive(TestCase):
@@ -27,7 +28,7 @@ class TestFindPlaceToLive(TestCase):
             health=5,
             name="AnonKA",
             surname="FeSurname",
-            sex=Citizen.FEMALE,
+            sex=FEMALE,
         )
         self.m = Citizen.objects.create(
             city=self.city,
@@ -37,7 +38,7 @@ class TestFindPlaceToLive(TestCase):
             health=5,
             name="AnON",
             surname="MaSurname",
-            sex=Citizen.MALE,
+            sex=MALE,
         )
         sa = SocialAction(self.city, self.profile, RootClass(self.city, User.objects.latest('id')))
         self.assertEqual(Residential.objects.latest('id').resident.count(), 0)
@@ -55,7 +56,7 @@ class TestFindPlaceToLive(TestCase):
             health=5,
             name="AnonKA",
             surname="FeSurname",
-            sex=Citizen.FEMALE,
+            sex=FEMALE,
         )
         self.m = Citizen.objects.create(
             city=self.city,
@@ -65,7 +66,7 @@ class TestFindPlaceToLive(TestCase):
             health=5,
             name="AnON",
             surname="MaSurname",
-            sex=Citizen.MALE,
+            sex=MALE,
         )
         sa = SocialAction(self.city, self.profile, RootClass(self.city, User.objects.latest('id')))
         self.assertEqual(self.f.resident_object, None)
@@ -93,7 +94,7 @@ class TestFindPlaceToLive(TestCase):
             health=5,
             name="AnonKA",
             surname="FeSurname",
-            sex=Citizen.FEMALE,
+            sex=FEMALE,
         )
         self.m = Citizen.objects.create(
             city=self.city,
@@ -103,7 +104,7 @@ class TestFindPlaceToLive(TestCase):
             health=5,
             name="AnON",
             surname="MaSurname",
-            sex=Citizen.MALE,
+            sex=MALE,
         )
         sa = SocialAction(self.city, self.profile, RootClass(self.city, User.objects.latest('id')))
         self.assertEqual(self.f.resident_object, None)

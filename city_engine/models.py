@@ -3,6 +3,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import F
+from cou.global_var import ELEMENTARY
+from django.apps import apps
 
 
 class Trash(models.Model):
@@ -486,18 +488,30 @@ class School(BuldingsWithWorkes):
     age_of_start = models.PositiveIntegerField(default=0)
     years_of_education = models.PositiveIntegerField(default=0)
     entry_education = models.CharField(default="", max_length=10)
+    education_type_provided = models.CharField(default="", max_length=10)
     student = GenericRelation(to='citizen_engine.Citizen',
-                               object_id_field='school_object_id',
-                               content_type_field='school_content_type')
+                              object_id_field='school_object_id',
+                              content_type_field='school_content_type')
 
-    def check_for_student_in_city(self, citizens_in_city):
-        for p in [c for c in citizens_in_city if c.age >= self.age_of_start and c.education == self.entry_education]:
-            p.school_object = self
-            p.max_year_of_learning = self.years_of_education
+    def run(self, citizens_in_city):
+        for p in (c for c in citizens_in_city if c.age >= self.age_of_start and c.edu_title == self.entry_education):
+            if p.school_object is None:
+                self.check_for_student_in_city(p)
+            elif p.school_object == self:
+                self.update_year_of_school_for_student(p, citizens_in_city[p]['current_education'])
 
-    def update_year_of_school_for_student(self, citizens_in_city):
-        for s in [c for c in citizens_in_city if c.school_object == self]:
-                s.cur_year_of_learning += 1
+    def check_for_student_in_city(self, p):
+        education = apps.get_model('citizen_engine', 'Education')
+        education.objects.create(citizen=p, name=self.education_type_provided, max_year_of_learning=self.years_of_education)
+        p.school_object = self
+
+    def update_year_of_school_for_student(self, p, e):
+        e.cur_year_of_learning += 1
+        if e.cur_year_of_learning == e.max_year_of_learning:
+            p.edu_title = self.education_type_provided
+            p.school_object = None
+            e.if_current = False
+        e.save()
 
     class Meta:
         abstract = True
@@ -513,6 +527,7 @@ class PrimarySchool(School):
     age_of_start = models.PositiveIntegerField(default=8)
     years_of_education = models.PositiveIntegerField(default=8)
     entry_education = models.CharField(default='None', max_length=4)
+    education_type_provided = models.CharField(default=ELEMENTARY, max_length=8)
 
 
 class DumpingGround(BuldingsWithWorkes):
