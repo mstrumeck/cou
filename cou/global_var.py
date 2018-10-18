@@ -9,5 +9,10 @@ FEMALE = 'Fl'
 
 ELEMENTARY = 'EL'
 COLLEGE = 'COL'
-BACHELOR = 'BCH'
 PHD = 'PhD'
+
+EDUCATION = (
+    (ELEMENTARY, 'Elementary'),
+    (COLLEGE, 'College'),
+    (PHD, 'PhD')
+)

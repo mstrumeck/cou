@@ -44,7 +44,7 @@ class ResourceAllocation:
                 abs(x[0] - dataset['list_of_source'][provider_ob]['row_col_cor'][0]),
                 abs(x[1] - dataset['list_of_source'][provider_ob]['row_col_cor'][1])))
             allocated_resource = dataset['allocated_resource']
-            provider_total_production = provider_ob.total_production(self.data.list_of_workplaces[provider_ob]['people_in_charge'])
+            provider_total_production = provider_ob.total_production(self.data.list_of_workplaces, self.data.citizens_in_city)
             guard = 0
             while getattr(provider_ob, allocated_resource) < provider_total_production and guard < len(dataset['list_without_source']):
                 key = pattern[guard]

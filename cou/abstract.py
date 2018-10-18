@@ -4,6 +4,7 @@ from abc import ABCMeta
 from django.db.models import Sum
 from resources.models import Resource
 from citizen_engine.models import Citizen, Education, Profession
+from cou.global_var import ELEMENTARY, COLLEGE, PHD
 
 
 class BasicAbstract(metaclass=ABCMeta):
@@ -21,7 +22,14 @@ class BasicAbstract(metaclass=ABCMeta):
             data = sub.objects.filter(city=self.city)
             if data.exists():
                 for v in data:
-                    result[v] = {'people_in_charge': v.employee.count()}
+                    result[v] = {'people_in_charge': v.employee.count(),
+                                 'max_employees': sum([v.elementary_employee_needed, v.college_employee_needed, v.phd_employee_needed]),
+                                 'elementary_employees': [e for e in v.employee.filter(edu_title=ELEMENTARY)],
+                                 'elementary_vacancies': v.elementary_vacancies(),
+                                 'college_employees': [e for e in v.employee.filter(edu_title=COLLEGE)],
+                                 'college_vacancies': v.college_vacancies(),
+                                 'phd_employees': [e for e in v.employee.filter(edu_title=PHD)],
+                                 'phd_vacancies': v.phd_vacancies()}
         return result
 
     def get_quersies_of_buildings(self):
@@ -32,7 +40,14 @@ class BasicAbstract(metaclass=ABCMeta):
                 for b in data:
                     result[b] = {'trash': [trash for trash in b.trash.all() if b.trash.all().exists()],
                                  'row_col_cor': (b.city_field.row, b.city_field.col),
-                                 'people_in_charge': b.resident.count() if isinstance(b, Residential) else b.employee.count()}
+                                 'people_in_charge': b.resident.count() if isinstance(b, Residential) else b.employee.count(),
+                                 'max_employees': sum([b.elementary_employee_needed, b.college_employee_needed, b.phd_employee_needed]) if isinstance(b, BuldingsWithWorkes) else 0,
+                                 'elementary_employees': [e for e in b.employee.filter(edu_title=ELEMENTARY)] if isinstance(b, BuldingsWithWorkes) else 0,
+                                 'elementary_vacancies': b.elementary_vacancies() if isinstance(b, BuldingsWithWorkes) else 0,
+                                 'college_employees': [e for e in b.employee.filter(edu_title=COLLEGE)] if isinstance(b, BuldingsWithWorkes) else 0,
+                                 'college_vacancies': b.college_vacancies() if isinstance(b, BuldingsWithWorkes) else 0,
+                                 'phd_employees': [e for e in b.employee.filter(edu_title=PHD)] if isinstance(b, BuldingsWithWorkes) else 0,
+                                 'phd_vacancies': b.phd_vacancies() if isinstance(b, BuldingsWithWorkes) else 0}
         return result
 
 
@@ -59,6 +74,7 @@ class RootClass(BasicAbstract):
         self.user = user
         self.citizens_in_city = {c: {'educations': c.education_set.all(),
                                      'professions': c.profession_set.all(),
+                                     'current_profession': c.profession_set.filter(if_current=True).last(),
                                      'current_education': c.education_set.filter(if_current=True).last()}
                                  for c in Citizen.objects.filter(city=self.city)}
         self.city_fields_in_city = {f: {

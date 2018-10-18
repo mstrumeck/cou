@@ -8,10 +8,10 @@ from citizen_engine.models import Citizen
 from citizen_engine.citizen_abstract import CitizenAbstract
 from cou.abstract import RootClass
 from django.test import override_settings
-from cou.global_var import FEMALE, MALE
+from cou.global_var import FEMALE, MALE, ELEMENTARY
 
 
-# @override_settings(DEBUG=True)
+@override_settings(DEBUG=True)
 class CitizenBasicTests(BaseTest):
     fixtures = ['basic_fixture_resources_and_employees.json']
 

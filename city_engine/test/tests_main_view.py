@@ -32,7 +32,8 @@ class CityViewTests(CityFixture):
             list_of_buildings = models.objects.filter(city=self.city)
             for building in list_of_buildings:
                 total_energy += building.total_production(
-                    self.RC.list_of_buildings[building]['people_in_charge']
+                    self.RC.list_of_buildings,
+                    self.RC.citizens_in_city
                 )
 
         self.assertEqual(total_energy, self.city_stats.energy_production)
@@ -148,7 +149,6 @@ class ModelsTests(test.TestCase, TestHelper):
                                               if_under_construction=False,
                                               build_time=0,
                                               energy_allocated=10,
-                                              max_employees=5,
                                               power_nodes=1,
                                             )
         water_tower = WaterTower.objects.create(city=self.city,
@@ -156,7 +156,6 @@ class ModelsTests(test.TestCase, TestHelper):
                                                 if_under_construction=False,
                                                 build_time=0,
                                                 raw_water_allocated=10,
-                                                max_employees=5,
                                                 )
         self.RC = RootClass(self.city, User.objects.latest('id'))
         TestHelper(self.city, User.objects.latest('id')).populate_city()

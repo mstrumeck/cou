@@ -6,9 +6,11 @@ from cou.abstract import RootClass
 from citizen_engine.social_actions import SocialAction
 from player.models import Profile
 from cou.global_var import FEMALE, MALE
+from .base import SocialTestHelper
+from city_engine.turn_data.main import TurnCalculation
 
 
-class TestFindPlaceToLive(TestCase):
+class TestFindPlaceToLive(SocialTestHelper):
     fixtures = ['basic_fixture_resources_and_employees.json']
 
     def setUp(self):
@@ -40,11 +42,12 @@ class TestFindPlaceToLive(TestCase):
             surname="MaSurname",
             sex=MALE,
         )
-        sa = SocialAction(self.city, self.profile, RootClass(self.city, User.objects.latest('id')))
-        self.assertEqual(Residential.objects.latest('id').resident.count(), 0)
+        RC = RootClass(self.city, User.objects.latest('id'))
+        sa = SocialAction(self.city, self.profile, RC)
+        self.assertEqual(self.r1.resident.count(), 0)
         sa.find_home()
-        sa.save_all()
-        self.assertEqual(Residential.objects.latest('id').resident.count(), 1)
+        TurnCalculation(self.city, RC, self.profile).save_all()
+        self.assertEqual(self.r1.resident.count(), 1)
 
     def test_random_choice_home_scenario_pass(self):
         self.r1 = Residential.objects.latest('id')
@@ -68,13 +71,15 @@ class TestFindPlaceToLive(TestCase):
             surname="MaSurname",
             sex=MALE,
         )
-        sa = SocialAction(self.city, self.profile, RootClass(self.city, User.objects.latest('id')))
+        RC = RootClass(self.city, User.objects.latest('id'))
+        sa = SocialAction(self.city, self.profile, RC)
         self.assertEqual(self.f.resident_object, None)
         self.assertEqual(self.m.resident_object, None)
         self.assertEqual(list(Residential.objects.latest('id').resident.all()), [])
-        self.assertEqual(RootClass(self.city, User.objects.latest('id')).list_of_buildings[Residential.objects.latest('id')]['people_in_charge'], 0)
+        self.assertEqual(RC.list_of_buildings[Residential.objects.latest('id')]['people_in_charge'], 0)
         sa.find_home()
-        sa.save_all()
+        self.save_all_ob_from(RC.list_of_buildings)
+        self.save_all_ob_from(RC.citizens_in_city)
         self.m = Citizen.objects.get(id=self.m.id)
         self.f = Citizen.objects.get(id=self.f.id)
         self.assertEqual(RootClass(self.city, User.objects.latest('id')).list_of_buildings[Residential.objects.latest('id')]['people_in_charge'], 2)
@@ -113,7 +118,7 @@ class TestFindPlaceToLive(TestCase):
         self.assertEqual(RootClass(self.city, User.objects.latest('id')).list_of_buildings[Residential.objects.latest('id')]['people_in_charge'], 0)
         sa.find_home()
         self.assertEqual(RootClass(self.city, User.objects.latest('id')).list_of_buildings[Residential.objects.latest('id')]['people_in_charge'], 0)
-        sa.save_all()
+        sa.update_age()
         self.assertEqual(RootClass(self.city, User.objects.latest('id')).list_of_buildings[Residential.objects.latest('id')]['people_in_charge'], 0)
         self.m = Citizen.objects.get(id=self.m.id)
         self.f = Citizen.objects.get(id=self.f.id)

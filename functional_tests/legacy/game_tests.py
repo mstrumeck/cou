@@ -5,6 +5,7 @@ from functional_tests.page_objects import MainView, LoginPage
 from cou.abstract import RootClass
 from django.test import override_settings
 
+
 # @override_settings(DEBUG=True)
 class GameTestForOnePlayer(BaseTest):
 
@@ -72,6 +73,7 @@ class GameTestForOnePlayer(BaseTest):
         self.assertEqual(Residential.objects.latest('id').energy, 5)
 
 
+# @override_settings(DEBUG=True)
 class GameTestForTwoPlayers(BaseTest):
     def test_create_building_for_two_accounts(self):
         self.create_first_user()
@@ -166,7 +168,7 @@ class CitizenTests(BaseTest):
         main_view.next_turns(3)
 
         for wind_plant in WindPlant.objects.filter(city=self.city_one):
-            assert wind_plant.employee.count() <= wind_plant.max_employees
+            assert wind_plant.employee.count() <= wind_plant.elementary_employee_needed
 
         for water_tower in WaterTower.objects.filter(city=self.city_one):
-            assert water_tower.employee.count() <= water_tower.max_employees
+            assert water_tower.employee.count() <= water_tower.elementary_employee_needed

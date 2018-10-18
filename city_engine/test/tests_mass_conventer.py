@@ -23,8 +23,8 @@ class TestMassConventer(test.TestCase):
     def test_product_mass(self):
         city = City.objects.latest('id')
         self.assertEqual(city.mass, 1000)
-        self.mass_conventer.product_mass(self.city, self.mass_conventer.employee.count())
         RC = RootClass(self.city, User.objects.latest('id'))
+        self.mass_conventer.product_mass(self.city, RC.list_of_workplaces, RC.citizens_in_city)
         TurnCalculation(city=self.city, data=RC, profile=Profile.objects.latest('id')).save_all()
         city = City.objects.latest('id')
         self.assertEqual(city.mass, 1020)

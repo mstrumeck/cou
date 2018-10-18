@@ -24,8 +24,9 @@ class TestTradeDistrict(test.TestCase):
         self.assertEqual(trade_district.goods_stored, 0)
         self.assertEqual(float(city.cash), 9480.0)
         self.assertEqual(city.mass, 1000)
-        trade_district.creating_goods(city, trade_district.employee.count())
         RC = RootClass(city, User.objects.latest('id'))
+        trade_district.creating_goods(city, RC.list_of_buildings, RC.citizens_in_city)
+        trade_district.product_goods(RC.list_of_buildings, RC.citizens_in_city)
         TurnCalculation(city=city, data=RC, profile=Profile.objects.latest('id')).save_all()
         city = City.objects.latest('id')
         self.assertEqual(trade_district.cash, 2)
@@ -44,7 +45,8 @@ class TestTradeDistrict(test.TestCase):
         city = City.objects.latest('id')
         TestHelper(city, User.objects.latest('id')).populate_city()
         self.assertEqual(trade_district.resources_stored, 90)
-        trade_district.buy_resources(city, trade_district.employee.count())
+        RC = RootClass(city, User.objects.latest('id'))
+        trade_district.buy_resources(city, RC.list_of_buildings, RC.citizens_in_city)
         self.assertEqual(trade_district.resources_stored, 90)
 
     def test_trade_district_buy_resources(self):
@@ -56,7 +58,8 @@ class TestTradeDistrict(test.TestCase):
         city = City.objects.latest('id')
         TestHelper(city, User.objects.latest('id')).populate_city()
         self.assertEqual(trade_district.resources_stored, 0)
-        trade_district.buy_resources(city, trade_district.employee.count())
+        RC = RootClass(city, User.objects.latest('id'))
+        trade_district.buy_resources(city, RC.list_of_buildings, RC.citizens_in_city)
         self.assertEqual(trade_district.resources_stored, 40)
 
     def test_trade_district_product_goods(self):
@@ -70,7 +73,8 @@ class TestTradeDistrict(test.TestCase):
         TestHelper(city, User.objects.latest('id')).populate_city()
         self.assertEqual(trade_district.resources_stored, 90)
         self.assertEqual(trade_district.goods_stored, 0)
-        trade_district.product_goods(trade_district.employee.count())
+        RC = RootClass(city, User.objects.latest('id'))
+        trade_district.product_goods(RC.list_of_buildings, RC.citizens_in_city)
         self.assertEqual(trade_district.resources_stored, 1)
         self.assertEqual(trade_district.goods_stored, 89)
 
@@ -86,6 +90,7 @@ class TestTradeDistrict(test.TestCase):
         TestHelper(city, User.objects.latest('id')).populate_city()
         self.assertEqual(trade_district.resources_stored, 90)
         self.assertEqual(trade_district.goods_stored, 60)
-        trade_district.product_goods(trade_district.employee.count())
+        RC = RootClass(city, User.objects.latest('id'))
+        trade_district.product_goods(RC.list_of_buildings, RC.citizens_in_city)
         self.assertEqual(trade_district.resources_stored, 90)
         self.assertEqual(trade_district.goods_stored, 60)

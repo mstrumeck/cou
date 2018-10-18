@@ -1,6 +1,7 @@
 from cou.abstract import RootClass, ResourcesData
 from django.contrib.auth.models import User
 from django import test
+from citizen_engine.models import Citizen, Profession
 from city_engine.test.base import TestHelper
 from city_engine.turn_data.main import TurnCalculation
 from city_engine.models import City, WindPlant, WaterTower, PowerPlant,\
@@ -83,8 +84,8 @@ class TestResourcesClass(test.TestCase):
         self.assertEqual(10, self.rd.resources['Cattle'][1])
 
         self.assertEqual('Mleko', self.rd.resources['Milk'][0][0].name)
-        self.assertEqual(540, self.rd.resources['Milk'][0][0].size)
-        self.assertEqual(540, self.rd.resources['Milk'][1])
+        self.assertAlmostEqual(541, self.rd.resources['Milk'][0][0].size)
+        self.assertAlmostEqual(541, self.rd.resources['Milk'][1])
 
         self.assertEqual('Fasola', self.rd.resources['Bean'][0][0].name)
         self.assertEqual(12, self.rd.resources['Bean'][0][0].size)

@@ -24,7 +24,7 @@ class ResourcesAllocationsTests(test.TestCase, TestHelper):
         self.RA = ResourceAllocation(city=self.city, data=self.RC)
         self.RA.pollution_allocation()
         TurnCalculation(self.city, self.RC, Profile.objects.latest('id')).save_all()
-        self.assertEqual(CityField.objects.filter(city=self.city).aggregate(Sum('pollution'))['pollution__sum'], 31)
+        self.assertEqual(CityField.objects.filter(city=self.city).aggregate(Sum('pollution'))['pollution__sum'], 30)
         self.RA.clean_allocation_data()
         TurnCalculation(self.city, self.RC, Profile.objects.latest('id')).save_all()
         self.assertEqual(CityField.objects.filter(city=self.city).aggregate(Sum('pollution'))['pollution__sum'], 0)
@@ -36,7 +36,7 @@ class ResourcesAllocationsTests(test.TestCase, TestHelper):
         self.assertEqual(CityField.objects.filter(city=self.city).aggregate(Sum('pollution'))['pollution__sum'], 0)
         self.RA.pollution_allocation()
         TurnCalculation(self.city, self.RC, Profile.objects.latest('id')).save_all()
-        self.assertEqual(CityField.objects.filter(city=self.city).aggregate(Sum('pollution'))['pollution__sum'], 31)
+        self.assertEqual(CityField.objects.filter(city=self.city).aggregate(Sum('pollution'))['pollution__sum'], 30)
 
     def test_resources_allocation(self):
         WindPlant.objects.update(energy_allocated=0)
@@ -77,6 +77,6 @@ class EmployeeAllocationTests(test.TestCase):
                 profile=Profile.objects.latest('id')).run()
 
         for build in self.RC.list_of_workplaces:
-            self.assertLessEqual(build.employee.count(), build.max_employees)
+            self.assertLessEqual(build.employee.count(), build.elementary_employee_needed)
 
 # python manage.py dumpdata citizen_engine city_engine auth.user --indent=2 --output=city_engine/fixtures/fixture_natural_resources.json

@@ -6,6 +6,7 @@ from city_engine.models import Residential, School
 from player.models import Message
 import datetime
 from cou.global_var import MALE, FEMALE
+from citizen_engine.work_engine import CitizenWorkEngine
 
 
 class SocialAction:
@@ -20,53 +21,26 @@ class SocialAction:
         self.born_child()
         self.citizen_data.create_and_return_families_in_city()
         self.find_home()
-        self.find_work()
+        CitizenWorkEngine(self.citizen_data.citizens_in_city, self.city_data.list_of_workplaces).human_resources_allocation()
         self.launch_school()
-        self.save_all()
+        self.update_age()
 
-    def save_all(self):
+    def update_age(self):
         for c in self.citizen_data.citizens_in_city:
-            # if self.citizen_data.citizens_in_city[c]['current_education']:
-            #     self.citizen_data.citizens_in_city[c]['current_education'].save()
             if c.month_of_birth == self.profile.current_turn:
                 c.age += 1
-            c.save()
-            # for e in self.citizen_data.citizens_in_city[c]['educations']:
-            #     e.save()
 
     def launch_school(self):
         for sch in [b for b in self.city_data.list_of_workplaces if isinstance(b, School)]:
             if self.profile.current_turn == 8:
                 sch.run(self.citizen_data.citizens_in_city)
 
-    def find_work(self):
-        unemployees = [u for u in self.citizen_data.citizens_in_city
-                       if u.workplace_object is None
-                       and u.resident_object is not None]
-        if unemployees:
-            not_full_workplaces = [w for w in self.city_data.list_of_workplaces
-                                  if w.max_employees - self.city_data.list_of_workplaces[w]['people_in_charge'] > 0]
-            if not_full_workplaces:
-                random.shuffle(unemployees)
-                random.shuffle(not_full_workplaces)
-                for w in not_full_workplaces:
-                    left = w.max_employees - self.city_data.list_of_workplaces[w]['people_in_charge']
-                    while left > 0 and unemployees:
-                        un = unemployees.pop()
-                        un.workplace_object = w
-                        left -= 1
-                        Message.objects.create(
-                            profile=self.profile,
-                            turn=self.profile.current_turn,
-                            text="Obywatel {} znalazł pracę w {}!".format(un, un.workplace_object))
-                        self.city_data.list_of_workplaces[w]['people_in_charge'] += 1
-
     def find_home(self):
         homeless = [h for h in self.citizen_data.citizens_in_city if h.resident_object is None]
         if homeless:
-            resident_with_space = (r for r in self.city_data.list_of_buildings
+            resident_with_space = [r for r in self.city_data.list_of_buildings
                                    if isinstance(r, Residential)
-                                   and r.max_population - self.city_data.list_of_buildings[r]['people_in_charge'] > 0)
+                                   and r.max_population - self.city_data.list_of_buildings[r]['people_in_charge'] > 0]
             if resident_with_space:
                 random.shuffle(homeless)
                 for r in resident_with_space:

@@ -46,7 +46,8 @@ class CityEnergyStats:
 
     def calculate_energy_production_in_city(self):
         return sum([b.total_production(
-            self.data.list_of_buildings[b]['people_in_charge']
+            self.data.list_of_buildings,
+            self.data.citizens_in_city
         ) for b in self.data.list_of_buildings if isinstance(b, PowerPlant)])
 
     def calculate_energy_allocation_in_city(self):
@@ -67,7 +68,8 @@ class CityRawWaterStats:
 
     def calculate_raw_water_production_in_city(self):
         return sum([b.total_production(
-            self.data.list_of_buildings[b]['people_in_charge']
+            self.data.list_of_buildings,
+            self.data.citizens_in_city
         ) for b in self.data.list_of_buildings if isinstance(b, Waterworks)])
 
     def calculate_raw_water_usage_in_city(self):
@@ -85,7 +87,8 @@ class CityCleanWaterStats:
 
     def calculate_clean_water_production_in_city(self):
         return sum([b.total_production(
-            self.data.list_of_buildings[b]['people_in_charge']
+            self.data.list_of_buildings,
+            self.data.citizens_in_city
         ) for b in self.data.list_of_buildings if isinstance(b, SewageWorks)])
 
     def calculate_clean_water_usage_in_city(self):
@@ -105,18 +108,16 @@ class CityBuildingStats:
 
     def home_areas_demand(self):
         return "{}/{}".format(
-            sum((h.max_employees - self.data.list_of_buildings[h]['people_in_charge']
-                 for h in self.data.list_of_buildings
-                 if isinstance(h, BuldingsWithWorkes) or isinstance(h, Vehicle))),
-            sum((h.max_employees for h in self.data.list_of_buildings
-                 if isinstance(h, BuldingsWithWorkes) or isinstance(h, Vehicle))))
+            sum(self.data.list_of_workplaces[h]['max_employees'] - self.data.list_of_workplaces[h]['people_in_charge']
+                 for h in self.data.list_of_workplaces),
+            sum(self.data.list_of_workplaces[h]['max_employees'] for h in self.data.list_of_workplaces))
 
     def industrial_areas_demand(self):
         return "{}/{}".format(
-            sum(i.max_employees - self.data.list_of_buildings[i]['people_in_charge']
+            sum(self.data.list_of_buildings[i]['max_employees'] - self.data.list_of_buildings[i]['people_in_charge']
                 for i in self.data.list_of_buildings
                  if isinstance(i, TradeDistrict)),
-            sum(i.max_employees for i in self.data.list_of_buildings
+            sum(self.data.list_of_buildings[i]['max_employees'] for i in self.data.list_of_buildings
                  if isinstance(i, TradeDistrict)))
 
     def trade_areas_demand(self):

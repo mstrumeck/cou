@@ -40,7 +40,7 @@ class TestEducation(TestCase):
         self.assertEqual(self.f.school_object, None)
         self.assertEqual(self.f.education_set.all().count(), 0)
         self.school.check_for_student_in_city(self.f)
-        self.sa.save_all()
+        self.sa.update_age()
         e = Education.objects.get(citizen=self.f)
         self.f = Citizen.objects.get(id=self.f.id)
         # self.assertEqual(self.f.school_object, self.school)
@@ -54,7 +54,7 @@ class TestEducation(TestCase):
         self.sa = SocialAction(self.city, self.profile, self.RC)
         self.assertEqual(self.RC.citizens_in_city[self.f]['current_education'].cur_year_of_learning, 0)
         self.school.update_year_of_school_for_student(self.f, self.RC.citizens_in_city[self.f]['current_education'])
-        self.sa.save_all()
+        self.sa.update_age()
         self.RC = RootClass(self.city, User.objects.latest('id'))
         self.assertEqual(self.RC.citizens_in_city[self.f]['current_education'].cur_year_of_learning, 1)
 

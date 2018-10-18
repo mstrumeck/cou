@@ -4,14 +4,13 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 from django.contrib.contenttypes.models import ContentType
 from cou.global_var import TRAINEE, JUNIOR, MASTER, PROFESSIONAL, REGULAR,\
     MALE, FEMALE,\
-    BACHELOR, ELEMENTARY, COLLEGE, PHD
+    ELEMENTARY, COLLEGE, PHD
 
 
 class Citizen(models.Model):
     EDUCATION = (
         (ELEMENTARY, 'Elementary'),
         (COLLEGE, 'College'),
-        (BACHELOR, 'Bachelor'),
         (PHD, 'PhD')
     )
 
@@ -54,6 +53,24 @@ class Citizen(models.Model):
     school_object_id = models.PositiveIntegerField(null=True)
     school_object = GenericForeignKey('school_content_type', 'school_object_id')
 
+    def find_work(self, workplaces, citizens):
+        matrix = {ELEMENTARY: 'elementary_vacancies', COLLEGE: 'college_vacancies', PHD: 'phd_vacancies', 'None': 'elementary_vacancies'}
+        possible_workplaces = [w for w in workplaces if workplaces[w][matrix[self.edu_title]]]
+        if possible_workplaces:
+            best = self.find_best_work_option(possible_workplaces)
+            self.workplace_object = best
+            workplaces[best][matrix[self.edu_title]] += 1
+            citizens[self]['current_profession'] = Profession.objects.create(
+                citizen=self, name=best.profession_type_provided)
+
+    def find_best_work_option(self, workplaces):
+        col = self.resident_object.city_field.col
+        row = self.resident_object.city_field.row
+        pattern = sorted(workplaces, key=lambda x: (
+            abs(x.city_field.col - col), abs(x.city_field.row - row)) if isinstance(x, BuldingsWithWorkes) else (0, 0))
+        chances = {len(pattern)/x: y for x, y in enumerate(pattern, start=1)}
+        return chances[sorted(chances.keys()).pop()]
+
     def __str__(self):
         return "{} {}".format(self.name, self.surname)
 
@@ -68,8 +85,8 @@ class Profession(models.Model):
     )
     citizen = models.ForeignKey(Citizen)
     name = models.CharField(default='', max_length=15)
-    level = models.CharField(choices=LEVELS, max_length=15)
-    cur_level = models.FloatField(default=0.00)
+    level = models.CharField(choices=LEVELS, max_length=15, default=TRAINEE)
+    cur_level = models.FloatField(default=0.30)
     if_current = models.BooleanField(default=True)
 
 
@@ -77,7 +94,6 @@ class Education(models.Model):
     EDUCATION = (
         (ELEMENTARY, 'Elementary'),
         (COLLEGE, 'College'),
-        (BACHELOR, 'Bachelor'),
         (PHD, 'PhD')
     )
     citizen = models.ForeignKey(Citizen)

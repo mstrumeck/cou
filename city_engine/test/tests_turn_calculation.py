@@ -15,4 +15,4 @@ class TestTurnCalculation(test.TestCase, TestHelper):
         self.data = RootClass(city=self.city, user=User.objects.latest('id'))
 
     def test_calculate_maintanance_cost(self):
-        self.assertEqual(TurnCalculation(self.city, self.data, Profile.objects.latest('id')).calculate_maintenance_cost(), 40)
+        self.assertEqual(TurnCalculation(self.city, self.data, Profile.objects.latest('id')).calculate_maintenance_cost(), 50)

@@ -34,7 +34,7 @@ class CityStatsTests(test.TestCase, TestHelper):
         self.assertEqual(CityEnergyStats(self.city, self.RC).calculate_energy_allocation_in_city(), 0)
 
     def test_calculate_energy_usage_in_city(self):
-        self.assertEqual(CityEnergyStats(self.city, self.RC).calculate_energy_usage_in_city(), 6)
+        self.assertEqual(CityEnergyStats(self.city, self.RC).calculate_energy_usage_in_city(), 7)
 
     def test_calculate_water_production_in_city(self):
         self.assertEqual(CityRawWaterStats(self.city, self.RC).calculate_raw_water_production_in_city(), 20)

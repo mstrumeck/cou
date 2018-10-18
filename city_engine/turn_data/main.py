@@ -39,19 +39,23 @@ class TurnCalculation:
             field.save()
         for vehicle in self.data.vehicles:
             vehicle.save()
+        for citizen in self.data.citizens_in_city:
+            citizen.save()
 
     def trade_district_actions(self):
         for td in [td for td in self.data.list_of_buildings if isinstance(td, TradeDistrict)]:
             td.creating_goods(
                 self.city,
-                self.data.list_of_buildings[td]['people_in_charge']
+                self.data.list_of_buildings,
+                self.data.citizens_in_city
             )
 
     def collect_mass(self):
         for mass_collector in [mc for mc in self.data.list_of_buildings if isinstance(mc, MassConventer)]:
             mass_collector.product_mass(
                 self.city,
-                self.data.list_of_buildings[mass_collector]['people_in_charge']
+                self.data.list_of_buildings,
+                self.data.citizens_in_city
             )
 
     def update_breeding_status(self):
@@ -59,7 +63,8 @@ class TurnCalculation:
             farm.farm_operation(
                 self.profile.current_turn,
                 self.data.user,
-                self.data.list_of_buildings[farm]['people_in_charge']
+                self.data.list_of_buildings,
+                self.data.citizens_in_city
             )
 
     def update_harvest_status(self):
@@ -67,7 +72,8 @@ class TurnCalculation:
             farm.update_harvest(
                 self.profile.current_turn,
                 self.data.user,
-                self.data.list_of_buildings[farm]['people_in_charge']
+                self.data.list_of_buildings,
+                self.data.citizens_in_city
             )
 
     def update_build_status(self):

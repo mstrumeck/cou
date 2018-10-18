@@ -2,6 +2,7 @@ from citizen_engine.models import Citizen
 from city_engine.main_view_data.city_stats import CityPopulationStats
 from random import randint, choice
 from citizen_engine.citizen_creation import CreateCitizen
+from cou.global_var import ELEMENTARY, COLLEGE, PHD
 
 
 class EmployeeAllocation:
@@ -20,15 +21,25 @@ class EmployeeAllocation:
                 for citizen in range(randint(0, dif_population)):
                     target_production = self.not_full_production_buildings()
                     if target_production is not None:
-                        CreateCitizen(self.city, self.data).create_with_workplace(target_production)
+                        CreateCitizen(self.city, self.data).create_with_workplace(target_production[0],
+                                                                                  target_production[1])
                     else:
                         break
 
     def not_full_production_buildings(self):
         data = []
         for buildings in self.data.list_of_workplaces:
-            if buildings.employee.count() < buildings.max_employees:
-                data.append(buildings)
+            if buildings.employee.count() < sum([buildings.elementary_employee_needed,
+                                                 buildings.college_employee_needed,
+                                                 buildings.phd_employee_needed]):
+                edu = []
+                if buildings.elementary_employee_needed - len([x for x in self.data.list_of_workplaces[buildings]['elementary_employees']]) > 0:
+                    edu.append(ELEMENTARY)
+                if buildings.college_employee_needed - len([x for x in self.data.list_of_workplaces[buildings]['college_employees']]) > 0:
+                    edu.append(COLLEGE)
+                if buildings.phd_employee_needed - len([x for x in self.data.list_of_workplaces[buildings]['phd_employees']]) > 0:
+                    edu.append(PHD)
+                data.append([buildings, choice(edu)])
         if data:
             return choice(data)
         return None

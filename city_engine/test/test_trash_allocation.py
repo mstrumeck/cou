@@ -27,7 +27,6 @@ class TestTrashAllocation(test.TestCase):
         self.RC = RootClass(self.city, User.objects.latest('id'))
         TrashManagement(data=self.RC).generate_trash()
         self.RC = RootClass(self.city, User.objects.latest('id'))
-        self.collect_garbage = CollectGarbage(city=self.city, data=self.RC)
         CollectGarbage(city=self.city, data=self.RC).run()
         TurnCalculation(city=self.city, data=self.RC, profile=Profile.objects.latest('id')).save_all()
         self.RC = RootClass(self.city, User.objects.latest('id'))

@@ -4,6 +4,7 @@ from city_engine.main_view_data.board import assign_city_fields_to_board
 from city_engine.main_view_data.city_stats import CityStatsCenter
 from citizen_engine.citizen_creation import CreateCitizen
 from cou.abstract import RootClass
+from cou.global_var import ELEMENTARY, COLLEGE, PHD
 from city_engine.models import City, CityField, \
     Residential, \
     ProductionBuilding, \
@@ -15,8 +16,12 @@ class TestHelper(RootClass):
 
     def populate_city(self):
         for workplace in self.list_of_workplaces.keys():
-            for employ in range(workplace.max_employees):
-                CreateCitizen(self.city, self).create_with_workplace(workplace)
+            for el in range(workplace.elementary_employee_needed):
+                CreateCitizen(self.city, self).create_with_workplace(workplace, ELEMENTARY)
+            for el in range(workplace.college_employee_needed):
+                CreateCitizen(self.city, self).create_with_workplace(workplace, COLLEGE)
+            for el in range(workplace.phd_employee_needed):
+                CreateCitizen(self.city, self).create_with_workplace(workplace, COLLEGE)
 
 
 class BaseFixture(test.TestCase):
