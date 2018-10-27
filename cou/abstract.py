@@ -79,7 +79,7 @@ class RootClass(BasicAbstract):
                                  for c in Citizen.objects.filter(city=self.city)}
         self.city_fields_in_city = {f: {
             'row_col': (f.row, f.col),
-            'pollution' : f.pollution
+            'pollution': f.pollution
         } for f in CityField.objects.filter(city=self.city)}
         self.list_of_buildings = self.get_quersies_of_buildings()
         self.vehicles = self.get_queries_of_vehicles()

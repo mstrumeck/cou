@@ -3,6 +3,7 @@ from city_engine.main_view_data.resources_allocation import ResourceAllocation
 from city_engine.main_view_data.trash_management import TrashManagement, CollectGarbage
 from city_engine.models import Farm, AnimalFarm, MassConventer, TradeDistrict
 from citizen_engine.social_actions import SocialAction
+from citizen_engine.models import Education, Profession
 
 
 class TurnCalculation:

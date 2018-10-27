@@ -20,6 +20,8 @@ class EmployeeAllocationTest(test.TestCase, TestHelper):
     def test_not_full_production_buildings(self):
         self.assertIn(self.EA.not_full_production_buildings(), [[WindPlant.objects.get(id=1), ELEMENTARY],
                                                                 [WindPlant.objects.get(id=2), ELEMENTARY],
+                                                                [DumpingGround.objects.get(id=1), ELEMENTARY],
+                                                                [DustCart.objects.get(id=1), ELEMENTARY],
                                                                 [WaterTower.objects.get(id=1), ELEMENTARY],
                                                                 [WaterTower.objects.get(id=2), ELEMENTARY]])
 

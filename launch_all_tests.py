@@ -15,7 +15,8 @@ def run_tests():
               ' functional_tests.mass_productions_tests'
               ' functional_tests.trade_district_tests'
               ' functional_tests.citizen_tests'
-              ' functional_tests.education_tests')
+              ' functional_tests.education_tests'
+              ' functional_tests.gain_experience_tests')
 
 
 def run_tests_with_coverage():

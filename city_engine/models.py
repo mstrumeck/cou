@@ -536,7 +536,27 @@ class School(BuldingsWithWorkes):
                               object_id_field='school_object_id',
                               content_type_field='school_content_type')
 
-    def run(self, citizens_in_city):
+    def monthly_run(self, citizen_in_city, player):
+        teachers_with_profession = {t: citizen_in_city[t]['current_profession'] for t in citizen_in_city
+                                    if t.workplace_object == self
+                                    and citizen_in_city[t]['current_profession']
+                                    and citizen_in_city[t][
+                                        'current_profession'].name == self.profession_type_provided
+                                    and len(citizen_in_city[t]['educations']) >= 2}
+        for p in (c for c in citizen_in_city if c.school_object == self and citizen_in_city[c]['current_education']):
+            citizen_education = citizen_in_city[p]['current_education']
+            try:
+                total_effectiveness = (sum([teachers_with_profession[e].cur_level for e in teachers_with_profession])
+                                       / len(teachers_with_profession)) * player.primary_school_education_ratio
+                citizen_education.effectiveness += total_effectiveness
+                citizen_education.save()
+            except ZeroDivisionError:
+                pass
+        for teacher in teachers_with_profession:
+            teachers_with_profession[teacher].update_level(citizen_in_city)
+            teachers_with_profession[teacher].save()
+
+    def yearly_run(self, citizens_in_city):
         for p in (c for c in citizens_in_city if c.age >= self.age_of_start and c.edu_title == self.entry_education):
             if p.school_object is None:
                 self.check_for_student_in_city(p)

@@ -1,5 +1,5 @@
 from citizen_engine.citizen_abstract import CitizenAbstract
-from citizen_engine.models import Citizen
+from citizen_engine.models import Citizen, Education, Profession
 from django.db.models import F
 import random, string
 from city_engine.models import Residential, School
@@ -33,7 +33,8 @@ class SocialAction:
     def launch_school(self):
         for sch in [b for b in self.city_data.list_of_workplaces if isinstance(b, School)]:
             if self.profile.current_turn == 8:
-                sch.run(self.citizen_data.citizens_in_city)
+                sch.yearly_run(self.citizen_data.citizens_in_city)
+            sch.monthly_run(self.citizen_data.citizens_in_city, self.profile)
 
     def find_home(self):
         homeless = [h for h in self.citizen_data.citizens_in_city if h.resident_object is None]

@@ -1,13 +1,13 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
 from city_engine.models import Residential, City, WindPlant, CityField, PrimarySchool
-from citizen_engine.models import Citizen, Education
+from citizen_engine.models import Citizen, Education, Profession
 from citizen_engine.citizen_creation import CreateCitizen
 import random, string
 from cou.abstract import RootClass
 from citizen_engine.social_actions import SocialAction
 from player.models import Profile
-from cou.global_var import FEMALE, ELEMENTARY
+from cou.global_var import FEMALE, ELEMENTARY, MALE, COLLEGE, TRAINEE, JUNIOR, REGULAR, MASTER, PROFESSIONAL
 
 
 class TestEducation(TestCase):
@@ -79,4 +79,144 @@ class TestEducation(TestCase):
         self.assertEqual(e.if_current, False)
 
 
+class TestSchoolMonthlyRunFailed(TestCase):
+    fixtures = ['basic_fixture_resources_and_employees.json']
 
+    def setUp(self):
+        self.city = City.objects.get(id=1)
+        self.profile = Profile.objects.latest('id')
+        self.r1 = Residential.objects.latest('id')
+        self.school = PrimarySchool.objects.create(
+            city=self.city,
+            city_field=CityField.objects.latest('id')
+        )
+        self.m = Citizen.objects.create(
+            city=self.city,
+            age=8,
+            month_of_birth=2,
+            cash=100,
+            health=5,
+            name="0",
+            surname="1",
+            sex=MALE,
+            education='None',
+            resident_object=self.r1,
+            school_object=self.school
+        )
+        self.s = Citizen.objects.create(
+            city=self.city,
+            age=8,
+            month_of_birth=2,
+            cash=100,
+            health=5,
+            name="AnonKA",
+            surname="FeSurname",
+            sex=FEMALE,
+            education=COLLEGE,
+            resident_object=self.r1,
+            workplace_object=self.school
+        )
+
+    def test_gain_knowledge_without_profession_failed(self):
+        Education.objects.create(citizen=self.s, name=ELEMENTARY, effectiveness=1, if_current=False)
+        Education.objects.create(citizen=self.s, name=COLLEGE, effectiveness=1, if_current=False)
+        Education.objects.create(citizen=self.m, name=ELEMENTARY)
+        RC = RootClass(self.city, User.objects.latest('id'))
+        self.assertEqual(RC.citizens_in_city[self.m]['current_education'].effectiveness, 0)
+        self.assertEqual(RC.citizens_in_city[self.s]['current_profession'], None)
+        self.school.monthly_run(RC.citizens_in_city, self.profile)
+        self.assertEqual(RC.citizens_in_city[self.m]['current_education'].effectiveness, 0)
+        self.assertEqual(RC.citizens_in_city[self.s]['current_profession'], None)
+
+    def test_gain_knowledge_without_education_failed(self):
+        Education.objects.create(citizen=self.s, name=ELEMENTARY, effectiveness=1, if_current=False)
+        Education.objects.create(citizen=self.s, name=COLLEGE, effectiveness=1, if_current=False)
+        Profession.objects.create(citizen=self.s, cur_level=0.5, name='Nauczyciel')
+        RC = RootClass(self.city, User.objects.latest('id'))
+        self.assertEqual(RC.citizens_in_city[self.m]['current_education'], None)
+        self.assertEqual(RC.citizens_in_city[self.s]['current_profession'].cur_level, 0.5)
+        self.school.monthly_run(RC.citizens_in_city, self.profile)
+        self.assertEqual(RC.citizens_in_city[self.m]['current_education'], None)
+        self.assertEqual(RC.citizens_in_city[self.s]['current_profession'].cur_level, 0.52)
+
+    def test_gain_knowledge_without_teacher_education_failed_first_case(self):
+        Education.objects.create(citizen=self.s, name=ELEMENTARY, effectiveness=1, if_current=False)
+        Education.objects.create(citizen=self.m, name=ELEMENTARY)
+        Profession.objects.create(citizen=self.s, cur_level=0.5, name='Nauczyciel')
+        RC = RootClass(self.city, User.objects.latest('id'))
+        self.assertEqual(RC.citizens_in_city[self.m]['current_education'].effectiveness, 0)
+        self.assertEqual(RC.citizens_in_city[self.s]['current_profession'].cur_level, 0.5)
+        self.school.monthly_run(RC.citizens_in_city, self.profile)
+        self.assertEqual(RC.citizens_in_city[self.m]['current_education'].effectiveness, 0)
+        self.assertEqual(RC.citizens_in_city[self.s]['current_profession'].cur_level, 0.5)
+
+    def test_gain_knowledge_without_teacher_education_failed_second_case(self):
+        Education.objects.create(citizen=self.s, name=COLLEGE, effectiveness=1, if_current=False)
+        Education.objects.create(citizen=self.m, name=ELEMENTARY)
+        Profession.objects.create(citizen=self.s, cur_level=0.5, name='Nauczyciel')
+        RC = RootClass(self.city, User.objects.latest('id'))
+        self.assertEqual(RC.citizens_in_city[self.m]['current_education'].effectiveness, 0)
+        self.assertEqual(RC.citizens_in_city[self.s]['current_profession'].cur_level, 0.5)
+        self.school.monthly_run(RC.citizens_in_city, self.profile)
+        self.assertEqual(RC.citizens_in_city[self.m]['current_education'].effectiveness, 0)
+        self.assertEqual(RC.citizens_in_city[self.s]['current_profession'].cur_level, 0.5)
+
+
+class TestSchoolMonthlyRunPass(TestCase):
+    fixtures = ['basic_fixture_resources_and_employees.json']
+
+    def setUp(self):
+        self.city = City.objects.get(id=1)
+        self.profile = Profile.objects.latest('id')
+        self.r1 = Residential.objects.latest('id')
+        self.school = PrimarySchool.objects.create(
+            city=self.city,
+            city_field=CityField.objects.latest('id')
+        )
+        self.m = Citizen.objects.create(
+            city=self.city,
+            age=8,
+            month_of_birth=2,
+            cash=100,
+            health=5,
+            name="0",
+            surname="1",
+            sex=MALE,
+            education='None',
+            resident_object=self.r1,
+            school_object=self.school
+        )
+        self.s = Citizen.objects.create(
+            city=self.city,
+            age=8,
+            month_of_birth=2,
+            cash=100,
+            health=5,
+            name="AnonKA",
+            surname="FeSurname",
+            sex=FEMALE,
+            education=COLLEGE,
+            resident_object=self.r1,
+            workplace_object=self.school
+        )
+        Education.objects.create(citizen=self.s, name=ELEMENTARY, effectiveness=1, if_current=False)
+        Education.objects.create(citizen=self.s, name=COLLEGE, effectiveness=1, if_current=False)
+        Education.objects.create(citizen=self.m, name=ELEMENTARY)
+        Profession.objects.create(citizen=self.s, cur_level=0.5, name='Nauczyciel')
+
+    def test_gain_knowledge_during_education_process_single_run(self):
+        RC = RootClass(self.city, User.objects.latest('id'))
+        self.assertEqual(RC.citizens_in_city[self.m]['current_education'].effectiveness, 0.0)
+        self.assertEqual(RC.citizens_in_city[self.s]['current_profession'].cur_level, 0.5)
+        self.school.monthly_run(RC.citizens_in_city, self.profile)
+        self.assertEqual(RC.citizens_in_city[self.s]['current_profession'].cur_level, 0.52)
+        self.assertEqual(RC.citizens_in_city[self.m]['current_education'].effectiveness, 0.0052)
+
+    def test_gain_knowledge_during_education_process_multi_run(self):
+        RC = RootClass(self.city, User.objects.latest('id'))
+        self.assertEqual(RC.citizens_in_city[self.m]['current_education'].effectiveness, 0.0)
+        self.assertEqual(RC.citizens_in_city[self.s]['current_profession'].cur_level, 0.5)
+        for x in range(6):
+            self.school.monthly_run(RC.citizens_in_city, self.profile)
+        self.assertEqual(RC.citizens_in_city[self.s]['current_profession'].cur_level, 0.5660526315789475)
+        self.assertEqual(RC.citizens_in_city[self.m]['current_education'].effectiveness, 0.03360842105263158)

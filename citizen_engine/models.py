@@ -83,11 +83,31 @@ class Profession(models.Model):
         (PROFESSIONAL, "Professional"),
         (MASTER, "Master")
     )
+    levels_info = {level[0]: {'divisor': divisor, 'border': border} for level, divisor, border in zip(
+        LEVELS, (50, 40, 190, 120, 480), (0.10, 0.40, 0.60, 1, 1.30)
+    )}
     citizen = models.ForeignKey(Citizen)
     name = models.CharField(default='', max_length=15)
     level = models.CharField(choices=LEVELS, max_length=15, default=TRAINEE)
-    cur_level = models.FloatField(default=0.30)
+    cur_level = models.FloatField(default=0)
     if_current = models.BooleanField(default=True)
+
+    def __level_divisor(self):
+        return Profession.levels_info[self.level]['divisor']
+
+    def __check_level(self):
+        if self.cur_level > Profession.levels_info[self.level]['border']:
+            cur_level_index = [level[0] for level in Profession.LEVELS].index(self.level)
+            try:
+                self.level = Profession.LEVELS[cur_level_index+1][0]
+            except IndexError:
+                self.level = Profession.LEVELS[-1][0]
+
+    def update_level(self, citizens_in_city):
+        citizen = citizens_in_city[self.citizen]
+        citizen_education = [e.effectiveness for e in citizen['educations']]
+        citizen['current_profession'].cur_level += (sum(citizen_education)/len(citizen_education))/self.__level_divisor()
+        self.__check_level()
 
 
 class Education(models.Model):
