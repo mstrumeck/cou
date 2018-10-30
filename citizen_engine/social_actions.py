@@ -21,7 +21,7 @@ class SocialAction:
         self.born_child()
         self.citizen_data.create_and_return_families_in_city()
         self.find_home()
-        CitizenWorkEngine(self.citizen_data.citizens_in_city, self.city_data.list_of_workplaces).human_resources_allocation()
+        CitizenWorkEngine(self.city_data).human_resources_allocation()
         self.launch_school()
         self.update_age()
 

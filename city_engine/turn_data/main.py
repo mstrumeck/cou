@@ -34,14 +34,16 @@ class TurnCalculation:
         self.profile.current_turn += 1
         self.profile.save()
         self.city.save()
-        for build in self.data.list_of_buildings:
-            build.save()
-        for field in self.data.city_fields_in_city:
-            field.save()
-        for vehicle in self.data.vehicles:
-            vehicle.save()
-        for citizen in self.data.citizens_in_city:
-            citizen.save()
+        for instance in self.data.to_save:
+            instance.save()
+        # for build in self.data.list_of_buildings:
+        #     build.save()
+        # for field in self.data.city_fields_in_city:
+        #     field.save()
+        # for vehicle in self.data.vehicles:
+        #     vehicle.save()
+        # for citizen in self.data.citizens_in_city:
+        #     citizen.save()
 
     def trade_district_actions(self):
         for td in [td for td in self.data.list_of_buildings if isinstance(td, TradeDistrict)]:

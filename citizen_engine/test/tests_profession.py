@@ -14,7 +14,6 @@ from .base import SocialTestHelper
 
 
 class ProfessionUpdateLevelTests(TestCase):
-
     fixtures = ['basic_fixture_resources_and_employees.json']
 
     def setUp(self):
@@ -45,6 +44,18 @@ class ProfessionUpdateLevelTests(TestCase):
             RC.citizens_in_city[self.s]['current_profession'].update_level(RC.citizens_in_city)
         self.assertEqual(RC.citizens_in_city[self.s]['current_profession'].cur_level, 0.12000000000000001)
         self.assertEqual(RC.citizens_in_city[self.s]['current_profession'].level, JUNIOR)
+
+    def test_train_to_regular(self):
+        Education.objects.create(citizen=self.s, name=ELEMENTARY, effectiveness=1, if_current=False)
+        Education.objects.create(citizen=self.s, name=COLLEGE, effectiveness=1, if_current=False)
+        Profession.objects.create(citizen=self.s, cur_level=0.0, name='Nauczyciel')
+        RC = RootClass(self.city, User.objects.latest('id'))
+        self.assertEqual(RC.citizens_in_city[self.s]['current_profession'].cur_level, 0)
+        self.assertEqual(RC.citizens_in_city[self.s]['current_profession'].level, TRAINEE)
+        for x in range(24):
+            RC.citizens_in_city[self.s]['current_profession'].update_level(RC.citizens_in_city)
+        self.assertEqual(RC.citizens_in_city[self.s]['current_profession'].cur_level, 0.4515789473684213)
+        self.assertEqual(RC.citizens_in_city[self.s]['current_profession'].level, REGULAR)
 
     def test_train_to_regular(self):
         Education.objects.create(citizen=self.s, name=ELEMENTARY, effectiveness=1, if_current=False)

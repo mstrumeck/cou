@@ -53,7 +53,7 @@ class Citizen(models.Model):
     school_object_id = models.PositiveIntegerField(null=True)
     school_object = GenericForeignKey('school_content_type', 'school_object_id')
 
-    def find_work(self, workplaces, citizens):
+    def find_work(self, workplaces, citizens, save_instance):
         matrix = {ELEMENTARY: 'elementary_vacancies', COLLEGE: 'college_vacancies', PHD: 'phd_vacancies', 'None': 'elementary_vacancies'}
         possible_workplaces = [w for w in workplaces if workplaces[w][matrix[self.edu_title]]]
         if possible_workplaces:
@@ -62,6 +62,7 @@ class Citizen(models.Model):
             workplaces[best][matrix[self.edu_title]] += 1
             citizens[self]['current_profession'] = Profession.objects.create(
                 citizen=self, name=best.profession_type_provided)
+            save_instance.append(citizens[self]['current_profession'])
 
     def find_best_work_option(self, workplaces):
         col = self.resident_object.city_field.col

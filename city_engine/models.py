@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import F
-from cou.global_var import ELEMENTARY, COLLEGE, PHD, EDUCATION
+from cou.global_var import ELEMENTARY, COLLEGE, PHD, EDUCATION, TYPE_OF_EMPLOYEES
 from django.apps import apps
 
 
@@ -78,42 +77,47 @@ class BuldingsWithWorkes(Building):
                                content_type_field='workplace_content_type'
                                )
 
-    def elementary_vacancies(self):
-        return self.elementary_employee_needed - self.employee.filter(edu_title=ELEMENTARY).count()
-
-    def college_vacancies(self):
-        return self.college_employee_needed - self.employee.filter(edu_title=COLLEGE).count()
-
-    def phd_vacancies(self):
-        return self.phd_employee_needed - self.employee.filter(edu_title=PHD).count()
-
     def trash_calculation(self, employee):
         return float(self.pollution_calculation(employee)) * float(self.pollution_rate)
 
     def pollution_calculation(self, employee):
         return self.pollution_rate * float(employee)
 
+    def update_level_of_profession_for_employees(self, employees):
+        for employee in employees:
+            employees[employee]['current_profession'].update_level(employees)
+
+    def calculate_wage_for_employees(self, wage_of_employees, total_wages, total_level, employees, employee_needed):
+        if employee_needed:
+            total_wages.append(wage_of_employees)
+            total_level.append(
+                (sum([e['current_profession'].cur_level
+                     if e['current_profession'] else 0 for e in employees])/float(employee_needed))*wage_of_employees)
+
     def employee_productivity(self, workplaces, citizens):
         wages = []
         total = []
-        if self.elementary_employee_needed:
-            wages.append(1)
-            elementary_employees = sum([citizens[e]['current_profession'].cur_level
-                                        if citizens[e]['current_profession'] else 0
-                                        for e in workplaces[self]['elementary_employees']])
-            total.append(elementary_employees/float(self.elementary_employee_needed))
-        if self.college_employee_needed:
-            wages.append(2)
-            college_employees = sum([citizens[e]['current_profession'].cur_level
-                                     if citizens[e]['current_profession'] else 0
-                                     for e in workplaces[self]['college_employees']])
-            total.append((college_employees/float(self.college_employee_needed))*2)
-        if self.phd_employee_needed:
-            wages.append(3)
-            phd_employees = sum([citizens[e]['current_profession'].cur_level
-                                 if citizens[e]['current_profession'] else 0
-                                 for e in workplaces[self]['phd_employees']])
-            total.append((phd_employees/float(self.phd_employee_needed))*3)
+        self.calculate_wage_for_employees(
+            wage_of_employees=1,
+            total_wages=wages,
+            total_level=total,
+            employees=[citizens[e] for e in workplaces[self]['elementary_employees']],
+            employee_needed=self.elementary_employee_needed
+        )
+        self.calculate_wage_for_employees(
+            wage_of_employees=2,
+            total_wages=wages,
+            total_level=total,
+            employees=[citizens[e] for e in workplaces[self]['college_employees']],
+            employee_needed=self.college_employee_needed
+        )
+        self.calculate_wage_for_employees(
+            wage_of_employees=3,
+            total_wages=wages,
+            total_level=total,
+            employees=[citizens[e] for e in workplaces[self]['phd_employees']],
+            employee_needed=self.phd_employee_needed
+        )
         return float(sum(total))/float(sum(wages))
 
     def __water_productivity(self):
@@ -537,24 +541,19 @@ class School(BuldingsWithWorkes):
                               content_type_field='school_content_type')
 
     def monthly_run(self, citizen_in_city, player):
-        teachers_with_profession = {t: citizen_in_city[t]['current_profession'] for t in citizen_in_city
-                                    if t.workplace_object == self
-                                    and citizen_in_city[t]['current_profession']
-                                    and citizen_in_city[t][
-                                        'current_profession'].name == self.profession_type_provided
-                                    and len(citizen_in_city[t]['educations']) >= 2}
+        teachers_with_data = {t: citizen_in_city[t] for t in citizen_in_city
+                              if t.workplace_object == self
+                              and citizen_in_city[t]['current_profession']
+                              and len(citizen_in_city[t]['educations']) >= 2}
         for p in (c for c in citizen_in_city if c.school_object == self and citizen_in_city[c]['current_education']):
             citizen_education = citizen_in_city[p]['current_education']
             try:
-                total_effectiveness = (sum([teachers_with_profession[e].cur_level for e in teachers_with_profession])
-                                       / len(teachers_with_profession)) * player.primary_school_education_ratio
+                total_effectiveness = (sum([teachers_with_data[e]['current_profession'].cur_level for e in teachers_with_data])
+                                       / len(teachers_with_data)) * player.primary_school_education_ratio
                 citizen_education.effectiveness += total_effectiveness
-                citizen_education.save()
             except ZeroDivisionError:
                 pass
-        for teacher in teachers_with_profession:
-            teachers_with_profession[teacher].update_level(citizen_in_city)
-            teachers_with_profession[teacher].save()
+        self.update_level_of_profession_for_employees(teachers_with_data)
 
     def yearly_run(self, citizens_in_city):
         for p in (c for c in citizens_in_city if c.age >= self.age_of_start and c.edu_title == self.entry_education):
@@ -574,7 +573,6 @@ class School(BuldingsWithWorkes):
             p.edu_title = self.education_type_provided
             p.school_object = None
             e.if_current = False
-        e.save()
 
     class Meta:
         abstract = True
@@ -632,36 +630,37 @@ class Vehicle(models.Model):
                                content_type_field='workplace_content_type'
                                )
 
-    def elementary_vacancies(self):
-        return self.elementary_employee_needed - self.employee.filter(edu_title=ELEMENTARY).count()
-
-    def college_vacancies(self):
-        return self.college_employee_needed - self.employee.filter(edu_title=COLLEGE).count()
-
-    def phd_vacancies(self):
-        return self.phd_employee_needed - self.employee.filter(edu_title=PHD).count()
+    def calculate_wage_for_employees(self, wage_of_employees, total_wages, total_level, employees, employee_needed):
+        if employee_needed:
+            total_wages.append(wage_of_employees)
+            total_level.append(
+                (sum([e['current_profession'].cur_level
+                     if e['current_profession'] else 0 for e in employees])/float(employee_needed))*wage_of_employees)
 
     def employee_productivity(self, workplaces, citizens):
         wages = []
         total = []
-        if self.elementary_employee_needed:
-            wages.append(1)
-            elementary_employees = sum([citizens[e]['current_profession'].cur_level
-                                        if citizens[e]['current_profession'] else 0
-                                        for e in workplaces[self]['elementary_employees']])
-            total.append(elementary_employees/float(self.elementary_employee_needed))
-        if self.college_employee_needed:
-            wages.append(2)
-            college_employees = sum([citizens[e]['current_profession'].cur_level
-                                     if citizens[e]['current_profession'] else 0
-                                     for e in workplaces[self]['college_employees']])
-            total.append((college_employees/float(self.college_employee_needed))*2)
-        if self.phd_employee_needed:
-            wages.append(3)
-            phd_employees = sum([citizens[e]['current_profession'].cur_level
-                                 if citizens[e]['current_profession'] else 0
-                                 for e in workplaces[self]['phd_employees']])
-            total.append((phd_employees/float(self.phd_employee_needed))*3)
+        self.calculate_wage_for_employees(
+            wage_of_employees=1,
+            total_wages=wages,
+            total_level=total,
+            employees=[citizens[e] for e in workplaces[self]['elementary_employees']],
+            employee_needed=self.elementary_employee_needed
+        )
+        self.calculate_wage_for_employees(
+            wage_of_employees=2,
+            total_wages=wages,
+            total_level=total,
+            employees=[citizens[e] for e in workplaces[self]['college_employees']],
+            employee_needed=self.college_employee_needed
+        )
+        self.calculate_wage_for_employees(
+            wage_of_employees=3,
+            total_wages=wages,
+            total_level=total,
+            employees=[citizens[e] for e in workplaces[self]['phd_employees']],
+            employee_needed=self.phd_employee_needed
+        )
         return float(sum(total))/float(sum(wages))
 
     class Meta:

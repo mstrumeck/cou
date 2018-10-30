@@ -16,3 +16,5 @@ EDUCATION = (
     (COLLEGE, 'College'),
     (PHD, 'PhD')
 )
+
+TYPE_OF_EMPLOYEES = ['elementary_employees', 'college_employees', 'phd_employees']

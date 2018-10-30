@@ -6,6 +6,7 @@ from citizen_engine.citizen_creation import CreateCitizen
 import random, string
 from cou.abstract import RootClass
 from citizen_engine.social_actions import SocialAction
+from city_engine.turn_data.main import TurnCalculation
 from player.models import Profile
 from cou.global_var import FEMALE, ELEMENTARY, MALE, COLLEGE, TRAINEE, JUNIOR, REGULAR, MASTER, PROFESSIONAL
 
@@ -40,10 +41,11 @@ class TestEducation(TestCase):
         self.assertEqual(self.f.school_object, None)
         self.assertEqual(self.f.education_set.all().count(), 0)
         self.school.check_for_student_in_city(self.f)
+        self.f.save()
         self.sa.update_age()
         e = Education.objects.get(citizen=self.f)
         self.f = Citizen.objects.get(id=self.f.id)
-        # self.assertEqual(self.f.school_object, self.school)
+        self.assertEqual(self.f.school_object, self.school)
         self.assertEqual(e.max_year_of_learning, self.school.years_of_education)
         self.assertEqual(self.f.education_set.all().count(), 1)
         self.assertEqual(e.if_current, True)
@@ -55,6 +57,7 @@ class TestEducation(TestCase):
         self.assertEqual(self.RC.citizens_in_city[self.f]['current_education'].cur_year_of_learning, 0)
         self.school.update_year_of_school_for_student(self.f, self.RC.citizens_in_city[self.f]['current_education'])
         self.sa.update_age()
+        self.RC.citizens_in_city[self.f]['current_education'].save()
         self.RC = RootClass(self.city, User.objects.latest('id'))
         self.assertEqual(self.RC.citizens_in_city[self.f]['current_education'].cur_year_of_learning, 1)
 
@@ -67,6 +70,8 @@ class TestEducation(TestCase):
         self.assertEqual(self.f.edu_title, "None")
         self.school.update_year_of_school_for_student(self.f, e)
         self.f.save()
+        e.save()
+        self.school.save()
         self.RC = RootClass(self.city, User.objects.latest('id'))
         self.sa = SocialAction(self.city, self.profile, self.RC)
         self.f = Citizen.objects.get(id=self.f.id)
