@@ -58,16 +58,36 @@ class TestFindWork(SocialTestHelper):
             edu_title=COLLEGE
         )
 
+    def test_for_find_better_job(self):
+        RC = RootClass(self.city, User.objects.latest('id'))
+        citizen = [x for x in RC.citizens_in_city].pop()
+        self.assertEqual(citizen.workplace_object, None)
+        CitizenWorkEngine(RC).human_resources_allocation()
+        # self.s.save()
+        # self.s = Citizen.objects.get(id=self.s.id)
+        self.assertNotEqual(citizen.workplace_object, None)
+        school = PrimarySchool.objects.create(
+                city=self.city,
+                city_field=CityField.objects.latest('id'),
+            )
+        RC = RootClass(self.city, User.objects.latest('id'))
+        CitizenWorkEngine(RC).human_resources_allocation()
+        citizen = [x for x in RC.citizens_in_city].pop()
+        # self.s.save()
+        # self.s = Citizen.objects.get(id=self.s.id)
+        self.assertEqual(citizen.workplace_object, school)
+
     def test_with_vehicles(self):
         WindPlant.objects.all().delete()
         WaterTower.objects.all().delete()
+        DumpingGround.objects.all().delete()
         RC = RootClass(self.city, User.objects.latest('id'))
         dc = DustCart.objects.latest('id')
         self.assertEqual(dc.employee.all().count(), 0)
         CitizenWorkEngine(RC).human_resources_allocation()
         self.save_all_ob_from(RC.citizens_in_city)
         self.save_all_ob_from(RC.list_of_workplaces)
-        self.assertEqual(dc.employee.all().count(), 2)
+        self.assertEqual(dc.employee.all().count(), 3)
 
     def test_work_engine_for_specific_degree(self):
         school = PrimarySchool.objects.create(

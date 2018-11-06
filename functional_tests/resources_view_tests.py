@@ -56,8 +56,8 @@ class ResourceAllocationTest(BaseTest):
         self.assertEqual(10, rd.resources['Cattle'][1])
 
         self.assertEqual('Mleko', rd.resources['Milk'][0][0].name)
-        self.assertEqual(362, rd.resources['Milk'][0][0].size)
-        self.assertEqual(362, rd.resources['Milk'][1])
+        self.assertGreater(rd.resources['Milk'][0][0].size, 360)
+        self.assertGreater(rd.resources['Milk'][1], 360)
 
         self.assertEqual('Fasola', rd.resources['Bean'][0][0].name)
         self.assertIn(rd.resources['Bean'][0][0].size, [x for x in range(6, 12)])

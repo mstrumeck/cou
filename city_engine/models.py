@@ -83,15 +83,15 @@ class BuldingsWithWorkes(Building):
     def pollution_calculation(self, employee):
         return self.pollution_rate * float(employee)
 
-    def update_level_of_profession_for_employees(self, employees):
+    def update_proficiency_of_profession_for_employees(self, employees):
         for employee in employees:
-            employees[employee]['current_profession'].update_level(employees)
+            employees[employee]['current_profession'].update_proficiency(employees)
 
     def calculate_wage_for_employees(self, wage_of_employees, total_wages, total_level, employees, employee_needed):
         if employee_needed:
             total_wages.append(wage_of_employees)
             total_level.append(
-                (sum([e['current_profession'].cur_level
+                (sum([e['current_profession'].proficiency
                      if e['current_profession'] else 0 for e in employees])/float(employee_needed))*wage_of_employees)
 
     def employee_productivity(self, workplaces, citizens):
@@ -167,6 +167,7 @@ class Residential(Building):
 
 class TradeDistrict(BuldingsWithWorkes):
     name = models.CharField(default='Strefa handlowa', max_length=20)
+    profession_type_provided = models.CharField(default="Pracownik strefy handlowej", max_length=30)
     build_time = models.PositiveIntegerField(default=1)
     build_cost = models.PositiveIntegerField(default=100)
     maintenance_cost = models.PositiveIntegerField(default=10)
@@ -205,6 +206,8 @@ class TradeDistrict(BuldingsWithWorkes):
 
 class ProductionBuilding(BuldingsWithWorkes):
     name = models.CharField(max_length=20, default='Strefa przemysłowa')
+    profession_type_provided = models.CharField(default="Pracownik strefy przemysłowej", max_length=30)
+
     build_time = models.PositiveIntegerField(default=1)
     build_cost = models.PositiveIntegerField(default=100)
     maintenance_cost = models.PositiveIntegerField(default=10)
@@ -261,6 +264,7 @@ class PowerPlant(BuldingsWithWorkes):
 
 class WindPlant(PowerPlant):
     name = models.CharField(default='Elektrownia wiatrowa', max_length=20)
+    profession_type_provided = models.CharField(default="Pracownik elektrowni wiatrowej", max_length=30)
     build_time = models.PositiveIntegerField(default=3)
     build_cost = models.PositiveIntegerField(default=100)
     maintenance_cost = models.PositiveIntegerField(default=10)
@@ -280,6 +284,7 @@ class WindPlant(PowerPlant):
 
 class RopePlant(PowerPlant):
     name = models.CharField(default='Elektrownia na ropę', max_length=20)
+    profession_type_provided = models.CharField(default="Pracownik elektrowni na ropę", max_length=30)
     build_time = models.PositiveIntegerField(default=5)
     build_cost = models.PositiveIntegerField(default=200)
     maintenance_cost = models.PositiveIntegerField(default=20)
@@ -300,6 +305,7 @@ class RopePlant(PowerPlant):
 
 class CoalPlant(PowerPlant):
     name = models.CharField(default='Elektrownia węglowa', max_length=20)
+    profession_type_provided = models.CharField(default="Pracownik elektrowni węglowej", max_length=30)
     build_time = models.PositiveIntegerField(default=4)
     build_cost = models.PositiveIntegerField(default=150)
     maintenance_cost = models.PositiveIntegerField(default=15)
@@ -346,6 +352,7 @@ class Waterworks(BuldingsWithWorkes):
 
 class WaterTower(Waterworks):
     name = models.CharField(default='Wieża ciśnień', max_length=20)
+    profession_type_provided = models.CharField(default="Pracownik wieży ciśnień", max_length=30)
     build_time = models.PositiveIntegerField(default=1)
     build_cost = models.PositiveIntegerField(default=50)
     maintenance_cost = models.PositiveIntegerField(default=5)
@@ -371,6 +378,7 @@ class WaterTower(Waterworks):
 
 class SewageWorks(BuldingsWithWorkes):
     name = models.CharField(default='Oczyszczalnia ścieków', max_length=30)
+    profession_type_provided = models.CharField(default="Pracownik oczyszczalni", max_length=30)
     build_time = models.PositiveIntegerField(default=2)
     build_cost = models.PositiveIntegerField(default=75)
     maintenance_cost = models.PositiveIntegerField(default=10)
@@ -471,6 +479,7 @@ class AnimalFarm(BuldingsWithWorkes):
 
 class CattleFarm(AnimalFarm):
     name = models.CharField(default='Farma byłda', max_length=15)
+    profession_type_provided = models.CharField(default="Farmer bydła.", max_length=30)
     animal = GenericRelation('resources.Cattle')
     pastures = models.PositiveIntegerField(default=1)
     cattle_breeding_rate = models.FloatField(default=0.014)
@@ -495,6 +504,7 @@ class CattleFarm(AnimalFarm):
 
 class PotatoFarm(Farm):
     name = models.CharField(default='Farma ziemniaków', max_length=20)
+    profession_type_provided = models.CharField(default="Farmer ziemniaków", max_length=30)
     veg = GenericRelation('resources.Potato')
     time_to_grow_from = models.PositiveIntegerField(default=2)
     time_to_grow_to = models.PositiveIntegerField(default=6)
@@ -503,6 +513,7 @@ class PotatoFarm(Farm):
 
 class BeanFarm(Farm):
     name = models.CharField(default='Farma fasoli', max_length=15)
+    profession_type_provided = models.CharField(default="Farmer fasoli", max_length=30)
     veg = GenericRelation('resources.Bean')
     time_to_grow_from = models.PositiveIntegerField(default=4)
     time_to_grow_to = models.PositiveIntegerField(default=8)
@@ -511,6 +522,7 @@ class BeanFarm(Farm):
 
 class LettuceFarm(Farm):
     name = models.CharField(default='Farma sałaty', max_length=15)
+    profession_type_provided = models.CharField(default="Farmer sałaty", max_length=30)
     veg = GenericRelation('resources.Lettuce')
     time_to_grow_from = models.PositiveIntegerField(default=3)
     time_to_grow_to = models.PositiveIntegerField(default=5)
@@ -519,6 +531,7 @@ class LettuceFarm(Farm):
 
 class MassConventer(BuldingsWithWorkes):
     name = models.CharField(default="Konwenter Masy", max_length=16)
+    profession_type_provided = models.CharField(default="Pracownik konwentera masy", max_length=30)
     energy_required = models.PositiveIntegerField(default=5)
     water_required = models.PositiveIntegerField(default=10)
     mass_production_rate = models.PositiveIntegerField(default=20)
@@ -548,23 +561,28 @@ class School(BuldingsWithWorkes):
         for p in (c for c in citizen_in_city if c.school_object == self and citizen_in_city[c]['current_education']):
             citizen_education = citizen_in_city[p]['current_education']
             try:
-                total_effectiveness = (sum([teachers_with_data[e]['current_profession'].cur_level for e in teachers_with_data])
+                total_effectiveness = (sum([teachers_with_data[e]['current_profession'].proficiency for e in teachers_with_data])
                                        / len(teachers_with_data)) * player.primary_school_education_ratio
                 citizen_education.effectiveness += total_effectiveness
             except ZeroDivisionError:
                 pass
-        self.update_level_of_profession_for_employees(teachers_with_data)
+        self.update_proficiency_of_profession_for_employees(teachers_with_data)
 
     def yearly_run(self, citizens_in_city):
         for p in (c for c in citizens_in_city if c.age >= self.age_of_start and c.edu_title == self.entry_education):
             if p.school_object is None:
-                self.check_for_student_in_city(p)
+                self.check_for_student_in_city(p, citizens_in_city[p])
             elif p.school_object == self:
                 self.update_year_of_school_for_student(p, citizens_in_city[p]['current_education'])
 
-    def check_for_student_in_city(self, p):
+    def check_for_student_in_city(self, p, p_data):
         education = apps.get_model('citizen_engine', 'Education')
-        education.objects.create(citizen=p, name=self.education_type_provided, max_year_of_learning=self.years_of_education)
+        citizen_educations = [e for e in p_data['educations'] if e.name == self.education_type_provided]
+        if citizen_educations:
+            c = citizen_educations.pop()
+            c.if_current = True
+        else:
+            education.objects.create(citizen=p, name=self.education_type_provided, max_year_of_learning=self.years_of_education)
         p.school_object = self
 
     def update_year_of_school_for_student(self, p, e):
@@ -596,6 +614,7 @@ class PrimarySchool(School):
 
 class DumpingGround(BuldingsWithWorkes):
     name = models.CharField(default='Wysypisko śmieci', max_length=20)
+    profession_type_provided = models.CharField(default="Pracownik wysypiska śmieci", max_length=30)
     if_dumping_ground = models.BooleanField(default=True)
     build_time = models.PositiveIntegerField(default=2)
     build_cost = models.PositiveIntegerField(default=100)
@@ -634,7 +653,7 @@ class Vehicle(models.Model):
         if employee_needed:
             total_wages.append(wage_of_employees)
             total_level.append(
-                (sum([e['current_profession'].cur_level
+                (sum([e['current_profession'].proficiency
                      if e['current_profession'] else 0 for e in employees])/float(employee_needed))*wage_of_employees)
 
     def employee_productivity(self, workplaces, citizens):
@@ -672,6 +691,7 @@ class Vehicle(models.Model):
 
 class DustCart(Vehicle):
     dumping_ground = models.ForeignKey(DumpingGround, on_delete=models.SET_NULL, null=True)
+    profession_type_provided = models.CharField(default="Śmieciarz", max_length=30)
     name = models.CharField(default="Śmieciarka", max_length=20)
     cost = models.PositiveIntegerField(default=10)
     elementary_employee_needed = models.PositiveIntegerField(default=3)

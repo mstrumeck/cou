@@ -23,14 +23,6 @@ class BasicAbstract(metaclass=ABCMeta):
             if data.exists():
                 for v in data:
                     result.append(v)
-                    # result[v] = {'people_in_charge': v.employee.count(),
-                    #              'max_employees': sum([v.elementary_employee_needed, v.college_employee_needed, v.phd_employee_needed]),
-                    #              'elementary_employees': [e for e in v.employee.filter(edu_title=ELEMENTARY)],
-                    #              'elementary_vacancies': v.elementary_vacancies(),
-                    #              'college_employees': [e for e in v.employee.filter(edu_title=COLLEGE)],
-                    #              'college_vacancies': v.college_vacancies(),
-                    #              'phd_employees': [e for e in v.employee.filter(edu_title=PHD)],
-                    #              'phd_vacancies': v.phd_vacancies()}
         return result
 
     def get_quersies_of_buildings(self):
@@ -40,16 +32,6 @@ class BasicAbstract(metaclass=ABCMeta):
                 data = sub.objects.filter(city=self.city)
                 for b in data:
                     result.append(b)
-                    # result[b] = {'trash': [trash for trash in b.trash.all() if b.trash.all().exists()],
-                    #              'row_col_cor': (b.city_field.row, b.city_field.col),
-                    #              'people_in_charge': b.resident.count() if isinstance(b, Residential) else b.employee.count(),
-                    #              'max_employees': sum([b.elementary_employee_needed, b.college_employee_needed, b.phd_employee_needed]) if isinstance(b, BuldingsWithWorkes) else 0,
-                    #              'elementary_employees': [e for e in b.employee.filter(edu_title=ELEMENTARY)] if isinstance(b, BuldingsWithWorkes) else 0,
-                    #              'elementary_vacancies': b.elementary_vacancies() if isinstance(b, BuldingsWithWorkes) else 0,
-                    #              'college_employees': [e for e in b.employee.filter(edu_title=COLLEGE)] if isinstance(b, BuldingsWithWorkes) else 0,
-                    #              'college_vacancies': b.college_vacancies() if isinstance(b, BuldingsWithWorkes) else 0,
-                    #              'phd_employees': [e for e in b.employee.filter(edu_title=PHD)] if isinstance(b, BuldingsWithWorkes) else 0,
-                    #              'phd_vacancies': b.phd_vacancies() if isinstance(b, BuldingsWithWorkes) else 0}
         return result
 
 
@@ -82,15 +64,6 @@ class RootClass(BasicAbstract):
         self.preprocess_data()
         self.list_of_workplaces = {**{b: self.list_of_buildings[b] for b in self.list_of_buildings
                                       if isinstance(b, BuldingsWithWorkes)}, **self.vehicles}
-        # self.citizens_in_city = {c: {'educations': c.education_set.all(),
-        #                              'professions': c.profession_set.all(),
-        #                              'current_profession': c.profession_set.filter(if_current=True).last(),
-        #                              'current_education': c.education_set.filter(if_current=True).last()}
-        #                          for c in Citizen.objects.filter(city=self.city)}
-        # self.list_of_buildings = self.get_quersies_of_buildings()
-        # self.vehicles = self.get_queries_of_vehicles()
-        # self.list_of_workplaces = {**{b: self.list_of_buildings[b] for b in self.list_of_buildings
-        #                               if isinstance(b, BuldingsWithWorkes)}, **self.vehicles}
 
     def preprocess_buildings(self, buildings, citizens):
         for b in buildings:
@@ -102,20 +75,26 @@ class RootClass(BasicAbstract):
                 'max_employees': sum(
                     [b.elementary_employee_needed, b.college_employee_needed, b.phd_employee_needed]
                 ) if isinstance(b, BuldingsWithWorkes) else 0,
-                'elementary_employees': [e for e in citizens if e.workplace_object == b and e.edu_title == ELEMENTARY]
+                'elementary_employees': [e for e in citizens if e.workplace_object == b
+                                         and self.citizens_in_city[e]['current_profession'].education == ELEMENTARY]
                 if isinstance(b, BuldingsWithWorkes) else 0,
                 'elementary_vacancies': b.elementary_employee_needed - len(
-                    [e for e in citizens if e.workplace_object == b and e.edu_title == ELEMENTARY]
+                    [e for e in citizens if e.workplace_object == b
+                     and self.citizens_in_city[e]['current_profession'].education == ELEMENTARY]
                 ) if isinstance(b, BuldingsWithWorkes) else 0,
-                'college_employees': [e for e in citizens if e.workplace_object == b and e.edu_title == COLLEGE]
+                'college_employees': [e for e in citizens if e.workplace_object == b
+                                      and self.citizens_in_city[e]['current_profession'].education == COLLEGE]
                 if isinstance(b, BuldingsWithWorkes) else 0,
                 'college_vacancies': b.college_employee_needed - len(
-                    [e for e in citizens if e.workplace_object == b and e.edu_title == COLLEGE]
+                    [e for e in citizens if e.workplace_object == b
+                     and self.citizens_in_city[e]['current_profession'].education == COLLEGE]
                 ) if isinstance(b, BuldingsWithWorkes) else 0,
-                'phd_employees': [e for e in citizens if e.workplace_object == b and e.edu_title == PHD]
+                'phd_employees': [e for e in citizens if e.workplace_object == b
+                                  and self.citizens_in_city[e]['current_profession'].education == PHD]
                 if isinstance(b, BuldingsWithWorkes) else 0,
                 'phd_vacancies':b.phd_employee_needed - len(
-                    [e for e in citizens if e.workplace_object == b and e.edu_title == PHD]
+                    [e for e in citizens if e.workplace_object == b
+                     and self.citizens_in_city[e]['current_profession'].education == PHD]
                 ) if isinstance(b, BuldingsWithWorkes) else 0,
             }
 
@@ -135,11 +114,9 @@ class RootClass(BasicAbstract):
             if current_educations:
                 ce = current_educations.pop()
                 citizen_dict['current_education'] = ce
-                # self.to_save.append(ce)
             if current_professions:
                 cp = current_professions.pop()
                 citizen_dict['current_profession'] = cp
-                # self.to_save.append(cp)
             self.citizens_in_city[citizen] = citizen_dict
 
     def preprocess_vehicles(self, vehicles, citizens):
@@ -151,26 +128,21 @@ class RootClass(BasicAbstract):
                     [vehicle.elementary_employee_needed, vehicle.college_employee_needed, vehicle.phd_employee_needed]),
                 'elementary_employees': [c for c in citizens if c.workplace_object == vehicle and c.edu_title == ELEMENTARY],
                 'elementary_vacancies': vehicle.elementary_employee_needed - len(
-                    [c for c in citizens if c.workplace_object == vehicle and c.edu_title == ELEMENTARY]
+                    [c for c in citizens if c.workplace_object == vehicle
+                     and self.citizens_in_city[c]['current_profession'].education == ELEMENTARY]
                 ),
                 'college_employees': [c for c in citizens if c.workplace_object == vehicle and c.edu_title == COLLEGE],
                 'college_vacancies': vehicle.college_employee_needed - len(
-                    [c for c in citizens if c.workplace_object == vehicle and c.edu_title == COLLEGE]
+                    [c for c in citizens if c.workplace_object == vehicle
+                     and self.citizens_in_city[c]['current_profession'].education == COLLEGE]
                 ),
                 'phd_employees': [c for c in citizens if c.workplace_object == vehicle and c.edu_title == PHD],
                 'phd_vacancies': vehicle.phd_employee_needed - len(
-                    [c for c in citizens if c.workplace_object == vehicle and c.edu_title == PHD]
+                    [c for c in citizens if c.workplace_object == vehicle
+                     and self.citizens_in_city[c]['current_profession'].education == PHD]
                 )
             }
 
-    # result[v] = {'people_in_charge': v.employee.count(),
-    #              'max_employees': sum([v.elementary_employee_needed, v.college_employee_needed, v.phd_employee_needed]),
-    #              'elementary_employees': [e for e in v.employee.filter(edu_title=ELEMENTARY)],
-    #              'elementary_vacancies': v.elementary_vacancies(),
-    #              'college_employees': [e for e in v.employee.filter(edu_title=COLLEGE)],
-    #              'college_vacancies': v.college_vacancies(),
-    #              'phd_employees': [e for e in v.employee.filter(edu_title=PHD)],
-    #              'phd_vacancies': v.phd_vacancies()}
     def preprocess_city_fields(self):
         for field in CityField.objects.filter(city=self.city):
             self.city_fields_in_city[field] = {'row_col': (field.row, field.col), 'pollution': field.pollution}
@@ -184,7 +156,6 @@ class RootClass(BasicAbstract):
         self.preprocess_buildings(buildings, citizens)
         self.preprocess_vehicles(vehicles, citizens)
         self.preprocess_city_fields()
-
 
     def datasets_for_turn_calculation(self):
         power_resources_allocation_dataset = {

@@ -25,7 +25,7 @@ class CreateCitizen:
             father_id=0,
             mother_id=0
         )
-        Profession.objects.create(citizen=c, name=workplace.profession_type_provided, cur_level=1.00)
+        Profession.objects.create(citizen=c, name=workplace.profession_type_provided, proficiency=1.00, education=edu_title)
 
     def create_without_workplace(self):
         Citizen.objects.create(

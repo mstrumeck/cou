@@ -26,9 +26,8 @@ class SocialAction:
         self.update_age()
 
     def update_age(self):
-        for c in self.citizen_data.citizens_in_city:
-            if c.month_of_birth == self.profile.current_turn:
-                c.age += 1
+        for c in (p for p in self.citizen_data.citizens_in_city if p.month_of_birth == self.profile.current_turn):
+            c.age += 1
 
     def launch_school(self):
         for sch in [b for b in self.city_data.list_of_workplaces if isinstance(b, School)]:

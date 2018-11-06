@@ -62,7 +62,7 @@ class TrashCollectorTest(BaseTest):
         self.assertEqual(dumping_ground.current_space_for_trash, 0)
         self.assertEqual(dumping_ground.employee.count(), 5)
         self.assertEqual(dust_cart.employee.count(), 0)
-        self.assertGreater(sum([trash.size for trash in self.list_of_all_trashes_in_city()]), 20)
+        self.assertGreater(sum([trash.size for trash in self.list_of_all_trashes_in_city()]), 18)
         main_view.next_turns(7)
         dumping_ground = DumpingGround.objects.latest('id')
         dust_cart = DustCart.objects.latest('id')

@@ -2,6 +2,8 @@ from django.db import models
 from city_engine.models import WindPlant, WaterTower, ProductionBuilding, City, Residential, DumpingGround, DustCart, BuldingsWithWorkes
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from city_engine.main_view_data.global_variables import ROW_NUM, HEX_NUM_IN_ROW
+import random
 from cou.global_var import TRAINEE, JUNIOR, MASTER, PROFESSIONAL, REGULAR,\
     MALE, FEMALE,\
     ELEMENTARY, COLLEGE, PHD
@@ -53,18 +55,46 @@ class Citizen(models.Model):
     school_object_id = models.PositiveIntegerField(null=True)
     school_object = GenericForeignKey('school_content_type', 'school_object_id')
 
-    def find_work(self, workplaces, citizens, save_instance):
+    def change_work_for_better(self, workplaces, citizens, save_instance):
         matrix = {ELEMENTARY: 'elementary_vacancies', COLLEGE: 'college_vacancies', PHD: 'phd_vacancies', 'None': 'elementary_vacancies'}
-        possible_workplaces = [w for w in workplaces if workplaces[w][matrix[self.edu_title]]]
+        possible_workplaces, edu_level = self.__possible_workplaces(workplaces)
         if possible_workplaces:
-            best = self.find_best_work_option(possible_workplaces)
+            current_profession = citizens[self]['current_profession']
+            workplaces[self.workplace_object][matrix[current_profession.education]] -= 1
+            current_profession.if_current = False
+
+            best = self.__find_better_work_option(possible_workplaces)
+            workplaces[best][matrix[edu_level]] += 1
             self.workplace_object = best
-            workplaces[best][matrix[self.edu_title]] += 1
             citizens[self]['current_profession'] = Profession.objects.create(
-                citizen=self, name=best.profession_type_provided)
+                citizen=self, name=best.profession_type_provided, education=edu_level)
             save_instance.append(citizens[self]['current_profession'])
 
-    def find_best_work_option(self, workplaces):
+    def find_work(self, workplaces, citizens, save_instance):
+        matrix = {ELEMENTARY: 'elementary_vacancies', COLLEGE: 'college_vacancies', PHD: 'phd_vacancies', 'None': 'elementary_vacancies'}
+        possible_workplaces, edu_level = self.__possible_workplaces(workplaces)
+        if possible_workplaces:
+            best = self.__find_better_work_option(possible_workplaces)
+            self.workplace_object = best
+            workplaces[best][matrix[edu_level]] += 1
+            citizens[self]['current_profession'] = Profession.objects.create(
+                citizen=self, name=best.profession_type_provided, education=edu_level)
+            save_instance.append(citizens[self]['current_profession'])
+
+    def __possible_workplaces(self, workplaces):
+        matrix = {ELEMENTARY: 'elementary_vacancies', COLLEGE: 'college_vacancies', PHD: 'phd_vacancies', 'None': 'elementary_vacancies'}
+        if [w for w in workplaces if workplaces[w][matrix[self.edu_title]]]:
+            return [w for w in workplaces if workplaces[w][matrix[self.edu_title]]], self.edu_title
+        else:
+            education_levels = [e[0] for e in Profession.EDUCATION]
+            current_education_level = education_levels.index(self.edu_title)
+            if current_education_level > 0:
+                while current_education_level:
+                    current_education_level -= 1
+                    new_education_level = education_levels[current_education_level]
+                    return [w for w in workplaces if workplaces[w][matrix[new_education_level]]], new_education_level
+
+    def __find_better_work_option(self, workplaces):
         col = self.resident_object.city_field.col
         row = self.resident_object.city_field.row
         pattern = sorted(workplaces, key=lambda x: (
@@ -77,38 +107,44 @@ class Citizen(models.Model):
 
 
 class Profession(models.Model):
-    LEVELS = (
+    EDUCATION = (
+        (ELEMENTARY, 'Elementary'),
+        (COLLEGE, 'College'),
+        (PHD, 'PhD')
+    )
+    JOB_GRADES = (
         (TRAINEE, "Trainee"),
         (JUNIOR, "Junior"),
         (REGULAR, "Regular"),
         (PROFESSIONAL, "Professional"),
         (MASTER, "Master")
     )
-    levels_info = {level[0]: {'divisor': divisor, 'border': border} for level, divisor, border in zip(
-        LEVELS, (50, 40, 190, 120, 480), (0.10, 0.40, 0.60, 1, 1.30)
+    job_grade_info = {job_grade[0]: {'divisor': divisor, 'border': border} for job_grade, divisor, border in zip(
+        JOB_GRADES, (50, 40, 190, 120, 480), (0.10, 0.40, 0.60, 1, 1.30)
     )}
     citizen = models.ForeignKey(Citizen)
-    name = models.CharField(default='', max_length=15)
-    level = models.CharField(choices=LEVELS, max_length=15, default=TRAINEE)
-    cur_level = models.FloatField(default=0)
+    name = models.CharField(default='', max_length=30)
+    job_grade = models.CharField(choices=JOB_GRADES, max_length=15, default=TRAINEE)
+    education = models.CharField(choices=EDUCATION, max_length=10, default='None')
+    proficiency = models.FloatField(default=0)
     if_current = models.BooleanField(default=True)
 
-    def __level_divisor(self):
-        return Profession.levels_info[self.level]['divisor']
+    def __proficiency_divisor(self):
+        return Profession.job_grade_info[self.job_grade]['divisor']
 
-    def __check_level(self):
-        if self.cur_level > Profession.levels_info[self.level]['border']:
-            cur_level_index = [level[0] for level in Profession.LEVELS].index(self.level)
+    def __check_job_grade(self):
+        if self.proficiency > Profession.job_grade_info[self.job_grade]['border']:
+            cur_level_index = [job_grade[0] for job_grade in Profession.JOB_GRADES].index(self.job_grade)
             try:
-                self.level = Profession.LEVELS[cur_level_index+1][0]
+                self.job_grade = Profession.JOB_GRADES[cur_level_index + 1][0]
             except IndexError:
-                self.level = Profession.LEVELS[-1][0]
+                self.job_grade = Profession.JOB_GRADES[-1][0]
 
-    def update_level(self, citizens_in_city):
+    def update_proficiency(self, citizens_in_city):
         citizen = citizens_in_city[self.citizen]
         citizen_education = [e.effectiveness for e in citizen['educations']]
-        citizen['current_profession'].cur_level += (sum(citizen_education)/len(citizen_education))/self.__level_divisor()
-        self.__check_level()
+        citizen['current_profession'].proficiency += (sum(citizen_education)/len(citizen_education))/self.__proficiency_divisor()
+        self.__check_job_grade()
 
 
 class Education(models.Model):

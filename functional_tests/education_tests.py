@@ -27,8 +27,8 @@ class CitizenBasicTests(BaseTest):
             month_of_birth=2,
             cash=100,
             health=5,
-            name="AnonKA",
-            surname="FeSurname",
+            name="0",
+            surname="1",
             sex=FEMALE,
             resident_object=self.r1,
         )
@@ -47,24 +47,51 @@ class CitizenBasicTests(BaseTest):
         login_page.login(username=self.user.username, password="Zapomnij#123")
         self.assertTrue(User.objects.latest('id').is_authenticated)
         self.assertIn('Miasto {}'.format(self.city.name), self.browser.title)
+        s = Citizen.objects.create(
+            city=self.city,
+            age=8,
+            month_of_birth=2,
+            cash=100,
+            health=5,
+            name="0",
+            surname="2",
+            sex=FEMALE,
+            education='None',
+            resident_object=self.r1
+        )
+        e2 = Education.objects.create(cur_year_of_learning=4, max_year_of_learning=8, citizen=s, name=ELEMENTARY)
         main_view = MainView(self.browser, self.live_server_url)
         self.profile.current_turn = 6
         self.profile.save()
         self.assertTrue(self.profile.if_social_enabled)
-        self.assertEqual(Citizen.objects.count(), 1)
+        self.assertEqual(Citizen.objects.count(), 2)
         self.assertEqual(self.f.school_object, None)
-        self.assertEqual(Education.objects.all().count(), 0)
+        self.assertEqual(Education.objects.all().count(), 1)
         RC = RootClass(self.city, self.user)
         self.assertEqual(RC.citizens_in_city[self.f]['current_education'], None)
+        self.assertNotEqual(RC.citizens_in_city[s]['current_education'], None)
         main_view.next_turns(4)
-        e = Education.objects.latest('id')
+
+        e1 = Education.objects.get(citizen_id=self.f.id)
+        e2 = Education.objects.get(id=e2.id)
         RC = RootClass(self.city, self.user)
-        self.assertEqual(RC.citizens_in_city[self.f]['current_education'], e)
-        self.assertEqual(e.cur_year_of_learning, 0)
-        self.assertEqual(e.max_year_of_learning, 8)
-        self.assertEqual(Education.objects.all().count(), 1)
+
+        self.assertEqual(RC.citizens_in_city[self.f]['current_education'], e1)
+        self.assertEqual(RC.citizens_in_city[s]['current_education'], e2)
+
+        self.assertEqual(e1.cur_year_of_learning, 0)
+        self.assertEqual(e1.max_year_of_learning, 8)
+
+        self.assertEqual(e2.cur_year_of_learning, 4)
+        self.assertEqual(e2.max_year_of_learning, 8)
+
+        self.assertEqual(Education.objects.all().count(), 2)
+
         self.f = Citizen.objects.get(id=self.f.id)
+        s = Citizen.objects.get(id=s.id)
+
         self.assertEqual(self.f.school_object, self.school)
+        self.assertEqual(s.school_object, self.school)
 
     def test_school_update_year(self):
         homepage = Homepage(self.browser, self.live_server_url)

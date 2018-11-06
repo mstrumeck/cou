@@ -63,7 +63,7 @@ class ProductivityTests(TestCase):
         w.save()
         self.m.workplace_object = w
         self.m.save()
-        Profession.objects.create(citizen=self.m, cur_level=1.00)
+        Profession.objects.create(citizen=self.m, proficiency=1.00, education=self.m.edu_title)
         RC = RootClass(self.city, User.objects.latest('id'))
         self.assertEqual(w.employee_productivity(RC.list_of_workplaces, RC.citizens_in_city), 1.00)
 
@@ -73,7 +73,7 @@ class ProductivityTests(TestCase):
         w.save()
         self.m.workplace_object = w
         self.m.save()
-        Profession.objects.create(citizen=self.m, cur_level=1.00)
+        Profession.objects.create(citizen=self.m, proficiency=1.00, education=self.m.edu_title)
         RC = RootClass(self.city, User.objects.latest('id'))
         self.assertEqual(w.employee_productivity(RC.list_of_workplaces, RC.citizens_in_city), 0.50)
 
@@ -85,8 +85,8 @@ class ProductivityTests(TestCase):
         self.s.workplace_object = w
         self.s.save()
         self.m.save()
-        Profession.objects.create(citizen=self.m, cur_level=1.00)
-        Profession.objects.create(citizen=self.s, cur_level=1.00)
+        Profession.objects.create(citizen=self.m, proficiency=1.00, education=self.m.edu_title)
+        Profession.objects.create(citizen=self.s, proficiency=1.00, education=self.s.edu_title)
         RC = RootClass(self.city, User.objects.latest('id'))
         self.assertEqual(w.employee_productivity(RC.list_of_workplaces, RC.citizens_in_city), 1.00)
 
@@ -98,8 +98,8 @@ class ProductivityTests(TestCase):
         self.s.workplace_object = w
         self.s.save()
         self.m.save()
-        Profession.objects.create(citizen=self.m, cur_level=1.00)
-        Profession.objects.create(citizen=self.s, cur_level=1.00)
+        Profession.objects.create(citizen=self.m, proficiency=1.00, education=self.m.edu_title)
+        Profession.objects.create(citizen=self.s, proficiency=1.00, education=self.s.edu_title)
         RC = RootClass(self.city, User.objects.latest('id'))
         self.assertEqual(w.employee_productivity(RC.list_of_workplaces, RC.citizens_in_city), 0.6666666666666666)
 
@@ -112,8 +112,8 @@ class ProductivityTests(TestCase):
         self.s.workplace_object = w
         self.s.save()
         self.m.save()
-        Profession.objects.create(citizen=self.m, cur_level=1.00)
-        Profession.objects.create(citizen=self.s, cur_level=1.00)
+        Profession.objects.create(citizen=self.m, proficiency=1.00, education=self.m.edu_title)
+        Profession.objects.create(citizen=self.s, proficiency=1.00, education=self.s.edu_title)
         RC = RootClass(self.city, User.objects.latest('id'))
         self.assertEqual(w.employee_productivity(RC.list_of_workplaces, RC.citizens_in_city), 0.3333333333333333)
 
@@ -128,9 +128,9 @@ class ProductivityTests(TestCase):
         self.s.save()
         self.m.save()
         self.f.save()
-        Profession.objects.create(citizen=self.m, cur_level=1.00)
-        Profession.objects.create(citizen=self.s, cur_level=1.00)
-        Profession.objects.create(citizen=self.f, cur_level=1.00)
+        Profession.objects.create(citizen=self.m, proficiency=1.00, education=self.m.edu_title)
+        Profession.objects.create(citizen=self.s, proficiency=1.00, education=self.s.edu_title)
+        Profession.objects.create(citizen=self.f, proficiency=1.00, education=self.f.edu_title)
         RC = RootClass(self.city, User.objects.latest('id'))
         self.assertEqual(w.employee_productivity(RC.list_of_workplaces, RC.citizens_in_city), 1.00)
 
@@ -144,7 +144,7 @@ class ProductivityTests(TestCase):
         self.f.workplace_object = w
         self.f.save()
         self.m.save()
-        Profession.objects.create(citizen=self.m, cur_level=1.00)
-        Profession.objects.create(citizen=self.f, cur_level=1.00)
+        Profession.objects.create(citizen=self.m, proficiency=1.00, education=self.m.edu_title)
+        Profession.objects.create(citizen=self.f, proficiency=1.00, education=self.f.edu_title)
         RC = RootClass(self.city, User.objects.latest('id'))
         self.assertEqual(w.employee_productivity(RC.list_of_workplaces, RC.citizens_in_city), 0.5)
