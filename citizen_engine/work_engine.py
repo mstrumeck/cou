@@ -13,8 +13,8 @@ class CitizenWorkEngine:
         matrix = {ELEMENTARY: 'elementary_vacancies', COLLEGE: 'college_vacancies', PHD: 'phd_vacancies', 'None': 'elementary_vacancies'}
         for e in (u for u in self.data.citizens_in_city
                   if u.workplace_object is not None
-                  and self.data.citizens_in_city[u]['current_profession'].education != u.edu_title
-                  and [x for x in self.data.list_of_workplaces if self.data.list_of_workplaces[x][matrix[u.edu_title]]]):
+                  and self.data.citizens_in_city[u].current_profession.education != u.edu_title
+                  and [x for x in self.data.list_of_workplaces if getattr(self.data.list_of_workplaces[x], matrix[u.edu_title])]):
             e.change_work_for_better(self.data.list_of_workplaces, self.data.citizens_in_city, self.data.to_save)
 
     def assign_job_for_people_without_it(self):

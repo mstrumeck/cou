@@ -1,5 +1,5 @@
 from functional_tests.page_objects import MainView, LoginPage, Homepage
-from city_engine.models import City, Residential, CityField, PrimarySchool, WindPlant, WaterTower
+from city_engine.models import City, StandardLevelResidentialZone, CityField, PrimarySchool, WindPlant, WaterTower
 from .legacy.base import BaseTest
 from django.contrib.auth.models import User
 from selenium import webdriver
@@ -19,7 +19,7 @@ class SearchJobTest(BaseTest):
         self.city = City.objects.latest('id')
         self.user = User.objects.latest('id')
         self.profile = Profile.objects.latest('id')
-        self.r1 = Residential.objects.latest('id')
+        self.r1 = StandardLevelResidentialZone.objects.latest('id')
         self.m = Citizen.objects.create(
             city=self.city,
             age=21,
@@ -75,8 +75,8 @@ class SearchJobTest(BaseTest):
         self.employee = Citizen.objects.get(id=self.employee.id)
         self.m = Citizen.objects.get(id=self.m.id)
         self.assertNotEqual(self.employee.workplace_object, None)
-        self.assertNotEqual(RC.citizens_in_city[self.employee]['current_profession'].education, self.employee.edu_title)
-        self.assertEqual(RC.citizens_in_city[self.m]['current_profession'].education, self.m.edu_title)
+        self.assertNotEqual(RC.citizens_in_city[self.employee].current_profession.education, self.employee.edu_title)
+        self.assertEqual(RC.citizens_in_city[self.m].current_profession.education, self.m.edu_title)
 
         ps = PrimarySchool.objects.create(city=self.city, city_field=CityField.objects.latest('id'))
 
@@ -86,8 +86,8 @@ class SearchJobTest(BaseTest):
         self.employee = Citizen.objects.get(id=self.employee.id)
         self.m = Citizen.objects.get(id=self.m.id)
         RC = RootClass(self.city, self.user)
-        self.assertEqual(len(RC.citizens_in_city[self.employee]['professions']), 2)
-        self.assertEqual(len([x for x in RC.citizens_in_city[self.employee]['professions'] if x.if_current is True]), 1)
-        self.assertEqual(len(RC.citizens_in_city[self.m]['professions']), 1)
+        self.assertEqual(len(RC.citizens_in_city[self.employee].professions), 2)
+        self.assertEqual(len([x for x in RC.citizens_in_city[self.employee].professions if x.if_current is True]), 1)
+        self.assertEqual(len(RC.citizens_in_city[self.m].professions), 1)
         self.assertEqual(self.employee.workplace_object, ps)
         self.assertNotEqual(self.m.workplace_object, ps)

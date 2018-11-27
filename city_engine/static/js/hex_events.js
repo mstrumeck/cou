@@ -15,6 +15,14 @@ $(document).ready(function() {
             window.location.replace("/build/"+hexId+"/"+buildType+"");
         });
     });
+    $('.setResident').click(function(){
+        $('.hexagon').not('.build').toggleClass('isHexTaken');
+        $('.build').toggleClass('disabled');
+//        $('.hexagon.isHexTaken').on('click', function(event){
+//            var hexId = $(this).attr('id');
+//            window.location.replace("/build/"+hexId+"/"+maxResident+"");
+//        });
+    });
 //    $('.hexagon').click(function(){
 //        var hexId = $(this).attr('id');
 //        var result = $(this).closest('main').find('#result');

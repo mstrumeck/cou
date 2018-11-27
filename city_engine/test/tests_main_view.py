@@ -3,7 +3,7 @@ from django import test
 from django.urls import resolve
 from .base import TestHelper, CityFixture
 from city_engine.models import City, CityField, \
-    Residential, \
+    StandardLevelResidentialZone, \
     WindPlant, RopePlant, WaterTower,  PowerPlant, \
     CoalPlant
 from player.models import Profile
@@ -93,8 +93,8 @@ class CityViewTests(CityFixture):
         self.assertContains(self.response, str(rope_plant.name))
         self.assertContains(self.response, str(coal_plant.name))
         self.assertContains(self.response, str(water_tower.name))
-        self.assertContains(self.response, 'Elektrownie')
-        self.assertContains(self.response, 'Wieża ciśnień')
+        self.assertContains(self.response, 'WindPlant')
+        self.assertContains(self.response, 'WaterTower')
 
     def test_city_view(self):
         user = User.objects.get(username='test_username')
@@ -136,14 +136,14 @@ class ModelsTests(test.TestCase, TestHelper):
     def test_city_creation(self):
         self.assertTrue(isinstance(self.city, City))
         self.assertEqual(str(self.city), self.city.name)
-        self.assertEqual(self.city.cash, 10000)
+        self.assertEqual(self.city.cash, 1000000)
 
     def test_city_field_creation(self):
         city_field = CityField.objects.create(city=self.city, row=1, col=1)
         self.assertTrue(isinstance(city_field, CityField))
 
     def test_pollution_calculations(self):
-        Residential.objects.create(city=self.city, city_field=CityField.objects.latest('id'))
+        StandardLevelResidentialZone.objects.create(city=self.city, city_field=CityField.objects.latest('id'))
         wind_plant = WindPlant.objects.create(city=self.city,
                                               city_field=self.city_field1,
                                               if_under_construction=False,
@@ -160,7 +160,7 @@ class ModelsTests(test.TestCase, TestHelper):
         self.RC = RootClass(self.city, User.objects.latest('id'))
         TestHelper(self.city, User.objects.latest('id')).populate_city()
         self.assertEqual(wind_plant.pollution_calculation(
-            self.RC.list_of_buildings[wind_plant]['people_in_charge']
+            self.RC.list_of_buildings[wind_plant].people_in_charge
         ), 1.8)
         # self.assertEqual(water_tower.pollution_calculation(
         #     self.RC.list_of_buildings[water_tower]['people_in_charge']

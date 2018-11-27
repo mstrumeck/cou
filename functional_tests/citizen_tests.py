@@ -1,5 +1,5 @@
 from functional_tests.page_objects import MainView, LoginPage, Homepage
-from city_engine.models import City, Residential, CityField
+from city_engine.models import City, CityField, StandardLevelResidentialZone
 from .legacy.base import BaseTest
 from django.contrib.auth.models import User
 from selenium import webdriver
@@ -23,7 +23,7 @@ class CitizenBasicTests(BaseTest):
         self.profile = Profile.objects.latest('id')
 
     def test_creating_pair(self):
-        self.r1 = Residential.objects.latest('id')
+        self.r1 = StandardLevelResidentialZone.objects.latest('id')
         self.f = Citizen.objects.create(
             city=self.city,
             age=21,
@@ -79,7 +79,7 @@ class CitizenBasicTests(BaseTest):
             name="AnonKA",
             surname="FeSurname",
             sex=FEMALE,
-            resident_object=Residential.objects.latest('id')
+            resident_object=StandardLevelResidentialZone.objects.latest('id')
 
         )
         self.m = Citizen.objects.create(
@@ -91,7 +91,7 @@ class CitizenBasicTests(BaseTest):
             name="AnON",
             surname="MaSurname",
             sex=MALE,
-            resident_object=Residential.objects.latest('id')
+            resident_object=StandardLevelResidentialZone.objects.latest('id')
 
         )
         self.f.partner_id = self.m.id
@@ -127,7 +127,7 @@ class CitizenBasicTests(BaseTest):
         self.assertEqual(born.city, self.city)
 
     def test_born_child_failed(self):
-        self.r1 = Residential.objects.latest('id')
+        self.r1 = StandardLevelResidentialZone.objects.latest('id')
         self.r1.max_population = 2
         self.r1.save()
         self.f = Citizen.objects.create(
@@ -181,10 +181,10 @@ class CitizenBasicTests(BaseTest):
         self.assertEqual(Citizen.objects.count(), 2)
 
     def test_creating_pair_failed(self):
-        self.r1 = Residential.objects.latest('id')
+        self.r1 = StandardLevelResidentialZone.objects.latest('id')
         self.r1.max_population = 1
         self.r1.save()
-        self.r2 = Residential.objects.create(
+        self.r2 = StandardLevelResidentialZone.objects.create(
             city_field=CityField.objects.get(id=1),
             city=self.city,
             max_population=1
@@ -268,16 +268,16 @@ class CitizenBasicTests(BaseTest):
         self.assertEqual(self.profile.chance_to_marriage_percent, 1.00)
         self.assertTrue(self.profile.if_social_enabled)
         self.assertEqual(Citizen.objects.count(), 2)
-        self.assertEqual(Residential.objects.latest('id').resident.count(), 0)
+        self.assertEqual(StandardLevelResidentialZone.objects.latest('id').resident.count(), 0)
         main_view.next_turn()
-        self.assertEqual(Residential.objects.latest('id').resident.count(), 2)
+        self.assertEqual(StandardLevelResidentialZone.objects.latest('id').resident.count(), 2)
         self.m = Citizen.objects.get(id=self.m.id)
         self.f = Citizen.objects.get(id=self.f.id)
-        self.assertEqual(self.m.resident_object, Residential.objects.latest('id'))
-        self.assertEqual(self.f.resident_object, Residential.objects.latest('id'))
+        self.assertEqual(self.m.resident_object, StandardLevelResidentialZone.objects.latest('id'))
+        self.assertEqual(self.f.resident_object, StandardLevelResidentialZone.objects.latest('id'))
 
     def test_find_home_failed(self):
-        self.r1 = Residential.objects.latest('id')
+        self.r1 = StandardLevelResidentialZone.objects.latest('id')
         self.r1.max_population = 0
         self.r1.save()
         self.f = Citizen.objects.create(
@@ -314,16 +314,16 @@ class CitizenBasicTests(BaseTest):
         self.assertEqual(self.profile.chance_to_marriage_percent, 1.00)
         self.assertTrue(self.profile.if_social_enabled)
         self.assertEqual(Citizen.objects.count(), 2)
-        self.assertEqual(Residential.objects.latest('id').resident.count(), 0)
+        self.assertEqual(StandardLevelResidentialZone.objects.latest('id').resident.count(), 0)
         main_view.next_turn()
         self.m = Citizen.objects.get(id=self.m.id)
         self.f = Citizen.objects.get(id=self.f.id)
-        self.assertEqual(Residential.objects.latest('id').resident.count(), 0)
+        self.assertEqual(StandardLevelResidentialZone.objects.latest('id').resident.count(), 0)
         self.assertEqual(self.m.resident_object, None)
         self.assertEqual(self.f.resident_object, None)
 
     def test_find_work_pass(self):
-        self.r1 = Residential.objects.latest('id')
+        self.r1 = StandardLevelResidentialZone.objects.latest('id')
         self.f = Citizen.objects.create(
                 city=self.city,
                 age=21,
@@ -365,7 +365,7 @@ class CitizenBasicTests(BaseTest):
         self.assertNotEqual(self.f.workplace_object, None)
 
     def test_find_work_failed(self):
-        self.r1 = Residential.objects.latest('id')
+        self.r1 = StandardLevelResidentialZone.objects.latest('id')
         self.r1.max_population = 0
         self.r1.save()
         self.f = Citizen.objects.create(
@@ -400,10 +400,10 @@ class CitizenBasicTests(BaseTest):
         self.profile.save()
         self.assertTrue(self.profile.if_social_enabled)
         self.assertEqual(Citizen.objects.count(), 2)
-        self.assertEqual(Residential.objects.latest('id').resident.count(), 0)
+        self.assertEqual(StandardLevelResidentialZone.objects.latest('id').resident.count(), 0)
         main_view.next_turn()
         self.m = Citizen.objects.get(id=self.m.id)
         self.f = Citizen.objects.get(id=self.f.id)
-        self.assertEqual(Residential.objects.latest('id').resident.count(), 0)
+        self.assertEqual(StandardLevelResidentialZone.objects.latest('id').resident.count(), 0)
         self.assertEqual(self.m.workplace_object, None)
         self.assertEqual(self.f.workplace_object, None)

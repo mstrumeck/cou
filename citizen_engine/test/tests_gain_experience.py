@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
-from city_engine.models import Residential, City, WindPlant, CityField, PrimarySchool,\
+from city_engine.models import StandardLevelResidentialZone, City, WindPlant, CityField, PrimarySchool,\
     DustCart, DumpingGround, WaterTower
 from citizen_engine.models import Citizen, Profession
 from citizen_engine.citizen_creation import CreateCitizen
@@ -20,7 +20,7 @@ class TestGainExperience(SocialTestHelper):
         self.city = City.objects.get(id=1)
         self.RC = RootClass(self.city, User.objects.latest('id'))
         self.profile = Profile.objects.latest('id')
-        self.r1 = Residential.objects.latest('id')
+        self.r1 = StandardLevelResidentialZone.objects.latest('id')
         self.s = Citizen.objects.create(
             city=self.city,
             age=21,

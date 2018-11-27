@@ -17,31 +17,32 @@ class HexTest(test.TestCase, TestHelper):
     def test_create_empty_hex(self):
         self.assertEqual(
             Hex(row=0, col=0).create(),
-            "<div class='hexagon'id='00'><div class='hexagon-top'></div>"
-            "<div class='hexagon-middle'><p>0,0</p></div><div class='hexagon-bottom'></div>"
-            "</div>"
+            "<div class='hexagon'v-bind:class='{isHexTaken: isActive }'v-on:click='getRowCol(00)' id=00>"
+            "<div class='hexagon-top'></div><div class='hexagon-middle'><p>0,0</p></div>"
+            "<div class='hexagon-bottom'></div></div>"
         )
         self.assertEqual(
             Hex(row=3, col=3).create(),
-            "<div class='hexagon'id='33'><div class='hexagon-top'></div>"
-            "<div class='hexagon-middle'><p>3,3</p></div><div class='hexagon-bottom'></div></div>"
+            "<div class='hexagon'v-bind:class='{isHexTaken: isActive }'v-on:click='getRowCol(33)' id=33>"
+            "<div class='hexagon-top'></div><div class='hexagon-middle'><p>3,3</p></div>"
+            "<div class='hexagon-bottom'></div></div>"
         )
 
-    def test_double_crete_in_hex(self):
+    def test_double_create_in_hex(self):
         hex = Hex(row=0, col=0)
         hex.create()
         self.assertEqual(
             hex.hexagon,
-            "<div class='hexagon'id='00'><div class='hexagon-top'></div>"
-            "<div class='hexagon-middle'><p>0,0</p></div><div class='hexagon-bottom'></div>"
-            "</div>"
+            "<div class='hexagon'v-bind:class='{isHexTaken: isActive }'v-on:click='getRowCol(00)' id=00>"
+            "<div class='hexagon-top'></div><div class='hexagon-middle'><p>0,0</p></div>"
+            "<div class='hexagon-bottom'></div></div>"
         )
         hex.create()
         self.assertEqual(
             hex.hexagon,
-            "<div class='hexagon'id='00'><div class='hexagon-top'></div>"
-            "<div class='hexagon-middle'><p>0,0</p></div><div class='hexagon-bottom'></div>"
-            "</div>"
+            "<div class='hexagon'v-bind:class='{isHexTaken: isActive }'v-on:click='getRowCol(00)' id=00>"
+            "<div class='hexagon-top'></div><div class='hexagon-middle'><p>0,0</p></div>"
+            "<div class='hexagon-bottom'></div></div>"
         )
 
     def test_hex_detail_with_instance(self):
@@ -50,20 +51,20 @@ class HexTest(test.TestCase, TestHelper):
         wtp = WaterTower.objects.latest('id')
         self.assertEqual(
             Hex(row=0, col=0, instance=sw).create(),
-            "<div class='hexagon build'id='00'><div class='hexagon-top'></div>"
-            "<div class='hexagon-middle'>Oczyszczalnia ścieków<p>0,0</p></div>"
+            "<div class='hexagon'v-bind:class='{disabled: isActive }'v-on:click='getRowCol(00)' id=00>"
+            "<div class='hexagon-top'></div><div class='hexagon-middle'>Oczyszczalnia ścieków<p>0,0</p></div>"
             "<div class='hexagon-bottom'></div></div>"
         )
         self.assertEqual(
             Hex(row=1, col=1, instance=wp).create(),
-            "<div class='hexagon build'id='11'><div class='hexagon-top'></div>"
-            "<div class='hexagon-middle'>Elektrownia wiatrowa<p>1,1</p></div>"
+            "<div class='hexagon'v-bind:class='{disabled: isActive }'v-on:click='getRowCol(11)' id=11>"
+            "<div class='hexagon-top'></div><div class='hexagon-middle'>Elektrownia wiatrowa<p>1,1</p></div>"
             "<div class='hexagon-bottom'></div></div>"
         )
         self.assertEqual(
             Hex(row=2, col=2, instance=wtp).create(),
-            "<div class='hexagon build'id='22'><div class='hexagon-top'></div>"
-            "<div class='hexagon-middle'>Wieża ciśnień<p>2,2</p></div>"
+            "<div class='hexagon'v-bind:class='{disabled: isActive }'v-on:click='getRowCol(22)' id=22>"
+            "<div class='hexagon-top'></div><div class='hexagon-middle'>Wieża ciśnień<p>2,2</p></div>"
             "<div class='hexagon-bottom'></div></div>"
         )
 

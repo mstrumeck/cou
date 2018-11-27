@@ -1,6 +1,6 @@
 from django import test
 from city_engine.main_view_data.city_stats import CityStatsCenter, CityEnergyStats, CityRawWaterStats, CityBuildingStats, CityPopulationStats
-from city_engine.models import City , ProductionBuilding, TradeDistrict, CityField, Residential
+from city_engine.models import City , ProductionBuilding, TradeDistrict, CityField
 from .base import TestHelper
 from cou.abstract import RootClass
 from django.contrib.auth.models import User

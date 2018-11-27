@@ -59,16 +59,16 @@ class Citizen(models.Model):
         matrix = {ELEMENTARY: 'elementary_vacancies', COLLEGE: 'college_vacancies', PHD: 'phd_vacancies', 'None': 'elementary_vacancies'}
         possible_workplaces, edu_level = self.__possible_workplaces(workplaces)
         if possible_workplaces:
-            current_profession = citizens[self]['current_profession']
-            workplaces[self.workplace_object][matrix[current_profession.education]] -= 1
+            current_profession = citizens[self].current_profession
+            setattr(workplaces[self.workplace_object], matrix[edu_level], getattr(workplaces[self.workplace_object], matrix[edu_level]) - 1)
             current_profession.if_current = False
 
             best = self.__find_better_work_option(possible_workplaces)
-            workplaces[best][matrix[edu_level]] += 1
+            setattr(workplaces[best], matrix[edu_level], getattr(workplaces[best], matrix[edu_level]) + 1)
             self.workplace_object = best
-            citizens[self]['current_profession'] = Profession.objects.create(
+            citizens[self].current_profession = Profession.objects.create(
                 citizen=self, name=best.profession_type_provided, education=edu_level)
-            save_instance.append(citizens[self]['current_profession'])
+            save_instance.append(citizens[self].current_profession)
 
     def find_work(self, workplaces, citizens, save_instance):
         matrix = {ELEMENTARY: 'elementary_vacancies', COLLEGE: 'college_vacancies', PHD: 'phd_vacancies', 'None': 'elementary_vacancies'}
@@ -76,15 +76,16 @@ class Citizen(models.Model):
         if possible_workplaces:
             best = self.__find_better_work_option(possible_workplaces)
             self.workplace_object = best
-            workplaces[best][matrix[edu_level]] += 1
-            citizens[self]['current_profession'] = Profession.objects.create(
+            setattr(workplaces[best], matrix[edu_level], getattr(workplaces[best], matrix[edu_level]) + 1)
+            citizens[self].current_profession = Profession.objects.create(
                 citizen=self, name=best.profession_type_provided, education=edu_level)
-            save_instance.append(citizens[self]['current_profession'])
+            save_instance.append(citizens[self].current_profession)
+            save_instance.append(self)
 
     def __possible_workplaces(self, workplaces):
         matrix = {ELEMENTARY: 'elementary_vacancies', COLLEGE: 'college_vacancies', PHD: 'phd_vacancies', 'None': 'elementary_vacancies'}
-        if [w for w in workplaces if workplaces[w][matrix[self.edu_title]]]:
-            return [w for w in workplaces if workplaces[w][matrix[self.edu_title]]], self.edu_title
+        if [w for w in workplaces if getattr(workplaces[w], matrix[self.edu_title])]:
+            return [w for w in workplaces if getattr(workplaces[w], matrix[self.edu_title])], self.edu_title
         else:
             education_levels = [e[0] for e in Profession.EDUCATION]
             current_education_level = education_levels.index(self.edu_title)
@@ -92,13 +93,14 @@ class Citizen(models.Model):
                 while current_education_level:
                     current_education_level -= 1
                     new_education_level = education_levels[current_education_level]
-                    return [w for w in workplaces if workplaces[w][matrix[new_education_level]]], new_education_level
+                    return [w for w in workplaces if getattr(workplaces[w], matrix[new_education_level])], new_education_level
 
     def __find_better_work_option(self, workplaces):
         col = self.resident_object.city_field.col
         row = self.resident_object.city_field.row
         pattern = sorted(workplaces, key=lambda x: (
-            abs(x.city_field.col - col), abs(x.city_field.row - row)) if isinstance(x, BuldingsWithWorkes) else (0, 0))
+            abs(x.city_field.col - col), abs(x.city_field.row - row)) if isinstance(x, BuldingsWithWorkes)
+        else (random.randrange(HEX_NUM_IN_ROW), random.randrange(ROW_NUM)))
         chances = {len(pattern)/x: y for x, y in enumerate(pattern, start=1)}
         return chances[sorted(chances.keys()).pop()]
 
@@ -142,8 +144,8 @@ class Profession(models.Model):
 
     def update_proficiency(self, citizens_in_city):
         citizen = citizens_in_city[self.citizen]
-        citizen_education = [e.effectiveness for e in citizen['educations']]
-        citizen['current_profession'].proficiency += (sum(citizen_education)/len(citizen_education))/self.__proficiency_divisor()
+        citizen_education = [e.effectiveness for e in citizen.educations]
+        citizen.current_profession.proficiency += (sum(citizen_education)/len(citizen_education))/self.__proficiency_divisor()
         self.__check_job_grade()
 
 

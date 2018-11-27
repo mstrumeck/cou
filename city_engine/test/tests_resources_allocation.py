@@ -1,6 +1,6 @@
 from django import test
 from city_engine.main_view_data.resources_allocation import ResourceAllocation
-from city_engine.models import CityField, City, WindPlant, WaterTower, SewageWorks, Residential
+from city_engine.models import CityField, City, WindPlant, WaterTower, SewageWorks
 from django.db.models import Sum
 from city_engine.turn_data.main import TurnCalculation
 from city_engine.test.base import TestHelper

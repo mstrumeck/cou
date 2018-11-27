@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from city_engine.models import CityField, DustCart
 import numpy as np
 from django.db.models import Sum
@@ -46,12 +45,12 @@ class Hex:
         self.hexagon = ''
 
     def create(self):
-        self.hexagon = "<div class='hexagon"
+        self.hexagon = "<div class='hexagon'"
         if self.instance:
-            self.hexagon += " build'"
+            self.hexagon += "v-bind:class='{disabled: isActive }'"
         else:
-            self.hexagon += "'"
-        self.hexagon += "id='{}{}'".format(self.row, self.col)
+            self.hexagon += "v-bind:class='{isHexTaken: isActive }'"
+        self.hexagon += "v-on:click='getRowCol({}{})' id={}{}".format(self.row, self.col, self.row, self.col)
         self.hexagon += ">"
         self.hexagon += "<div class='hexagon-top'></div>"
         self.hexagon += "<div class='hexagon-middle'>"
@@ -70,8 +69,8 @@ class HexDetail:
         self.city = city
         self.data = data
         self.hex_detail_info_table = ''
-        self.building_by_corr = {self.data.list_of_buildings[b]['row_col_cor']: b for b in self.data.list_of_buildings}
-        self.city_field_pollution = {self.data.city_fields_in_city[f]['row_col']: self.data.city_fields_in_city[f]['pollution']
+        self.building_by_corr = {self.data.list_of_buildings[b].row_col_cor: b for b in self.data.list_of_buildings}
+        self.city_field_pollution = {self.data.city_fields_in_city[f].row_col: self.data.city_fields_in_city[f].pollution
                                      for f in self.data.city_fields_in_city}
         self.generate_hex_detail()
 
@@ -98,7 +97,7 @@ class HexDetail:
             if isinstance(build, BuldingsWithWorkes):
                 build_set = self.data.list_of_buildings[build]
                 hex_detail_box += '<p name="detailEmployees">Pracownicy: {}/{}</p>'.format(
-                    build_set['people_in_charge'], build_set['max_employees']
+                    build_set.people_in_charge, build_set.max_employees
                 )
                 if isinstance(build, Waterworks):
                     hex_detail_box += self.add_waterworks_details(build)
@@ -158,11 +157,11 @@ class HexDetail:
                 if carts.dumping_ground == build:
                     cart_set = self.data.vehicles[carts]
                     hex_detail_box += '<p>{}: załoga {}/{}</p>'.format(carts,
-                                                                       sum([len(cart_set['elementary_employees']),
-                                                                            len(cart_set['college_employees']),
-                                                                            len(cart_set['phd_employees'])]),
-                                                                       sum([cart_set['elementary_vacancies'],
-                                                                            cart_set['college_vacancies'],
-                                                                            cart_set['phd_vacancies']])
+                                                                       sum([len(cart_set.elementary_employees),
+                                                                            len(cart_set.college_employees),
+                                                                            len(cart_set.phd_employees)]),
+                                                                       sum([cart_set.elementary_vacancies,
+                                                                            cart_set.college_vacancies,
+                                                                            cart_set.phd_vacancies])
                                                                        )
         return hex_detail_box

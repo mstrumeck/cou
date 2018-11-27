@@ -3,7 +3,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import F
-from cou.global_var import ELEMENTARY, COLLEGE, PHD, EDUCATION, TYPE_OF_EMPLOYEES
+from cou.global_var import ELEMENTARY, COLLEGE, PHD, EDUCATION, TYPE_OF_EMPLOYEES, \
+    STANDARD_RESIDENTIAL_ZONE_COST_PER_RESIDENT, ENERGY_CITIZEN_NEED, WATER_CITIZEN_NEED
 from django.apps import apps
 
 
@@ -19,7 +20,7 @@ class Trash(models.Model):
 class City(models.Model):
     user = models.ForeignKey(User)
     name = models.TextField(max_length=15, unique=True)
-    cash = models.DecimalField(default=10000, decimal_places=2, max_digits=20)
+    cash = models.DecimalField(default=1000000, decimal_places=2, max_digits=20)
     mass = models.PositiveIntegerField(default=0)
     mass_price = models.DecimalField(default=2, decimal_places=2, max_digits=20)
     trade_zones_taxation = models.FloatField(default=0.05)
@@ -85,14 +86,14 @@ class BuldingsWithWorkes(Building):
 
     def update_proficiency_of_profession_for_employees(self, employees):
         for employee in employees:
-            employees[employee]['current_profession'].update_proficiency(employees)
+            employees[employee].current_profession.update_proficiency(employees)
 
     def calculate_wage_for_employees(self, wage_of_employees, total_wages, total_level, employees, employee_needed):
         if employee_needed:
             total_wages.append(wage_of_employees)
             total_level.append(
-                (sum([e['current_profession'].proficiency
-                     if e['current_profession'] else 0 for e in employees])/float(employee_needed))*wage_of_employees)
+                (sum([e.current_profession.proficiency
+                     if e.current_profession else 0 for e in employees])/float(employee_needed))*wage_of_employees)
 
     def employee_productivity(self, workplaces, citizens):
         wages = []
@@ -101,21 +102,21 @@ class BuldingsWithWorkes(Building):
             wage_of_employees=1,
             total_wages=wages,
             total_level=total,
-            employees=[citizens[e] for e in workplaces[self]['elementary_employees']],
+            employees=[citizens[e] for e in workplaces[self].elementary_employees],
             employee_needed=self.elementary_employee_needed
         )
         self.calculate_wage_for_employees(
             wage_of_employees=2,
             total_wages=wages,
             total_level=total,
-            employees=[citizens[e] for e in workplaces[self]['college_employees']],
+            employees=[citizens[e] for e in workplaces[self].college_employees],
             employee_needed=self.college_employee_needed
         )
         self.calculate_wage_for_employees(
             wage_of_employees=3,
             total_wages=wages,
             total_level=total,
-            employees=[citizens[e] for e in workplaces[self]['phd_employees']],
+            employees=[citizens[e] for e in workplaces[self].phd_employees],
             employee_needed=self.phd_employee_needed
         )
         return float(sum(total))/float(sum(wages))
@@ -147,22 +148,34 @@ class BuldingsWithWorkes(Building):
 class Residential(Building):
     name = models.CharField(max_length=20, default='Budynek Mieszkalny')
     population = models.PositiveIntegerField(default=0)
-    max_population = models.PositiveIntegerField(default=30)
-    build_time = models.PositiveIntegerField(default=1)
-    build_cost = models.PositiveIntegerField(default=100)
-    maintenance_cost = models.PositiveIntegerField(default=10)
-    water_required = models.PositiveIntegerField(default=5)
-    energy_required = models.PositiveIntegerField(default=5)
+    max_population = models.PositiveIntegerField(default=0)
+    rent = models.FloatField(default=0)
+    build_time = models.PositiveIntegerField(default=0)
+    build_cost = models.PositiveIntegerField(default=0)
+    water_required = models.PositiveIntegerField(default=0)
+    energy_required = models.PositiveIntegerField(default=0)
     resident = GenericRelation(to='citizen_engine.Citizen',
                                object_id_field='resident_object_id',
                                content_type_field='resident_content_type'
                                )
+
+    class Meta:
+        abstract = True
 
     def pollution_calculation(self, employee):
         return float(employee) * self.pollution_rate
 
     def trash_calculation(self, employee):
         return self.pollution_calculation(employee) * self.population
+
+
+class StandardLevelResidentialZone(Residential):
+    name = models.CharField(max_length=30, default="Normalna dzielnica mieszkalna")
+
+    def self__init(self, max_population):
+        self.max_population = 1 if max_population <= 0 else max_population
+        self.build_time = 1 if max_population <= 4 else int(max_population/4)
+        self.build_cost = STANDARD_RESIDENTIAL_ZONE_COST_PER_RESIDENT * max_population
 
 
 class TradeDistrict(BuldingsWithWorkes):
@@ -238,9 +251,7 @@ class PowerPlant(BuldingsWithWorkes):
 
     def allocate_resource_in_target(self, target, tp):
         if hasattr(target, 'energy') and not isinstance(target, PowerPlant):
-            while target.energy_required >= target.energy \
-                    and tp > 0 \
-                    and self.energy_allocated <= tp:
+            while target.energy_required > target.energy and tp > 0 and self.energy_allocated <= tp:
                 self.energy_allocated += 1
                 target.energy += 1
                 tp -= 1
@@ -361,9 +372,7 @@ class WaterTower(Waterworks):
 
     def allocate_resource_in_target(self, target, tp):
         if hasattr(target, 'raw_water'):
-            while target.raw_water_required >= target.raw_water \
-                    and tp > 0 \
-                    and self.raw_water_allocated <= tp:
+            while target.raw_water_required >= target.raw_water and tp > 0 and self.raw_water_allocated <= tp:
                 self.raw_water_allocated += 1
                 target.raw_water += 1
                 tp -= 1
@@ -397,12 +406,8 @@ class SewageWorks(BuldingsWithWorkes):
             self.raw_water_required += 1000
 
     def allocate_resource_in_target(self, target, tp):
-        if hasattr(target, 'water') \
-                and not isinstance(target, SewageWorks) \
-                and not isinstance(target, Waterworks):
-            while target.water_required >= target.water \
-                    and tp > 0 \
-                    and self.clean_water_allocated <= tp:
+        if hasattr(target, 'water') and not isinstance(target, SewageWorks) and not isinstance(target, Waterworks):
+            while target.water_required >= target.water and tp > 0 and self.clean_water_allocated <= tp:
                 self.clean_water_allocated += 1
                 target.water += 1
                 tp -= 1
@@ -556,12 +561,12 @@ class School(BuldingsWithWorkes):
     def monthly_run(self, citizen_in_city, player):
         teachers_with_data = {t: citizen_in_city[t] for t in citizen_in_city
                               if t.workplace_object == self
-                              and citizen_in_city[t]['current_profession']
-                              and len(citizen_in_city[t]['educations']) >= 2}
-        for p in (c for c in citizen_in_city if c.school_object == self and citizen_in_city[c]['current_education']):
-            citizen_education = citizen_in_city[p]['current_education']
+                              and citizen_in_city[t].current_profession
+                              and len(citizen_in_city[t].educations) >= 2}
+        for p in (c for c in citizen_in_city if c.school_object == self and citizen_in_city[c].current_education):
+            citizen_education = citizen_in_city[p].current_education
             try:
-                total_effectiveness = (sum([teachers_with_data[e]['current_profession'].proficiency for e in teachers_with_data])
+                total_effectiveness = (sum([teachers_with_data[e].current_profession.proficiency for e in teachers_with_data])
                                        / len(teachers_with_data)) * player.primary_school_education_ratio
                 citizen_education.effectiveness += total_effectiveness
             except ZeroDivisionError:
@@ -573,11 +578,11 @@ class School(BuldingsWithWorkes):
             if p.school_object is None:
                 self.check_for_student_in_city(p, citizens_in_city[p])
             elif p.school_object == self:
-                self.update_year_of_school_for_student(p, citizens_in_city[p]['current_education'])
+                self.update_year_of_school_for_student(p, citizens_in_city[p].current_education)
 
     def check_for_student_in_city(self, p, p_data):
         education = apps.get_model('citizen_engine', 'Education')
-        citizen_educations = [e for e in p_data['educations'] if e.name == self.education_type_provided]
+        citizen_educations = [e for e in p_data.educations if e.name == self.education_type_provided]
         if citizen_educations:
             c = citizen_educations.pop()
             c.if_current = True
@@ -653,8 +658,8 @@ class Vehicle(models.Model):
         if employee_needed:
             total_wages.append(wage_of_employees)
             total_level.append(
-                (sum([e['current_profession'].proficiency
-                     if e['current_profession'] else 0 for e in employees])/float(employee_needed))*wage_of_employees)
+                (sum([e.current_profession.proficiency
+                     if e.current_profession else 0 for e in employees])/float(employee_needed))*wage_of_employees)
 
     def employee_productivity(self, workplaces, citizens):
         wages = []
@@ -663,21 +668,21 @@ class Vehicle(models.Model):
             wage_of_employees=1,
             total_wages=wages,
             total_level=total,
-            employees=[citizens[e] for e in workplaces[self]['elementary_employees']],
+            employees=[citizens[e] for e in workplaces[self].elementary_employees],
             employee_needed=self.elementary_employee_needed
         )
         self.calculate_wage_for_employees(
             wage_of_employees=2,
             total_wages=wages,
             total_level=total,
-            employees=[citizens[e] for e in workplaces[self]['college_employees']],
+            employees=[citizens[e] for e in workplaces[self].college_employees],
             employee_needed=self.college_employee_needed
         )
         self.calculate_wage_for_employees(
             wage_of_employees=3,
             total_wages=wages,
             total_level=total,
-            employees=[citizens[e] for e in workplaces[self]['phd_employees']],
+            employees=[citizens[e] for e in workplaces[self].phd_employees],
             employee_needed=self.phd_employee_needed
         )
         return float(sum(total))/float(sum(wages))

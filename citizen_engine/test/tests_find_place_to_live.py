@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
-from city_engine.models import Residential, City, WindPlant, CityField
+from city_engine.models import StandardLevelResidentialZone, City, WindPlant, CityField
 from citizen_engine.models import Citizen
 from citizen_engine.citizen_creation import CreateCitizen
 import random, string
@@ -17,10 +17,11 @@ class TestFindPlaceToLive(TestCase):
         self.city = City.objects.get(id=1)
         self.RC = RootClass(self.city, User.objects.latest('id'))
         self.profile = Profile.objects.latest('id')
-        self.r1 = Residential.objects.latest('id')
-        self.r2 = Residential.objects.create(
+        self.r1 = StandardLevelResidentialZone.objects.latest('id')
+        self.r2 = StandardLevelResidentialZone.objects.create(
             city_field=CityField.objects.get(id=1),
-            city=self.city
+            city=self.city,
+            max_population = 10
         )
 
     def test_random_choice_scenario(self):

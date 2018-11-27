@@ -10,11 +10,6 @@ class CityAdmin(admin.ModelAdmin):
 admin.site.register(City, CityAdmin)
 
 
-class ResidentialAdmin(admin.ModelAdmin):
-    list_display = ['city_field', 'max_population']
-admin.site.register(Residential, ResidentialAdmin)
-
-
 class ProductionAdmin(admin.ModelAdmin):
     list_display = ['city_field']
 admin.site.register(ProductionBuilding, ProductionAdmin)

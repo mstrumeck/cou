@@ -113,3 +113,7 @@ body {
 .disabled .hexagon-bottom {
     border-top: 20px solid grey;
 }
+
+.unSeen{
+    opacity: 0;
+}

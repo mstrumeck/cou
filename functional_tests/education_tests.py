@@ -1,5 +1,5 @@
 from functional_tests.page_objects import MainView, LoginPage, Homepage
-from city_engine.models import City, Residential, CityField, PrimarySchool
+from city_engine.models import City, StandardLevelResidentialZone, CityField, PrimarySchool
 from .legacy.base import BaseTest
 from django.contrib.auth.models import User
 from selenium import webdriver
@@ -20,7 +20,7 @@ class CitizenBasicTests(BaseTest):
         self.user = User.objects.latest('id')
         self.browser.implicitly_wait(3)
         self.profile = Profile.objects.latest('id')
-        self.r1 = Residential.objects.latest('id')
+        self.r1 = StandardLevelResidentialZone.objects.latest('id')
         self.f = Citizen.objects.create(
             city=self.city,
             age=8,
@@ -68,16 +68,16 @@ class CitizenBasicTests(BaseTest):
         self.assertEqual(self.f.school_object, None)
         self.assertEqual(Education.objects.all().count(), 1)
         RC = RootClass(self.city, self.user)
-        self.assertEqual(RC.citizens_in_city[self.f]['current_education'], None)
-        self.assertNotEqual(RC.citizens_in_city[s]['current_education'], None)
+        self.assertEqual(RC.citizens_in_city[self.f].current_education, None)
+        self.assertNotEqual(RC.citizens_in_city[s].current_education, None)
         main_view.next_turns(4)
 
         e1 = Education.objects.get(citizen_id=self.f.id)
         e2 = Education.objects.get(id=e2.id)
         RC = RootClass(self.city, self.user)
 
-        self.assertEqual(RC.citizens_in_city[self.f]['current_education'], e1)
-        self.assertEqual(RC.citizens_in_city[s]['current_education'], e2)
+        self.assertEqual(RC.citizens_in_city[self.f].current_education, e1)
+        self.assertEqual(RC.citizens_in_city[s].current_education, e2)
 
         self.assertEqual(e1.cur_year_of_learning, 0)
         self.assertEqual(e1.max_year_of_learning, 8)
@@ -108,13 +108,13 @@ class CitizenBasicTests(BaseTest):
         self.profile.current_turn = 6
         self.profile.save()
         RC = RootClass(self.city, self.user)
-        self.assertEqual(RC.citizens_in_city[self.f]['current_education'], e)
+        self.assertEqual(RC.citizens_in_city[self.f].current_education, e)
         main_view.next_turns(4)
         self.assertEqual(Education.objects.all().count(), 1)
         self.f = Citizen.objects.get(id=self.f.id)
         e = Education.objects.get(id=e.id)
         RC = RootClass(self.city, self.user)
-        self.assertEqual(RC.citizens_in_city[self.f]['current_education'], e)
+        self.assertEqual(RC.citizens_in_city[self.f].current_education, e)
         self.assertEqual(e.cur_year_of_learning, 1)
         self.assertEqual(e.max_year_of_learning, 8)
 
@@ -133,7 +133,7 @@ class CitizenBasicTests(BaseTest):
         self.profile.current_turn = 6
         self.profile.save()
         RC = RootClass(self.city, self.user)
-        self.assertEqual(RC.citizens_in_city[self.f]['current_education'], e)
+        self.assertEqual(RC.citizens_in_city[self.f].current_education, e)
         main_view.next_turns(4)
         self.assertEqual(Education.objects.all().count(), 1)
         self.f = Citizen.objects.get(id=self.f.id)

@@ -2,6 +2,7 @@
 {% load staticfiles %}
 
 {% block script %}
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 {% endblock %}
 
 {% block title %}Miasto {{ city.name }}{% endblock %}
@@ -118,47 +119,65 @@
 
 <button class="hex-change">Zmień hexy</button>
 
-<button class="buildingToHide" name="BudynkiElektryczne">Elektrownie</button>
-<div class="buildingsToBuild">
-    <button class="setBuilding" name="WindPlant">Elektrownia wiatrowa</button>
-    <button class="setBuilding" name="RopePlant">Elektrownia na ropę</button>
-    <button class="setBuilding" name="CoalPlant">Elektrownia na węgiel</button>
-</div>
+<div id="buildSection">
+    <p>Aktywny budynek: {{ activeBuilding }}</p>
+    {% for building in list_of_buildings %}
+    <button v-on:click="filter('{{ building }}')" name="{{ building }}">{{ building }}</button>
+    {% endfor %}
 
-<button class="setBuilding" name="WaterTower">Wieża ciśnień</button>
-<button class="setBuilding" name="Residential">Dzielnica mieszkalna</button>
-<button class="setBuilding" name="ProductionBuilding">Dzielnica przemysłowa</button>
-<button class="setBuilding" name="DumpingGround">Wysypisko śmieci</button>
-<button class="setBuilding" name="SewageWorks">Oczyszczalnia ścieków</button>
-
-<button class="buildingToHide" name="Farmy">Farmy</button>
-<div class="buildingsToBuild">
-    <button class="setBuilding" name="PotatoFarm">Farma ziemniaków</button>
-    <button class="setBuilding" name="BeanFarm">Farma fasoli</button>
-    <button class="setBuilding" name="LettuceFarm">Farma sałaty</button>
-    <button class="setBuilding" name="CattleFarm">Farma bydła</button>
-</div>
-<button class="setBuilding" name="MassConventer">Konwenter Masy</button>
-<button class="setBuilding" name="TradeDistrict">Strefa Handlowa</button>
-<button class="setBuilding" name="PrimarySchool">Szkoła podstawowa</button>
-
-
-
-<div id="result"></div>
+    <button v-on:click="filter('StandardLevelResidentialZone')" name="StandardLevelResidentialZone">Strefa mieszkalna $</button>
+    <input v-model="numOfResidents" v-bind:class='{unSeen: activeBuilding !== "StandardLevelResidentialZone" }' type="number" placeholder="Ilość mieszkańców">
 
 <div id="board">
     <h1>Plansza wygenerowana z Djagno</h1>
     {{ hex_table }}
 </div>
-
-
 <div id="hexInfoBox">
     <h1>Podgląd hexa</h1>
     {{ hex_detail_info_table }}
+</div>
 </div>
 
 {% endblock %}
 
 {% block jsScript %}
-    <script src="{% static 'js/hex_events.js' %}"></script>
+<script>
+    new Vue({
+        el: '#buildSection',
+        data: {
+            isActive: false,
+            activeBuilding: '',
+            numOfResidents: 0
+        },
+        methods: {
+            filter: function (typeOfBuilding) {
+                if (!this.isActive) {
+                    this.activeBuilding = typeOfBuilding;
+                    this.isActive = !this.isActive;
+                } else if (this.activeBuilding === typeOfBuilding) {
+                    this.isActive = !this.isActive;
+                    this.activeBuilding = '';
+                    this.numOfResidents = 0;
+                } else if (this.activeBuilding !== typeOfBuilding) {
+                    this.activeBuilding = typeOfBuilding;
+                }
+            },
+            ifLeadZero: function (rc) {
+                if (rc <= 9) {
+                    return '0' + rc;
+                } else {
+                    return rc;
+                }
+            },
+            getRowCol: function (rc) {
+                rc = this.ifLeadZero(rc);
+                if (this.isActive && this.activeBuilding === "StandardLevelResidentialZone") {
+                    window.location.replace("/build_resident/" + rc + "/" + this.numOfResidents);
+                } else if (this.activeBuilding) {
+                    window.location.replace("/build/" + rc + "/" + this.activeBuilding + "");
+                }
+            }
+        }
+    })
+</script>
 {% endblock %}

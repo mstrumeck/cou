@@ -1,4 +1,4 @@
-from city_engine.models import CityField, City
+from city_engine.models import CityField, City, StandardLevelResidentialZone
 from cou.abstract import AbstractAdapter
 
 
@@ -8,6 +8,21 @@ def build_building(request, row, col, build_type):
     city_field = CityField.objects.get(row=row, col=col, city_id=city.id)
 
     building = build_type()
+    building.city = city
+    building.city_field = CityField.objects.get(row=row, col=col, city=city)
+    city.cash -= building.build_cost
+
+    city.save()
+    city_field.save()
+    building.save()
+
+
+def build_resident_zone(request, row, col, max_population):
+    city = City.objects.get(user_id=request.user.id)
+    city_field = CityField.objects.get(row=row, col=col, city_id=city.id)
+
+    building = StandardLevelResidentialZone()
+    building.self__init(int(max_population))
     building.city = city
     building.city_field = CityField.objects.get(row=row, col=col, city=city)
     city.cash -= building.build_cost

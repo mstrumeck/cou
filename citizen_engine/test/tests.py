@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
-from city_engine.models import Residential, City, WindPlant
+from city_engine.models import StandardLevelResidentialZone, City, WindPlant
 from citizen_engine.models import Citizen
 from citizen_engine.citizen_creation import CreateCitizen
 import random, string
@@ -37,7 +37,7 @@ class CitizenGetMarriedTests(TestCase):
             name="AnON",
             surname="MaSurname",
             sex=MALE,
-            resident_object=Residential.objects.latest('id')
+            resident_object=StandardLevelResidentialZone.objects.latest('id')
         )
         self.RC = RootClass(self.city, User.objects.latest('id'))
 
@@ -47,10 +47,10 @@ class CitizenGetMarriedTests(TestCase):
         f = Citizen.objects.get(id=self.f.id)
         self.assertEqual(m.partner_id, 0)
         self.assertEqual(f.partner_id, 0)
-        self.assertEqual(m.resident_object, Residential.objects.latest('id'))
+        self.assertEqual(m.resident_object, StandardLevelResidentialZone.objects.latest('id'))
         self.assertEqual(f.resident_object, None)
         self.assertEqual(
-            self.RC.list_of_buildings[Residential.objects.latest('id')]['people_in_charge'],
+            self.RC.list_of_buildings[StandardLevelResidentialZone.objects.latest('id')].people_in_charge,
         1)
         sa = SocialAction(self.city, self.profile, self.RC)
         sa.match_marriages()
@@ -60,10 +60,10 @@ class CitizenGetMarriedTests(TestCase):
         f = Citizen.objects.get(id=self.f.id)
         self.assertEqual(m.partner_id, f.id)
         self.assertEqual(f.partner_id, m.id)
-        self.assertEqual(f.resident_object, Residential.objects.latest('id'))
-        self.assertEqual(m.resident_object, Residential.objects.latest('id'))
+        self.assertEqual(f.resident_object, StandardLevelResidentialZone.objects.latest('id'))
+        self.assertEqual(m.resident_object, StandardLevelResidentialZone.objects.latest('id'))
         self.assertEqual(
-            self.RC.list_of_buildings[Residential.objects.latest('id')]['people_in_charge'],
+            self.RC.list_of_buildings[StandardLevelResidentialZone.objects.latest('id')].people_in_charge,
         2)
 
     def test_chance_to_married_failed_scenario(self):
@@ -73,7 +73,7 @@ class CitizenGetMarriedTests(TestCase):
         self.assertEqual(m.partner_id, 0)
         self.assertEqual(f.partner_id, 0)
         self.assertEqual(
-            RootClass(self.city, User.objects.latest('id')).list_of_buildings[Residential.objects.latest('id')]['people_in_charge'],
+            RootClass(self.city, User.objects.latest('id')).list_of_buildings[StandardLevelResidentialZone.objects.latest('id')].people_in_charge,
         1)
         sa = SocialAction(self.city, self.profile, RootClass(self.city, User.objects.latest('id')))
         sa.match_marriages()
@@ -83,10 +83,10 @@ class CitizenGetMarriedTests(TestCase):
         f = Citizen.objects.get(id=self.f.id)
         self.assertEqual(m.partner_id, 0)
         self.assertEqual(f.partner_id, 0)
-        self.assertEqual(m.resident_object, Residential.objects.latest('id'))
+        self.assertEqual(m.resident_object, StandardLevelResidentialZone.objects.latest('id'))
         self.assertEqual(f.resident_object, None)
         self.assertEqual(
-            RootClass(self.city, User.objects.latest('id')).list_of_buildings[Residential.objects.latest('id')]['people_in_charge'],
+            RootClass(self.city, User.objects.latest('id')).list_of_buildings[StandardLevelResidentialZone.objects.latest('id')].people_in_charge,
         1)
 
     def test_chance_to_married_failed_becouse_lack_of_residential_scenario(self):
@@ -95,12 +95,12 @@ class CitizenGetMarriedTests(TestCase):
         f = Citizen.objects.get(id=self.f.id)
         self.assertEqual(m.partner_id, 0)
         self.assertEqual(f.partner_id, 0)
-        res = Residential.objects.latest('id')
+        res = StandardLevelResidentialZone.objects.latest('id')
         res.max_population = 1
         res.save()
         self.assertEqual(res.max_population, 1)
         self.assertEqual(
-            RootClass(self.city, User.objects.latest('id')).list_of_buildings[Residential.objects.latest('id')]['people_in_charge'],
+            RootClass(self.city, User.objects.latest('id')).list_of_buildings[StandardLevelResidentialZone.objects.latest('id')].people_in_charge,
         1)
         sa = SocialAction(self.city, self.profile, RootClass(self.city, User.objects.latest('id')))
         sa.match_marriages()
@@ -114,7 +114,7 @@ class CitizenGetMarriedTests(TestCase):
         self.assertEqual(m.resident_object, res)
         self.assertEqual(f.resident_object, None)
         self.assertEqual(
-            RootClass(self.city, User.objects.latest('id')).list_of_buildings[Residential.objects.latest('id')]['people_in_charge'],
+            RootClass(self.city, User.objects.latest('id')).list_of_buildings[StandardLevelResidentialZone.objects.latest('id')].people_in_charge,
         1)
 
     def test_create_families(self):
@@ -135,7 +135,7 @@ class BornChildTests(TestCase):
     def setUp(self):
         self.city = City.objects.get(id=1)
         self.profile = Profile.objects.latest('id')
-        self.r1 = Residential.objects.latest('id')
+        self.r1 = StandardLevelResidentialZone.objects.latest('id')
         self.f = Citizen.objects.create(
             city=self.city,
             age=21,
@@ -255,7 +255,7 @@ class CitizenCreationsTest(TestCase):
 
     def test_allocate_citizen_to_res_and_work(self):
         self.assertEqual(Citizen.objects.all().count(), 0)
-        res = Residential.objects.latest('id')
+        res = StandardLevelResidentialZone.objects.latest('id')
         self.assertEqual(res.resident.count(), 0)
         windplant = WindPlant.objects.latest('id')
         self.assertEqual(windplant.employee.count(), 0)
@@ -274,7 +274,7 @@ class CitizenCreationsTest(TestCase):
 
     def test_allocate_citizen_to_res_without_work(self):
         self.assertEqual(Citizen.objects.all().count(), 0)
-        res = Residential.objects.latest('id')
+        res = StandardLevelResidentialZone.objects.latest('id')
         self.assertEqual(res.resident.count(), 0)
         windplant = WindPlant.objects.latest('id')
         self.assertEqual(windplant.employee.count(), 0)
@@ -292,7 +292,7 @@ class CitizenCreationsTest(TestCase):
 
     def test_allocate_citizen_to_work_without_res(self):
         self.assertEqual(Citizen.objects.all().count(), 0)
-        res = Residential.objects.latest('id')
+        res = StandardLevelResidentialZone.objects.latest('id')
         self.assertEqual(res.resident.count(), 0)
         windplant = WindPlant.objects.latest('id')
         self.assertEqual(windplant.employee.count(), 0)
@@ -319,5 +319,5 @@ class CitizenCreationsTest(TestCase):
         self.assertEqual(Citizen.objects.filter(city=self.city).count(), 1)
 
     def test_choose_residential(self):
-        residential = Residential.objects.get(id=1)
+        residential = StandardLevelResidentialZone.objects.get(id=1)
         self.assertEqual(CreateCitizen(self.city, self.RC).choose_residential(), residential)

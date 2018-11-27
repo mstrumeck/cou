@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
-from city_engine.models import Residential, City, WindPlant, CityField, PrimarySchool
+from city_engine.models import StandardLevelResidentialZone, City, WindPlant, CityField, PrimarySchool
 from citizen_engine.models import Citizen, Education, Profession
 from citizen_engine.citizen_creation import CreateCitizen
 import random, string
@@ -17,7 +17,7 @@ class TestEducation(TestCase):
     def setUp(self):
         self.city = City.objects.get(id=1)
         self.profile = Profile.objects.latest('id')
-        self.r1 = Residential.objects.latest('id')
+        self.r1 = StandardLevelResidentialZone.objects.latest('id')
         self.f = Citizen.objects.create(
             city=self.city,
             age=8,
@@ -59,27 +59,27 @@ class TestEducation(TestCase):
         self.assertEqual(self.f.school_object, None)
         self.assertEqual(self.f.education_set.all().count(), 1)
         RC = RootClass(self.city, User.objects.latest('id'))
-        self.assertEqual(RC.citizens_in_city[self.f]['current_education'], None)
+        self.assertEqual(RC.citizens_in_city[self.f].current_education, None)
         self.school.check_for_student_in_city(self.f, RC.citizens_in_city[self.f])
         TurnCalculation(self.city, RC, self.profile).save_all()
         RC = RootClass(self.city, User.objects.latest('id'))
         self.assertEqual(self.f.school_object, self.school)
         self.assertEqual(self.f.education_set.all().count(), 1)
-        self.assertNotEqual(RC.citizens_in_city[self.f]['current_education'], None)
-        self.assertEqual(RC.citizens_in_city[self.f]['current_education'].if_current, True)
-        self.assertEqual(RC.citizens_in_city[self.f]['current_education'].max_year_of_learning,
+        self.assertNotEqual(RC.citizens_in_city[self.f].current_education, None)
+        self.assertEqual(RC.citizens_in_city[self.f].current_education.if_current, True)
+        self.assertEqual(RC.citizens_in_city[self.f].current_education.max_year_of_learning,
                          self.school.years_of_education)
 
     def test_update_year_of_student_pass(self):
         Education.objects.create(cur_year_of_learning=0, max_year_of_learning=8, citizen=self.f, name=ELEMENTARY)
         self.RC = RootClass(self.city, User.objects.latest('id'))
         self.sa = SocialAction(self.city, self.profile, self.RC)
-        self.assertEqual(self.RC.citizens_in_city[self.f]['current_education'].cur_year_of_learning, 0)
-        self.school.update_year_of_school_for_student(self.f, self.RC.citizens_in_city[self.f]['current_education'])
+        self.assertEqual(self.RC.citizens_in_city[self.f].current_education.cur_year_of_learning, 0)
+        self.school.update_year_of_school_for_student(self.f, self.RC.citizens_in_city[self.f].current_education)
         self.sa.update_age()
-        self.RC.citizens_in_city[self.f]['current_education'].save()
+        self.RC.citizens_in_city[self.f].current_education.save()
         self.RC = RootClass(self.city, User.objects.latest('id'))
-        self.assertEqual(self.RC.citizens_in_city[self.f]['current_education'].cur_year_of_learning, 1)
+        self.assertEqual(self.RC.citizens_in_city[self.f].current_education.cur_year_of_learning, 1)
 
     def test_gradudate_school_pass(self):
         self.f.school_object = self.school
@@ -97,7 +97,7 @@ class TestEducation(TestCase):
         self.f = Citizen.objects.get(id=self.f.id)
         e = Education.objects.get(id=e.id)
         RC = RootClass(self.city, User.objects.latest('id'))
-        self.assertEqual(RC.citizens_in_city[self.f]['current_education'], None)
+        self.assertEqual(RC.citizens_in_city[self.f].current_education, None)
         self.assertEqual(e.cur_year_of_learning, 8)
         self.assertEqual(e.max_year_of_learning, 8)
         self.assertEqual(self.f.edu_title, ELEMENTARY)
@@ -110,7 +110,7 @@ class TestSchoolMonthlyRunFailed(TestCase):
     def setUp(self):
         self.city = City.objects.get(id=1)
         self.profile = Profile.objects.latest('id')
-        self.r1 = Residential.objects.latest('id')
+        self.r1 = StandardLevelResidentialZone.objects.latest('id')
         self.school = PrimarySchool.objects.create(
             city=self.city,
             city_field=CityField.objects.latest('id')
@@ -134,8 +134,8 @@ class TestSchoolMonthlyRunFailed(TestCase):
             month_of_birth=2,
             cash=100,
             health=5,
-            name="AnonKA",
-            surname="FeSurname",
+            name="0",
+            surname="2",
             sex=FEMALE,
             education=COLLEGE,
             resident_object=self.r1,
@@ -158,33 +158,33 @@ class TestSchoolMonthlyRunFailed(TestCase):
         Education.objects.create(citizen=self.s, name=COLLEGE, effectiveness=1, if_current=False)
         Profession.objects.create(citizen=self.s, proficiency=0.5, name='Nauczyciel')
         RC = RootClass(self.city, User.objects.latest('id'))
-        self.assertEqual(RC.citizens_in_city[self.m]['current_education'], None)
-        self.assertEqual(RC.citizens_in_city[self.s]['current_profession'].proficiency, 0.5)
+        self.assertEqual(RC.citizens_in_city[self.m].current_education, None)
+        self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0.5)
         self.school.monthly_run(RC.citizens_in_city, self.profile)
-        self.assertEqual(RC.citizens_in_city[self.m]['current_education'], None)
-        self.assertEqual(RC.citizens_in_city[self.s]['current_profession'].proficiency, 0.52)
+        self.assertEqual(RC.citizens_in_city[self.m].current_education, None)
+        self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0.52)
 
     def test_gain_knowledge_without_teacher_education_failed_first_case(self):
         Education.objects.create(citizen=self.s, name=ELEMENTARY, effectiveness=1, if_current=False)
         Education.objects.create(citizen=self.m, name=ELEMENTARY)
         Profession.objects.create(citizen=self.s, proficiency=0.5, name='Nauczyciel')
         RC = RootClass(self.city, User.objects.latest('id'))
-        self.assertEqual(RC.citizens_in_city[self.m]['current_education'].effectiveness, 0)
-        self.assertEqual(RC.citizens_in_city[self.s]['current_profession'].proficiency, 0.5)
+        self.assertEqual(RC.citizens_in_city[self.m].current_education.effectiveness, 0)
+        self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0.5)
         self.school.monthly_run(RC.citizens_in_city, self.profile)
-        self.assertEqual(RC.citizens_in_city[self.m]['current_education'].effectiveness, 0)
-        self.assertEqual(RC.citizens_in_city[self.s]['current_profession'].proficiency, 0.5)
+        self.assertEqual(RC.citizens_in_city[self.m].current_education.effectiveness, 0)
+        self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0.5)
 
     def test_gain_knowledge_without_teacher_education_failed_second_case(self):
         Education.objects.create(citizen=self.s, name=COLLEGE, effectiveness=1, if_current=False)
         Education.objects.create(citizen=self.m, name=ELEMENTARY)
         Profession.objects.create(citizen=self.s, proficiency=0.5, name='Nauczyciel')
         RC = RootClass(self.city, User.objects.latest('id'))
-        self.assertEqual(RC.citizens_in_city[self.m]['current_education'].effectiveness, 0)
-        self.assertEqual(RC.citizens_in_city[self.s]['current_profession'].proficiency, 0.5)
+        self.assertEqual(RC.citizens_in_city[self.m].current_education.effectiveness, 0)
+        self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0.5)
         self.school.monthly_run(RC.citizens_in_city, self.profile)
-        self.assertEqual(RC.citizens_in_city[self.m]['current_education'].effectiveness, 0)
-        self.assertEqual(RC.citizens_in_city[self.s]['current_profession'].proficiency, 0.5)
+        self.assertEqual(RC.citizens_in_city[self.m].current_education.effectiveness, 0)
+        self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0.5)
 
 
 class TestSchoolMonthlyRunPass(TestCase):
@@ -193,7 +193,7 @@ class TestSchoolMonthlyRunPass(TestCase):
     def setUp(self):
         self.city = City.objects.get(id=1)
         self.profile = Profile.objects.latest('id')
-        self.r1 = Residential.objects.latest('id')
+        self.r1 = StandardLevelResidentialZone.objects.latest('id')
         self.school = PrimarySchool.objects.create(
             city=self.city,
             city_field=CityField.objects.latest('id')
@@ -231,17 +231,17 @@ class TestSchoolMonthlyRunPass(TestCase):
 
     def test_gain_knowledge_during_education_process_single_run(self):
         RC = RootClass(self.city, User.objects.latest('id'))
-        self.assertEqual(RC.citizens_in_city[self.m]['current_education'].effectiveness, 0.0)
-        self.assertEqual(RC.citizens_in_city[self.s]['current_profession'].proficiency, 0.5)
+        self.assertEqual(RC.citizens_in_city[self.m].current_education.effectiveness, 0.0)
+        self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0.5)
         self.school.monthly_run(RC.citizens_in_city, self.profile)
-        self.assertEqual(RC.citizens_in_city[self.s]['current_profession'].proficiency, 0.52)
-        self.assertEqual(RC.citizens_in_city[self.m]['current_education'].effectiveness, 0.0052)
+        self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0.52)
+        self.assertEqual(RC.citizens_in_city[self.m].current_education.effectiveness, 0.0052)
 
     def test_gain_knowledge_during_education_process_multi_run(self):
         RC = RootClass(self.city, User.objects.latest('id'))
-        self.assertEqual(RC.citizens_in_city[self.m]['current_education'].effectiveness, 0.0)
-        self.assertEqual(RC.citizens_in_city[self.s]['current_profession'].proficiency, 0.5)
+        self.assertEqual(RC.citizens_in_city[self.m].current_education.effectiveness, 0.0)
+        self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0.5)
         for x in range(6):
             self.school.monthly_run(RC.citizens_in_city, self.profile)
-        self.assertEqual(RC.citizens_in_city[self.s]['current_profession'].proficiency, 0.5660526315789475)
-        self.assertEqual(RC.citizens_in_city[self.m]['current_education'].effectiveness, 0.03360842105263158)
+        self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0.5660526315789475)
+        self.assertEqual(RC.citizens_in_city[self.m].current_education.effectiveness, 0.03360842105263158)

@@ -5,7 +5,7 @@ from citizen_engine.models import Citizen, Profession
 from city_engine.test.base import TestHelper
 from city_engine.turn_data.main import TurnCalculation
 from city_engine.models import City, WindPlant, WaterTower, PowerPlant,\
-    Waterworks, RopePlant, CoalPlant, Residential, ProductionBuilding, DumpingGround, DustCart, SewageWorks, \
+    Waterworks, RopePlant, CoalPlant, StandardLevelResidentialZone, ProductionBuilding, DumpingGround, DustCart, SewageWorks, \
     PotatoFarm, LettuceFarm, BeanFarm, CattleFarm, MassConventer, TradeDistrict, PrimarySchool
 from player.models import Profile
 from django.db import connection
@@ -37,7 +37,7 @@ class TestRootClass(test.TestCase):
         # ):
         #     self.assertEqual(model, subclass)
         self.assertEqual(self.RC.get_subclasses_of_all_buildings(),
-                         [Residential, TradeDistrict, ProductionBuilding, WindPlant, RopePlant, CoalPlant, WaterTower,
+                         [StandardLevelResidentialZone, TradeDistrict, ProductionBuilding, WindPlant, RopePlant, CoalPlant, WaterTower,
                           SewageWorks, CattleFarm, PotatoFarm, BeanFarm, LettuceFarm, MassConventer, PrimarySchool,  DumpingGround])
 
     # def test_list_of_building_in_city(self):

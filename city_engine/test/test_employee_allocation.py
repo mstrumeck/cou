@@ -1,6 +1,6 @@
 from django import test
 from city_engine.test.base import TestHelper
-from city_engine.models import CityField, Residential, City, WindPlant, WaterTower, \
+from city_engine.models import CityField, StandardLevelResidentialZone, City, WindPlant, WaterTower, \
     ProductionBuilding, DustCart, DumpingGround
 from django.contrib.auth.models import User
 from citizen_engine.models import Citizen
@@ -48,7 +48,7 @@ class EmployeeAllocationTest(test.TestCase, TestHelper):
     def test_employee_to_vehicle_allocation(self):
         city_field_one = CityField.objects.get(id=1)
         city_field_two = CityField.objects.get(id=2)
-        residential = Residential.objects.create(city=self.city, if_under_construction=False, city_field=city_field_two)
+        residential = StandardLevelResidentialZone.objects.create(city=self.city, if_under_construction=False, city_field=city_field_two)
         dumping_ground = DumpingGround.objects.create(city=self.city, if_under_construction=False, city_field=city_field_one)
         dust_cart = DustCart.objects.create(city=self.city, dumping_ground=dumping_ground)
         self.assertEqual(dust_cart.employee.count(), 0)

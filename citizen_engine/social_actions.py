@@ -40,21 +40,21 @@ class SocialAction:
         if homeless:
             resident_with_space = [r for r in self.city_data.list_of_buildings
                                    if isinstance(r, Residential)
-                                   and r.max_population - self.city_data.list_of_buildings[r]['people_in_charge'] > 0]
+                                   and r.max_population - self.city_data.list_of_buildings[r].people_in_charge > 0]
             if resident_with_space:
                 random.shuffle(homeless)
                 for r in resident_with_space:
-                    left = r.max_population - self.city_data.list_of_buildings[r]['people_in_charge']
+                    left = r.max_population - self.city_data.list_of_buildings[r].people_in_charge
                     while left > 0 and homeless:
                         hom = homeless.pop()
                         hom.resident_object = r
                         left -= 1
-                        self.city_data.list_of_buildings[r]['people_in_charge'] += 1
+                        self.city_data.list_of_buildings[r].people_in_charge += 1
 
     def find_place_to_live(self, m, f):
         if f.resident_object and m.resident_object:
-            total_residents_in_m = m.resident_object.max_population - self.city_data.list_of_buildings[m.resident_object]['people_in_charge']
-            total_residents_in_f = f.resident_object.max_population - self.city_data.list_of_buildings[f.resident_object]['people_in_charge']
+            total_residents_in_m = m.resident_object.max_population - self.city_data.list_of_buildings[m.resident_object].people_in_charge
+            total_residents_in_f = f.resident_object.max_population - self.city_data.list_of_buildings[f.resident_object].people_in_charge
             if total_residents_in_f > 0 and total_residents_in_m > 0:
                 return random.choice([f.resident_object, m.resident_object])
             elif total_residents_in_m > 0 and total_residents_in_f == 0:
@@ -62,10 +62,10 @@ class SocialAction:
             elif total_residents_in_f > 0 and total_residents_in_m == 0:
                 return f.resident_object
         elif m.resident_object and \
-                m.resident_object.max_population - self.city_data.list_of_buildings[m.resident_object]['people_in_charge'] > 0:
+                m.resident_object.max_population - self.city_data.list_of_buildings[m.resident_object].people_in_charge > 0:
             return m.resident_object
         elif f.resident_object and \
-                f.resident_object.max_population - self.city_data.list_of_buildings[f.resident_object]['people_in_charge'] > 0:
+                f.resident_object.max_population - self.city_data.list_of_buildings[f.resident_object].people_in_charge > 0:
             return f.resident_object
 
     def match_marriages(self):
@@ -84,7 +84,7 @@ class SocialAction:
                     f.surname = m.surname
                     f.resident_object = place_to_live
                     m.resident_object = place_to_live
-                    self.city_data.list_of_buildings[place_to_live]['people_in_charge'] += 1
+                    self.city_data.list_of_buildings[place_to_live].people_in_charge += 1
                     Message.objects.create(
                         profile=self.profile,
                         turn=self.profile.current_turn,
@@ -93,7 +93,7 @@ class SocialAction:
 
     def check_if_there_is_place_for_child(self, ml):
         return ml.resident_object.max_population \
-               - self.city_data.list_of_buildings[ml.resident_object]['people_in_charge'] > 0
+               - self.city_data.list_of_buildings[ml.resident_object].people_in_charge > 0
 
     def born_child(self):
         for family in self.citizen_data.pairs_in_city:
@@ -115,7 +115,7 @@ class SocialAction:
                     mother_id=ml.id,
                     resident_object=ml.resident_object
                 )
-                self.city_data.list_of_buildings[ml.resident_object]['people_in_charge'] += 1
+                self.city_data.list_of_buildings[ml.resident_object].people_in_charge += 1
                 Message.objects.create(
                     profile=self.profile,
                     turn=self.profile.current_turn,

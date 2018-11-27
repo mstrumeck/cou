@@ -108,16 +108,16 @@ class CityBuildingStats:
 
     def home_areas_demand(self):
         return "{}/{}".format(
-            sum(self.data.list_of_workplaces[h]['max_employees'] - self.data.list_of_workplaces[h]['people_in_charge']
+            sum(self.data.list_of_workplaces[h].max_employees - self.data.list_of_workplaces[h].people_in_charge
                  for h in self.data.list_of_workplaces),
-            sum(self.data.list_of_workplaces[h]['max_employees'] for h in self.data.list_of_workplaces))
+            sum(self.data.list_of_workplaces[h].max_employees for h in self.data.list_of_workplaces))
 
     def industrial_areas_demand(self):
         return "{}/{}".format(
-            sum(self.data.list_of_buildings[i]['max_employees'] - self.data.list_of_buildings[i]['people_in_charge']
+            sum(self.data.list_of_buildings[i].max_employees - self.data.list_of_buildings[i].people_in_charge
                 for i in self.data.list_of_buildings
                  if isinstance(i, TradeDistrict)),
-            sum(self.data.list_of_buildings[i]['max_employees'] for i in self.data.list_of_buildings
+            sum(self.data.list_of_buildings[i].max_employees for i in self.data.list_of_buildings
                  if isinstance(i, TradeDistrict)))
 
     def trade_areas_demand(self):

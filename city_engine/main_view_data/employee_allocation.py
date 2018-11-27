@@ -33,11 +33,11 @@ class EmployeeAllocation:
                                                  buildings.college_employee_needed,
                                                  buildings.phd_employee_needed]):
                 edu = []
-                if buildings.elementary_employee_needed - len([x for x in self.data.list_of_workplaces[buildings]['elementary_employees']]) > 0:
+                if buildings.elementary_employee_needed - len([x for x in self.data.list_of_workplaces[buildings].elementary_employees]) > 0:
                     edu.append(ELEMENTARY)
-                if buildings.college_employee_needed - len([x for x in self.data.list_of_workplaces[buildings]['college_employees']]) > 0:
+                if buildings.college_employee_needed - len([x for x in self.data.list_of_workplaces[buildings].college_employees]) > 0:
                     edu.append(COLLEGE)
-                if buildings.phd_employee_needed - len([x for x in self.data.list_of_workplaces[buildings]['phd_employees']]) > 0:
+                if buildings.phd_employee_needed - len([x for x in self.data.list_of_workplaces[buildings].phd_employees]) > 0:
                     edu.append(PHD)
                 data.append([buildings, choice(edu)])
         if data:

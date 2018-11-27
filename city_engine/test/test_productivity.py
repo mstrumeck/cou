@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
-from city_engine.models import Residential, City
+from city_engine.models import StandardLevelResidentialZone, City
 from citizen_engine.models import Citizen, Profession
 from cou.abstract import RootClass
 from citizen_engine.social_actions import SocialAction

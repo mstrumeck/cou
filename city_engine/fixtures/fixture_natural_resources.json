@@ -160,7 +160,7 @@
   }
 },
   {
-  "model": "city_engine.residential",
+  "model": "city_engine.standardlevelresidentialzone",
   "pk": 1,
   "fields": {
     "city": 1,
@@ -176,10 +176,11 @@
     "recycling": 0,
     "name": "Budynek Mieszkalny",
     "population": 0,
-    "max_population": 30,
-    "build_time": 1,
-    "build_cost": 100,
-    "maintenance_cost": 10
+    "max_population": 4,
+    "build_time": 7,
+    "build_cost": 600000,
+    "maintenance_cost": 10,
+    "rent": 0
   }
 },
 {

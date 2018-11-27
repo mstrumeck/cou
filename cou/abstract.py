@@ -1,10 +1,14 @@
 from django.apps import apps
-from city_engine.models import Building, CityField, BuldingsWithWorkes, Vehicle, PowerPlant, Waterworks, SewageWorks, Residential
+from city_engine.models import Building, CityField, BuldingsWithWorkes, Vehicle, PowerPlant,\
+    Waterworks, SewageWorks, Residential, StandardLevelResidentialZone
 from abc import ABCMeta
 from django.db.models import Sum
 from resources.models import Resource
 from citizen_engine.models import Citizen, Education, Profession
 from cou.global_var import ELEMENTARY, COLLEGE, PHD
+from player.models import Profile
+from cou.data_containers import BuildingDataContainer, CitizenDataContainer, VehicleDataContainer, \
+    CityFieldDataContainer, ResidentialDataContainer
 
 
 class BasicAbstract(metaclass=ABCMeta):
@@ -56,6 +60,7 @@ class RootClass(BasicAbstract):
     def __init__(self, city, user):
         self.city = city
         self.user = user
+        self.profile = Profile.objects.get(user_id=self.user.id)
         self.to_save = []
         self.city_fields_in_city = {}
         self.citizens_in_city = {}
@@ -66,96 +71,47 @@ class RootClass(BasicAbstract):
                                       if isinstance(b, BuldingsWithWorkes)}, **self.vehicles}
 
     def preprocess_buildings(self, buildings, citizens):
-        for b in buildings:
+        for b in (b for b in buildings if not isinstance(b, Residential)):
             self.to_save.append(b)
-            self.list_of_buildings[b] = {
-                'trash': [trash for trash in b.trash.all() if b.trash.all().exists()],
-                'row_col_cor': (b.city_field.row, b.city_field.col),
-                'people_in_charge': b.resident.count() if isinstance(b, Residential) else b.employee.count(),
-                'max_employees': sum(
-                    [b.elementary_employee_needed, b.college_employee_needed, b.phd_employee_needed]
-                ) if isinstance(b, BuldingsWithWorkes) else 0,
-                'elementary_employees': [e for e in citizens if e.workplace_object == b
-                                         and self.citizens_in_city[e]['current_profession'].education == ELEMENTARY]
-                if isinstance(b, BuldingsWithWorkes) else 0,
-                'elementary_vacancies': b.elementary_employee_needed - len(
-                    [e for e in citizens if e.workplace_object == b
-                     and self.citizens_in_city[e]['current_profession'].education == ELEMENTARY]
-                ) if isinstance(b, BuldingsWithWorkes) else 0,
-                'college_employees': [e for e in citizens if e.workplace_object == b
-                                      and self.citizens_in_city[e]['current_profession'].education == COLLEGE]
-                if isinstance(b, BuldingsWithWorkes) else 0,
-                'college_vacancies': b.college_employee_needed - len(
-                    [e for e in citizens if e.workplace_object == b
-                     and self.citizens_in_city[e]['current_profession'].education == COLLEGE]
-                ) if isinstance(b, BuldingsWithWorkes) else 0,
-                'phd_employees': [e for e in citizens if e.workplace_object == b
-                                  and self.citizens_in_city[e]['current_profession'].education == PHD]
-                if isinstance(b, BuldingsWithWorkes) else 0,
-                'phd_vacancies':b.phd_employee_needed - len(
-                    [e for e in citizens if e.workplace_object == b
-                     and self.citizens_in_city[e]['current_profession'].education == PHD]
-                ) if isinstance(b, BuldingsWithWorkes) else 0,
-            }
+            self.list_of_buildings[b] = BuildingDataContainer(instance=b,
+                                                              citizens=citizens,
+                                                              citizens_data=self.citizens_in_city,
+                                                              fields_data=self.city_fields_in_city,
+                                                              profile=self.profile)
 
-    def preprocess_citizens(self, citizens):
+    def preprocess_citizens(self, citizens, residentials):
         for citizen in citizens:
             self.to_save.append(citizen)
-            citizen_dict = {}
-            educations = citizen.education_set.all()
-            professions = citizen.profession_set.all()
-            self.to_save += list(educations) + list(professions)
-            current_educations = [e for e in educations if e.if_current is True]
-            current_professions = [p for p in professions if p.if_current is True]
-            citizen_dict['educations'] = educations
-            citizen_dict['professions'] = professions
-            citizen_dict['current_education'] = None
-            citizen_dict['current_profession'] = None
-            if current_educations:
-                ce = current_educations.pop()
-                citizen_dict['current_education'] = ce
-            if current_professions:
-                cp = current_professions.pop()
-                citizen_dict['current_profession'] = cp
-            self.citizens_in_city[citizen] = citizen_dict
+            self.citizens_in_city[citizen] = CitizenDataContainer(citizen, self.to_save, residentials)
 
     def preprocess_vehicles(self, vehicles, citizens):
         for vehicle in vehicles:
             self.to_save.append(vehicle)
-            self.vehicles[vehicle] = {
-                'people_in_charge': vehicle.employee.count(),
-                'max_employees': sum(
-                    [vehicle.elementary_employee_needed, vehicle.college_employee_needed, vehicle.phd_employee_needed]),
-                'elementary_employees': [c for c in citizens if c.workplace_object == vehicle and c.edu_title == ELEMENTARY],
-                'elementary_vacancies': vehicle.elementary_employee_needed - len(
-                    [c for c in citizens if c.workplace_object == vehicle
-                     and self.citizens_in_city[c]['current_profession'].education == ELEMENTARY]
-                ),
-                'college_employees': [c for c in citizens if c.workplace_object == vehicle and c.edu_title == COLLEGE],
-                'college_vacancies': vehicle.college_employee_needed - len(
-                    [c for c in citizens if c.workplace_object == vehicle
-                     and self.citizens_in_city[c]['current_profession'].education == COLLEGE]
-                ),
-                'phd_employees': [c for c in citizens if c.workplace_object == vehicle and c.edu_title == PHD],
-                'phd_vacancies': vehicle.phd_employee_needed - len(
-                    [c for c in citizens if c.workplace_object == vehicle
-                     and self.citizens_in_city[c]['current_profession'].education == PHD]
-                )
-            }
+            self.vehicles[vehicle] = VehicleDataContainer(instance=vehicle, citizens=citizens, citizens_in_city=self.citizens_in_city)
 
     def preprocess_city_fields(self):
         for field in CityField.objects.filter(city=self.city):
-            self.city_fields_in_city[field] = {'row_col': (field.row, field.col), 'pollution': field.pollution}
+            self.city_fields_in_city[field] = CityFieldDataContainer(field)
             self.to_save.append(field)
+
+    def preprocess_residentials(self, buildings, citizens):
+        for residential in (r for r in buildings if isinstance(r, Residential)):
+            self.to_save.append(residential)
+            self.list_of_buildings[residential] = ResidentialDataContainer(instance=residential,
+                                                                           citizens=citizens,
+                                                                           citizens_data=self.citizens_in_city,
+                                                                           fields_data=self.city_fields_in_city,
+                                                                           profile=self.profile)
 
     def preprocess_data(self):
         citizens = Citizen.objects.filter(city=self.city)
         buildings = self.get_quersies_of_buildings()
         vehicles = self.get_queries_of_vehicles()
-        self.preprocess_citizens(citizens)
+        self.preprocess_city_fields()
+        self.preprocess_residentials(buildings, citizens)
+        self.preprocess_citizens(citizens, [self.list_of_buildings[r] for r in self.list_of_buildings if isinstance(r, Residential)])
         self.preprocess_buildings(buildings, citizens)
         self.preprocess_vehicles(vehicles, citizens)
-        self.preprocess_city_fields()
 
     def datasets_for_turn_calculation(self):
         power_resources_allocation_dataset = {

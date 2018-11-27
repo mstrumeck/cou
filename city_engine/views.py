@@ -6,17 +6,18 @@ from django.shortcuts import render
 from django.utils.safestring import mark_safe
 from citizen_engine.models import Citizen
 from city_engine.main_view_data.board import Board, HexDetail
-from city_engine.models import City
+from city_engine.models import City, StandardLevelResidentialZone
 from player.models import Profile
 from .main_view_data.city_stats import \
     CityStatsCenter
 from .turn_data.main import TurnCalculation
-from .turn_data.build import build_building
+from .turn_data.build import build_building, build_resident_zone
 from django.db.models import F
 from cou.abstract import RootClass
 from cou.abstract import ResourcesData
 from datetime import datetime
 from player.models import Message
+from cou.abstract import AbstractAdapter
 
 
 @login_required
@@ -36,6 +37,9 @@ def main_view(request):
     msg = Message.objects.filter(profile=profile, turn=profile.current_turn-1).values('text')
     city.save()
 
+    build_exception = [StandardLevelResidentialZone]
+    list_of_buildings = [sub.__name__ for sub in AbstractAdapter().get_subclasses_of_all_buildings() if sub not in build_exception]
+
     return render(request, 'main_view.html', {'city': city,
                                               'profile': profile,
                                               'city_resources_stats': city_resources_allocation_stats,
@@ -50,7 +54,8 @@ def main_view(request):
                                               'industial_demands': city_stats.building_stats.industrial_areas_demand(),
                                               'trade_demands': city_stats.building_stats.trade_areas_demand(),
                                               'citizen': Citizen.objects.all(),
-                                              'msg': msg})
+                                              'msg': msg,
+                                              'list_of_buildings': list_of_buildings})
 
 
 @login_required
@@ -64,7 +69,6 @@ def resources_view(request):
 
 @login_required
 def turn_calculations(request):
-
     city = City.objects.get(user_id=request.user.id)
     data = RootClass(city, request.user)
     profile = Profile.objects.get(user_id=request.user.id)
@@ -76,4 +80,10 @@ def turn_calculations(request):
 @login_required
 def build(request, row, col, build_type):
     build_building(request, row, col, build_type)
+    return HttpResponseRedirect(reverse('city_engine:main'))
+
+
+@login_required
+def build_resident(request, row, col, max_population):
+    build_resident_zone(request, row, col, max_population)
     return HttpResponseRedirect(reverse('city_engine:main'))

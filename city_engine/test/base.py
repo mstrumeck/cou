@@ -6,7 +6,7 @@ from citizen_engine.citizen_creation import CreateCitizen
 from cou.abstract import RootClass
 from cou.global_var import ELEMENTARY, COLLEGE, PHD
 from city_engine.models import City, CityField, \
-    Residential, \
+    StandardLevelResidentialZone, \
     ProductionBuilding, \
     WindPlant, CoalPlant, RopePlant, \
     WaterTower
@@ -87,7 +87,7 @@ class CityFixture(test.TestCase):
         second_factory.city_field = CityField.objects.get(row=0, col=0, city=second_city)
         second_factory.save()
 
-        first_residential = Residential()
+        first_residential = StandardLevelResidentialZone()
         first_residential.max_population = 20
         first_residential.current_population = 4
         first_residential.residential_level = 0
@@ -97,7 +97,7 @@ class CityFixture(test.TestCase):
         first_residential.city_field = CityField.objects.get(row=0, col=1, city=self.city)
         first_residential.save()
 
-        second_residential = Residential()
+        second_residential = StandardLevelResidentialZone()
         second_residential.max_population = 20
         second_residential.current_population = 4
         second_residential.residential_level = 0
