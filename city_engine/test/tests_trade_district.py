@@ -23,7 +23,7 @@ class TestTradeDistrict(test.TestCase):
         self.assertEqual(trade_district.resources_stored, 0)
         self.assertEqual(trade_district.goods_stored, 0)
         self.assertEqual(float(city.cash), 9480.0)
-        self.assertEqual(city.mass, 1000)
+        self.assertEqual(city.mass, 1000000)
         RC = RootClass(city, User.objects.latest('id'))
         trade_district.creating_goods(city, RC.list_of_buildings, RC.citizens_in_city)
         trade_district.product_goods(RC.list_of_buildings, RC.citizens_in_city)
@@ -33,7 +33,7 @@ class TestTradeDistrict(test.TestCase):
         self.assertEqual(trade_district.resources_stored, 1)
         self.assertEqual(trade_district.goods_stored, 39)
         self.assertEqual(float(city.cash), 9578.0)
-        self.assertEqual(city.mass, 960)
+        self.assertEqual(city.mass, 999960)
 
     def test_trade_dictrict_buy_resources_not_active(self):
         trade_district = TradeDistrict.objects.create(city_id=1,

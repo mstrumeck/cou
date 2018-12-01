@@ -78,6 +78,13 @@ class BuldingsWithWorkes(Building):
                                content_type_field='workplace_content_type'
                                )
 
+    def wage_payment(self, city, employees):
+        import decimal
+        for employee in employees:
+            se = decimal.Decimal(employee.salary_expectation)
+            employee.ci.cash += se
+            city.cash -= se
+
     def trash_calculation(self, employee):
         return float(self.pollution_calculation(employee)) * float(self.pollution_rate)
 
@@ -653,6 +660,13 @@ class Vehicle(models.Model):
                                object_id_field='workplace_object_id',
                                content_type_field='workplace_content_type'
                                )
+
+    def wage_payment(self, city, employees):
+        import decimal
+        for employee in employees:
+            se = decimal.Decimal(employee.salary_expectation)
+            employee.ci.cash += se
+            city.cash -= se
 
     def calculate_wage_for_employees(self, wage_of_employees, total_wages, total_level, employees, employee_needed):
         if employee_needed:

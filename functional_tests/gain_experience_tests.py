@@ -8,6 +8,7 @@ from citizen_engine.models import Citizen, Education, Profession
 from cou.global_var import FEMALE, ELEMENTARY, COLLEGE, MALE, TRAINEE, JUNIOR
 from django.test import override_settings
 from cou.abstract import RootClass
+import decimal
 
 
 @override_settings(DEBUG=True)
@@ -40,7 +41,6 @@ class CitizenBasicTests(BaseTest):
             city=self.city,
             age=self.school.age_of_start,
             month_of_birth=2,
-            cash=50,
             health=5,
             name="0",
             surname="2",
@@ -51,7 +51,6 @@ class CitizenBasicTests(BaseTest):
             city=self.city,
             age=self.school.age_of_start,
             month_of_birth=2,
-            cash=50,
             health=5,
             name="0",
             surname="3",
@@ -90,6 +89,10 @@ class CitizenBasicTests(BaseTest):
         self.assertEqual(len(RC.citizens_in_city[self.student_one].educations), 0)
         self.assertEqual(len(RC.citizens_in_city[self.student_two].educations), 0)
         self.assertEqual(len(RC.citizens_in_city[self.teacher].educations), 2)
+        self.assertEqual(RC.citizens_in_city[self.student_one].ci.cash, 0)
+        self.assertEqual(RC.citizens_in_city[self.student_two].ci.cash, 0)
+        self.assertEqual(RC.citizens_in_city[self.teacher].ci.cash, decimal.Decimal(100.00))
+        self.assertEqual(City.objects.latest('id').cash, decimal.Decimal(9480.00))
 
         main_view.next_turns(2)
         RC = RootClass(self.city, self.user)
@@ -104,6 +107,10 @@ class CitizenBasicTests(BaseTest):
         self.assertEqual(RC.citizens_in_city[self.student_two].current_education.effectiveness, 0)
         self.assertEqual(RC.citizens_in_city[self.teacher].current_profession.proficiency, 0.04)
         self.assertEqual(RC.citizens_in_city[self.teacher].current_profession.job_grade, TRAINEE)
+        self.assertEqual(RC.citizens_in_city[self.student_one].ci.cash, 0)
+        self.assertEqual(RC.citizens_in_city[self.student_two].ci.cash, 0)
+        self.assertEqual(RC.citizens_in_city[self.teacher].ci.cash, decimal.Decimal(508.00))
+        self.assertEqual(City.objects.latest('id').cash, decimal.Decimal(9072.00))
 
         self.profile.current_turn = 1
         self.profile.save()
@@ -117,6 +124,10 @@ class CitizenBasicTests(BaseTest):
         self.assertEqual(RC.citizens_in_city[self.teacher].salary_expectation, 424)
         self.assertEqual(RC.citizens_in_city[self.student_one].salary_expectation, 0)
         self.assertEqual(RC.citizens_in_city[self.student_two].salary_expectation, 0)
+        self.assertEqual(RC.citizens_in_city[self.student_one].ci.cash, 0)
+        self.assertEqual(RC.citizens_in_city[self.student_two].ci.cash, 0)
+        self.assertEqual(RC.citizens_in_city[self.teacher].ci.cash, decimal.Decimal(924.00))
+        self.assertEqual(City.objects.latest('id').cash, decimal.Decimal(8656.00))
 
         main_view.next_turns(1)
         RC = RootClass(self.city, self.user)
@@ -127,6 +138,10 @@ class CitizenBasicTests(BaseTest):
         self.assertEqual(RC.citizens_in_city[self.teacher].salary_expectation, 432)
         self.assertEqual(RC.citizens_in_city[self.student_one].salary_expectation, 0)
         self.assertEqual(RC.citizens_in_city[self.student_two].salary_expectation, 0)
+        self.assertEqual(RC.citizens_in_city[self.student_one].ci.cash, 0)
+        self.assertEqual(RC.citizens_in_city[self.student_two].ci.cash, 0)
+        self.assertEqual(RC.citizens_in_city[self.teacher].ci.cash, decimal.Decimal(1348.00))
+        self.assertEqual(City.objects.latest('id').cash, decimal.Decimal(8232.00))
 
         main_view.next_turns(1)
         RC = RootClass(self.city, self.user)
@@ -137,6 +152,10 @@ class CitizenBasicTests(BaseTest):
         self.assertEqual(RC.citizens_in_city[self.teacher].salary_expectation, 440.00000000000006)
         self.assertEqual(RC.citizens_in_city[self.student_one].salary_expectation, 0)
         self.assertEqual(RC.citizens_in_city[self.student_two].salary_expectation, 0)
+        self.assertEqual(RC.citizens_in_city[self.student_one].ci.cash, 0)
+        self.assertEqual(RC.citizens_in_city[self.student_two].ci.cash, 0)
+        self.assertEqual(RC.citizens_in_city[self.teacher].ci.cash, decimal.Decimal(1780.00))
+        self.assertEqual(City.objects.latest('id').cash, decimal.Decimal(7800.00))
 
         main_view.next_turns(1)
         RC = RootClass(self.city, self.user)
@@ -147,3 +166,7 @@ class CitizenBasicTests(BaseTest):
         self.assertEqual(RC.citizens_in_city[self.teacher].salary_expectation, 448.00000000000006)
         self.assertEqual(RC.citizens_in_city[self.student_one].salary_expectation, 0)
         self.assertEqual(RC.citizens_in_city[self.student_two].salary_expectation, 0)
+        self.assertEqual(RC.citizens_in_city[self.student_one].ci.cash, 0)
+        self.assertEqual(RC.citizens_in_city[self.student_two].ci.cash, 0)
+        self.assertEqual(RC.citizens_in_city[self.teacher].ci.cash, decimal.Decimal(2220.00))
+        self.assertEqual(City.objects.latest('id').cash, decimal.Decimal(7360.00))

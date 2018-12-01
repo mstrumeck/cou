@@ -66,6 +66,13 @@ class CitizenDataContainer:
             if self.home and self.current_profession else 0
 
 
+class FamilyDataContainer:
+    def __init__(self, instance, citizens):
+        self.fi = instance,
+        self.members = [m for m in citizens if m.family == instance]
+        self.parents = [m for m in self.members if m.partner_id in [m.id for m in self.members]]
+
+
 class ResidentialDataContainer:
     def __init__(self, instance, citizens_data, citizens, fields_data, profile):
         self.bi = instance

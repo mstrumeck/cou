@@ -4,11 +4,11 @@ from city_engine.models import Building, CityField, BuldingsWithWorkes, Vehicle,
 from abc import ABCMeta
 from django.db.models import Sum
 from resources.models import Resource
-from citizen_engine.models import Citizen, Education, Profession
+from citizen_engine.models import Citizen, Education, Profession, Family
 from cou.global_var import ELEMENTARY, COLLEGE, PHD
 from player.models import Profile
 from cou.data_containers import BuildingDataContainer, CitizenDataContainer, VehicleDataContainer, \
-    CityFieldDataContainer, ResidentialDataContainer
+    CityFieldDataContainer, ResidentialDataContainer, FamilyDataContainer
 
 
 class BasicAbstract(metaclass=ABCMeta):
@@ -66,6 +66,7 @@ class RootClass(BasicAbstract):
         self.citizens_in_city = {}
         self.vehicles = {}
         self.list_of_buildings = {}
+        self.families = {}
         self.preprocess_data()
         self.list_of_workplaces = {**{b: self.list_of_buildings[b] for b in self.list_of_buildings
                                       if isinstance(b, BuldingsWithWorkes)}, **self.vehicles}
@@ -103,6 +104,15 @@ class RootClass(BasicAbstract):
                                                                            fields_data=self.city_fields_in_city,
                                                                            profile=self.profile)
 
+    def preprocess_families(self):
+        for family in Family.objects.filter(city=self.city):
+            if family.citizen_set.all():
+                self.to_save.append(family)
+                self.families[family] = FamilyDataContainer(instance=family,
+                                                            citizens=self.citizens_in_city)
+            else:
+                family.delete()
+
     def preprocess_data(self):
         citizens = Citizen.objects.filter(city=self.city)
         buildings = self.get_quersies_of_buildings()
@@ -110,6 +120,7 @@ class RootClass(BasicAbstract):
         self.preprocess_city_fields()
         self.preprocess_residentials(buildings, citizens)
         self.preprocess_citizens(citizens, [self.list_of_buildings[r] for r in self.list_of_buildings if isinstance(r, Residential)])
+        self.preprocess_families()
         self.preprocess_buildings(buildings, citizens)
         self.preprocess_vehicles(vehicles, citizens)
 

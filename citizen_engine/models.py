@@ -9,6 +9,11 @@ from cou.global_var import TRAINEE, JUNIOR, MASTER, PROFESSIONAL, REGULAR,\
     ELEMENTARY, COLLEGE, PHD
 
 
+class Family(models.Model):
+    surname = models.CharField(default='', max_length=30)
+    city = models.ForeignKey(City)
+
+
 class Citizen(models.Model):
     EDUCATION = (
         (ELEMENTARY, 'Elementary'),
@@ -23,6 +28,7 @@ class Citizen(models.Model):
     city = models.ForeignKey(City)
     name = models.CharField(max_length=15)
     surname = models.CharField(max_length=15)
+    family = models.ForeignKey(Family, null=True)
     age = models.IntegerField()
     month_of_birth = models.IntegerField()
     sex = models.CharField(choices=SEX, max_length=5)
@@ -34,24 +40,18 @@ class Citizen(models.Model):
     father_id = models.PositiveIntegerField(default=0)
     mother_id = models.PositiveIntegerField(default=0)
 
-    workplace_content_type = models.ForeignKey(ContentType,
-                                     on_delete=models.SET_NULL,
-                                     null=True,
-                                     related_name='workplace_place')
+    workplace_content_type = models.ForeignKey(ContentType, on_delete=models.SET_NULL, null=True,
+                                               related_name='workplace_place')
     workplace_object_id = models.PositiveIntegerField(null=True)
     workplace_object = GenericForeignKey('workplace_content_type', 'workplace_object_id')
 
-    resident_content_type = models.ForeignKey(ContentType,
-                                     on_delete=models.SET_NULL,
-                                     null=True,
-                                     related_name='resident_place')
+    resident_content_type = models.ForeignKey(ContentType, on_delete=models.SET_NULL, null=True,
+                                              related_name='resident_place')
     resident_object_id = models.PositiveIntegerField(null=True)
     resident_object = GenericForeignKey('resident_content_type', 'resident_object_id')
 
-    school_content_type = models.ForeignKey(ContentType,
-                                     on_delete=models.SET_NULL,
-                                     null=True,
-                                     related_name='school_place')
+    school_content_type = models.ForeignKey(ContentType, on_delete=models.SET_NULL, null=True,
+                                            related_name='school_place')
     school_object_id = models.PositiveIntegerField(null=True)
     school_object = GenericForeignKey('school_content_type', 'school_object_id')
 

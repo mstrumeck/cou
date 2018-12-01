@@ -63,14 +63,14 @@ class TestFindWork(SocialTestHelper):
         dg = DumpingGround.objects.latest('id')
         citizen = [x for x in RC.citizens_in_city].pop()
         self.assertEqual(citizen.workplace_object, None)
-        CitizenWorkEngine(RC).human_resources_allocation()
+        CitizenWorkEngine(RC, self.city).human_resources_allocation()
         self.assertNotEqual(citizen.workplace_object, None)
         school = PrimarySchool.objects.create(
                 city=self.city,
                 city_field=CityField.objects.latest('id'),
             )
         RC = RootClass(self.city, User.objects.latest('id'))
-        CitizenWorkEngine(RC).human_resources_allocation()
+        CitizenWorkEngine(RC, self.city).human_resources_allocation()
         citizen = [x for x in RC.citizens_in_city].pop()
         self.assertEqual(citizen.workplace_object, school)
 
@@ -81,7 +81,7 @@ class TestFindWork(SocialTestHelper):
         RC = RootClass(self.city, User.objects.latest('id'))
         dc = DustCart.objects.latest('id')
         self.assertEqual(dc.employee.all().count(), 0)
-        CitizenWorkEngine(RC).human_resources_allocation()
+        CitizenWorkEngine(RC, self.city).human_resources_allocation()
         self.save_all_ob_from(RC.citizens_in_city)
         self.save_all_ob_from(RC.list_of_workplaces)
         self.assertEqual(dc.employee.all().count(), 3)
@@ -99,7 +99,7 @@ class TestFindWork(SocialTestHelper):
         RC = RootClass(self.city, User.objects.latest('id'))
         self.assertEqual(RC.list_of_workplaces[school].people_in_charge, 0)
         self.assertEqual(RC.list_of_workplaces[school].college_vacancies, school.college_employee_needed)
-        CitizenWorkEngine(RC).human_resources_allocation()
+        CitizenWorkEngine(RC, self.city).human_resources_allocation()
         self.save_all_ob_from(RC.citizens_in_city)
         self.s = Citizen.objects.get(id=self.s.id)
         self.f = Citizen.objects.get(id=self.f.id)
@@ -124,7 +124,7 @@ class TestFindWork(SocialTestHelper):
         self.assertEqual(self.m.workplace_object, None)
         self.assertEqual(self.s.workplace_object, None)
         RC = RootClass(self.city, User.objects.latest('id'))
-        CitizenWorkEngine(RC).human_resources_allocation()
+        CitizenWorkEngine(RC, self.city).human_resources_allocation()
         self.save_all_ob_from(RC.citizens_in_city)
         self.assertEqual(self.f.workplace_object, None)
         self.assertEqual(self.m.workplace_object, None)

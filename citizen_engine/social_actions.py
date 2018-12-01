@@ -1,7 +1,8 @@
 from citizen_engine.citizen_abstract import CitizenAbstract
-from citizen_engine.models import Citizen, Education, Profession
+from citizen_engine.models import Citizen, Education, Profession, Family
 from django.db.models import F
-import random, string
+import random
+import string
 from city_engine.models import Residential, School
 from player.models import Message
 import datetime
@@ -19,9 +20,8 @@ class SocialAction:
     def run(self):
         self.match_marriages()
         self.born_child()
-        self.citizen_data.create_and_return_families_in_city()
         self.find_home()
-        CitizenWorkEngine(self.city_data).human_resources_allocation()
+        CitizenWorkEngine(self.city_data, self.city).human_resources_allocation()
         self.launch_school()
         self.update_age()
 
@@ -70,10 +70,9 @@ class SocialAction:
 
     def match_marriages(self):
         males = [m for m in self.citizen_data.mature_males if m.partner_id == 0]
-        if males is not None:
-            females = [m for m in self.citizen_data.mature_females if m.partner_id == 0]
-            random.shuffle(males)
-            random.shuffle(females)
+        females = [m for m in self.citizen_data.mature_females if m.partner_id == 0]
+        if males is not None and females is not None:
+            random.shuffle(males), random.shuffle(females)
             for m, f in zip(males, females):
                 if random.random() < self.citizen_data.chance_to_marriage[f.age] \
                         and random.random() < self.citizen_data.chance_to_marriage[m.age]\
@@ -82,6 +81,7 @@ class SocialAction:
                     f.partner_id = m.id
                     m.partner_id = f.id
                     f.surname = m.surname
+                    f.family = m.family
                     f.resident_object = place_to_live
                     m.resident_object = place_to_live
                     self.city_data.list_of_buildings[place_to_live].people_in_charge += 1
@@ -89,16 +89,16 @@ class SocialAction:
                         profile=self.profile,
                         turn=self.profile.current_turn,
                         text="New family, {} was created!".format(m.surname))
-        self.citizen_data.create_and_return_pairs_in_city()
+            self.city_data.preprocess_families()
 
     def check_if_there_is_place_for_child(self, ml):
         return ml.resident_object.max_population \
                - self.city_data.list_of_buildings[ml.resident_object].people_in_charge > 0
 
     def born_child(self):
-        for family in self.citizen_data.pairs_in_city:
-            ml = self.citizen_data.pairs_in_city[family][MALE]
-            fl = self.citizen_data.pairs_in_city[family][FEMALE]
+        for family in [f for f in self.citizen_data.families if len(self.citizen_data.families[f].members) > 1]:
+            ml = [m for m in self.citizen_data.families[family].parents if m.sex == MALE].pop()
+            fl = [m for m in self.citizen_data.families[family].parents if m.sex == FEMALE].pop()
             if random.random() < self.citizen_data.chance_to_born[ml.age] \
                     and random.random() < self.citizen_data.chance_to_born[fl.age] \
                     and self.check_if_there_is_place_for_child(ml):
@@ -111,9 +111,10 @@ class SocialAction:
                     name="".join([random.choice(string.ascii_letters) for x in range(5)]),
                     surname=ml.surname,
                     sex=random.choice(Citizen.SEX)[0],
-                    father_id=fl.id,
-                    mother_id=ml.id,
-                    resident_object=ml.resident_object
+                    father_id=ml.id,
+                    mother_id=fl.id,
+                    resident_object=ml.resident_object,
+                    family=ml.family
                 )
                 self.city_data.list_of_buildings[ml.resident_object].people_in_charge += 1
                 Message.objects.create(

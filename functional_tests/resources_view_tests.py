@@ -48,16 +48,16 @@ class ResourceAllocationTest(BaseTest):
         self.assertGreater(rd.resources['Milk'][1], 359)
 
         self.assertEqual('Fasola', rd.resources['Bean'][0][0].name)
-        self.assertIn(rd.resources['Bean'][0][0].size, [x for x in range(6, 12)])
-        self.assertIn(rd.resources['Bean'][1], [x for x in range(6, 12)])
+        self.assertIn(rd.resources['Bean'][0][0].size, [x for x in range(2, 16)])
+        self.assertIn(rd.resources['Bean'][1], [x for x in range(2, 16)])
 
         self.assertEqual('Ziemniaki', rd.resources['Potato'][0][0].name)
-        self.assertIn(rd.resources['Potato'][0][0].size, [x for x in range(6, 14)])
-        self.assertIn(rd.resources['Potato'][1], [x for x in range(6, 14)])
+        self.assertIn(rd.resources['Potato'][0][0].size, [x for x in range(2, 16)])
+        self.assertIn(rd.resources['Potato'][1], [x for x in range(2, 16)])
 
         self.assertEqual('Sałata', rd.resources['Lettuce'][0][0].name)
-        self.assertIn(rd.resources['Lettuce'][0][0].size, [x for x in range(3, 12)])
-        self.assertIn(rd.resources['Lettuce'][1], [x for x in range(3, 12)])
+        self.assertIn(rd.resources['Lettuce'][0][0].size, [x for x in range(2, 16)])
+        self.assertIn(rd.resources['Lettuce'][1], [x for x in range(2, 16)])
 
         resource_view.navigate_to_main_view()
         main_view.logout()
