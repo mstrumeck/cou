@@ -14,7 +14,6 @@ class StandardResidential(test.TestCase, TestHelper):
         self.city = City.objects.latest('id')
         self.user = User.objects.latest('id')
         self.profile = Profile.objects.latest('id')
-        cf = CityField.objects.create(row=1, col=1, city=self.city)
         self.s = StandardLevelResidentialZone.objects.latest('id')
 
     def test_rent_calculation(self):
@@ -22,7 +21,7 @@ class StandardResidential(test.TestCase, TestHelper):
         self.s.self__init(max_population=mp)
         self.s.save()
         self.assertEqual(self.s.max_population, mp)
-        self.assertEqual(RootClass(self.city, self.user).list_of_buildings[self.s].rent, 200)
+        self.assertEqual(RootClass(self.city, self.user).list_of_buildings[self.s].rent, 80.8)
 
     def test_rent_calculation_with_pollution(self):
         mp = random.randrange(1, 30)
@@ -33,14 +32,14 @@ class StandardResidential(test.TestCase, TestHelper):
         cf = CityField.objects.get(id=cf_id)
         cf.pollution = 20
         cf.save()
-        self.assertEqual(RootClass(self.city, self.user).list_of_buildings[self.s].rent, 160)
+        self.assertEqual(RootClass(self.city, self.user).list_of_buildings[self.s].rent, 64.8)
 
     def test_with_one_person(self):
         self.s.self__init(max_population=1)
         self.s.save()
-        self.assertEqual(RootClass(self.city, self.user).list_of_buildings[self.s].rent, 200)
+        self.assertEqual(RootClass(self.city, self.user).list_of_buildings[self.s].rent, 80.8)
 
     def test_with_different_taxation_level(self):
         self.profile.standard_residential_zone_taxation = 0.08
         self.profile.save()
-        self.assertEqual(RootClass(self.city, self.user).list_of_buildings[self.s].rent, 1600)
+        self.assertEqual(RootClass(self.city, self.user).list_of_buildings[self.s].rent, 691.2)

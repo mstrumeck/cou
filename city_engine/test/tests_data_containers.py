@@ -6,6 +6,8 @@ from cou.abstract import RootClass
 from django.contrib.auth.models import User
 from citizen_engine.models import Citizen, Profession, Education, Family
 from cou.global_var import COLLEGE, FEMALE, ELEMENTARY, PHD, MALE
+from player.models import Profile
+import decimal
 
 
 class DataContainersTests(test.TestCase):
@@ -128,9 +130,9 @@ class DataContainersTests(test.TestCase):
         Education.objects.create(citizen=p, name=PHD, effectiveness=1, if_current=False)
         Profession.objects.create(citizen=p, proficiency=0.8, name='Nauczyciel Akademicki')
         rc = RootClass(self.city, User.objects.latest('id'))
-        self.assertEqual(rc.citizens_in_city[s].salary_expectation, 600)
-        self.assertEqual(rc.citizens_in_city[m].salary_expectation, 240)
-        self.assertEqual(rc.citizens_in_city[p].salary_expectation, 1080)
+        self.assertEqual(rc.citizens_in_city[s].salary_expectation, 242.3999999999999772626324556767940521240234375)
+        self.assertEqual(rc.citizens_in_city[m].salary_expectation, 96.9599999999999937472239253111183643341064453125)
+        self.assertEqual(rc.citizens_in_city[p].salary_expectation, 436.31999999999999317878973670303821563720703125)
 
     def test_family_data_container_one_family(self):
         sr = StandardLevelResidentialZone.objects.latest('id')
@@ -279,3 +281,215 @@ class DataContainersTests(test.TestCase):
         self.assertIn(d, rc.families[family].members)
         self.assertIn(p, rc.families[family].parents)
         self.assertIn(m, rc.families[family].parents)
+
+    def test_pay_rent_success(self):
+        sr = StandardLevelResidentialZone.objects.latest('id')
+        family = Family.objects.create(city=self.city)
+        p = Citizen.objects.create(
+            city=self.city,
+            age=28,
+            month_of_birth=6,
+            cash=150,
+            health=5,
+            name="0",
+            surname="1",
+            sex=MALE,
+            education=PHD,
+            resident_object=sr,
+            family=family
+        )
+        m = Citizen.objects.create(
+            city=self.city,
+            age=28,
+            month_of_birth=6,
+            cash=70,
+            health=5,
+            name="0",
+            surname="2",
+            sex=FEMALE,
+            education=ELEMENTARY,
+            resident_object=sr,
+            family=family
+        )
+        p.partner_id = m.id
+        m.partner_id = p.id
+        p.save()
+        m.save()
+        self.assertEqual(self.city.cash, 9480)
+        rc = RootClass(self.city, User.objects.latest('id'))
+        self.assertEqual(rc.families[family].cash, 220)
+        self.assertEqual(rc.citizens_in_city[p].ci.resident_object, sr)
+        self.assertEqual(rc.citizens_in_city[m].ci.resident_object, sr)
+        self.assertEqual(rc.citizens_in_city[p].ci.cash, 150)
+        self.assertEqual(rc.citizens_in_city[m].ci.cash, 70)
+        self.assertEqual(rc.list_of_buildings[sr].bi.cash, 0)
+        rc.families[family].pay_rent(self.city, Profile.objects.latest('id'))
+        self.assertEqual(rc.citizens_in_city[p].ci.cash, 109.00)
+        self.assertEqual(rc.citizens_in_city[m].ci.cash, 29)
+        self.assertEqual(float(rc.list_of_buildings[sr].bi.cash), 81.18)
+        self.assertEqual(float(self.city.cash), 9480.82)
+        self.assertEqual(rc.citizens_in_city[p].ci.resident_object, sr)
+        self.assertEqual(rc.citizens_in_city[m].ci.resident_object, sr)
+
+    def test_pay_rent_eviction(self):
+        sr = StandardLevelResidentialZone.objects.latest('id')
+        family = Family.objects.create(city=self.city)
+        p = Citizen.objects.create(
+            city=self.city,
+            age=28,
+            month_of_birth=6,
+            cash=20,
+            health=5,
+            name="0",
+            surname="1",
+            sex=MALE,
+            education=PHD,
+            resident_object=sr,
+            family=family
+        )
+        m = Citizen.objects.create(
+            city=self.city,
+            age=28,
+            month_of_birth=6,
+            cash=20,
+            health=5,
+            name="0",
+            surname="2",
+            sex=FEMALE,
+            education=ELEMENTARY,
+            resident_object=sr,
+            family=family
+        )
+        p.partner_id = m.id
+        m.partner_id = p.id
+        p.save()
+        m.save()
+        self.assertEqual(self.city.cash, 9480)
+        rc = RootClass(self.city, User.objects.latest('id'))
+        self.assertEqual(rc.families[family].cash, 40)
+        self.assertEqual(rc.citizens_in_city[p].ci.cash, 20)
+        self.assertEqual(rc.citizens_in_city[m].ci.cash, 20)
+        self.assertEqual(rc.list_of_buildings[sr].bi.cash, 0)
+        self.assertEqual(rc.citizens_in_city[p].ci.resident_object, sr)
+        self.assertEqual(rc.citizens_in_city[m].ci.resident_object, sr)
+        rc.families[family].pay_rent(self.city, Profile.objects.latest('id'))
+        self.assertEqual(rc.families[family].cash, 40)
+        self.assertEqual(rc.citizens_in_city[p].ci.cash, 20)
+        self.assertEqual(rc.citizens_in_city[m].ci.cash, 20)
+        self.assertEqual(rc.list_of_buildings[sr].bi.cash, 0)
+        self.assertEqual(rc.citizens_in_city[p].ci.resident_object, None)
+        self.assertEqual(rc.citizens_in_city[m].ci.resident_object, None)
+        self.assertEqual(self.city.cash, 9480)
+
+    def test_pay_rent_failed_becouse_homless(self):
+        sr = StandardLevelResidentialZone.objects.latest('id')
+        family = Family.objects.create(city=self.city)
+        p = Citizen.objects.create(
+            city=self.city,
+            age=28,
+            month_of_birth=6,
+            cash=1150,
+            health=5,
+            name="0",
+            surname="1",
+            sex=MALE,
+            education=PHD,
+            family=family
+        )
+        m = Citizen.objects.create(
+            city=self.city,
+            age=28,
+            month_of_birth=6,
+            cash=1170,
+            health=5,
+            name="0",
+            surname="2",
+            sex=FEMALE,
+            education=ELEMENTARY,
+            family=family
+        )
+        p.partner_id = m.id
+        m.partner_id = p.id
+        p.save()
+        m.save()
+        self.assertEqual(self.city.cash, 9480)
+        rc = RootClass(self.city, User.objects.latest('id'))
+        self.assertEqual(rc.families[family].cash, 2320)
+        self.assertEqual(rc.citizens_in_city[p].ci.cash, 1150)
+        self.assertEqual(rc.citizens_in_city[m].ci.cash, 1170)
+        self.assertEqual(rc.list_of_buildings[sr].bi.cash, 0)
+        self.assertEqual(rc.citizens_in_city[p].ci.resident_object, None)
+        self.assertEqual(rc.citizens_in_city[m].ci.resident_object, None)
+        rc.families[family].pay_rent(self.city, Profile.objects.latest('id'))
+        self.assertEqual(rc.families[family].cash, 2320)
+        self.assertEqual(rc.citizens_in_city[p].ci.cash, 1150)
+        self.assertEqual(rc.citizens_in_city[m].ci.cash, 1170)
+        self.assertEqual(rc.list_of_buildings[sr].bi.cash, 0)
+        self.assertEqual(rc.citizens_in_city[p].ci.resident_object, None)
+        self.assertEqual(rc.citizens_in_city[m].ci.resident_object, None)
+        self.assertEqual(self.city.cash, 9480)
+
+    def test_pay_rent_success_but_without_18_years_old_son(self):
+        sr = StandardLevelResidentialZone.objects.latest('id')
+        family = Family.objects.create(city=self.city)
+        son = Citizen.objects.create(
+            city=self.city,
+            age=6,
+            month_of_birth=6,
+            cash=150,
+            health=5,
+            name="0",
+            surname="3",
+            sex=MALE,
+            resident_object=sr,
+            family=family
+        )
+        p = Citizen.objects.create(
+            city=self.city,
+            age=28,
+            month_of_birth=6,
+            cash=150,
+            health=5,
+            name="0",
+            surname="1",
+            sex=MALE,
+            education=PHD,
+            resident_object=sr,
+            family=family
+        )
+        m = Citizen.objects.create(
+            city=self.city,
+            age=28,
+            month_of_birth=6,
+            cash=70,
+            health=5,
+            name="0",
+            surname="2",
+            sex=FEMALE,
+            education=ELEMENTARY,
+            resident_object=sr,
+            family=family
+        )
+        p.partner_id = m.id
+        m.partner_id = p.id
+        p.save()
+        m.save()
+        self.assertEqual(self.city.cash, 9480)
+        rc = RootClass(self.city, User.objects.latest('id'))
+        self.assertEqual(rc.families[family].cash, 370)
+        self.assertEqual(rc.citizens_in_city[p].ci.resident_object, sr)
+        self.assertEqual(rc.citizens_in_city[m].ci.resident_object, sr)
+        self.assertEqual(rc.citizens_in_city[son].ci.resident_object, sr)
+        self.assertEqual(rc.citizens_in_city[p].ci.cash, 150)
+        self.assertEqual(rc.citizens_in_city[m].ci.cash, 70)
+        self.assertEqual(rc.citizens_in_city[son].ci.cash, 150)
+        self.assertEqual(rc.list_of_buildings[sr].bi.cash, 0)
+        rc.families[family].pay_rent(self.city, Profile.objects.latest('id'))
+        self.assertEqual(rc.citizens_in_city[p].ci.cash, 109)
+        self.assertEqual(rc.citizens_in_city[m].ci.cash, 29)
+        self.assertEqual(rc.citizens_in_city[son].ci.cash, 150)
+        self.assertEqual(float(rc.list_of_buildings[sr].bi.cash), 81.18)
+        self.assertEqual(float(self.city.cash), 9480.82)
+        self.assertEqual(rc.citizens_in_city[p].ci.resident_object, sr)
+        self.assertEqual(rc.citizens_in_city[m].ci.resident_object, sr)
+        self.assertEqual(rc.citizens_in_city[son].ci.resident_object, sr)

@@ -179,8 +179,7 @@
     "max_population": 30,
     "build_time": 7,
     "build_cost": 600000,
-    "maintenance_cost": 10,
-    "rent": 0
+    "maintenance_cost": 10
   }
 },
 {

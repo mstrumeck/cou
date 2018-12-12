@@ -1,6 +1,11 @@
 from city_engine.models import Building, CityField, BuldingsWithWorkes, Vehicle, PowerPlant,\
     Waterworks, SewageWorks, Residential, StandardLevelResidentialZone
 from cou.global_var import ELEMENTARY, COLLEGE, PHD
+from citizen_engine.models import Family
+from decimal import getcontext
+
+
+# getcontext().prec = 4
 
 
 class CityFieldDataContainer:
@@ -61,16 +66,41 @@ class CitizenDataContainer:
         self.home = [r for r in residentials if r.bi == self.ci.resident_object].pop() if self.ci.resident_object else None
         self.salary_expectation = self.__calculate_salary_expectation()
 
-    def __calculate_salary_expectation(self):
+    def __calculate_salary_expectation(self) -> float:
         return self.home.rent * ((1 + self.current_profession.proficiency) * len(self.educations)) \
             if self.home and self.current_profession else 0
 
 
 class FamilyDataContainer:
-    def __init__(self, instance, citizens):
+    def __init__(self, instance, citizens, residents):
         self.fi = instance,
         self.members = [m for m in citizens if m.family == instance]
         self.parents = [m for m in self.members if m.partner_id in [m.id for m in self.members]]
+        self.place_of_living = self.__give_place_of_living(residents)
+        self.cash = sum([m.cash for m in self.members])
+
+    def __give_place_of_living(self, residents):
+        place_of_livings = [r for r in residents if r.bi in [p.resident_object for p in self.members]]
+        return place_of_livings.pop() if place_of_livings else None
+
+    def pay_rent(self, city, profile):
+        if self.place_of_living:
+            if self.place_of_living.rent <= self.cash:
+                guard = 0
+                while self.place_of_living.rent > guard:
+                    for member in (m for m in self.members if m.age >= 18):
+                        if member.cash > 0:
+                            member.cash -= 1
+                            self.cash -= 1
+                            guard += 1
+                import decimal
+                tax_diff = guard * profile.standard_residential_zone_taxation
+                self.place_of_living.bi.cash += decimal.Decimal(guard - tax_diff)
+                city.cash += decimal.Decimal(tax_diff)
+            else:
+                for member in self.members:
+                    member.resident_object = None
+                self.place_of_living = None
 
 
 class ResidentialDataContainer:
@@ -86,11 +116,13 @@ class ResidentialDataContainer:
         self.__create_data_for_residential()
 
     def __create_data_for_residential(self):
-        basic_rent = (self.bi.build_cost * self.profile.standard_residential_zone_taxation) / self.bi.max_population \
-            if self.bi.build_cost and self.bi.max_population else 0
+        divider = 2.5
+        basic_rent = (self.bi.build_cost * (self.profile.standard_residential_zone_taxation/divider))\
+                     / self.bi.max_population if self.bi.build_cost and self.bi.max_population else 0
+        taxation = basic_rent * self.profile.standard_residential_zone_taxation
         pollution_penalty = basic_rent * (self.field_data[self.bi.city_field].pollution / 100) \
             if self.field_data[self.bi.city_field].pollution else 0
-        self.rent = basic_rent - pollution_penalty
+        self.rent = (basic_rent - pollution_penalty) + taxation
 
 
 class BuildingDataContainer:

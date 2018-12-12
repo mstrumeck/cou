@@ -109,7 +109,8 @@ class RootClass(BasicAbstract):
             if family.citizen_set.all():
                 self.to_save.append(family)
                 self.families[family] = FamilyDataContainer(instance=family,
-                                                            citizens=self.citizens_in_city)
+                                                            citizens=self.citizens_in_city,
+                                                            residents=[self.list_of_buildings[r] for r in self.list_of_buildings if isinstance(r, Residential)])
             else:
                 family.delete()
 

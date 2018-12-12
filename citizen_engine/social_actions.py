@@ -92,8 +92,7 @@ class SocialAction:
             self.city_data.preprocess_families()
 
     def check_if_there_is_place_for_child(self, ml):
-        return ml.resident_object.max_population \
-               - self.city_data.list_of_buildings[ml.resident_object].people_in_charge > 0
+        return self.city_data.list_of_buildings[ml.resident_object].people_in_charge < ml.resident_object.max_population
 
     def born_child(self):
         for family in [f for f in self.citizen_data.families if len(self.citizen_data.families[f].members) > 1]:

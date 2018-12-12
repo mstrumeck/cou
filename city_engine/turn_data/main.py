@@ -22,6 +22,7 @@ class TurnCalculation:
         # SocialAction(self.city, self.profile, self.data).run()
         ResourceAllocation(self.city, self.data).run()
         CollectGarbage(self.city, self.data).run()
+        self.financial_actions()
         self.collect_mass()
         self.execute_maintenance()
         self.update_build_status()
@@ -36,6 +37,12 @@ class TurnCalculation:
         self.city.save()
         for instance in self.data.to_save:
             instance.save()
+
+    def financial_actions(self):
+        for f in self.data.families:
+            self.data.families[f].pay_rent(
+                self.city,
+                self.profile)
 
     def trade_district_actions(self):
         for td in [td for td in self.data.list_of_buildings if isinstance(td, TradeDistrict)]:

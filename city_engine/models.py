@@ -41,6 +41,7 @@ class CityField(models.Model):
 class Building(models.Model):
     city = models.ForeignKey(City)
     city_field = models.ForeignKey(CityField)
+    cash = models.DecimalField(default=0, decimal_places=2, max_digits=20)
     if_under_construction = models.BooleanField(default=True)
     build_cost = models.PositiveIntegerField(default=0)
     maintenance_cost = models.PositiveIntegerField(default=0)
@@ -156,7 +157,6 @@ class Residential(Building):
     name = models.CharField(max_length=20, default='Budynek Mieszkalny')
     population = models.PositiveIntegerField(default=0)
     max_population = models.PositiveIntegerField(default=0)
-    rent = models.FloatField(default=0)
     build_time = models.PositiveIntegerField(default=0)
     build_cost = models.PositiveIntegerField(default=0)
     water_required = models.PositiveIntegerField(default=0)

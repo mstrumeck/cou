@@ -11,6 +11,7 @@ from player.models import Profile
 from cou.global_var import MALE, FEMALE, ELEMENTARY, COLLEGE, PHD, TRAINEE, JUNIOR, REGULAR, MASTER, PROFESSIONAL
 from citizen_engine.work_engine import CitizenWorkEngine
 from .base import SocialTestHelper
+import decimal
 
 
 class WagePaymentTest(TestCase):
@@ -47,8 +48,8 @@ class WagePaymentTest(TestCase):
         self.assertEqual(self.city.cash, 9480)
         self.assertEqual(RC.citizens_in_city[self.s].ci.cash, 100)
         CitizenWorkEngine(RC, self.city).wage_payment_in_all_workplaces()
-        self.assertEqual(self.city.cash, 8920)
-        self.assertEqual(RC.citizens_in_city[self.s].ci.cash, 660)
+        self.assertEqual(int(self.city.cash), 9253)
+        self.assertEqual(int(RC.citizens_in_city[self.s].ci.cash), 326)
 
     def test_wage_payment_for_person_pass_with_one_education(self):
         Education.objects.create(citizen=self.s, name=ELEMENTARY, effectiveness=1, if_current=False)
@@ -57,8 +58,8 @@ class WagePaymentTest(TestCase):
         self.assertEqual(self.city.cash, 9480)
         self.assertEqual(RC.citizens_in_city[self.s].ci.cash, 100)
         CitizenWorkEngine(RC, self.city).wage_payment_in_all_workplaces()
-        self.assertEqual(self.city.cash, 9200)
-        self.assertEqual(RC.citizens_in_city[self.s].ci.cash, 380)
+        self.assertEqual(int(self.city.cash), 9366)
+        self.assertEqual(int(RC.citizens_in_city[self.s].ci.cash), 213)
 
     def test_wage_payment_for_person_pass_with_three_educations(self):
         Education.objects.create(citizen=self.s, name=ELEMENTARY, effectiveness=1, if_current=False)
@@ -69,5 +70,5 @@ class WagePaymentTest(TestCase):
         self.assertEqual(self.city.cash, 9480)
         self.assertEqual(RC.citizens_in_city[self.s].ci.cash, 100)
         CitizenWorkEngine(RC, self.city).wage_payment_in_all_workplaces()
-        self.assertEqual(self.city.cash, 8580.00)
-        self.assertEqual(RC.citizens_in_city[self.s].ci.cash, 1000)
+        self.assertEqual(int(self.city.cash), 9116)
+        self.assertEqual(int(RC.citizens_in_city[self.s].ci.cash), 463)

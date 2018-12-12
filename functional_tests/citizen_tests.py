@@ -9,6 +9,7 @@ from citizen_engine.citizen_abstract import CitizenAbstract
 from cou.abstract import RootClass
 from django.test import override_settings
 from cou.global_var import FEMALE, MALE, ELEMENTARY
+import decimal
 
 
 @override_settings(DEBUG=True)
@@ -127,14 +128,14 @@ class CitizenBasicTests(BaseTest):
 
     def test_born_child_failed(self):
         self.r1 = StandardLevelResidentialZone.objects.latest('id')
-        self.r1.max_population = 2
+        self.r1.self__init(2)
         self.r1.save()
         family = Family.objects.create(city=self.city, surname='01')
         self.f = Citizen.objects.create(
             city=self.city,
             age=21,
             month_of_birth=2,
-            cash=100,
+            cash=400,
             health=5,
             name="AnonKA",
             surname="FeSurname",
@@ -147,7 +148,7 @@ class CitizenBasicTests(BaseTest):
             city=self.city,
             age=21,
             month_of_birth=2,
-            cash=100,
+            cash=400,
             health=5,
             name="AnON",
             surname="MaSurname",
@@ -161,6 +162,8 @@ class CitizenBasicTests(BaseTest):
         self.f.save()
         self.assertEqual(self.f.partner_id, self.m.id)
         self.assertEqual(self.m.partner_id, self.f.id)
+        self.assertEqual(self.m.resident_object, self.r1)
+        self.assertEqual(self.f.resident_object, self.r1)
         homepage = Homepage(self.browser, self.live_server_url)
         homepage.navigate('/main/')
         self.assertIn('Login', self.browser.title)
@@ -177,7 +180,27 @@ class CitizenBasicTests(BaseTest):
         self.assertEqual(self.r1.max_population, 2)
         self.assertEqual(Citizen.objects.count(), 2)
         self.assertEqual(Family.objects.all().count(), 1)
-        main_view.next_turns(6)
+
+        main_view.next_turn()
+        self.assertEqual(RootClass(self.city, User.objects.latest('id')).families[family].cash, 718)
+        self.assertEqual(float(City.objects.latest('id').cash), 9480.82)
+        self.assertEqual(float(StandardLevelResidentialZone.objects.latest('id').cash), 81.18)
+
+        main_view.next_turn()
+        self.assertEqual(RootClass(self.city, User.objects.latest('id')).families[family].cash, 636)
+        self.assertEqual(float(City.objects.latest('id').cash), 9481.64)
+        self.assertEqual(float(StandardLevelResidentialZone.objects.latest('id').cash), 162.36)
+
+        main_view.next_turn()
+        self.assertEqual(RootClass(self.city, User.objects.latest('id')).families[family].cash, 556)
+        self.assertEqual(float(City.objects.latest('id').cash), 9482.44)
+        self.assertEqual(float(StandardLevelResidentialZone.objects.latest('id').cash), 241.56)
+
+        main_view.next_turn()
+        self.assertEqual(RootClass(self.city, User.objects.latest('id')).families[family].cash, 476)
+        self.assertEqual(float(City.objects.latest('id').cash), 9483.24)
+        self.assertEqual(float(StandardLevelResidentialZone.objects.latest('id').cash), 320.76)
+
         self.assertEqual(Citizen.objects.count(), 2)
 
     def test_creating_pair_failed(self):
@@ -240,7 +263,7 @@ class CitizenBasicTests(BaseTest):
                 city=self.city,
                 age=21,
                 month_of_birth=2,
-                cash=100,
+                cash=150,
                 health=5,
                 name="AnonKA",
                 surname="00",
@@ -251,7 +274,7 @@ class CitizenBasicTests(BaseTest):
                 city=self.city,
                 age=21,
                 month_of_birth=2,
-                cash=100,
+                cash=150,
                 health=5,
                 name="AnON",
                 surname="01",
@@ -276,13 +299,26 @@ class CitizenBasicTests(BaseTest):
         self.assertTrue(self.profile.if_social_enabled)
         self.assertEqual(Citizen.objects.count(), 2)
         self.assertEqual(StandardLevelResidentialZone.objects.latest('id').resident.count(), 0)
+        self.assertEqual(StandardLevelResidentialZone.objects.latest('id').cash, 0)
+        self.assertEqual(City.objects.latest('id').cash, 9480)
         main_view.next_turns(3)
         self.assertEqual(StandardLevelResidentialZone.objects.latest('id').resident.count(), 2)
         self.m = Citizen.objects.get(id=self.m.id)
         self.f = Citizen.objects.get(id=self.f.id)
+        self.assertEqual(self.m.cash, 69)
+        self.assertEqual(self.f.cash, 69)
+        self.assertEqual(StandardLevelResidentialZone.objects.latest('id').cash, round(decimal.Decimal(160.38), 2))
+        self.assertEqual(City.objects.latest('id').cash, round(decimal.Decimal(9481.62), 2))
         self.assertEqual(self.m.resident_object, StandardLevelResidentialZone.objects.latest('id'))
         self.assertEqual(self.f.resident_object, StandardLevelResidentialZone.objects.latest('id'))
         self.assertEqual(Family.objects.all().count(), 1)
+        main_view.next_turns(4)
+        self.assertEqual(StandardLevelResidentialZone.objects.latest('id').cash, round(decimal.Decimal(239.58), 2))
+        self.assertEqual(City.objects.latest('id').cash, round(decimal.Decimal(9482.42), 2))
+        self.assertEqual(Citizen.objects.get(id=self.m.id).resident_object, None)
+        self.assertEqual(Citizen.objects.get(id=self.f.id).resident_object, None)
+        self.assertEqual(Citizen.objects.get(id=self.m.id).cash, 29)
+        self.assertEqual(Citizen.objects.get(id=self.f.id).cash, 29)
 
     def test_find_home_failed(self):
         self.r1 = StandardLevelResidentialZone.objects.latest('id')

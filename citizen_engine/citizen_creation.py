@@ -1,6 +1,6 @@
 from random import choice, randrange
 from city_engine.models import Residential, City, WaterTower, ProductionBuilding, WindPlant, DustCart, DumpingGround
-from citizen_engine.models import Citizen, Profession
+from citizen_engine.models import Citizen, Profession, Family
 import random
 import string
 
@@ -26,9 +26,10 @@ class CreateCitizen:
             mother_id=0
         )
         Profession.objects.create(citizen=c, name=workplace.profession_type_provided, proficiency=1.00, education=edu_title)
+        Family.objects.create(surname=c.surname, city=self.city)
 
     def create_without_workplace(self):
-        Citizen.objects.create(
+        c = Citizen.objects.create(
             city=self.city,
             age=randrange(18, 60),
             health=10,
@@ -38,6 +39,7 @@ class CreateCitizen:
             father_id=0,
             mother_id=0
         )
+        Family.objects.create(surname=c.surname, city=self.city)
 
     def choose_residential(self):
         return choice([r for r in self.data.list_of_buildings if isinstance(r, Residential)
