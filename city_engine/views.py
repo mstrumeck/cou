@@ -4,9 +4,9 @@ from django.db.models import Sum
 from django.shortcuts import HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.safestring import mark_safe
-from citizen_engine.models import Citizen
+from citizen_engine.models import Citizen, Profession, Education
 from city_engine.main_view_data.board import Board, HexDetail
-from city_engine.models import City, StandardLevelResidentialZone
+from city_engine.models import City, StandardLevelResidentialZone, WindPlant, SewageWorks
 from player.models import Profile
 from .main_view_data.city_stats import \
     CityStatsCenter
@@ -38,14 +38,18 @@ def main_view(request):
     city.save()
 
     build_exception = [StandardLevelResidentialZone]
-    list_of_buildings = [sub.__name__ for sub in AbstractAdapter().get_subclasses_of_all_buildings() if sub not in build_exception]
+    list_of_buildings_class = [sub.__name__ for sub in AbstractAdapter().get_subclasses_of_all_buildings() if sub not in build_exception]
+    rc = RootClass(city, request.user)
+
+    # print(WindPlant.objects.values())
+    # print(SewageWorks.objects.values())
 
     return render(request, 'main_view.html', {'city': city,
                                               'profile': profile,
                                               'city_resources_stats': city_resources_allocation_stats,
                                               'hex_table': mark_safe(new_board.hex_table),
                                               'hex_detail_info_table': mark_safe(new_hex_detail.hex_detail_info_table),
-                                              'buildings': city_stats.list_of_buildings,
+                                              'buildings': (rc.list_of_buildings[b] for b in rc.list_of_buildings if b.if_under_construction == False),
                                               'buildings_under_construction': city_stats.building_under_construction,
                                               'total_cost_of_maintenance': total_cost_of_main,
                                               'current_population': city_stats.current_population,
@@ -53,9 +57,10 @@ def main_view(request):
                                               'home_demands': city_stats.building_stats.home_areas_demand(),
                                               'industial_demands': city_stats.building_stats.industrial_areas_demand(),
                                               'trade_demands': city_stats.building_stats.trade_areas_demand(),
-                                              'citizen': Citizen.objects.all(),
+                                              'citizen': (rc.citizens_in_city[c] for c in rc.citizens_in_city),
                                               'msg': msg,
-                                              'list_of_buildings': list_of_buildings})
+                                              'list_of_buildings_class': list_of_buildings_class,
+                                              'families': (rc.families[f] for f in rc.families)})
 
 
 @login_required

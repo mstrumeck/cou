@@ -179,7 +179,7 @@ class BornChildTests(TestCase):
         self.profile.chance_to_born_baby_percent = 1.00
         self.sa.citizen_data.chance_to_born = self.sa.citizen_data.chance_to_born_baby_calc()
         self.sa.born_child()
-        self.assertEqual(Citizen.objects.filter(age=0).count(), 1)
+        self.assertEqual(Citizen.objects.filter(age=1).count(), 1)
         self.assertEqual(Citizen.objects.all().count(), 3)
         ch = Citizen.objects.latest('id')
         self.assertEqual(ch.father_id, self.m.id)

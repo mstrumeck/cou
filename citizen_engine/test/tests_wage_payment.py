@@ -10,8 +10,6 @@ from citizen_engine.social_actions import SocialAction
 from player.models import Profile
 from cou.global_var import MALE, FEMALE, ELEMENTARY, COLLEGE, PHD, TRAINEE, JUNIOR, REGULAR, MASTER, PROFESSIONAL
 from citizen_engine.work_engine import CitizenWorkEngine
-from .base import SocialTestHelper
-import decimal
 
 
 class WagePaymentTest(TestCase):

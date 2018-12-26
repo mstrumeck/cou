@@ -95,21 +95,24 @@ class SocialAction:
         return self.city_data.list_of_buildings[ml.resident_object].people_in_charge < ml.resident_object.max_population
 
     def born_child(self):
-        for family in [f for f in self.citizen_data.families if len(self.citizen_data.families[f].members) > 1]:
+        for family in [f for f in self.citizen_data.families if self.citizen_data.families[f].place_of_living
+                       and len(self.citizen_data.families[f].members) > 1]:
             ml = [m for m in self.citizen_data.families[family].parents if m.sex == MALE].pop()
             fl = [m for m in self.citizen_data.families[family].parents if m.sex == FEMALE].pop()
             if random.random() < self.citizen_data.chance_to_born[ml.age] \
                     and random.random() < self.citizen_data.chance_to_born[fl.age] \
                     and self.check_if_there_is_place_for_child(ml):
+                import names
+                sex = random.choice(Citizen.SEX)[0]
                 Citizen.objects.create(
                     city=self.city,
-                    age=0,
+                    age=1,
                     month_of_birth=self.profile.current_turn,
                     cash=0,
                     health=5,
-                    name="".join([random.choice(string.ascii_letters) for x in range(5)]),
+                    name=names.get_first_name(sex.lower()),
                     surname=ml.surname,
-                    sex=random.choice(Citizen.SEX)[0],
+                    sex=sex,
                     father_id=ml.id,
                     mother_id=fl.id,
                     resident_object=ml.resident_object,

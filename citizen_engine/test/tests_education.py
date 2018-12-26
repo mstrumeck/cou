@@ -2,8 +2,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from city_engine.models import StandardLevelResidentialZone, City, WindPlant, CityField, PrimarySchool
 from citizen_engine.models import Citizen, Education, Profession
-from citizen_engine.citizen_creation import CreateCitizen
-import random, string
+from citizen_engine.work_engine import CitizenWorkEngine
 from cou.abstract import RootClass
 from citizen_engine.social_actions import SocialAction
 from city_engine.turn_data.main import TurnCalculation
@@ -160,7 +159,7 @@ class TestSchoolMonthlyRunFailed(TestCase):
         RC = RootClass(self.city, User.objects.latest('id'))
         self.assertEqual(RC.citizens_in_city[self.m].current_education, None)
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0.5)
-        self.school.monthly_run(RC.citizens_in_city, self.profile)
+        CitizenWorkEngine(RC, self.city).human_resources_allocation()
         self.assertEqual(RC.citizens_in_city[self.m].current_education, None)
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0.52)
 
@@ -233,15 +232,15 @@ class TestSchoolMonthlyRunPass(TestCase):
         RC = RootClass(self.city, User.objects.latest('id'))
         self.assertEqual(RC.citizens_in_city[self.m].current_education.effectiveness, 0.0)
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0.5)
-        self.school.monthly_run(RC.citizens_in_city, self.profile)
+        SocialAction(city=self.city, profile=self.profile, city_data=RC).run()
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0.52)
-        self.assertEqual(RC.citizens_in_city[self.m].current_education.effectiveness, 0.0052)
+        self.assertEqual(RC.citizens_in_city[self.m].current_education.effectiveness, 0.005408)
 
     def test_gain_knowledge_during_education_process_multi_run(self):
         RC = RootClass(self.city, User.objects.latest('id'))
         self.assertEqual(RC.citizens_in_city[self.m].current_education.effectiveness, 0.0)
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0.5)
         for x in range(6):
-            self.school.monthly_run(RC.citizens_in_city, self.profile)
+            SocialAction(city=self.city, profile=self.profile, city_data=RC).run()
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0.5660526315789475)
-        self.assertEqual(RC.citizens_in_city[self.m].current_education.effectiveness, 0.03360842105263158)
+        self.assertEqual(RC.citizens_in_city[self.m].current_education.effectiveness, 0.03429536842105263)

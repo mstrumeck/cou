@@ -42,7 +42,7 @@ class ProfessionUpdateLevelTests(TestCase):
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0)
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.job_grade, TRAINEE)
         for x in range(6):
-            RC.citizens_in_city[self.s].current_profession.update_proficiency(RC.citizens_in_city)
+            RC.citizens_in_city[self.s].current_profession.update_proficiency(RC.citizens_in_city[self.s])
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0.12000000000000001)
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.job_grade, JUNIOR)
 
@@ -54,7 +54,7 @@ class ProfessionUpdateLevelTests(TestCase):
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0)
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.job_grade, TRAINEE)
         for x in range(24):
-            RC.citizens_in_city[self.s].current_profession.update_proficiency(RC.citizens_in_city)
+            RC.citizens_in_city[self.s].current_profession.update_proficiency(RC.citizens_in_city[self.s])
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0.4515789473684213)
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.job_grade, REGULAR)
 
@@ -66,7 +66,7 @@ class ProfessionUpdateLevelTests(TestCase):
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0)
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.job_grade, TRAINEE)
         for x in range(24):
-            RC.citizens_in_city[self.s].current_profession.update_proficiency(RC.citizens_in_city)
+            RC.citizens_in_city[self.s].current_profession.update_proficiency(RC.citizens_in_city[self.s])
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0.4515789473684213)
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.job_grade, REGULAR)
 
@@ -78,7 +78,7 @@ class ProfessionUpdateLevelTests(TestCase):
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0)
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.job_grade, TRAINEE)
         for x in range(60):
-            RC.citizens_in_city[self.s].current_profession.update_proficiency(RC.citizens_in_city)
+            RC.citizens_in_city[self.s].current_profession.update_proficiency(RC.citizens_in_city[self.s])
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0.6625438596491233)
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.job_grade, PROFESSIONAL)
 
@@ -90,6 +90,6 @@ class ProfessionUpdateLevelTests(TestCase):
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0)
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.job_grade, TRAINEE)
         for x in range(108):
-            RC.citizens_in_city[self.s].current_profession.update_proficiency(RC.citizens_in_city)
+            RC.citizens_in_city[self.s].current_profession.update_proficiency(RC.citizens_in_city[self.s])
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 1.0187938596491228)
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.job_grade, MASTER)

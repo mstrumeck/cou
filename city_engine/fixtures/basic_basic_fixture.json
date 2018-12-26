@@ -1,0 +1,193 @@
+[
+{
+  "model": "city_engine.cityfield",
+  "pk": 1,
+  "fields": {
+    "city": 1,
+    "col": 0,
+    "row": 0,
+    "pollution": 0
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 2,
+  "fields": {
+    "city": 1,
+    "col": 1,
+    "row": 0,
+    "pollution": 0
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 3,
+  "fields": {
+    "city": 1,
+    "col": 2,
+    "row": 0,
+    "pollution": 0
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 4,
+  "fields": {
+    "city": 1,
+    "col": 3,
+    "row": 0,
+    "pollution": 0
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 5,
+  "fields": {
+    "city": 1,
+    "col": 0,
+    "row": 1,
+    "pollution": 0
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 6,
+  "fields": {
+    "city": 1,
+    "col": 1,
+    "row": 1,
+    "pollution": 0
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 7,
+  "fields": {
+    "city": 1,
+    "col": 2,
+    "row": 1,
+    "pollution": 0
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 8,
+  "fields": {
+    "city": 1,
+    "col": 3,
+    "row": 1,
+    "pollution": 0
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 9,
+  "fields": {
+    "city": 1,
+    "col": 0,
+    "row": 2,
+    "pollution": 0
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 10,
+  "fields": {
+    "city": 1,
+    "col": 1,
+    "row": 2,
+    "pollution": 0
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 11,
+  "fields": {
+    "city": 1,
+    "col": 2,
+    "row": 2,
+    "pollution": 0
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 12,
+  "fields": {
+    "city": 1,
+    "col": 3,
+    "row": 2,
+    "pollution": 0
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 13,
+  "fields": {
+    "city": 1,
+    "col": 0,
+    "row": 3,
+    "pollution": 0
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 14,
+  "fields": {
+    "city": 1,
+    "col": 1,
+    "row": 3,
+    "pollution": 0
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 15,
+  "fields": {
+    "city": 1,
+    "col": 2,
+    "row": 3,
+    "pollution": 0
+  }
+},
+{
+  "model": "city_engine.cityfield",
+  "pk": 16,
+  "fields": {
+    "city": 1,
+    "col": 3,
+    "row": 3,
+    "pollution": 0
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$36000$t8WTQJzyzJHo$0jTenbr6Ej7rXXN3BPo8PtYhIkAFhPIdDqWokwkrxNI=",
+    "last_login": "2018-04-21T19:42:37.237Z",
+    "is_superuser": false,
+    "username": "Micha\u0142",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2018-04-21T19:42:36.829Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "city_engine.city",
+  "pk": 1,
+  "fields": {
+    "user": 1,
+    "name": "Wroc\u0142aw",
+    "cash": "9805.00",
+    "mass": 1000,
+    "mass_price": "2.45",
+    "publish": "2018-04-21",
+    "updated": "2018-04-21"
+  }
+}
+]

@@ -94,7 +94,7 @@ class BuldingsWithWorkes(Building):
 
     def update_proficiency_of_profession_for_employees(self, employees):
         for employee in employees:
-            employees[employee].current_profession.update_proficiency(employees)
+            employee.current_profession.update_proficiency(employee)
 
     def calculate_wage_for_employees(self, wage_of_employees, total_wages, total_level, employees, employee_needed):
         if employee_needed:
@@ -294,10 +294,10 @@ class WindPlant(PowerPlant):
             self.current_build_time += 1
         elif self.current_build_time == self.build_time:
             self.if_under_construction = False
-            self.power_nodes += 1
-            self.max_power_nodes += 10
-            self.energy_production += 15
-            self.water_required += 10
+            self.power_nodes = 1
+            self.max_power_nodes = 10
+            self.energy_production = 100
+            self.water_required = 20
 
 
 class RopePlant(PowerPlant):
@@ -315,10 +315,10 @@ class RopePlant(PowerPlant):
             self.current_build_time += 1
         elif self.current_build_time == self.build_time:
             self.if_under_construction = False
-            self.power_nodes += 1
-            self.max_power_nodes += 4
-            self.energy_production += 50
-            self.water_required += 15
+            self.power_nodes = 1
+            self.max_power_nodes = 4
+            self.energy_production = 500
+            self.water_required = 200
 
 
 class CoalPlant(PowerPlant):
@@ -335,10 +335,10 @@ class CoalPlant(PowerPlant):
             self.current_build_time += 1
         elif self.current_build_time == self.build_time:
             self.if_under_construction = False
-            self.power_nodes += 1
-            self.max_power_nodes += 4
-            self.energy_production += 40
-            self.water_required += 20
+            self.power_nodes = 1
+            self.max_power_nodes = 4
+            self.energy_production = 450
+            self.water_required = 150
 
 
 class Waterworks(BuldingsWithWorkes):
@@ -389,7 +389,8 @@ class WaterTower(Waterworks):
             self.current_build_time += 1
         elif self.current_build_time == self.build_time:
             self.if_under_construction = False
-            self.raw_water_production += 20
+            self.raw_water_production = 5000
+            self.energy_required = 50
 
 
 class SewageWorks(BuldingsWithWorkes):
@@ -410,7 +411,8 @@ class SewageWorks(BuldingsWithWorkes):
             self.current_build_time += 1
         elif self.current_build_time == self.build_time:
             self.if_under_construction = False
-            self.raw_water_required += 1000
+            self.raw_water_required = 10000
+            self.energy_required = 100
 
     def allocate_resource_in_target(self, target, tp):
         if hasattr(target, 'water') and not isinstance(target, SewageWorks) and not isinstance(target, Waterworks):
@@ -432,7 +434,8 @@ class SewageWorks(BuldingsWithWorkes):
             try:
                 t = [self.employee_productivity(workplaces, citizens), self.__energy_productivity()]
                 if self.raw_water <= self.raw_water_required:
-                    return int(self.raw_water * (float(sum(t))/float(len(t))))
+                    return self.raw_water
+                    # return int(self.raw_water * (float(sum(t))/float(len(t))))
             except(ZeroDivisionError):
                 return 0
         return 0
@@ -578,7 +581,6 @@ class School(BuldingsWithWorkes):
                 citizen_education.effectiveness += total_effectiveness
             except ZeroDivisionError:
                 pass
-        self.update_proficiency_of_profession_for_employees(teachers_with_data)
 
     def yearly_run(self, citizens_in_city):
         for p in (c for c in citizens_in_city if c.age >= self.age_of_start and c.edu_title == self.entry_education):
@@ -660,6 +662,10 @@ class Vehicle(models.Model):
                                object_id_field='workplace_object_id',
                                content_type_field='workplace_content_type'
                                )
+
+    def update_proficiency_of_profession_for_employees(self, employees):
+        for employee in employees:
+            employee.current_profession.update_proficiency(employee)
 
     def wage_payment(self, city, employees):
         import decimal

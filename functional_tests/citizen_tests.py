@@ -121,7 +121,7 @@ class CitizenBasicTests(BaseTest):
         main_view.next_turn()
         self.assertEqual(Citizen.objects.count(), 3)
         born = Citizen.objects.latest('id')
-        self.assertEqual(born.age, 0)
+        self.assertEqual(born.age, 1)
         self.assertEqual(born.father_id, self.m.id)
         self.assertEqual(born.mother_id, self.f.id)
         self.assertEqual(born.city, self.city)

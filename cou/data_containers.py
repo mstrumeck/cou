@@ -5,9 +5,6 @@ from citizen_engine.models import Family
 from decimal import getcontext
 
 
-# getcontext().prec = 4
-
-
 class CityFieldDataContainer:
     def __init__(self, instance):
         self.row_col = (instance.row, instance.col)
@@ -51,6 +48,8 @@ class VehicleDataContainer:
         self.phd_vacancies = self.bi.phd_employee_needed - len(
             [e for e in self.citizens if e.workplace_object == self.bi
              and self.citizens_in_city[e].current_profession.education == PHD])
+
+        self.all_employees = self.elementary_employees + self.college_employees + self.phd_employees
 
 
 class CitizenDataContainer:
@@ -169,3 +168,5 @@ class BuildingDataContainer:
         self.phd_vacancies = self.bi.phd_employee_needed - len(
             [e for e in self.citizens if e.workplace_object == self.bi
              and self.citizens_in_city[e].current_profession.education == PHD])
+
+        self.all_employees = [w for w in self.citizens if w.workplace_object == self.bi]

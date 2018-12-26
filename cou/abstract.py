@@ -128,26 +128,30 @@ class RootClass(BasicAbstract):
     def datasets_for_turn_calculation(self):
         power_resources_allocation_dataset = {
             'resource': 'energy',
-            'list_of_source': {b: self.list_of_buildings[b] for b in self.list_of_buildings if isinstance(b, PowerPlant)},
+            'list_of_source': {b: self.list_of_buildings[b] for b in self.list_of_buildings
+                               if isinstance(b, PowerPlant) and b.if_under_construction is False},
             'list_without_source': {b: self.list_of_buildings[b] for b in self.list_of_buildings
-                                    if not isinstance(b, PowerPlant)},
+                                    if not isinstance(b, PowerPlant) and b.if_under_construction is False},
             'allocated_resource': 'energy_allocated',
             'msg': 'power'
         }
         raw_water_resources_allocation_dataset = {
-            'list_of_source': {b: self.list_of_buildings[b] for b in self.list_of_buildings if isinstance(b, Waterworks)},
+            'list_of_source': {b: self.list_of_buildings[b] for b in self.list_of_buildings if isinstance(b, Waterworks)
+                               and b.if_under_construction is False},
             'list_without_source': {b: self.list_of_buildings[b] for b in self.list_of_buildings
-                                    if isinstance(b, SewageWorks)},
+                                    if isinstance(b, SewageWorks) and b.if_under_construction is False},
             'allocated_resource': 'raw_water_allocated',
             'msg': 'raw_water'
         }
         clean_water_resources_allocation_dataset = {
-            'list_of_source': {b: self.list_of_buildings[b] for b in self.list_of_buildings if isinstance(b, SewageWorks)},
+            'list_of_source': {b: self.list_of_buildings[b] for b in self.list_of_buildings if isinstance(b, SewageWorks)
+                               and b.if_under_construction is False},
             'list_without_source': {b: self.list_of_buildings[b] for b in self.list_of_buildings
-                                    if not isinstance(b, SewageWorks) and not isinstance(b, Waterworks)},
+                                    if not isinstance(b, SewageWorks) and not isinstance(b, Waterworks)
+                                    and b.if_under_construction is False},
             'allocated_resource': 'clean_water_allocated',
             'msg': 'clean_water'
         }
-        return [power_resources_allocation_dataset, raw_water_resources_allocation_dataset, clean_water_resources_allocation_dataset]
+        return [raw_water_resources_allocation_dataset, clean_water_resources_allocation_dataset, power_resources_allocation_dataset]
 
 

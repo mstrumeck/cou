@@ -75,7 +75,6 @@ class TestResourcesClass(test.TestCase):
             TurnCalculation(city=City.objects.latest('id'), data=rt, profile=Profile.objects.latest('id')).run()
         self.rd = ResourcesData(city=City.objects.latest('id'), user=User.objects.latest('id'))
 
-
         for key in self.rd.resources.keys():
             self.assertIn(key, [sub.__name__ for sub in self.rd.subclasses_of_all_resources])
 
@@ -88,8 +87,8 @@ class TestResourcesClass(test.TestCase):
         self.assertAlmostEqual(541, self.rd.resources['Milk'][1])
 
         self.assertEqual('Fasola', self.rd.resources['Bean'][0][0].name)
-        self.assertEqual(12, self.rd.resources['Bean'][0][0].size)
-        self.assertEqual(12, self.rd.resources['Bean'][1])
+        self.assertEqual(16, self.rd.resources['Bean'][0][0].size)
+        self.assertEqual(16, self.rd.resources['Bean'][1])
 
         self.assertEqual('Ziemniaki', self.rd.resources['Potato'][0][0].name)
         self.assertEqual(16, self.rd.resources['Potato'][0][0].size)

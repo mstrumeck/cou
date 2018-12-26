@@ -6,13 +6,14 @@ from django.template.loader import render_to_string
 from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_encode
 from city_engine.main_view_data.board import assign_city_fields_to_board
-from city_engine.models import City, CityField, Residential
-from citizen_engine.models import Citizen
-from citizen_engine.citizen_creation import CreateCitizen
+from city_engine.models import City, CityField, Residential, StandardLevelResidentialZone
+from citizen_engine.models import Citizen, Family, Education
 from player.forms import CityCreationForm
 from player.tokens import account_activation_token
 from random import choice, randrange
-import string
+from cou.global_var import ELEMENTARY
+from .models import Profile
+
 
 def main_page(request):
     return render(request, 'registration/main_page.html')
@@ -31,24 +32,37 @@ def signup(request):
             city_name = city_creation_form.cleaned_data.get('name')
             new_city = City.objects.create(user_id=request.user.id, name=city_name)
             assign_city_fields_to_board(new_city)
-            for x in range(5):
-                Citizen.objects.create(
+            for x in range(13):
+                import names
+                sex = choice(Citizen.SEX)[0]
+                surname = names.get_last_name()
+                f = Family.objects.create(surname=surname, city=new_city)
+                c = Citizen.objects.create(
                     city=new_city,
-                    age=randrange(18, 22),
-                    name="".join([choice(string.ascii_letters) for x in range(5)]),
-                    surname="".join([choice(string.ascii_letters) for x in range(5)]),
+                    age=randrange(18, 24),
+                    name=names.get_first_name(sex.lower()),
+                    surname=surname,
                     health=10,
                     month_of_birth=randrange(1, 12),
-                    sex=choice(Citizen.SEX)[0],
+                    sex=sex,
+                    family=f,
+                    cash=500,
+                    edu_title=ELEMENTARY
                 )
-            # cf = CityField.objects.get(row=3, col=3, city=new_city)
-            # rs = Residential.objects.create(city=new_city, city_field=cf)
-            # for x in range(5):
-            #     Citizen.objects.create(
-            #
-            #     )
+                Education.objects.create(citizen=c, name=ELEMENTARY, effectiveness=0.50)
 
+            import random
+            s = StandardLevelResidentialZone.objects.create(city=new_city,
+                                                            if_under_construction=False,
+                                                            city_field=random.choice(list(CityField.objects.filter(city=new_city))))
+            s.self__init(15)
+            s.save()
             new_city.save()
+
+            p = Profile.objects.get(user=user)
+            p.if_social_enabled = True
+            p.save()
+
             return redirect('/main/')
     else:
         user_creation_form = UserCreationForm()
