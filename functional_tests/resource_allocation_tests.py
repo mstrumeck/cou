@@ -1,7 +1,11 @@
-from functional_tests.page_objects import MainView, LoginPage
-from city_engine.models import SewageWorks, WindPlant, WaterTower, StandardLevelResidentialZone, CityField, DumpingGround, City
-from .legacy.base import BaseTest
+from django.contrib.auth.models import User
 from django.db.models import Sum
+
+from city_engine.models import SewageWorks, WindPlant, WaterTower, StandardLevelResidentialZone, CityField, \
+    DumpingGround, City
+from city_engine.test.base import TestHelper
+from functional_tests.page_objects import MainView, LoginPage
+from .legacy.base import BaseTest
 
 
 class ResourceAllocationTest(BaseTest):
@@ -26,7 +30,7 @@ class ResourceAllocationTest(BaseTest):
                                                                         assertIn=self.assertIn,
                                                                         assertTrue=self.assertTrue)
         main_view = MainView(self.browser, self.live_server_url)
-
+        TestHelper(self.city, User.objects.latest('id')).populate_city()
         self.assertEqual(WindPlant.objects.filter(city=self.city_one).aggregate(Sum('energy_allocated'))['energy_allocated__sum'], 0)
         self.assertEqual(WaterTower.objects.filter(city=self.city_one).aggregate(Sum('raw_water_allocated'))['raw_water_allocated__sum'], 0)
         self.assertEqual(SewageWorks.objects.filter(city=self.city_one).aggregate(Sum('clean_water_allocated'))['clean_water_allocated__sum'], 0)

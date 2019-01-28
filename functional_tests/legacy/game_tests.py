@@ -1,10 +1,9 @@
-from django.db.models import Sum
-from city_engine.models import WindPlant, WaterTower, StandardLevelResidentialZone, SewageWorks, DumpingGround, CityField
-from .base import BaseTest, TestHelper
-from functional_tests.page_objects import MainView, LoginPage
-from cou.abstract import RootClass
 from django.test import override_settings
-from citizen_engine.models import Citizen
+
+from city_engine.models import WindPlant, WaterTower, TradeDistrict
+from cou.abstract import RootClass
+from functional_tests.page_objects import MainView, LoginPage
+from .base import BaseTest
 
 
 @override_settings(DEBUG=True)
@@ -38,48 +37,14 @@ class GameTestForOnePlayer(BaseTest):
 
         for building_sublcass in RootClass(self.city_one, self.user_one).get_subclasses_of_all_buildings():
             self.assertEqual(building_sublcass.objects.filter(city=self.city_one).count(), 1)
-        for building in RootClass(self.city_one, self.user_one).list_of_buildings:
+        for building in [b for b in RootClass(self.city_one, self.user_one).list_of_buildings if not isinstance(b, TradeDistrict)]:
             self.assertTrue(building.if_under_construction)
         main_view.next_turns(5)
         for building in RootClass(self.city_one, self.user_one).list_of_buildings:
             self.assertFalse(building.if_under_construction)
 
-    def test_energy_allocation(self):
-        self.create_first_user()
-        LoginPage(self.browser,
-                  self.live_server_url).navigate_to_main_throught_login(user=self.user_one,
-                                                                        username=self.player_one,
-                                                                        password=self.password_one,
-                                                                        city=self.city_one,
-                                                                        assertIn=self.assertIn,
-                                                                        assertTrue=self.assertTrue)
-        main_view = MainView(self.browser, self.live_server_url)
-        cf_id = CityField.objects.latest('id').id
-        SewageWorks.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id))
-        WaterTower.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-1))
-        StandardLevelResidentialZone.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-2), max_population=80)
-        DumpingGround.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-3))
-        WindPlant.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-4))
-        WindPlant.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-5))
-        WaterTower.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-6))
 
-        main_view.next_turns(8)
-        th = TestHelper(self.city_one, self.user_one)
-        for building in th.list_of_workplaces:
-            self.assertEqual(building.employee.all().count(), sum([building.elementary_employee_needed,
-                                                           building.college_employee_needed,
-                                                           building.phd_employee_needed]))
-        self.assertEqual(WaterTower.objects.filter(city=self.city_one).count(), 2)
-        self.assertEqual(WindPlant.objects.filter(city=self.city_one).count(), 2)
-
-        # for watertower in WaterTower.objects.all():
-        #     self.assertEqual(watertower.energy, watertower.energy_required)
-
-        # self.assertEqual(DumpingGround.objects.latest('id').energy_required, 1)
-        # self.assertEqual(sum([x.energy_allocated for x in WindPlant.objects.all()]), sum([b.energy for b in th.list_of_buildings]))
-
-
-# @override_settings(DEBUG=True)
+@override_settings(DEBUG=True)
 class GameTestForTwoPlayers(BaseTest):
     def test_create_building_for_two_accounts(self):
         self.create_first_user()
@@ -109,7 +74,7 @@ class GameTestForTwoPlayers(BaseTest):
 
         for building_sublcass in RootClass(self.city_one, self.user_one).get_subclasses_of_all_buildings():
             self.assertEqual(building_sublcass.objects.filter(city=self.city_one).count(), 1)
-        for building in RootClass(self.city_one, self.user_one).list_of_buildings:
+        for building in [b for b in RootClass(self.city_one, self.user_one).list_of_buildings if not isinstance(b, TradeDistrict)]:
             self.assertTrue(building.if_under_construction)
         main_view.next_turns(5)
         for building in RootClass(self.city_one, self.user_one).list_of_buildings:
@@ -143,14 +108,14 @@ class GameTestForTwoPlayers(BaseTest):
 
         for building_sublcass in RootClass(self.city_two, self.user_two).get_subclasses_of_all_buildings():
             self.assertEqual(building_sublcass.objects.filter(city=self.city_two).count(), 1)
-        for building in RootClass(self.city_two, self.user_two).list_of_buildings:
+        for building in [b for b in RootClass(self.city_two, self.user_two).list_of_buildings if not isinstance(b, TradeDistrict)]:
             self.assertTrue(building.if_under_construction)
         main_view.next_turns(5)
         for building in RootClass(self.city_two, self.user_two).list_of_buildings:
             self.assertFalse(building.if_under_construction)
 
 
-# @override_settings(DEBUG=True)
+@override_settings(DEBUG=True)
 class CitizenTests(BaseTest):
 
     def test_citizen_allocation(self):

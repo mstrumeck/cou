@@ -8,30 +8,68 @@
 
 {% block content %}
     <h1>Surowce dla miasta {{ city.name }}</h1>
+<h2>Towary wyprodukowane przez firmy</h2>
 
+{% for company_name, data in companies_goods %}
+<h3>{{ company_name }}</h3>
+    {% for good_name, good_container in data %}
+    <h4>{{ good_name }}</h4>
     <table class="table">
         <thead>
             <tr>
-                <th>Nazwa</th>
-                <th>Rozmiar</th>
-                <th>Całość</th>
+                <th>Wielkość</th>
+                <th>Jakość</th>
+                <th>Cena</th>
             </tr>
         </thead>
         <tbody>
-            {% for name, resource in resources %}
+            {% for good in good_container.instances %}
             <tr>
-                <th>{{ name }}</th>
-                <th>
-                {% for ob in resource.0 %}
-                    <ul>
-                        <li>{{ ob.name }}: {{ ob.size }}</li>
-                    </ul>
-                    {% endfor %}
-                </th>
-                <th>{{ resource.1 }}</th>
+                <th>{{ good.size }}</th>
+                <th>{{ good.quality }}</th>
+                <th>{{ good.price }}</th>
             </tr>
             {% endfor %}
         </tbody>
+        <tfoot>
+            <tr>
+                <th>{{ good_container.total_size }}</th>
+                <th>{{ good_container.avg_quality }}</th>
+                <th>{{ good_container.avg_price }}</th>
+            </tr>
+        </tfoot>
     </table>
+{% endfor %}
+{% endfor %}
+
+<h2>Zasoby dostępne na rynku</h2>
+{% for r_name, r_val in market_resources %}
+<h3>{{ r_name }}</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Wielkość</th>
+                <th>Jakość</th>
+                <th>Cena</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in r_val.instances %}
+            <tr>
+                <th>{{ i.size }}</th>
+                <th>{{ i.quality }}</th>
+                <th>{{ i.price }}</th>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th>{{ r_val.total_size }}</th>
+                <th>{{ r_val.avg_quality }}</th>
+                <th>{{ r_val.avg_price }}</th>
+            </tr>
+        </tfoot>
+    </table>
+{% endfor %}
 
 {% endblock %}

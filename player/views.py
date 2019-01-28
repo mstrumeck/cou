@@ -1,3 +1,5 @@
+from random import choice, randrange
+
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
@@ -5,13 +7,14 @@ from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_encode
-from city_engine.main_view_data.board import assign_city_fields_to_board
-from city_engine.models import City, CityField, Residential, StandardLevelResidentialZone
+
 from citizen_engine.models import Citizen, Family, Education
+from city_engine.main_view_data.board import assign_city_fields_to_board
+from city_engine.models import City, CityField, StandardLevelResidentialZone
+from cou.global_var import ELEMENTARY
 from player.forms import CityCreationForm
 from player.tokens import account_activation_token
-from random import choice, randrange
-from cou.global_var import ELEMENTARY
+from resources.models import Market
 from .models import Profile
 
 
@@ -32,7 +35,7 @@ def signup(request):
             city_name = city_creation_form.cleaned_data.get('name')
             new_city = City.objects.create(user_id=request.user.id, name=city_name)
             assign_city_fields_to_board(new_city)
-            for x in range(13):
+            for x in range(30):
                 import names
                 sex = choice(Citizen.SEX)[0]
                 surname = names.get_last_name()
@@ -55,13 +58,14 @@ def signup(request):
             s = StandardLevelResidentialZone.objects.create(city=new_city,
                                                             if_under_construction=False,
                                                             city_field=random.choice(list(CityField.objects.filter(city=new_city))))
-            s.self__init(15)
+            s.self__init(50)
             s.save()
             new_city.save()
 
             p = Profile.objects.get(user=user)
             p.if_social_enabled = True
             p.save()
+            Market.objects.create(profile=p)
 
             return redirect('/main/')
     else:

@@ -8,6 +8,7 @@ from cou.abstract import RootClass
 from citizen_engine.social_actions import SocialAction
 from player.models import Profile
 from cou.global_var import MALE, FEMALE
+from resources.models import Market
 
 
 class TestFindPlaceToLive(TestCase):
@@ -15,8 +16,9 @@ class TestFindPlaceToLive(TestCase):
 
     def setUp(self):
         self.city = City.objects.get(id=1)
-        self.RC = RootClass(self.city, User.objects.latest('id'))
         self.profile = Profile.objects.latest('id')
+        Market.objects.create(profile=self.profile)
+        self.RC = RootClass(self.city, User.objects.latest('id'))
         self.r1 = StandardLevelResidentialZone.objects.latest('id')
         self.r2 = StandardLevelResidentialZone.objects.create(
             city_field=CityField.objects.get(id=1),

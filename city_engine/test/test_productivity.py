@@ -1,12 +1,13 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
-from city_engine.models import StandardLevelResidentialZone, City
+
 from citizen_engine.models import Citizen, Profession
-from cou.abstract import RootClass
-from citizen_engine.social_actions import SocialAction
-from player.models import Profile
-from cou.global_var import FEMALE, MALE, ELEMENTARY, COLLEGE
+from city_engine.models import City
 from city_engine.models import WindPlant
+from cou.abstract import RootClass
+from cou.global_var import MALE, ELEMENTARY, COLLEGE
+from player.models import Profile
+from resources.models import Market
 
 
 class ProductivityTests(TestCase):
@@ -14,8 +15,9 @@ class ProductivityTests(TestCase):
 
     def setUp(self):
         self.city = City.objects.get(id=1)
-        self.RC = RootClass(self.city, User.objects.latest('id'))
         self.profile = Profile.objects.latest('id')
+        Market.objects.create(profile=self.profile)
+        self.RC = RootClass(self.city, User.objects.latest('id'))
         self.m = Citizen.objects.create(
             city=self.city,
             age=21,

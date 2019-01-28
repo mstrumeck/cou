@@ -1,15 +1,15 @@
-from functional_tests.page_objects import MainView, LoginPage, Homepage
-from city_engine.models import City, CityField, StandardLevelResidentialZone
-from .legacy.base import BaseTest
 from django.contrib.auth.models import User
-from selenium import webdriver
-from player.models import Profile
-from citizen_engine.models import Citizen, Family
-from citizen_engine.citizen_abstract import CitizenAbstract
-from cou.abstract import RootClass
 from django.test import override_settings
-from cou.global_var import FEMALE, MALE, ELEMENTARY
-import decimal
+from selenium import webdriver
+
+from citizen_engine.models import Citizen, Family
+from city_engine.models import City, CityField, StandardLevelResidentialZone
+from cou.abstract import RootClass
+from cou.global_var import FEMALE, MALE
+from functional_tests.page_objects import MainView, LoginPage, Homepage
+from player.models import Profile
+from resources.models import Market
+from .legacy.base import BaseTest
 
 
 @override_settings(DEBUG=True)
@@ -22,6 +22,7 @@ class CitizenBasicTests(BaseTest):
         self.user = User.objects.latest('id')
         self.browser.implicitly_wait(3)
         self.profile = Profile.objects.latest('id')
+        self.market = Market.objects.create(profile=self.profile)
 
     def test_creating_pair(self):
         self.r1 = StandardLevelResidentialZone.objects.latest('id')
@@ -192,14 +193,14 @@ class CitizenBasicTests(BaseTest):
         self.assertEqual(float(StandardLevelResidentialZone.objects.latest('id').cash), 162.36)
 
         main_view.next_turn()
-        self.assertEqual(RootClass(self.city, User.objects.latest('id')).families[family].cash, 556)
-        self.assertEqual(float(City.objects.latest('id').cash), 9482.44)
-        self.assertEqual(float(StandardLevelResidentialZone.objects.latest('id').cash), 241.56)
+        self.assertEqual(RootClass(self.city, User.objects.latest('id')).families[family].cash, 554)
+        self.assertEqual(float(City.objects.latest('id').cash), 9482.46)
+        self.assertEqual(float(StandardLevelResidentialZone.objects.latest('id').cash), 243.54)
 
         main_view.next_turn()
-        self.assertEqual(RootClass(self.city, User.objects.latest('id')).families[family].cash, 476)
-        self.assertEqual(float(City.objects.latest('id').cash), 9483.24)
-        self.assertEqual(float(StandardLevelResidentialZone.objects.latest('id').cash), 320.76)
+        self.assertEqual(RootClass(self.city, User.objects.latest('id')).families[family].cash, 472)
+        self.assertEqual(float(City.objects.latest('id').cash), 9483.28)
+        self.assertEqual(float(StandardLevelResidentialZone.objects.latest('id').cash), 324.72)
 
         self.assertEqual(Citizen.objects.count(), 2)
 
@@ -305,20 +306,20 @@ class CitizenBasicTests(BaseTest):
         self.assertEqual(StandardLevelResidentialZone.objects.latest('id').resident.count(), 2)
         self.m = Citizen.objects.get(id=self.m.id)
         self.f = Citizen.objects.get(id=self.f.id)
-        self.assertEqual(self.m.cash, 69)
-        self.assertEqual(self.f.cash, 69)
-        self.assertEqual(StandardLevelResidentialZone.objects.latest('id').cash, round(decimal.Decimal(160.38), 2))
-        self.assertEqual(City.objects.latest('id').cash, round(decimal.Decimal(9481.62), 2))
+        self.assertEqual(int(self.m.cash), 69)
+        self.assertEqual(int(self.f.cash), 69)
+        self.assertEqual(int(StandardLevelResidentialZone.objects.latest('id').cash), 160)
+        self.assertEqual(int(City.objects.latest('id').cash), 9481)
         self.assertEqual(self.m.resident_object, StandardLevelResidentialZone.objects.latest('id'))
         self.assertEqual(self.f.resident_object, StandardLevelResidentialZone.objects.latest('id'))
         self.assertEqual(Family.objects.all().count(), 1)
         main_view.next_turns(4)
-        self.assertEqual(StandardLevelResidentialZone.objects.latest('id').cash, round(decimal.Decimal(239.58), 2))
-        self.assertEqual(City.objects.latest('id').cash, round(decimal.Decimal(9482.42), 2))
+        self.assertEqual(int(StandardLevelResidentialZone.objects.latest('id').cash), 239)
+        self.assertEqual(int(City.objects.latest('id').cash), 9482)
         self.assertEqual(Citizen.objects.get(id=self.m.id).resident_object, None)
         self.assertEqual(Citizen.objects.get(id=self.f.id).resident_object, None)
-        self.assertEqual(Citizen.objects.get(id=self.m.id).cash, 29)
-        self.assertEqual(Citizen.objects.get(id=self.f.id).cash, 29)
+        self.assertEqual(int(Citizen.objects.get(id=self.m.id).cash), 29)
+        self.assertEqual(int(Citizen.objects.get(id=self.f.id).cash), 29)
 
     def test_find_home_failed(self):
         self.r1 = StandardLevelResidentialZone.objects.latest('id')

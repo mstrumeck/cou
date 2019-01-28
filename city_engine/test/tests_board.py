@@ -1,9 +1,12 @@
 from django import test
-from city_engine.models import City, WindPlant, WaterTower, DumpingGround, SewageWorks
-from .base import TestHelper
-from city_engine.main_view_data.board import Board, HexDetail, Hex
-from cou.abstract import RootClass
 from django.contrib.auth.models import User
+
+from city_engine.main_view_data.board import HexDetail, Hex
+from city_engine.models import City, WindPlant, WaterTower, DumpingGround, SewageWorks
+from cou.abstract import RootClass
+from player.models import Profile
+from resources.models import Market
+from .base import TestHelper
 
 
 class HexTest(test.TestCase, TestHelper):
@@ -12,6 +15,8 @@ class HexTest(test.TestCase, TestHelper):
     def setUp(self):
         self.city = City.objects.latest('id')
         self.user = User.objects.latest('id')
+        self.profile = Profile.objects.latest('id')
+        Market.objects.create(profile=self.profile)
         self.RC = RootClass(self.city, self.user)
 
     def test_create_empty_hex(self):
@@ -75,6 +80,8 @@ class HexDetailTests(test.TestCase):
     def setUp(self):
         self.city = City.objects.latest('id')
         self.user = User.objects.latest('id')
+        self.profile = Profile.objects.latest('id')
+        Market.objects.create(profile=self.profile)
         self.RC = RootClass(self.city, self.user)
 
     def test_sewageworks_hex_box_detail(self):

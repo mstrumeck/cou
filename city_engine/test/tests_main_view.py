@@ -1,14 +1,16 @@
-from django.contrib.auth.models import User
 from django import test
+from django.contrib.auth.models import User
 from django.urls import resolve
-from .base import TestHelper, CityFixture
+
 from city_engine.models import City, CityField, \
     StandardLevelResidentialZone, \
-    WindPlant, RopePlant, WaterTower,  PowerPlant, \
+    WindPlant, RopePlant, WaterTower, PowerPlant, \
     CoalPlant
-from player.models import Profile
 from city_engine.views import main_view
 from cou.abstract import RootClass
+from player.models import Profile
+from resources.models import Market
+from .base import TestHelper, CityFixture
 
 
 class CityViewTests(CityFixture):
@@ -27,7 +29,8 @@ class CityViewTests(CityFixture):
         response = self.client.get('/main/')
 
         self.assertTemplateUsed(response, 'main_view.html')
-        self.RC = RootClass(self.city, User.objects.latest('id'))
+        user = User.objects.get(username='test_username')
+        self.RC = RootClass(self.city, user)
         for models in self.RC.get_subclasses(abstract_class=PowerPlant, app_label='city_engine'):
             list_of_buildings = models.objects.filter(city=self.city)
             for building in list_of_buildings:
@@ -53,7 +56,8 @@ class CityViewTests(CityFixture):
         response = self.client.get('/main/')
         self.assertTemplateUsed(response, 'main_view.html')
         name, cur, end = [], [], []
-        for model in RootClass(self.city, User.objects.latest('id')).get_subclasses_of_all_buildings():
+        user = User.objects.get(username='test_username')
+        for model in RootClass(self.city, user).get_subclasses_of_all_buildings():
             for objects in model.objects.filter(city=self.city):
                 if objects.if_under_construction is True:
                     name.append(objects.name)
@@ -126,6 +130,7 @@ class ModelsTests(test.TestCase, TestHelper):
     def setUp(self):
         self.user = User.objects.create_user(username='test_username', password='12345', email='random@wp.pl')
         self.city = City.objects.create(name='Wrocław', user=self.user)
+        Market.objects.create(profile=Profile.objects.latest('id'))
         self.city_field1 = CityField.objects.create(city=self.city, row=1, col=1)
         self.city_field2 = CityField.objects.create(city=self.city, row=2, col=1)
 

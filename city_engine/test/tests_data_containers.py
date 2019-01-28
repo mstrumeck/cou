@@ -1,13 +1,12 @@
 from django import test
-from city_engine.main_view_data.city_stats import CityStatsCenter, CityEnergyStats, CityRawWaterStats, CityBuildingStats, CityPopulationStats
-from city_engine.models import City, ProductionBuilding, TradeDistrict, WindPlant, DumpingGround, StandardLevelResidentialZone
-from .base import TestHelper
-from cou.abstract import RootClass
 from django.contrib.auth.models import User
+
 from citizen_engine.models import Citizen, Profession, Education, Family
+from city_engine.models import City, WindPlant, DumpingGround, StandardLevelResidentialZone
+from cou.abstract import RootClass
 from cou.global_var import COLLEGE, FEMALE, ELEMENTARY, PHD, MALE
 from player.models import Profile
-import decimal
+from resources.models import Market
 
 
 class DataContainersTests(test.TestCase):
@@ -15,6 +14,8 @@ class DataContainersTests(test.TestCase):
 
     def setUp(self):
         self.city = City.objects.latest('id')
+        self.profile = Profile.objects.latest('id')
+        Market.objects.create(profile=self.profile)
 
     def test_valid_field_for_building_with_worker(self):
         dg = DumpingGround.objects.latest('id')
@@ -130,7 +131,7 @@ class DataContainersTests(test.TestCase):
         Education.objects.create(citizen=p, name=PHD, effectiveness=1, if_current=False)
         Profession.objects.create(citizen=p, proficiency=0.8, name='Nauczyciel Akademicki')
         rc = RootClass(self.city, User.objects.latest('id'))
-        self.assertEqual(rc.citizens_in_city[s].salary_expectation, 242.3999999999999772626324556767940521240234375)
+        self.assertEqual(rc.citizens_in_city[s].salary_expectation, 242.4)
         self.assertEqual(rc.citizens_in_city[m].salary_expectation, 96.9599999999999937472239253111183643341064453125)
         self.assertEqual(rc.citizens_in_city[p].salary_expectation, 436.31999999999999317878973670303821563720703125)
 

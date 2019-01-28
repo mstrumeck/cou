@@ -1,11 +1,12 @@
+import decimal
+
+from django.apps import apps
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.contrib.auth.models import User
-from django.db.models import F
-from cou.global_var import ELEMENTARY, COLLEGE, PHD, EDUCATION, TYPE_OF_EMPLOYEES, \
-    STANDARD_RESIDENTIAL_ZONE_COST_PER_RESIDENT, ENERGY_CITIZEN_NEED, WATER_CITIZEN_NEED
-from django.apps import apps
+
+from cou.global_var import ELEMENTARY, COLLEGE, STANDARD_RESIDENTIAL_ZONE_COST_PER_RESIDENT
 
 
 class Trash(models.Model):
@@ -21,8 +22,6 @@ class City(models.Model):
     user = models.ForeignKey(User)
     name = models.TextField(max_length=15, unique=True)
     cash = models.DecimalField(default=1000000, decimal_places=2, max_digits=20)
-    mass = models.PositiveIntegerField(default=0)
-    mass_price = models.DecimalField(default=2, decimal_places=2, max_digits=20)
     trade_zones_taxation = models.FloatField(default=0.05)
     publish = models.DateField(auto_now_add=True)
     updated = models.DateField(auto_now=True)
@@ -79,12 +78,20 @@ class BuldingsWithWorkes(Building):
                                content_type_field='workplace_content_type'
                                )
 
-    def wage_payment(self, city, employees):
+    def calculate_price_of_good(self, workers_costs, size_of_production):
+        if workers_costs and size_of_production:
+            return workers_costs/decimal.Decimal(size_of_production)
+        return 0
+
+    def wage_payment(self, city, data):
         import decimal
-        for employee in employees:
-            se = decimal.Decimal(employee.salary_expectation)
-            employee.ci.cash += se
+        total_payment = []
+        for e in data.list_of_workplaces[self].all_employees:
+            se = decimal.Decimal(data.citizens_in_city[e].salary_expectation)
+            e.cash += se
             city.cash -= se
+            total_payment.append(se)
+        data.list_of_workplaces[self].workers_costs = sum(total_payment)
 
     def trash_calculation(self, employee):
         return float(self.pollution_calculation(employee)) * float(self.pollution_rate)
@@ -128,6 +135,25 @@ class BuldingsWithWorkes(Building):
             employee_needed=self.phd_employee_needed
         )
         return float(sum(total))/float(sum(wages))
+
+    def _get_quality(self, workplaces, citizens):
+        total = []
+        employee_categories = ['elementary_employees', 'college_employees', 'phd_employees']
+        employee_categories_needed = ['elementary_employee_needed', 'college_employee_needed', 'phd_employee_needed']
+        for e_cat, e_cat_needed in zip(employee_categories, employee_categories_needed):
+            employees = self._get_employee_by_appendix(workplaces, citizens, e_cat)
+            if employees:
+                total.append(self._get_sum_edu_effectiveness(employees) / getattr(self, e_cat_needed) / 3)
+        return round(100 * sum(total))
+
+    def _get_employee_by_appendix(self, workplaces, citizens, appendix):
+        return [citizens[e] for e in getattr(workplaces[self], appendix)] if getattr(workplaces[self], appendix) else []
+
+    def _get_avg_all_edu_effectiveness(self, citizen):
+        return sum([edu.effectiveness for edu in citizen.educations])/len([edu.effectiveness for edu in citizen.educations])
+
+    def _get_sum_edu_effectiveness(self, employee_cat):
+        return sum([self._get_avg_all_edu_effectiveness(c) for c in employee_cat])
 
     def __water_productivity(self):
         if self.water is 0:
@@ -185,43 +211,19 @@ class StandardLevelResidentialZone(Residential):
         self.build_cost = STANDARD_RESIDENTIAL_ZONE_COST_PER_RESIDENT * max_population
 
 
-class TradeDistrict(BuldingsWithWorkes):
-    name = models.CharField(default='Strefa handlowa', max_length=20)
-    profession_type_provided = models.CharField(default="Pracownik strefy handlowej", max_length=30)
-    build_time = models.PositiveIntegerField(default=1)
-    build_cost = models.PositiveIntegerField(default=100)
-    maintenance_cost = models.PositiveIntegerField(default=10)
-    elementary_employee_needed = models.PositiveIntegerField(default=20)
-    resource_cost_per_good = models.PositiveIntegerField(default=1)
-    max_goods_stored = models.PositiveIntegerField(default=100)
-    goods_stored = models.PositiveIntegerField(default=0)
-    cash = models.PositiveIntegerField(default=100)
-    resources_stored = models.PositiveIntegerField(default=0)
-    max_resources_stored = models.PositiveIntegerField(default=100)
-    water_required = models.PositiveIntegerField(default=20)
-    energy_required = models.PositiveIntegerField(default=30)
+class TradeDistrict(Building):
+    name = models.CharField(default='Dzielnica handlowa', max_length=20)
+    if_under_construction = models.BooleanField(default=False)
+    build_time = models.PositiveIntegerField(default=0)
+    current_build_time = models.PositiveIntegerField(default=0)
+    pollution_rate = models.FloatField(default=1.5)
+    pollution_product = models.PositiveIntegerField(default=0)
 
-    def creating_goods(self, city, employee_list, workplaces_list):
-        self.buy_resources(city, employee_list, workplaces_list)
-        self.product_goods(employee_list, workplaces_list)
+    def trash_calculation(self, employee):
+        return float(self.pollution_calculation(employee)) * float(self.pollution_rate)
 
-    def buy_resources(self, city, employee_list, workplaces_list):
-        if self.resources_stored / self.max_resources_stored < 0.8:
-            resources_diff = (self.max_resources_stored - self.resources_stored) * self.productivity(employee_list, workplaces_list)
-            while self.cash > city.mass_price and city.mass > 0 and resources_diff > 0:
-                resources_diff -= 1
-                self.cash -= city.mass_price
-                city.cash += city.mass_price
-                city.mass -= 1
-                self.resources_stored += 1
-
-    def product_goods(self, employee_list, workplaces_list):
-        if self.goods_stored / self.max_goods_stored < 0.5:
-            goods_diff = (self.max_goods_stored - self.goods_stored) * self.productivity(employee_list, workplaces_list)
-            while self.resources_stored > self.resource_cost_per_good and goods_diff > 0:
-                self.resources_stored -= self.resource_cost_per_good
-                self.goods_stored += 1
-                goods_diff -= 1
+    def pollution_calculation(self, employee):
+        return self.pollution_rate * float(employee)
 
 
 class ProductionBuilding(BuldingsWithWorkes):
@@ -248,7 +250,6 @@ class PowerPlant(BuldingsWithWorkes):
     max_power_nodes = models.PositiveIntegerField(default=1)
     energy_production = models.PositiveIntegerField(default=0)
     energy_allocated = models.PositiveIntegerField(default=0)
-    if_electricity = models.BooleanField(default=True)
 
     class Meta:
         abstract = True
@@ -345,7 +346,6 @@ class Waterworks(BuldingsWithWorkes):
     name = models.CharField(max_length=20)
     raw_water_allocated = models.PositiveIntegerField(default=0)
     raw_water_production = models.PositiveIntegerField(default=0)
-    if_waterworks = models.BooleanField(default=True)
     pollution_rate = models.FloatField(default=0.5)
 
     class Meta:
@@ -451,18 +451,31 @@ class Farm(BuldingsWithWorkes):
 
     time_to_grow_from = models.PositiveIntegerField(default=0)
     time_to_grow_to = models.PositiveIntegerField(default=0)
-    accumulate_harvest = models.PositiveIntegerField(default=0)
+    accumulate_harvest = models.FloatField(default=0)
+    accumulate_harvest_costs = models.FloatField(default=0)
     max_harvest = models.PositiveIntegerField(default=0)
 
     class Meta:
         abstract = True
 
-    def update_harvest(self, turn, owner, workplaces, citizens):
+    @classmethod
+    def _get_veg_info(cls):
+        return cls.VEG_TYPE[0], cls.VEG_TYPE[1]
+
+    def update_harvest(self, turn, data):
         if turn >= self.time_to_grow_from and turn < self.time_to_grow_to:
-            self.accumulate_harvest += int(self.max_harvest * self.productivity(workplaces, citizens))
+            harvest_size = self.max_harvest * self.productivity(data.list_of_workplaces, data.citizens_in_city)
+            self.accumulate_harvest_costs += float(self.calculate_price_of_good(data.list_of_workplaces[self].workers_costs, harvest_size))
+            self.accumulate_harvest += harvest_size
         elif turn >= self.time_to_grow_to and self.accumulate_harvest > 0:
-            self.veg.create(size=self.accumulate_harvest, owner=owner)
+            veg_type, veg_name = self._get_veg_info()
+            data.market.add_new_resource(resource_type=veg_type,
+                                         size=int(self.accumulate_harvest),
+                                         quality=self._get_quality(data.list_of_workplaces, data.citizens_in_city),
+                                         price=round(self.accumulate_harvest_costs, 2),
+                                         market=data.market.mi)
             self.accumulate_harvest = 0
+            self.accumulate_harvest_costs = 0
 
     def build_status(self):
         if self.current_build_time < self.build_time:
@@ -490,71 +503,6 @@ class AnimalFarm(BuldingsWithWorkes):
 
     class Meta:
         abstract = True
-
-
-class CattleFarm(AnimalFarm):
-    name = models.CharField(default='Farma byłda', max_length=15)
-    profession_type_provided = models.CharField(default="Farmer bydła.", max_length=30)
-    animal = GenericRelation('resources.Cattle')
-    pastures = models.PositiveIntegerField(default=1)
-    cattle_breeding_rate = models.FloatField(default=0.014)
-    accumulate_breding = models.FloatField(default=0)
-
-    def cattle_farm_productivity(self, cat):
-        return ((cat.size / self.pastures) ** -0.3) * 2
-
-    def farm_operation(self, turn, owner, workplaces, citizens):
-        if self.animal.count() != 0:
-            cat = self.animal.last()
-            if turn != 8:
-                self.accumulate_breding += (self.cattle_breeding_rate * self.productivity(workplaces, citizens))
-                cat.resource_production(owner, self.pastures)
-            else:
-                cat.size += (cat.size * self.accumulate_breding * self.cattle_farm_productivity(cat))
-                self.accumulate_breding = 0
-                cat.resource_production(owner, self.pastures)
-        else:
-            self.animal.create(owner=owner, size=10)
-
-
-class PotatoFarm(Farm):
-    name = models.CharField(default='Farma ziemniaków', max_length=20)
-    profession_type_provided = models.CharField(default="Farmer ziemniaków", max_length=30)
-    veg = GenericRelation('resources.Potato')
-    time_to_grow_from = models.PositiveIntegerField(default=2)
-    time_to_grow_to = models.PositiveIntegerField(default=6)
-    max_harvest = models.PositiveIntegerField(default=10)
-
-
-class BeanFarm(Farm):
-    name = models.CharField(default='Farma fasoli', max_length=15)
-    profession_type_provided = models.CharField(default="Farmer fasoli", max_length=30)
-    veg = GenericRelation('resources.Bean')
-    time_to_grow_from = models.PositiveIntegerField(default=4)
-    time_to_grow_to = models.PositiveIntegerField(default=8)
-    max_harvest = models.PositiveIntegerField(default=8)
-
-
-class LettuceFarm(Farm):
-    name = models.CharField(default='Farma sałaty', max_length=15)
-    profession_type_provided = models.CharField(default="Farmer sałaty", max_length=30)
-    veg = GenericRelation('resources.Lettuce')
-    time_to_grow_from = models.PositiveIntegerField(default=3)
-    time_to_grow_to = models.PositiveIntegerField(default=5)
-    max_harvest = models.PositiveIntegerField(default=12)
-
-
-class MassConventer(BuldingsWithWorkes):
-    name = models.CharField(default="Konwenter Masy", max_length=16)
-    profession_type_provided = models.CharField(default="Pracownik konwentera masy", max_length=30)
-    energy_required = models.PositiveIntegerField(default=5)
-    water_required = models.PositiveIntegerField(default=10)
-    mass_production_rate = models.PositiveIntegerField(default=20)
-    build_time = models.PositiveIntegerField(default=1)
-    elementary_employee_needed = models.PositiveIntegerField(default=5)
-
-    def product_mass(self, city, workplaces, citizens):
-        city.mass += int(self.mass_production_rate * self.productivity(workplaces, citizens))
 
 
 class School(BuldingsWithWorkes):
@@ -629,7 +577,6 @@ class PrimarySchool(School):
 class DumpingGround(BuldingsWithWorkes):
     name = models.CharField(default='Wysypisko śmieci', max_length=20)
     profession_type_provided = models.CharField(default="Pracownik wysypiska śmieci", max_length=30)
-    if_dumping_ground = models.BooleanField(default=True)
     build_time = models.PositiveIntegerField(default=2)
     build_cost = models.PositiveIntegerField(default=100)
     maintenance_cost = models.PositiveIntegerField(default=10)
@@ -667,12 +614,15 @@ class Vehicle(models.Model):
         for employee in employees:
             employee.current_profession.update_proficiency(employee)
 
-    def wage_payment(self, city, employees):
+    def wage_payment(self, city, data):
         import decimal
-        for employee in employees:
-            se = decimal.Decimal(employee.salary_expectation)
-            employee.ci.cash += se
+        total_payment = []
+        for e in data.list_of_workplaces[self].all_employees:
+            se = decimal.Decimal(data.citizens_in_city[e].salary_expectation)
+            e.cash += se
             city.cash -= se
+            total_payment.append(se)
+        data.list_of_workplaces[self].workers_costs = sum(total_payment)
 
     def calculate_wage_for_employees(self, wage_of_employees, total_wages, total_level, employees, employee_needed):
         if employee_needed:

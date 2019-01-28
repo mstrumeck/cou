@@ -1,20 +1,24 @@
-from city_engine.turn_data.main import TurnCalculation
 from django import test
-from city_engine.test.base import TestHelper
-from city_engine.models import City
-from cou.abstract import RootClass
 from django.contrib.auth.models import User
-from player.models import Profile
+
 from citizen_engine.models import Citizen, Family
+from city_engine.models import City
 from city_engine.models import StandardLevelResidentialZone
+from city_engine.test.base import TestHelper
+from city_engine.turn_data.main import TurnCalculation
+from cou.abstract import RootClass
 from cou.global_var import MALE, PHD, FEMALE, ELEMENTARY
+from player.models import Profile
+from resources.models import Market
 
 
 class TestTurnCalculation(test.TestCase, TestHelper):
     fixtures = ['basic_fixture_resources_and_employees.json']
 
     def setUp(self):
+        self.profile = Profile.objects.latest('id')
         self.city = City.objects.latest('id')
+        Market.objects.create(profile=self.profile)
         self.data = RootClass(city=self.city, user=User.objects.latest('id'))
 
     def test_calculate_maintanance_cost(self):

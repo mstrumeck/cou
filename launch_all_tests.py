@@ -32,4 +32,4 @@ def run_tests_with_coverage():
 # run_tests_with_coverage()
 run_tests()
 
-# python manage.py dumpdata citizen_engine city_engine auth.user --indent=2 --output=city_engine/fixtures/fixture_natural_resources.json
+# python manage.py dumpdata citizen_engine city_engine auth.user resources --indent=2 --output=city_engine/fixtures/test_only.json

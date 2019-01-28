@@ -20,6 +20,11 @@ EDUCATION = (
 TYPE_OF_EMPLOYEES = ['elementary_employees', 'college_employees', 'phd_employees']
 
 STANDARD_RESIDENTIAL_ZONE_COST_PER_RESIDENT = 20000
+
 MASS_CITIZEN_NEED = 10
 WATER_CITIZEN_NEED = 2
 ENERGY_CITIZEN_NEED = 3
+
+FOOD = 'Food'
+CLOTHES = 'Clothes'
+MASS = 'Mass'

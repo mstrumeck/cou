@@ -1,10 +1,14 @@
 from django import test
-from city_engine.main_view_data.city_stats import CityStatsCenter, CityEnergyStats, CityRawWaterStats, CityBuildingStats, CityPopulationStats
-from city_engine.models import City , ProductionBuilding, TradeDistrict, CityField
-from .base import TestHelper
-from cou.abstract import RootClass
 from django.contrib.auth.models import User
+
 from citizen_engine.models import Citizen
+from city_engine.main_view_data.city_stats import CityStatsCenter, CityEnergyStats, CityRawWaterStats, \
+    CityBuildingStats, CityPopulationStats
+from city_engine.models import City
+from cou.abstract import RootClass
+from player.models import Profile
+from resources.models import Market
+from .base import TestHelper
 
 
 class CityStatsTests(test.TestCase, TestHelper):
@@ -12,6 +16,8 @@ class CityStatsTests(test.TestCase, TestHelper):
 
     def setUp(self):
         self.city = City.objects.latest('id')
+        self.profile = Profile.objects.latest('id')
+        Market.objects.create(profile=self.profile)
         TestHelper(self.city, User.objects.latest('id')).populate_city()
         self.RC = RootClass(self.city, User.objects.latest('id'))
 
@@ -60,22 +66,22 @@ class CityStatsTests(test.TestCase, TestHelper):
         self.assertEqual(needed, 0)
         self.assertEqual(total, Citizen.objects.all().count())
 
-    def test_industrial_area_demand(self):
-        self.assertEqual(TradeDistrict.objects.all().count(), 0)
-        needed, total = map(int, CityBuildingStats(self.city, self.RC).industrial_areas_demand().split("/"))
-        self.assertEqual(needed, 0)
-        self.assertEqual(total, 0)
-        TradeDistrict.objects.create(city=self.city, city_field=CityField.objects.get(id=1), if_under_construction=False)
-        RC = RootClass(self.city, User.objects.latest('id'))
-        self.assertEqual(TradeDistrict.objects.all().count(), 1)
-        needed, total = map(int, CityBuildingStats(self.city, RC).industrial_areas_demand().split("/"))
-        self.assertEqual(needed, 20)
-        self.assertEqual(total, 20)
-        TestHelper(self.city, User.objects.latest('id')).populate_city()
-        RC = RootClass(self.city, User.objects.latest('id'))
-        needed, total = map(int, CityBuildingStats(self.city, RC).industrial_areas_demand().split("/"))
-        self.assertEqual(needed, 0)
-        self.assertEqual(total, 20)
+    # def test_industrial_area_demand(self):
+    #     self.assertEqual(TradeDistrictDummy.objects.all().count(), 0)
+    #     needed, total = map(int, CityBuildingStats(self.city, self.RC).industrial_areas_demand().split("/"))
+    #     self.assertEqual(needed, 0)
+    #     self.assertEqual(total, 0)
+    #     TradeDistrictDummy.objects.create(city=self.city, city_field=CityField.objects.get(id=1), if_under_construction=False)
+    #     RC = RootClass(self.city, User.objects.latest('id'))
+    #     self.assertEqual(TradeDistrictDummy.objects.all().count(), 1)
+    #     needed, total = map(int, CityBuildingStats(self.city, RC).industrial_areas_demand().split("/"))
+    #     self.assertEqual(needed, 20)
+    #     self.assertEqual(total, 20)
+    #     TestHelper(self.city, User.objects.latest('id')).populate_city()
+    #     RC = RootClass(self.city, User.objects.latest('id'))
+    #     needed, total = map(int, CityBuildingStats(self.city, RC).industrial_areas_demand().split("/"))
+    #     self.assertEqual(needed, 0)
+    #     self.assertEqual(total, 20)
 
     # def test_trade_areas_demand(self):
     #     print(CityBuildingStats(self.city, self.RC).trade_areas_demand())

@@ -1,0 +1,366 @@
+{
+  "/home/michal/Pulpit/cou_work_place/cou/citizen_engine/__init__.py": [
+    1503140109.427367,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/citizen_engine/admin.py": [
+    1503851890.153407,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/citizen_engine/apps.py": [
+    1503140109.423367,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/citizen_engine/citizen_creation.py": [
+    1521292559.9137704,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/citizen_engine/migrations/0001_initial.py": [
+    1505555616.2800636,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/citizen_engine/migrations/0002_auto_20180305_2005.py": [
+    1520280300.3614695,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/citizen_engine/migrations/__init__.py": [
+    1505555616.2760637,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/citizen_engine/models.py": [
+    1520969395.5376952,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/citizen_engine/tests.py": [
+    1521309550.4388063,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/citizen_engine/views.py": [
+    1503140109.427367,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/__init__.py": [
+    1503141016.0737314,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/admin.py": [
+    1507042029.9306352,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/apps.py": [
+    1503141016.0737314,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/main_view_data/__init__.py": [
+    1506968110.0484219,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/main_view_data/city_stats.py": [
+    1520880882.257846,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/main_view_data/employee_allocation.py": [
+    1521305780.2089505,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/main_view_data/global_variables.py": [
+    1520882808.0964453,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0001_initial.py": [
+    1505555605.700349,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0002_auto_20170917_1001.py": [
+    1505642506.199082,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0003_auto_20170919_1909.py": [
+    1505848181.2192585,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0004_auto_20170921_1743.py": [
+    1506015839.0822787,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0005_auto_20170924_1226.py": [
+    1506256005.4100392,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0006_auto_20170924_1228.py": [
+    1506256113.3827512,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0007_auto_20171003_1411.py": [
+    1507039899.9625428,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0008_auto_20171003_1413.py": [
+    1507039997.4931738,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0009_auto_20171003_1538.py": [
+    1507045115.7760916,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0010_ropeplant.py": [
+    1507477145.9055026,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0011_auto_20171008_1902.py": [
+    1507489350.7510173,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0012_coalplant.py": [
+    1507492318.8681176,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0013_auto_20171008_1958.py": [
+    1507492712.4645407,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0014_auto_20171008_2006.py": [
+    1507493175.8646743,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0015_auto_20171008_2018.py": [
+    1507493907.99505,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0016_auto_20171008_2042.py": [
+    1507495366.7242439,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0017_auto_20171008_2051.py": [
+    1507495878.3930533,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0018_auto_20171009_2050.py": [
+    1507582219.8731003,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0019_auto_20171012_1850.py": [
+    1507834229.329687,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0020_auto_20171015_1032.py": [
+    1508063539.4569256,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0021_cityfield_if_waterworks.py": [
+    1508064368.1182303,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0022_auto_20171016_1904.py": [
+    1508180676.1953597,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0023_auto_20171017_1811.py": [
+    1508263899.9746315,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0024_watertower_energy_required.py": [
+    1508265308.6931164,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0025_auto_20171017_1857.py": [
+    1508266639.821043,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0026_city_energy_used.py": [
+    1508355329.1957052,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0027_auto_20171028_1716.py": [
+    1509211011.757045,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0028_auto_20171029_1912.py": [
+    1509304333.742311,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0029_auto_20171029_1921.py": [
+    1509304915.006704,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0030_auto_20171112_1929.py": [
+    1510514984.6745887,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0031_auto_20171112_1956.py": [
+    1510516586.2079353,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0032_auto_20171119_1022.py": [
+    1511086971.1515057,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0033_auto_20180225_1239.py": [
+    1519562364.388405,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0034_auto_20180225_1301.py": [
+    1519563663.4303768,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0035_auto_20180225_1403.py": [
+    1519567437.4990265,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0036_auto_20180225_1426.py": [
+    1519568775.837274,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0037_auto_20180301_1739.py": [
+    1519925988.797574,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0038_auto_20180301_1927.py": [
+    1519932451.8832781,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0039_auto_20180304_1322.py": [
+    1520169752.4445393,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0040_auto_20180305_2005.py": [
+    1520280300.3694696,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0041_auto_20180305_2011.py": [
+    1520280692.642639,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/0042_auto_20180314_1938.py": [
+    1521056307.8239675,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/migrations/__init__.py": [
+    1505555605.6883492,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/models.py": [
+    1521138465.3744652,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/test/__init__.py": [
+    1508260388.8799877,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/test/base.py": [
+    1520969746.309339,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/test/test_employee_allocation.py": [
+    1521305780.1329503,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/test/tests.py": [
+    1520970703.3010817,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/test/tests_city_stats.py": [
+    1521139997.4808798,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/test/tests_resources_allocation.py": [
+    1521140292.156318,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/turn_data/build.py": [
+    1520189280.7021766,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/turn_data/main.py": [
+    1520880882.289847,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/urls.py": [
+    1519408609.3349795,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/city_engine/views.py": [
+    1520882200.0590217,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/cou/__init__.py": [
+    1502638715.7021697,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/cou/settings.py": [
+    1504990325.2456887,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/cou/urls.py": [
+    1503861251.6730468,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/cou/wsgi.py": [
+    1502654374.5256479,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/functional_tests/__init__.py": [
+    1503692411.6511788,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/functional_tests/base.py": [
+    1520801158.4152524,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/functional_tests/game_tests.py": [
+    1521307911.6814437,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/functional_tests/user_tests.py": [
+    1521052800.6346562,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/manage.py": [
+    1502654374.5576484,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/player/__init__.py": [
+    1502649842.6657982,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/player/admin.py": [
+    1503861576.4218493,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/player/apps.py": [
+    1503861251.7210484,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/player/forms.py": [
+    1507042138.9790168,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/player/migrations/0001_initial.py": [
+    1505555616.2800636,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/player/migrations/__init__.py": [
+    1505555616.2800636,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/player/models.py": [
+    1506270232.3810294,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/player/tests.py": [
+    1507042168.371139,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/player/tokens.py": [
+    1502991276.1784284,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/player/urls.py": [
+    1506169530.5056581,
+    7
+  ],
+  "/home/michal/Pulpit/cou_work_place/cou/player/views.py": [
+    1520882477.6893957,
+    7
+  ]
+}

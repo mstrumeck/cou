@@ -1,9 +1,10 @@
-from django.test import TestCase
 from django.contrib.auth.models import User
-from .views import main_page, signup
+from django.test import TestCase
 from django.urls import resolve
+
 from city_engine.models import City
 from .forms import SignUpForm
+from .views import main_page, signup
 
 
 class TestLogin(TestCase):

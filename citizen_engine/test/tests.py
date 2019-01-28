@@ -10,6 +10,7 @@ from player.models import Profile
 from citizen_engine.citizen_abstract import CitizenAbstract
 from cou.global_var import MALE, FEMALE, ELEMENTARY
 from city_engine.turn_data.main import TurnCalculation
+from resources.models import Market
 
 
 class CitizenGetMarriedTests(TestCase):
@@ -20,6 +21,7 @@ class CitizenGetMarriedTests(TestCase):
         self.profile = Profile.objects.latest('id')
         self.she_family = Family.objects.create(city=self.city, surname='00')
         self.he_family = Family.objects.create(city=self.city, surname='01')
+        Market.objects.create(profile=self.profile)
         self.f = Citizen.objects.create(
             city=self.city,
             age=21,
@@ -135,6 +137,7 @@ class BornChildTests(TestCase):
         self.r1 = StandardLevelResidentialZone.objects.latest('id')
         he_family = Family.objects.create(surname='01', city=self.city)
         she_family = Family.objects.create(surname='02', city=self.city)
+        Market.objects.create(profile=self.profile)
         self.f = Citizen.objects.create(
             city=self.city,
             age=21,
@@ -198,6 +201,8 @@ class CitizenCreationsTest(TestCase):
 
     def setUp(self):
         self.city = City.objects.get(id=1)
+        self.profile = Profile.objects.latest('id')
+        Market.objects.create( profile=self.profile)
         self.RC = RootClass(self.city, User.objects.latest('id'))
 
     def test_allocate_citizen_to_res_and_work(self):

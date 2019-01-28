@@ -1,5 +1,6 @@
-from cou.global_var import ELEMENTARY, COLLEGE, PHD
-from city_engine.models import TradeDistrict, ProductionBuilding, Vehicle
+from city_engine.models import ProductionBuilding, Vehicle
+from company_engine.models import Company
+from citizen_engine.models import Education
 
 
 class CitizenWorkEngine:
@@ -7,7 +8,7 @@ class CitizenWorkEngine:
         self.data = city_data
         self.city = city
         self.active_workplaces = {w: self.data.list_of_workplaces[w] for w in self.data.list_of_workplaces
-                                  if isinstance(w, Vehicle) or w.if_under_construction is False}
+                                  if isinstance(w, Vehicle) or isinstance(w, Company) or w.if_under_construction is False}
 
     def human_resources_allocation(self):
         self.update_work_experience()
@@ -23,14 +24,14 @@ class CitizenWorkEngine:
                 [self.data.citizens_in_city[c] for c in self.data.list_of_workplaces[wb].all_employees])
 
     def assign_better_job(self):
-        matrix = {ELEMENTARY: 'elementary_vacancies', COLLEGE: 'college_vacancies', PHD: 'phd_vacancies', 'None': 'elementary_vacancies'}
         for e in (u for u in self.data.citizens_in_city
                   if u.workplace_object is not None
                   and self.data.citizens_in_city[u].current_profession.education != u.edu_title):
-            e.change_work_for_better(
-                self.active_workplaces,
-                self.data.citizens_in_city,
-                self.data.to_save)
+            if [b for b in self.data.list_of_workplaces if getattr(self.data.list_of_workplaces[b], Education.MATRIX[e.edu_title])]:
+                e.change_work_for_better(
+                    self.active_workplaces,
+                    self.data.citizens_in_city,
+                    self.data.to_save)
 
     def assign_job_for_people_without_it(self):
         for e in (u for u in self.data.citizens_in_city
@@ -61,9 +62,5 @@ class CitizenWorkEngine:
 
     def wage_payment_in_all_workplaces(self):
         for w in (w for w in self.data.list_of_workplaces
-                  if not isinstance(w, TradeDistrict) or
-                     not isinstance(w, ProductionBuilding)):
-            w.wage_payment(
-                self.city,
-                (self.data.citizens_in_city[e] for e in self.data.citizens_in_city if e.workplace_object == w)
-            )
+                  if not isinstance(w, Company) or not isinstance(w, ProductionBuilding)):
+            w.wage_payment(self.city, self.data)

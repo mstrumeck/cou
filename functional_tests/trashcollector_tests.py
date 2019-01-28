@@ -1,10 +1,12 @@
-from functional_tests.page_objects import MainView, LoginPage
+from django.contrib.auth.models import User
+from django.db.models import Sum
+
 from city_engine.models import CityField, City, \
     WindPlant, DumpingGround, DustCart, StandardLevelResidentialZone, SewageWorks, WaterTower
-from .legacy.base import BaseTest
-from django.db.models import Sum
+from city_engine.test.base import TestHelper
 from cou.abstract import RootClass
-from django.contrib.auth.models import User
+from functional_tests.page_objects import MainView, LoginPage
+from .legacy.base import BaseTest
 
 
 class TrashCollectorTest(BaseTest):
@@ -41,27 +43,23 @@ class TrashCollectorTest(BaseTest):
                                                                         assertIn=self.assertIn,
                                                                         assertTrue=self.assertTrue)
         main_view = MainView(self.browser, self.live_server_url)
-        # corr_water_tower_one = '21'
-        # corr_water_tower_two = '23'
-        # corr_wind_plant_one = '22'
-        # corr_wind_plant_two = '32'
-        # corr_dumping_ground = '01'
         cf_id = CityField.objects.latest('id').id
-        SewageWorks.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id))
-        WaterTower.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-1))
-        WaterTower.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-2))
-        WindPlant.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-3))
-        WindPlant.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-4))
-        DumpingGround.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-5))
-        StandardLevelResidentialZone.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-6), max_population=30)
-        StandardLevelResidentialZone.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-7), max_population=30)
+        SewageWorks.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id), if_under_construction = False)
+        WaterTower.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-1), if_under_construction = False)
+        WaterTower.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-2), if_under_construction = False)
+        WindPlant.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-3), if_under_construction = False)
+        WindPlant.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-4), if_under_construction = False)
+        dg = DumpingGround.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-5), if_under_construction = False)
+        DustCart.objects.create(dumping_ground=dg)
+        StandardLevelResidentialZone.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-6), max_population=30, if_under_construction = False)
+        StandardLevelResidentialZone.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-7), max_population=30, if_under_construction = False)
 
-        main_view.next_turns(2)
+        TestHelper(city=self.city_one, user=User.objects.latest('id')).populate_city()
         dumping_ground = DumpingGround.objects.latest('id')
         dust_cart = DustCart.objects.latest('id')
         self.assertEqual(dumping_ground.current_space_for_trash, 0)
         self.assertEqual(dumping_ground.employee.count(), 5)
-        self.assertEqual(dust_cart.employee.count(), 0)
+        self.assertEqual(dust_cart.employee.count(), 3)
         # self.assertGreater(sum([trash.size for trash in self.list_of_all_trashes_in_city()]), 18)
         main_view.next_turns(7)
         dumping_ground = DumpingGround.objects.latest('id')
@@ -70,15 +68,3 @@ class TrashCollectorTest(BaseTest):
         self.assertGreater(dumping_ground.current_space_for_trash, 100)
         self.assertEqual(dust_cart.employee.count(), 3)
         self.assertGreater(CityField.objects.filter(city=self.city_one).aggregate(Sum('pollution'))['pollution__sum'], 36)
-
-    # def test_with_various_number_of_drivers(self):
-    #     self.create_first_user()
-    #     LoginPage(self.browser,
-    #               self.live_server_url).navigate_to_main_throught_login(user=self.user_one,
-    #                                                                     username=self.player_one,
-    #                                                                     password=self.password_one,
-    #                                                                     city=self.city_one,
-    #                                                                     assertIn=self.assertIn,
-    #                                                                     assertTrue=self.assertTrue)
-    #     main_view = MainView(self.browser, self.live_server_url)
-        #Napisz test z rożną skutecznością kierowców

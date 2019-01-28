@@ -1,12 +1,15 @@
 from django import test
-from city_engine.test.base import TestHelper
-from city_engine.models import CityField, StandardLevelResidentialZone, City, WindPlant, WaterTower, \
-    ProductionBuilding, DustCart, DumpingGround
 from django.contrib.auth.models import User
+
 from citizen_engine.models import Citizen
 from city_engine.main_view_data.employee_allocation import EmployeeAllocation
+from city_engine.models import CityField, StandardLevelResidentialZone, City, WindPlant, WaterTower, \
+    ProductionBuilding, DustCart, DumpingGround
+from city_engine.test.base import TestHelper
 from cou.abstract import RootClass
 from cou.global_var import ELEMENTARY
+from player.models import Profile
+from resources.models import Market
 
 
 class EmployeeAllocationTest(test.TestCase, TestHelper):
@@ -14,6 +17,8 @@ class EmployeeAllocationTest(test.TestCase, TestHelper):
 
     def setUp(self):
         self.city = City.objects.latest('id')
+        self.profile = Profile.objects.latest('id')
+        Market.objects.create(profile=self.profile)
         self.RC = RootClass(self.city, user=User.objects.latest('id'))
         self.EA = EmployeeAllocation(city=self.city, data=self.RC)
 

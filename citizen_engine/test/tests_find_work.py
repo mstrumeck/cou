@@ -1,16 +1,13 @@
 from django.contrib.auth.models import User
-from django.test import TestCase
 from city_engine.models import StandardLevelResidentialZone, City, WindPlant, CityField, PrimarySchool,\
     DustCart, DumpingGround, WaterTower
 from citizen_engine.models import Citizen, Profession, Education
-from citizen_engine.citizen_creation import CreateCitizen
-import random, string
 from cou.abstract import RootClass
-from citizen_engine.social_actions import SocialAction
 from player.models import Profile
 from cou.global_var import MALE, FEMALE, ELEMENTARY, COLLEGE
 from citizen_engine.work_engine import CitizenWorkEngine
 from .base import SocialTestHelper
+from resources.models import Market
 
 
 class TestFindWork(SocialTestHelper):
@@ -18,8 +15,9 @@ class TestFindWork(SocialTestHelper):
 
     def setUp(self):
         self.city = City.objects.get(id=1)
-        self.RC = RootClass(self.city, User.objects.latest('id'))
         self.profile = Profile.objects.latest('id')
+        Market.objects.create(profile=self.profile)
+        self.RC = RootClass(self.city, User.objects.latest('id'))
         self.r1 = StandardLevelResidentialZone.objects.latest('id')
         self.f = Citizen.objects.create(
             city=self.city,
@@ -69,6 +67,8 @@ class TestFindWork(SocialTestHelper):
         CitizenWorkEngine(RC, self.city).human_resources_allocation()
         for c in RC.citizens_in_city:
             c.save()
+        cwo = citizen.workplace_object
+        elementary_vacancies_before = RC.list_of_workplaces[cwo].elementary_vacancies
         self.assertEqual(Profession.objects.all().count(), 3)
         self.assertEqual(Profession.objects.filter(if_current=True).count(), 3)
         self.assertNotEqual(citizen.workplace_object, None)
@@ -79,6 +79,7 @@ class TestFindWork(SocialTestHelper):
             )
         RC = RootClass(self.city, User.objects.latest('id'))
         CitizenWorkEngine(RC, self.city).human_resources_allocation()
+        self.assertEqual(RC.list_of_workplaces[cwo].elementary_vacancies, elementary_vacancies_before + 1)
         for c in RC.citizens_in_city:
             c.save()
             [p.save() for p in RC.citizens_in_city[c].professions]
@@ -91,7 +92,9 @@ class TestFindWork(SocialTestHelper):
     def test_with_vehicles(self):
         WindPlant.objects.all().delete()
         WaterTower.objects.all().delete()
-        DumpingGround.objects.all().delete()
+        dg = DumpingGround.objects.latest('id')
+        dg.elementary_employee_needed = 0
+        dg.save()
         RC = RootClass(self.city, User.objects.latest('id'))
         dc = DustCart.objects.latest('id')
         self.assertEqual(dc.employee.all().count(), 0)
@@ -112,7 +115,7 @@ class TestFindWork(SocialTestHelper):
         self.assertEqual(self.f.workplace_object, None)
         self.assertEqual(self.m.workplace_object, None)
         RC = RootClass(self.city, User.objects.latest('id'))
-        self.assertEqual(RC.list_of_workplaces[school].people_in_charge, 0)
+        self.assertEqual(len(RC.list_of_workplaces[school].all_employees), 0)
         self.assertEqual(RC.list_of_workplaces[school].college_vacancies, school.college_employee_needed)
         CitizenWorkEngine(RC, self.city).human_resources_allocation()
         self.save_all_ob_from(RC.citizens_in_city)
@@ -126,7 +129,7 @@ class TestFindWork(SocialTestHelper):
         self.assertNotEqual(self.m.workplace_object, None)
         self.assertNotEqual(self.f.workplace_object, None)
         RC = RootClass(self.city, User.objects.latest('id'))
-        self.assertEqual(RC.list_of_workplaces[school].people_in_charge, 1)
+        self.assertEqual(len(RC.list_of_workplaces[school].all_employees), 1)
         self.assertEqual(RC.list_of_workplaces[school].college_vacancies, school.college_employee_needed-1)
 
     def test_failed_scenario(self):
@@ -144,3 +147,4 @@ class TestFindWork(SocialTestHelper):
         self.assertEqual(self.f.workplace_object, None)
         self.assertEqual(self.m.workplace_object, None)
         self.assertEqual(self.s.workplace_object, None)
+

@@ -1,11 +1,13 @@
 from django import test
+from django.contrib.auth.models import User
+
 from city_engine.main_view_data.trash_management import TrashManagement, CollectGarbage
 from city_engine.models import DumpingGround, City, DustCart, Trash, WindPlant, WaterTower, CityField
-from django.contrib.auth.models import User
 from city_engine.test.base import TestHelper
 from city_engine.turn_data.main import TurnCalculation
 from cou.abstract import RootClass
 from player.models import Profile
+from resources.models import Market
 
 
 class TestTrashAllocation(test.TestCase):
@@ -15,6 +17,8 @@ class TestTrashAllocation(test.TestCase):
         self.city = City.objects.latest('id')
         self.wind_plant = WindPlant.objects.latest('id')
         self.water_tower = WaterTower.objects.latest('id')
+        self.profile = Profile.objects.latest('id')
+        Market.objects.create(profile=self.profile)
         TestHelper(self.city, User.objects.latest('id')).populate_city()
         self.RC = RootClass(self.city, User.objects.latest('id'))
         self.trash_management = TrashManagement(data=self.RC)

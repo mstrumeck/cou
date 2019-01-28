@@ -179,7 +179,6 @@
     "max_power_nodes": 10,
     "energy_production": 15,
     "energy_allocated": 0,
-    "if_electricity": true,
     "name": "Elektrownia wiatrowa",
     "build_time": 3,
     "build_cost": 100,
@@ -206,7 +205,6 @@
     "phd_employee_needed": 0,
     "raw_water_allocated": 0,
     "raw_water_production": 20,
-    "if_waterworks": true,
     "pollution_rate": 0.5,
     "name": "Wie\u017ca ci\u015bnie\u0144",
     "build_time": 1,
@@ -240,8 +238,6 @@
     "user": 1,
     "name": "Wroc\u0142aw",
     "cash": "9805.00",
-    "mass": 1000,
-    "mass_price": "2.45",
     "publish": "2018-04-21",
     "updated": "2018-04-21"
   }

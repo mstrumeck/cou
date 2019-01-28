@@ -1,17 +1,19 @@
-from functional_tests.page_objects import MainView, LoginPage, Homepage
-from city_engine.models import City, StandardLevelResidentialZone, CityField, PrimarySchool, WindPlant, WaterTower
-from .legacy.base import BaseTest
 from django.contrib.auth.models import User
-from selenium import webdriver
-from player.models import Profile
-from citizen_engine.models import Citizen, Education, Profession
-from cou.global_var import FEMALE, ELEMENTARY, COLLEGE, MALE, TRAINEE, JUNIOR
 from django.test import override_settings
+from selenium import webdriver
+
+from citizen_engine.models import Citizen, Education, Profession
+from city_engine.models import City, StandardLevelResidentialZone, CityField, PrimarySchool
 from cou.abstract import RootClass
+from cou.global_var import FEMALE, ELEMENTARY, COLLEGE, MALE
+from functional_tests.page_objects import MainView, LoginPage, Homepage
+from player.models import Profile
+from resources.models import Market
+from .legacy.base import BaseTestOfficial
 
 
 @override_settings(DEBUG=True)
-class SearchJobTest(BaseTest):
+class SearchJobTest(BaseTestOfficial):
     fixtures = ['basic_fixture_resources_and_employees.json']
 
     def setUp(self):
@@ -19,6 +21,7 @@ class SearchJobTest(BaseTest):
         self.city = City.objects.latest('id')
         self.user = User.objects.latest('id')
         self.profile = Profile.objects.latest('id')
+        self.market = Market.objects.create(profile=self.profile)
         self.r1 = StandardLevelResidentialZone.objects.latest('id')
         self.m = Citizen.objects.create(
             city=self.city,
@@ -26,8 +29,8 @@ class SearchJobTest(BaseTest):
             month_of_birth=2,
             cash=100,
             health=5,
-            name="0",
-            surname="WORKER",
+            name="WORKER",
+            surname="HE",
             sex=MALE,
             resident_object=self.r1,
             edu_title=ELEMENTARY
@@ -38,8 +41,8 @@ class SearchJobTest(BaseTest):
             month_of_birth=2,
             cash=100,
             health=5,
-            name="0",
-            surname="TEACHER",
+            name="TEACHER",
+            surname="SHE",
             sex=FEMALE,
             resident_object=self.r1,
             edu_title=COLLEGE
@@ -78,7 +81,7 @@ class SearchJobTest(BaseTest):
         self.assertNotEqual(RC.citizens_in_city[self.employee].current_profession.education, self.employee.edu_title)
         self.assertEqual(RC.citizens_in_city[self.m].current_profession.education, self.m.edu_title)
 
-        ps = PrimarySchool.objects.create(city=self.city, city_field=CityField.objects.latest('id'))
+        ps = PrimarySchool.objects.create(city=self.city, city_field=CityField.objects.latest('id'), if_under_construction=False)
 
         main_view.next_turns(2)
 

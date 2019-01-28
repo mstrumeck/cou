@@ -56,40 +56,44 @@ class Citizen(models.Model):
     school_object = GenericForeignKey('school_content_type', 'school_object_id')
 
     def change_work_for_better(self, workplaces, citizens, save_instance):
-        matrix = {ELEMENTARY: 'elementary_vacancies', COLLEGE: 'college_vacancies', PHD: 'phd_vacancies', 'None': 'elementary_vacancies'}
-        possible_workplaces, edu_level = self.__possible_workplaces(workplaces)
+        possible_workplaces, edu_level = self._possible_workplaces(workplaces)
         current_profession = citizens[self].current_profession
-        setattr(workplaces[self.workplace_object], matrix[edu_level], getattr(workplaces[self.workplace_object], matrix[edu_level]) - 1)
+        self.__increase_num_of_vacancies_in_dataset(workplaces, self.workplace_object, citizens[self].current_profession.education)
         current_profession.if_current = False
         best = self.__find_better_work_option(possible_workplaces)
-        setattr(workplaces[best], matrix[edu_level], getattr(workplaces[best], matrix[edu_level]) - 1)
+        self.__decrease_num_of_vacancies_in_dataset(workplaces, best, edu_level)
         self.workplace_object = best
         citizens[self].current_profession = Profession.objects.create(
             citizen=self, name=best.profession_type_provided, education=edu_level)
         save_instance.append(citizens[self].current_profession)
 
     def grab_job(self, possible_workplaces, workplaces, edu_level, citizens, save_instance):
-        matrix = {ELEMENTARY: 'elementary_vacancies', COLLEGE: 'college_vacancies', PHD: 'phd_vacancies', 'None': 'elementary_vacancies'}
         best = self.__find_better_work_option(possible_workplaces)
         self.workplace_object = best
-        setattr(workplaces[best], matrix[edu_level], getattr(workplaces[best], matrix[edu_level]) - 1)
+        self.__decrease_num_of_vacancies_in_dataset(workplaces, best, edu_level)
         citizens[self].current_profession = Profession.objects.create(
             citizen=self, name=best.profession_type_provided, education=edu_level)
         save_instance.append(citizens[self].current_profession)
         save_instance.append(self)
 
     def find_work(self, workplaces, citizens, save_instance):
-        possible_workplaces, edu_level = self.__possible_workplaces(workplaces)
+        possible_workplaces, edu_level = self._possible_workplaces(workplaces)
         if possible_workplaces is None:
             return
         else:
             self.grab_job(possible_workplaces, workplaces, edu_level, citizens, save_instance)
 
-    def __possible_workplaces(self, workplaces):
-        matrix = {ELEMENTARY: 'elementary_vacancies', COLLEGE: 'college_vacancies', PHD: 'phd_vacancies', 'None': 'elementary_vacancies'}
+    def __decrease_num_of_vacancies_in_dataset(self, workplaces, workplace_key, edu_level):
+        setattr(workplaces[workplace_key], Education.MATRIX[edu_level], getattr(workplaces[workplace_key], Education.MATRIX[edu_level]) - 1)
+
+    def __increase_num_of_vacancies_in_dataset(self, workplaces, workplace_key, edu_level):
+        setattr(workplaces[workplace_key], Education.MATRIX[edu_level], getattr(workplaces[workplace_key], Education.MATRIX[edu_level]) + 1)
+
+    def _possible_workplaces(self, workplaces):
         for position in self.__possible_position()[::-1]:
-            if [w for w in workplaces if getattr(workplaces[w], matrix[position])]:
-                return [w for w in workplaces if getattr(workplaces[w], matrix[position])], position
+            if [w for w in workplaces if getattr(workplaces[w], Education.MATRIX[position])]:
+                return [w for w in workplaces if getattr(workplaces[w], Education.MATRIX[position])], position
+        return None, None
 
     def __find_better_work_option(self, candidates):
         if len(candidates) == 1:
@@ -105,7 +109,10 @@ class Citizen(models.Model):
 
     def __possible_position(self):
         degrees = [x[0] for x in Profession.EDUCATION]
-        return [x for x in degrees if degrees.index(self.edu_title) >= degrees.index(x)]
+        if self.edu_title != 'None':
+            return [x for x in degrees if degrees.index(self.edu_title) >= degrees.index(x)]
+        else:
+            return [ELEMENTARY]
 
     def __str__(self):
         return "{} {}".format(self.name, self.surname)
@@ -155,6 +162,7 @@ class Profession(models.Model):
 
 
 class Education(models.Model):
+    MATRIX = {ELEMENTARY: 'elementary_vacancies', COLLEGE: 'college_vacancies', PHD: 'phd_vacancies', 'None': 'elementary_vacancies'}
     EDUCATION = (
         (ELEMENTARY, 'Elementary'),
         (COLLEGE, 'College'),

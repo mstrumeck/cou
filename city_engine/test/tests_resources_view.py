@@ -1,10 +1,10 @@
 from django.urls import resolve
-from .base import CityFixture
+
 from city_engine.views import resources_view
-from cou.abstract import RootClass
+from .base import CityFixture
 
 
-class CityViewTests(CityFixture, RootClass):
+class CityViewTests(CityFixture):
 
     def test_call_view_loads(self):
         response = self.client.get('/main/resources/')

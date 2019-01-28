@@ -1,8 +1,10 @@
-from city_engine.models import CityField, DustCart
 import numpy as np
 from django.db.models import Sum
+
+from city_engine.models import CityField
+from city_engine.models import WindPlant, BuldingsWithWorkes, PowerPlant, Waterworks, DumpingGround, Residential, \
+    SewageWorks
 from .global_variables import HEX_NUM_IN_ROW, HEX_NUM, ROW_NUM
-from city_engine.models import WindPlant, BuldingsWithWorkes, PowerPlant, Waterworks, DumpingGround, Residential, SewageWorks
 
 
 def assign_city_fields_to_board(city):

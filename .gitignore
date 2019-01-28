@@ -1,0 +1,8 @@
+__pycache__
+*.pyc
+settings.py
+qunit.css
+qunit.js
+.coverage
+htmlcov
+migrations

@@ -1,4 +1,3 @@
-from citizen_engine.models import Citizen
 from cou.global_var import MALE, FEMALE
 
 

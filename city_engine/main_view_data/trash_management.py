@@ -1,5 +1,6 @@
-from city_engine.models import DumpingGround, DustCart
 from django.db.models import F
+
+from city_engine.models import DumpingGround, DustCart
 
 
 class TrashManagement:
@@ -44,7 +45,6 @@ class CollectGarbage:
 
     def max_capacity_of_cart(self, dc):
         return dc.max_capacity * dc.employee_productivity(self.data.vehicles, self.data.citizens_in_city)
-        # return dc.max_capacity * float(self.data.vehicles[dc]['people_in_charge'] / dc.max_employees)
 
     def unload_trashes_from_cart(self, dc, dg):
         while dg.max_space_for_trash >= dg.current_space_for_trash and dc.curr_capacity > 0:

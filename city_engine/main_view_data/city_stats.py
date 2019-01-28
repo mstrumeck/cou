@@ -1,6 +1,5 @@
-from city_engine.models import Residential, BuldingsWithWorkes, Vehicle, TradeDistrict, PowerPlant, Waterworks, SewageWorks
 from citizen_engine.models import Citizen
-from django.db.models import Sum
+from city_engine.models import Residential, PowerPlant, Waterworks, SewageWorks
 
 
 class CityStatsCenter:
@@ -113,12 +112,13 @@ class CityBuildingStats:
             sum(self.data.list_of_workplaces[h].max_employees for h in self.data.list_of_workplaces))
 
     def industrial_areas_demand(self):
-        return "{}/{}".format(
-            sum(self.data.list_of_buildings[i].max_employees - self.data.list_of_buildings[i].people_in_charge
-                for i in self.data.list_of_buildings
-                 if isinstance(i, TradeDistrict)),
-            sum(self.data.list_of_buildings[i].max_employees for i in self.data.list_of_buildings
-                 if isinstance(i, TradeDistrict)))
+        return "To implement"
+            # "{}/{}".format(
+            # sum(self.data.list_of_buildings[i].max_employees - self.data.list_of_buildings[i].people_in_charge
+            #     for i in self.data.list_of_buildings
+            #      if isinstance(i, TradeDistrictDummy)),
+            # sum(self.data.list_of_buildings[i].max_employees for i in self.data.list_of_buildings
+            #      if isinstance(i, TradeDistrictDummy)))
 
     def trade_areas_demand(self):
         return "To implement"

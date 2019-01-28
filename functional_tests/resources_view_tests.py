@@ -1,8 +1,12 @@
-from functional_tests.page_objects import MainView, LoginPage, ResourcePage
+from django.contrib.auth.models import User
+
+from city_engine.models import SewageWorks, WindPlant, WaterTower, StandardLevelResidentialZone, CityField
+from city_engine.test.base import TestHelper
+from cou.abstract import RootClass
+from functional_tests.page_objects import MainView, LoginPage
+from resources.models import Bean, Potato, Lettuce, Milk, Cattle
+from resources.models import PotatoFarm, LettuceFarm, BeanFarm, CattleFarm
 from .legacy.base import BaseTest
-from cou.abstract import ResourcesData
-from city_engine.models import SewageWorks, WindPlant, WaterTower, StandardLevelResidentialZone, \
-    CityField, PotatoFarm, BeanFarm, LettuceFarm, CattleFarm
 
 
 class ResourceAllocationTest(BaseTest):
@@ -12,8 +16,8 @@ class ResourceAllocationTest(BaseTest):
         cf_id = CityField.objects.latest('id').id
         SewageWorks.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id))
         WaterTower.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-1))
-        StandardLevelResidentialZone.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-2), max_population=30)
-        StandardLevelResidentialZone.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-3), max_population=30)
+        s1 = StandardLevelResidentialZone.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-2), max_population=30)
+        s2 = StandardLevelResidentialZone.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-3), max_population=30)
         WaterTower.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-4))
         WindPlant.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-5))
         WindPlant.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-6))
@@ -21,9 +25,16 @@ class ResourceAllocationTest(BaseTest):
         PotatoFarm.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-8))
         LettuceFarm.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-9))
         BeanFarm.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-10))
-        CattleFarm.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-11))
+        f = CattleFarm.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-11))
+        Cattle.objects.create(farm=f, size=30, price=20)
+
+        s1.self__init(30)
+        s2.self__init(30)
+        s1.save()
+        s2.save()
 
         self.create_second_user()
+        TestHelper(self.city_one, User.objects.latest('id')).populate_city()
         LoginPage(self.browser,
                   self.live_server_url).navigate_to_main_throught_login(user=self.user_one,
                                                                         username=self.player_one,
@@ -32,34 +43,44 @@ class ResourceAllocationTest(BaseTest):
                                                                         assertIn=self.assertIn,
                                                                         assertTrue=self.assertTrue)
         main_view = MainView(self.browser, self.live_server_url)
+
         main_view.next_turns(8)
-        main_view.get_resources_view()
-        resource_view = ResourcePage(self.browser, self.live_server_url)
-        self.assertEqual('{}/main/resources/'.format(self.live_server_url), str(self.browser.current_url))
-        self.assertIn('Surowce', self.browser.title)
-        rd = ResourcesData(self.city_one, self.user_one)
 
-        self.assertEqual('Bydło', rd.resources['Cattle'][0][0].name)
-        self.assertEqual(10, rd.resources['Cattle'][0][0].size)
-        self.assertEqual(10, rd.resources['Cattle'][1])
+        bean = Bean.objects.latest('id')
+        potato = Potato.objects.latest('id')
+        lettuce = Lettuce.objects.latest('id')
+        rc = RootClass(self.city_one, self.user_one)
+        resources = rc.market.resources
 
-        self.assertEqual('Mleko', rd.resources['Milk'][0][0].name)
-        self.assertGreater(rd.resources['Milk'][0][0].size, 359)
-        self.assertGreater(rd.resources['Milk'][1], 359)
+        self.assertEqual(Bean.objects.count(), 1)
+        self.assertEqual(bean.size, 2074)
+        self.assertEqual(int(bean.price), 12)
+        self.assertEqual(bean.quality, 33)
+        self.assertEqual(len(resources[Bean].instances), 1)
+        self.assertEqual(resources[Bean].total_size, 2074)
+        self.assertEqual(resources[Bean].avg_quality, 33)
+        self.assertEqual(int(resources[Bean].avg_price), 12)
 
-        self.assertEqual('Fasola', rd.resources['Bean'][0][0].name)
-        self.assertIn(rd.resources['Bean'][0][0].size, [x for x in range(2, 16)])
-        self.assertIn(rd.resources['Bean'][1], [x for x in range(2, 16)])
+        self.assertEqual(Lettuce.objects.count(), 1)
+        self.assertEqual(lettuce.size, 868)
+        self.assertEqual(int(lettuce.price), 7)
+        self.assertEqual(lettuce.quality, 33)
+        self.assertEqual(len(resources[Lettuce].instances), 1)
+        self.assertEqual(resources[Lettuce].total_size, 868)
+        self.assertEqual(resources[Lettuce].avg_quality, 33)
+        self.assertEqual(int(resources[Lettuce].avg_price), 7)
 
-        self.assertEqual('Ziemniaki', rd.resources['Potato'][0][0].name)
-        self.assertIn(rd.resources['Potato'][0][0].size, [x for x in range(2, 16)])
-        self.assertIn(rd.resources['Potato'][1], [x for x in range(2, 16)])
+        self.assertEqual(Potato.objects.count(), 1)
+        self.assertEqual(potato.size, 1560)
+        self.assertEqual(int(potato.price), 20)
+        self.assertEqual(potato.quality, 33)
+        self.assertEqual(len(resources[Potato].instances), 1)
+        self.assertEqual(resources[Potato].total_size, 1560)
+        self.assertEqual(resources[Potato].avg_quality, 33)
+        self.assertEqual(int(resources[Potato].avg_price), 20)
 
-        self.assertEqual('Sałata', rd.resources['Lettuce'][0][0].name)
-        self.assertIn(rd.resources['Lettuce'][0][0].size, [x for x in range(2, 16)])
-        self.assertIn(rd.resources['Lettuce'][1], [x for x in range(2, 16)])
+        self.assertEqual(Milk.objects.count(), 3)
 
-        resource_view.navigate_to_main_view()
         main_view.logout()
 
         LoginPage(self.browser,
@@ -75,7 +96,10 @@ class ResourceAllocationTest(BaseTest):
         main_view.get_resources_view()
         self.assertEqual('{}/main/resources/'.format(self.live_server_url), str(self.browser.current_url))
         self.assertIn('Surowce', self.browser.title)
-        rd = ResourcesData(self.city_two, self.user_two)
-        self.assertEqual(rd.resources, {})
-
-
+        rc2 = RootClass(self.city_two, self.user_two)
+        self.assertEqual(Bean.objects.filter(market=self.market_two).count(), 0)
+        self.assertEqual(Potato.objects.filter(market=self.market_two).count(), 0)
+        self.assertEqual(Lettuce.objects.filter(market=self.market_two).count(), 0)
+        self.assertEqual(rc2.market.resources.get(Potato), None)
+        self.assertEqual(rc2.market.resources.get(Bean), None)
+        self.assertEqual(rc2.market.resources.get(Lettuce), None)

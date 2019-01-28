@@ -1,8 +1,13 @@
 from functional_tests.page_objects import MainView, LoginPage, Homepage
-from city_engine.models import City, TradeDistrict, CityField
-from .legacy.base import BaseTest
+from city_engine.models import City, CityField, TradeDistrict
+from resources.models import Market, Mass
+from .legacy.base import BaseTest, BaseTestOfficial
 from django.contrib.auth.models import User
 from selenium import webdriver
+from company_engine.models import FoodCompany, Food
+from player.models import Profile
+from city_engine.test.base import TestHelper
+from cou.abstract import RootClass
 
 
 class TrashCollectorTest(BaseTest):
@@ -12,11 +17,14 @@ class TrashCollectorTest(BaseTest):
         self.browser = webdriver.Chrome()
         self.city = City.objects.latest('id')
         self.user = User.objects.latest('id')
-        t = TradeDistrict.objects.create(city=self.city, city_field=CityField.objects.latest('id'))
-        self.city.cash -= t.build_cost
-        self.city.save()
+        self.profile = Profile.objects.latest('id')
+        self.td = TradeDistrict.objects.create(city=self.city, city_field=CityField.objects.latest('id'))
+        self.fc = FoodCompany.objects.create(cash=1000000, trade_district=self.td)
+        self.market = Market.objects.create(profile=self.profile)
+        Mass.objects.create(size=60, quality=20, market=self.market, price=1.5)
 
     def test_trade_district(self):
+        TestHelper(city=self.city, user=self.user).populate_city()
         homepage = Homepage(self.browser, self.live_server_url)
         homepage.navigate('/main/')
         self.assertIn('Login', self.browser.title)
@@ -25,23 +33,32 @@ class TrashCollectorTest(BaseTest):
         self.assertTrue(User.objects.latest('id').is_authenticated)
         self.assertIn('Miasto {}'.format(self.city.name), self.browser.title)
         main_view = MainView(self.browser, self.live_server_url)
-        # self.assertEqual(TradeDistrict.objects.all().count(), 0)
-        # main_view.build_the_building_from_single_choice('TradeDistrict', '33')
-        self.assertEqual(TradeDistrict.objects.all().count(), 1)
-        city = City.objects.latest('id')
-        td = TradeDistrict.objects.latest('id')
-        self.assertEqual(city.mass, 1000000)
-        self.assertEqual(city.cash, 9380)
-        self.assertEqual(td.resources_stored, 0)
-        self.assertEqual(td.goods_stored, 0)
-        self.assertEqual(td.if_under_construction, True)
-        self.assertEqual(td.cash, 100)
-        main_view.next_turns(4)
-        city = City.objects.latest('id')
-        td = TradeDistrict.objects.latest('id')
-        self.assertNotEqual(city.mass, 1000000)
-        self.assertNotEqual(city.cash, 9380)
-        self.assertNotEqual(td.resources_stored, 0)
-        self.assertNotEqual(td.goods_stored, 0)
-        self.assertEqual(td.if_under_construction, False)
-        self.assertNotEqual(td.cash, 100)
+        rc = RootClass(self.city, self.user)
+        self.assertEqual(Mass.objects.count(), 1)
+        self.assertEqual(Food.objects.count(), 0)
+        self.assertEqual(len(rc.market.resources[Mass].instances), 1)
+        self.assertEqual(rc.companies[self.fc].goods.get(Food), None)
+
+        main_view.next_turn()
+        rc = RootClass(self.city, self.user)
+        self.assertEqual(Mass.objects.count(), 0)
+        self.assertEqual(Food.objects.count(), 1)
+        self.assertEqual(rc.market.resources.get(Mass), None)
+        self.assertEqual(len(rc.companies[self.fc].goods[Food].instances), 1)
+        self.assertEqual(rc.companies[self.fc].goods[Food].total_size, 60)
+        self.assertEqual(rc.companies[self.fc].goods[Food].avg_price, 1.50)
+        self.assertEqual(rc.companies[self.fc].goods[Food].avg_quality, 10)
+
+        Mass.objects.create(size=60, quality=50, market=self.market, price=2)
+        main_view.next_turn()
+        rc = RootClass(self.city, self.user)
+        self.assertEqual(len(rc.companies[self.fc].goods[Food].instances), 2)
+        self.assertEqual(rc.companies[self.fc].goods[Food].total_size, 120)
+        self.assertEqual(rc.companies[self.fc].goods[Food].avg_price, 1.75)
+        self.assertEqual(rc.companies[self.fc].goods[Food].avg_quality, 17.5)
+        first = rc.companies[self.fc].goods[Food].instances[0]
+        self.assertEqual(float(first.price), 1.50)
+        self.assertEqual(first.quality, 10)
+        second = rc.companies[self.fc].goods[Food].instances[1]
+        self.assertEqual(float(second.price), 2)
+        self.assertEqual(second.quality, 25)

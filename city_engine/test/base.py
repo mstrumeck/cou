@@ -1,15 +1,18 @@
 from django import test
 from django.contrib.auth.models import User
+
+from citizen_engine.citizen_creation import CreateCitizen
 from city_engine.main_view_data.board import assign_city_fields_to_board
 from city_engine.main_view_data.city_stats import CityStatsCenter
-from citizen_engine.citizen_creation import CreateCitizen
-from cou.abstract import RootClass
-from cou.global_var import ELEMENTARY, COLLEGE, PHD
 from city_engine.models import City, CityField, \
     StandardLevelResidentialZone, \
     ProductionBuilding, \
     WindPlant, CoalPlant, RopePlant, \
     WaterTower
+from cou.abstract import RootClass
+from cou.global_var import ELEMENTARY, COLLEGE, PHD
+from player.models import Profile
+from resources.models import Market
 
 
 class TestHelper(RootClass):
@@ -21,29 +24,26 @@ class TestHelper(RootClass):
             for el in range(workplace.college_employee_needed):
                 CreateCitizen(self.city, self).create_with_workplace(workplace, COLLEGE)
             for el in range(workplace.phd_employee_needed):
-                CreateCitizen(self.city, self).create_with_workplace(workplace, COLLEGE)
+                CreateCitizen(self.city, self).create_with_workplace(workplace, PHD)
 
 
 class BaseFixture(test.TestCase):
+
     def setUp(self):
-        self.user = User.objects.create_user(username='Michał', password='12345', email='random@wp.pl')
-        self.client.login(username='Michał', password='12345', email='random@wp.pl')
-        self.city = City.objects.create(name='Wrocław', user=self.user)
-        assign_city_fields_to_board(self.city)
-
-        self.field_one = CityField.objects.get(row=0, col=1, city=self.city)
-        self.field_two = CityField.objects.get(row=0, col=2, city=self.city)
-        field_three = CityField.objects.get(row=1, col=1, city=self.city)
-        field_four = CityField.objects.get(row=1, col=1, city=self.city)
-
-        self.data = RootClass(self.city, user=self.user)
+        self.profile = Profile.objects.latest('id')
+        self.user = User.objects.latest('id')
+        self.city = City.objects.latest('id')
+        Market.objects.create(profile=self.profile)
 
 
 class CityFixture(test.TestCase):
+
     def setUp(self):
         first_user = User.objects.create_user(username='test_username', password='12345', email='random@wp.pl')
         self.client.login(username='test_username', password='12345', email='random@wp.pl')
         self.city = City.objects.create(name='Wrocław', user=first_user, cash=10000)
+        self.profile = Profile.objects.latest('id')
+        Market.objects.create(profile=self.profile)
         self.data = RootClass(self.city, user=first_user)
         self.city_stats = CityStatsCenter(self.city, self.data)
 

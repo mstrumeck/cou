@@ -1,8 +1,10 @@
-from random import choice, randrange
-from city_engine.models import Residential, City, WaterTower, ProductionBuilding, WindPlant, DustCart, DumpingGround
-from citizen_engine.models import Citizen, Profession, Family
 import random
 import string
+from random import choice, randrange
+
+from citizen_engine.models import Citizen, Profession, Family, Education
+from city_engine.models import Residential
+from cou.global_var import ELEMENTARY, COLLEGE, PHD
 
 
 class CreateCitizen:
@@ -25,6 +27,16 @@ class CreateCitizen:
             father_id=0,
             mother_id=0
         )
+        if edu_title == ELEMENTARY:
+            Education.objects.create(citizen=c, name=ELEMENTARY, effectiveness=1, if_current=False)
+        elif edu_title == COLLEGE:
+            Education.objects.create(citizen=c, name=ELEMENTARY, effectiveness=1, if_current=False)
+            Education.objects.create(citizen=c, name=COLLEGE, effectiveness=1, if_current=False)
+        elif edu_title == PHD:
+            Education.objects.create(citizen=c, name=ELEMENTARY, effectiveness=1, if_current=False)
+            Education.objects.create(citizen=c, name=COLLEGE, effectiveness=1, if_current=False)
+            Education.objects.create(citizen=c, name=PHD, effectiveness=1, if_current=False)
+
         Profession.objects.create(citizen=c, name=workplace.profession_type_provided, proficiency=1.00, education=edu_title)
         Family.objects.create(surname=c.surname, city=self.city)
 

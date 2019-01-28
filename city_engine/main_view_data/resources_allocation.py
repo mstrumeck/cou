@@ -1,5 +1,3 @@
-from city_engine.models import CityField
-from django.db.models import F
 from city_engine.main_view_data.global_variables import HEX_NUM_IN_ROW, ROW_NUM
 from city_engine.models import PowerPlant, Waterworks, SewageWorks
 

@@ -203,7 +203,6 @@
     "max_power_nodes": 11,
     "energy_production": 15,
     "energy_allocated": 0,
-    "if_electricity": true,
     "name": "Elektrownia wiatrowa",
     "build_time": 3,
     "build_cost": 100,
@@ -232,7 +231,6 @@
     "max_power_nodes": 11,
     "energy_production": 15,
     "energy_allocated": 0,
-    "if_electricity": true,
     "name": "Elektrownia wiatrowa",
     "build_time": 3,
     "build_cost": 100,
@@ -258,7 +256,6 @@
     "phd_employee_needed": 0,
     "raw_water_allocated": 0,
     "raw_water_production": 20,
-    "if_waterworks": true,
     "pollution_rate": 0.5,
     "name": "Wie\u017ca ci\u015bnie\u0144",
     "build_time": 1,
@@ -295,7 +292,7 @@
   }
 },
 {
-  "model": "city_engine.cattlefarm",
+  "model": "resources.cattlefarm",
   "pk": 1,
   "fields": {
     "city": 1,
@@ -319,7 +316,7 @@
   }
 },
 {
-  "model": "city_engine.potatofarm",
+  "model": "resources.potatofarm",
   "pk": 1,
   "fields": {
     "city": 1,
@@ -347,7 +344,7 @@
   }
 },
 {
-  "model": "city_engine.beanfarm",
+  "model": "resources.beanfarm",
   "pk": 1,
   "fields": {
     "city": 1,
@@ -375,7 +372,7 @@
   }
 },
 {
-  "model": "city_engine.lettucefarm",
+  "model": "resources.lettucefarm",
   "pk": 1,
   "fields": {
     "city": 1,

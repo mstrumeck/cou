@@ -1,16 +1,12 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
-from city_engine.models import City, WindPlant, CityField, PrimarySchool,\
-    DustCart, DumpingGround, WaterTower, StandardLevelResidentialZone
+
 from citizen_engine.models import Citizen, Profession, Education
-from citizen_engine.citizen_creation import CreateCitizen
-import random, string
+from city_engine.models import City, StandardLevelResidentialZone
 from cou.abstract import RootClass
-from citizen_engine.social_actions import SocialAction
+from cou.global_var import FEMALE, ELEMENTARY, COLLEGE, TRAINEE, JUNIOR, REGULAR, MASTER, PROFESSIONAL
 from player.models import Profile
-from cou.global_var import MALE, FEMALE, ELEMENTARY, COLLEGE, TRAINEE, JUNIOR, REGULAR, MASTER, PROFESSIONAL
-from citizen_engine.work_engine import CitizenWorkEngine
-from .base import SocialTestHelper
+from resources.models import Market
 
 
 class ProfessionUpdateLevelTests(TestCase):
@@ -20,6 +16,7 @@ class ProfessionUpdateLevelTests(TestCase):
         self.city = City.objects.get(id=1)
         self.user = User.objects.latest('id')
         self.profile = Profile.objects.latest('id')
+        Market.objects.create(profile=self.profile)
         self.r1 = StandardLevelResidentialZone.objects.latest('id')
         self.s = Citizen.objects.create(
             city=self.city,

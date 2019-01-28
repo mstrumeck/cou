@@ -1,13 +1,11 @@
-from citizen_engine.citizen_abstract import CitizenAbstract
-from citizen_engine.models import Citizen, Education, Profession, Family
-from django.db.models import F
 import random
-import string
-from city_engine.models import Residential, School
-from player.models import Message
-import datetime
-from cou.global_var import MALE, FEMALE
+
+from citizen_engine.citizen_abstract import CitizenAbstract
+from citizen_engine.models import Citizen
 from citizen_engine.work_engine import CitizenWorkEngine
+from city_engine.models import Residential, School
+from cou.global_var import MALE, FEMALE
+from player.models import Message
 
 
 class SocialAction:

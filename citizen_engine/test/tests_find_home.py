@@ -8,6 +8,7 @@ from player.models import Profile
 from cou.global_var import FEMALE, MALE
 from .base import SocialTestHelper
 from city_engine.turn_data.main import TurnCalculation
+from resources.models import Market
 
 
 class TestFindPlaceToLive(SocialTestHelper):
@@ -15,8 +16,9 @@ class TestFindPlaceToLive(SocialTestHelper):
 
     def setUp(self):
         self.city = City.objects.get(id=1)
-        self.RC = RootClass(self.city, User.objects.latest('id'))
         self.profile = Profile.objects.latest('id')
+        Market.objects.create(profile=self.profile)
+        self.RC = RootClass(self.city, User.objects.latest('id'))
 
     def test_if_right_homless_was_selected(self):
         self.r1 = StandardLevelResidentialZone.objects.latest('id')

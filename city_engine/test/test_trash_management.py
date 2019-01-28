@@ -1,9 +1,12 @@
 from django import test
+from django.contrib.auth.models import User
+
 from city_engine.main_view_data.trash_management import TrashManagement
 from city_engine.models import City, DumpingGround, CityField, Trash
-from django.contrib.auth.models import User
 from city_engine.test.base import TestHelper
 from cou.abstract import RootClass
+from player.models import Profile
+from resources.models import Market
 
 
 class CityStatsTests(test.TestCase):
@@ -11,6 +14,8 @@ class CityStatsTests(test.TestCase):
 
     def setUp(self):
         self.city = City.objects.latest('id')
+        self.profile = Profile.objects.latest('id')
+        Market.objects.create(profile=self.profile)
         TestHelper(self.city, User.objects.latest('id')).populate_city()
         self.RC = RootClass(self.city, User.objects.latest('id'))
         self.TM = TrashManagement(self.RC)

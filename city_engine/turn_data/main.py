@@ -1,9 +1,8 @@
-from city_engine.main_view_data.employee_allocation import EmployeeAllocation
+from citizen_engine.social_actions import SocialAction
 from city_engine.main_view_data.resources_allocation import ResourceAllocation
 from city_engine.main_view_data.trash_management import TrashManagement, CollectGarbage
-from city_engine.models import Farm, AnimalFarm, MassConventer, TradeDistrict
-from citizen_engine.social_actions import SocialAction
-from citizen_engine.models import Education, Profession
+from city_engine.models import Farm, AnimalFarm
+from resources.models import MassConventer
 
 
 class TurnCalculation:
@@ -15,11 +14,7 @@ class TurnCalculation:
 
     def run(self):
         TrashManagement(self.data).run()
-        if self.profile.if_social_enabled:
-            SocialAction(self.city, self.profile, self.data).run()
-        else:
-            EmployeeAllocation(self.city, self.data).run()
-        # SocialAction(self.city, self.profile, self.data).run()
+        SocialAction(self.city, self.profile, self.data).run()
         ResourceAllocation(self.city, self.data).run()
         CollectGarbage(self.city, self.data).run()
         self.financial_actions()
@@ -32,11 +27,14 @@ class TurnCalculation:
         self.save_all()
 
     def save_all(self):
-        self.profile.current_turn += 1
-        self.profile.save()
         self.city.save()
+        self.data.market.save_all()
         for instance in self.data.to_save:
             instance.save()
+        for company in self.data.companies:
+            self.data.companies[company].save_all()
+        self.profile.current_turn += 1
+        self.profile.save()
 
     def financial_actions(self):
         for f in self.data.families:
@@ -45,37 +43,24 @@ class TurnCalculation:
                 self.profile)
 
     def trade_district_actions(self):
-        for td in [td for td in self.data.list_of_buildings if isinstance(td, TradeDistrict)]:
-            td.creating_goods(
-                self.city,
-                self.data.list_of_buildings,
-                self.data.citizens_in_city
-            )
+        for c in self.data.companies:
+            c.create_goods(self.data)
 
     def collect_mass(self):
         for mass_collector in [mc for mc in self.data.list_of_buildings if isinstance(mc, MassConventer)]:
-            mass_collector.product_mass(
-                self.city,
-                self.data.list_of_buildings,
-                self.data.citizens_in_city
-            )
+            mass_collector.product_mass(self.data)
 
     def update_breeding_status(self):
         for farm in [b for b in self.data.list_of_buildings if isinstance(b, AnimalFarm)]:
-            farm.farm_operation(
-                self.profile.current_turn,
-                self.data.user,
-                self.data.list_of_buildings,
-                self.data.citizens_in_city
-            )
+            farm.farm_operation(self.data)
+            if self.data.list_of_buildings[farm].cattle:
+                self.data.to_save.append(self.data.list_of_buildings[farm].cattle)
 
     def update_harvest_status(self):
         for farm in [b for b in self.data.list_of_buildings if isinstance(b, Farm)]:
             farm.update_harvest(
                 self.profile.current_turn,
-                self.data.user,
-                self.data.list_of_buildings,
-                self.data.citizens_in_city
+                self.data
             )
 
     def update_build_status(self):

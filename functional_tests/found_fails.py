@@ -1,84 +1,85 @@
-from functional_tests.page_objects import MainView, LoginPage, Homepage
-from city_engine.models import City, CityField, StandardLevelResidentialZone, WaterTower, WindPlant, SewageWorks, DumpingGround
-from .legacy.base import BaseTest
 from django.contrib.auth.models import User
-from selenium import webdriver
-from player.models import Profile
-from citizen_engine.models import Citizen, Family, Profession
-from citizen_engine.citizen_abstract import CitizenAbstract
-from cou.abstract import RootClass
 from django.test import override_settings
-from cou.global_var import FEMALE, MALE, ELEMENTARY, COLLEGE
-import decimal
+from selenium import webdriver
+
+from citizen_engine.models import Citizen, Family, Profession
+from city_engine.models import City, CityField, StandardLevelResidentialZone, WaterTower, WindPlant, SewageWorks
+from cou.abstract import RootClass
+from cou.global_var import FEMALE, MALE, ELEMENTARY
+from functional_tests.page_objects import MainView, LoginPage, Homepage
+from player.models import Profile
+from resources.models import Market
+from .legacy.base import BaseTest
 
 
-# @override_settings(DEBUG=True)
-# class CitizenBasicTests(BaseTest):
-#     fixtures = ["basic_basic_fixture.json"]
-#
-#     def setUp(self):
-#         self.browser = webdriver.Chrome()
-#         self.city = City.objects.latest('id')
-#         self.user = User.objects.latest('id')
-#         self.browser.implicitly_wait(3)
-#         self.profile = Profile.objects.latest('id')
-#
-#     def test_born_child_failed(self):
-#         field = list(CityField.objects.all())
-#         s = StandardLevelResidentialZone.objects.create(city=self.city, if_under_construction=False, city_field=field.pop())
-#         s.self__init(2)
-#         s.save()
-#         family = Family.objects.create(city=self.city, surname='01')
-#         self.f = Citizen.objects.create(
-#             city=self.city,
-#             age=21,
-#             month_of_birth=2,
-#             cash=400,
-#             health=5,
-#             name="AnonKA",
-#             surname="FeSurname",
-#             sex=FEMALE,
-#             resident_object=s,
-#             family=family
-#
-#         )
-#         self.m = Citizen.objects.create(
-#             city=self.city,
-#             age=21,
-#             month_of_birth=2,
-#             cash=400,
-#             health=5,
-#             name="AnON",
-#             surname="MaSurname",
-#             sex=MALE,
-#             resident_object=s,
-#             family=family
-#         )
-#         self.f.partner_id = self.m.id
-#         self.m.partner_id = self.f.id
-#         self.m.save()
-#         self.f.save()
-#         self.assertEqual(self.f.partner_id, self.m.id)
-#         self.assertEqual(self.m.partner_id, self.f.id)
-#         self.assertEqual(self.m.resident_object, s)
-#         self.assertEqual(self.f.resident_object, s)
-#         homepage = Homepage(self.browser, self.live_server_url)
-#         homepage.navigate('/main/')
-#         self.assertIn('Login', self.browser.title)
-#         login_page = LoginPage(self.browser, self.live_server_url)
-#         login_page.login(username=self.user.username, password="Zapomnij#123")
-#         self.assertTrue(User.objects.latest('id').is_authenticated)
-#         self.assertIn('Miasto {}'.format(self.city.name), self.browser.title)
-#         main_view = MainView(self.browser, self.live_server_url)
-#         self.profile.if_social_enabled = True
-#         self.profile.chance_to_born_baby_percent = 1.00
-#         self.profile.save()
-#         self.assertEqual(self.profile.chance_to_born_baby_percent, 1.00)
-#         self.assertTrue(self.profile.if_social_enabled)
-#         self.assertEqual(s.max_population, 2)
-#         self.assertEqual(Citizen.objects.count(), 2)
-#         self.assertEqual(Family.objects.all().count(), 1)
-#         main_view.next_turns(5)
+@override_settings(DEBUG=True)
+class CitizenBasicTests(BaseTest):
+    fixtures = ["basic_basic_fixture.json"]
+
+    def setUp(self):
+        self.browser = webdriver.Chrome()
+        self.city = City.objects.latest('id')
+        self.user = User.objects.latest('id')
+        self.browser.implicitly_wait(3)
+        self.profile = Profile.objects.latest('id')
+        self.market = Market.objects.create(profile=self.profile)
+
+    def test_born_child_failed(self):
+        field = list(CityField.objects.all())
+        s = StandardLevelResidentialZone.objects.create(city=self.city, if_under_construction=False, city_field=field.pop())
+        s.self__init(2)
+        s.save()
+        family = Family.objects.create(city=self.city, surname='01')
+        self.f = Citizen.objects.create(
+            city=self.city,
+            age=21,
+            month_of_birth=2,
+            cash=400,
+            health=5,
+            name="AnonKA",
+            surname="FeSurname",
+            sex=FEMALE,
+            resident_object=s,
+            family=family
+
+        )
+        self.m = Citizen.objects.create(
+            city=self.city,
+            age=21,
+            month_of_birth=2,
+            cash=400,
+            health=5,
+            name="AnON",
+            surname="MaSurname",
+            sex=MALE,
+            resident_object=s,
+            family=family
+        )
+        self.f.partner_id = self.m.id
+        self.m.partner_id = self.f.id
+        self.m.save()
+        self.f.save()
+        self.assertEqual(self.f.partner_id, self.m.id)
+        self.assertEqual(self.m.partner_id, self.f.id)
+        self.assertEqual(self.m.resident_object, s)
+        self.assertEqual(self.f.resident_object, s)
+        homepage = Homepage(self.browser, self.live_server_url)
+        homepage.navigate('/main/')
+        self.assertIn('Login', self.browser.title)
+        login_page = LoginPage(self.browser, self.live_server_url)
+        login_page.login(username=self.user.username, password="Zapomnij#123")
+        self.assertTrue(User.objects.latest('id').is_authenticated)
+        self.assertIn('Miasto {}'.format(self.city.name), self.browser.title)
+        main_view = MainView(self.browser, self.live_server_url)
+        self.profile.if_social_enabled = True
+        self.profile.chance_to_born_baby_percent = 1.00
+        self.profile.save()
+        self.assertEqual(self.profile.chance_to_born_baby_percent, 1.00)
+        self.assertTrue(self.profile.if_social_enabled)
+        self.assertEqual(s.max_population, 2)
+        self.assertEqual(Citizen.objects.count(), 2)
+        self.assertEqual(Family.objects.all().count(), 1)
+        main_view.next_turns(5)
 
 
 @override_settings(DEBUG=True)
@@ -91,6 +92,7 @@ class ResourcesTests(BaseTest):
         self.user = User.objects.latest('id')
         self.browser.implicitly_wait(3)
         self.profile = Profile.objects.latest('id')
+        self.market = Market.objects.create(profile=self.profile)
 
     def test_maximum_employees_per_building(self):
         from random import choice, randrange
@@ -99,7 +101,7 @@ class ResourcesTests(BaseTest):
         sex = choice(Citizen.SEX)[0]
         surname = names.get_last_name()
         f = Family.objects.create(surname=surname, city=self.city)
-        c = Citizen.objects.create(
+        spec = Citizen.objects.create(
             city=self.city,
             age=randrange(18, 24),
             name=names.get_first_name(sex.lower()),

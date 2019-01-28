@@ -1,10 +1,13 @@
-from django import test
-from city_engine.models import City, StandardLevelResidentialZone, CityField
-from .base import TestHelper
-from cou.abstract import RootClass
-from django.contrib.auth.models import User
-from player.models import Profile
 import random
+
+from django import test
+from django.contrib.auth.models import User
+
+from city_engine.models import City, StandardLevelResidentialZone, CityField
+from cou.abstract import RootClass
+from player.models import Profile
+from resources.models import Market
+from .base import TestHelper
 
 
 class StandardResidential(test.TestCase, TestHelper):
@@ -14,6 +17,7 @@ class StandardResidential(test.TestCase, TestHelper):
         self.city = City.objects.latest('id')
         self.user = User.objects.latest('id')
         self.profile = Profile.objects.latest('id')
+        Market.objects.create(profile=self.profile)
         self.s = StandardLevelResidentialZone.objects.latest('id')
 
     def test_rent_calculation(self):

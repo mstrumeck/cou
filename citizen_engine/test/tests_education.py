@@ -8,6 +8,7 @@ from citizen_engine.social_actions import SocialAction
 from city_engine.turn_data.main import TurnCalculation
 from player.models import Profile
 from cou.global_var import FEMALE, ELEMENTARY, MALE, COLLEGE, TRAINEE, JUNIOR, REGULAR, MASTER, PROFESSIONAL
+from resources.models import Market
 
 
 class TestEducation(TestCase):
@@ -17,6 +18,7 @@ class TestEducation(TestCase):
         self.city = City.objects.get(id=1)
         self.profile = Profile.objects.latest('id')
         self.r1 = StandardLevelResidentialZone.objects.latest('id')
+        Market.objects.create(profile=self.profile)
         self.f = Citizen.objects.create(
             city=self.city,
             age=8,
@@ -109,6 +111,7 @@ class TestSchoolMonthlyRunFailed(TestCase):
     def setUp(self):
         self.city = City.objects.get(id=1)
         self.profile = Profile.objects.latest('id')
+        Market.objects.create(profile=self.profile)
         self.r1 = StandardLevelResidentialZone.objects.latest('id')
         self.school = PrimarySchool.objects.create(
             city=self.city,
@@ -123,7 +126,7 @@ class TestSchoolMonthlyRunFailed(TestCase):
             name="0",
             surname="1",
             sex=MALE,
-            education='None',
+            edu_title='None',
             resident_object=self.r1,
             school_object=self.school
         )
@@ -136,7 +139,7 @@ class TestSchoolMonthlyRunFailed(TestCase):
             name="0",
             surname="2",
             sex=FEMALE,
-            education=COLLEGE,
+            edu_title=COLLEGE,
             resident_object=self.r1,
             workplace_object=self.school
         )
@@ -155,7 +158,7 @@ class TestSchoolMonthlyRunFailed(TestCase):
     def test_gain_knowledge_without_education_failed(self):
         Education.objects.create(citizen=self.s, name=ELEMENTARY, effectiveness=1, if_current=False)
         Education.objects.create(citizen=self.s, name=COLLEGE, effectiveness=1, if_current=False)
-        Profession.objects.create(citizen=self.s, proficiency=0.5, name='Nauczyciel')
+        Profession.objects.create(citizen=self.s, proficiency=0.5, name='Nauczyciel', education=COLLEGE)
         RC = RootClass(self.city, User.objects.latest('id'))
         self.assertEqual(RC.citizens_in_city[self.m].current_education, None)
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0.5)
@@ -166,7 +169,7 @@ class TestSchoolMonthlyRunFailed(TestCase):
     def test_gain_knowledge_without_teacher_education_failed_first_case(self):
         Education.objects.create(citizen=self.s, name=ELEMENTARY, effectiveness=1, if_current=False)
         Education.objects.create(citizen=self.m, name=ELEMENTARY)
-        Profession.objects.create(citizen=self.s, proficiency=0.5, name='Nauczyciel')
+        Profession.objects.create(citizen=self.s, proficiency=0.5, name='Nauczyciel', education=ELEMENTARY)
         RC = RootClass(self.city, User.objects.latest('id'))
         self.assertEqual(RC.citizens_in_city[self.m].current_education.effectiveness, 0)
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0.5)
@@ -177,7 +180,7 @@ class TestSchoolMonthlyRunFailed(TestCase):
     def test_gain_knowledge_without_teacher_education_failed_second_case(self):
         Education.objects.create(citizen=self.s, name=COLLEGE, effectiveness=1, if_current=False)
         Education.objects.create(citizen=self.m, name=ELEMENTARY)
-        Profession.objects.create(citizen=self.s, proficiency=0.5, name='Nauczyciel')
+        Profession.objects.create(citizen=self.s, proficiency=0.5, name='Nauczyciel', education=COLLEGE)
         RC = RootClass(self.city, User.objects.latest('id'))
         self.assertEqual(RC.citizens_in_city[self.m].current_education.effectiveness, 0)
         self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0.5)
@@ -192,6 +195,7 @@ class TestSchoolMonthlyRunPass(TestCase):
     def setUp(self):
         self.city = City.objects.get(id=1)
         self.profile = Profile.objects.latest('id')
+        Market.objects.create(profile=self.profile)
         self.r1 = StandardLevelResidentialZone.objects.latest('id')
         self.school = PrimarySchool.objects.create(
             city=self.city,
@@ -206,7 +210,7 @@ class TestSchoolMonthlyRunPass(TestCase):
             name="0",
             surname="1",
             sex=MALE,
-            education='None',
+            edu_title='None',
             resident_object=self.r1,
             school_object=self.school
         )
@@ -219,14 +223,14 @@ class TestSchoolMonthlyRunPass(TestCase):
             name="AnonKA",
             surname="FeSurname",
             sex=FEMALE,
-            education=COLLEGE,
+            edu_title=COLLEGE,
             resident_object=self.r1,
             workplace_object=self.school
         )
         Education.objects.create(citizen=self.s, name=ELEMENTARY, effectiveness=1, if_current=False)
         Education.objects.create(citizen=self.s, name=COLLEGE, effectiveness=1, if_current=False)
         Education.objects.create(citizen=self.m, name=ELEMENTARY)
-        Profession.objects.create(citizen=self.s, proficiency=0.5, name='Nauczyciel')
+        Profession.objects.create(citizen=self.s, proficiency=0.5, name='Nauczyciel', education=COLLEGE)
 
     def test_gain_knowledge_during_education_process_single_run(self):
         RC = RootClass(self.city, User.objects.latest('id'))

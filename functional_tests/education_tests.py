@@ -1,13 +1,15 @@
-from functional_tests.page_objects import MainView, LoginPage, Homepage
-from city_engine.models import City, StandardLevelResidentialZone, CityField, PrimarySchool
-from .legacy.base import BaseTest
 from django.contrib.auth.models import User
-from selenium import webdriver
-from player.models import Profile
-from citizen_engine.models import Citizen, Education
-from cou.global_var import FEMALE, ELEMENTARY
 from django.test import override_settings
+from selenium import webdriver
+
+from citizen_engine.models import Citizen, Education
+from city_engine.models import City, StandardLevelResidentialZone, CityField, PrimarySchool
 from cou.abstract import RootClass
+from cou.global_var import FEMALE, ELEMENTARY
+from functional_tests.page_objects import MainView, LoginPage, Homepage
+from player.models import Profile
+from resources.models import Market
+from .legacy.base import BaseTest
 
 
 @override_settings(DEBUG=True)
@@ -20,6 +22,7 @@ class CitizenBasicTests(BaseTest):
         self.user = User.objects.latest('id')
         self.browser.implicitly_wait(3)
         self.profile = Profile.objects.latest('id')
+        self.market = Market.objects.create(profile=self.profile)
         self.r1 = StandardLevelResidentialZone.objects.latest('id')
         self.f = Citizen.objects.create(
             city=self.city,
