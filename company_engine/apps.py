@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class CompanyEngineConfig(AppConfig):
-    name = 'company_engine'
+    name = "company_engine"

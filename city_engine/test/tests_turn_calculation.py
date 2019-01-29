@@ -13,19 +13,24 @@ from resources.models import Market
 
 
 class TestTurnCalculation(test.TestCase, TestHelper):
-    fixtures = ['basic_fixture_resources_and_employees.json']
+    fixtures = ["basic_fixture_resources_and_employees.json"]
 
     def setUp(self):
-        self.profile = Profile.objects.latest('id')
-        self.city = City.objects.latest('id')
+        self.profile = Profile.objects.latest("id")
+        self.city = City.objects.latest("id")
         Market.objects.create(profile=self.profile)
-        self.data = RootClass(city=self.city, user=User.objects.latest('id'))
+        self.data = RootClass(city=self.city, user=User.objects.latest("id"))
 
     def test_calculate_maintanance_cost(self):
-        self.assertEqual(TurnCalculation(self.city, self.data, Profile.objects.latest('id')).calculate_maintenance_cost(), 50)
+        self.assertEqual(
+            TurnCalculation(
+                self.city, self.data, Profile.objects.latest("id")
+            ).calculate_maintenance_cost(),
+            50,
+        )
 
     def test_financial_action(self):
-        sr = StandardLevelResidentialZone.objects.latest('id')
+        sr = StandardLevelResidentialZone.objects.latest("id")
         family = Family.objects.create(city=self.city)
         p = Citizen.objects.create(
             city=self.city,
@@ -38,7 +43,7 @@ class TestTurnCalculation(test.TestCase, TestHelper):
             sex=MALE,
             education=PHD,
             resident_object=sr,
-            family=family
+            family=family,
         )
         m = Citizen.objects.create(
             city=self.city,
@@ -51,12 +56,12 @@ class TestTurnCalculation(test.TestCase, TestHelper):
             sex=FEMALE,
             education=ELEMENTARY,
             resident_object=sr,
-            family=family
+            family=family,
         )
         p.partner_id = m.id
         m.partner_id = p.id
         p.save()
         m.save()
-        data = RootClass(city=self.city, user=User.objects.latest('id'))
-        tc = TurnCalculation(self.city, data, Profile.objects.latest('id'))
+        data = RootClass(city=self.city, user=User.objects.latest("id"))
+        tc = TurnCalculation(self.city, data, Profile.objects.latest("id"))
         tc.financial_actions()

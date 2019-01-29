@@ -1,6 +1,12 @@
 from django.contrib.auth.models import User
 
-from city_engine.models import SewageWorks, WindPlant, WaterTower, StandardLevelResidentialZone, CityField
+from city_engine.models import (
+    SewageWorks,
+    WindPlant,
+    WaterTower,
+    StandardLevelResidentialZone,
+    CityField,
+)
 from city_engine.test.base import TestHelper
 from cou.abstract import RootClass
 from functional_tests.page_objects import MainView, LoginPage
@@ -10,22 +16,49 @@ from .legacy.base import BaseTest
 
 
 class ResourceAllocationTest(BaseTest):
-
     def test_resources_view_for_two_players(self):
         self.create_first_user()
-        cf_id = CityField.objects.latest('id').id
-        SewageWorks.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id))
-        WaterTower.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-1))
-        s1 = StandardLevelResidentialZone.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-2), max_population=30)
-        s2 = StandardLevelResidentialZone.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-3), max_population=30)
-        WaterTower.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-4))
-        WindPlant.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-5))
-        WindPlant.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-6))
-        WindPlant.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-7))
-        PotatoFarm.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-8))
-        LettuceFarm.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-9))
-        BeanFarm.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-10))
-        f = CattleFarm.objects.create(city=self.city_one, city_field=CityField.objects.get(id=cf_id-11))
+        cf_id = CityField.objects.latest("id").id
+        SewageWorks.objects.create(
+            city=self.city_one, city_field=CityField.objects.get(id=cf_id)
+        )
+        WaterTower.objects.create(
+            city=self.city_one, city_field=CityField.objects.get(id=cf_id - 1)
+        )
+        s1 = StandardLevelResidentialZone.objects.create(
+            city=self.city_one,
+            city_field=CityField.objects.get(id=cf_id - 2),
+            max_population=30,
+        )
+        s2 = StandardLevelResidentialZone.objects.create(
+            city=self.city_one,
+            city_field=CityField.objects.get(id=cf_id - 3),
+            max_population=30,
+        )
+        WaterTower.objects.create(
+            city=self.city_one, city_field=CityField.objects.get(id=cf_id - 4)
+        )
+        WindPlant.objects.create(
+            city=self.city_one, city_field=CityField.objects.get(id=cf_id - 5)
+        )
+        WindPlant.objects.create(
+            city=self.city_one, city_field=CityField.objects.get(id=cf_id - 6)
+        )
+        WindPlant.objects.create(
+            city=self.city_one, city_field=CityField.objects.get(id=cf_id - 7)
+        )
+        PotatoFarm.objects.create(
+            city=self.city_one, city_field=CityField.objects.get(id=cf_id - 8)
+        )
+        LettuceFarm.objects.create(
+            city=self.city_one, city_field=CityField.objects.get(id=cf_id - 9)
+        )
+        BeanFarm.objects.create(
+            city=self.city_one, city_field=CityField.objects.get(id=cf_id - 10)
+        )
+        f = CattleFarm.objects.create(
+            city=self.city_one, city_field=CityField.objects.get(id=cf_id - 11)
+        )
         Cattle.objects.create(farm=f, size=30, price=20)
 
         s1.self__init(30)
@@ -34,21 +67,22 @@ class ResourceAllocationTest(BaseTest):
         s2.save()
 
         self.create_second_user()
-        TestHelper(self.city_one, User.objects.latest('id')).populate_city()
-        LoginPage(self.browser,
-                  self.live_server_url).navigate_to_main_throught_login(user=self.user_one,
-                                                                        username=self.player_one,
-                                                                        password=self.password_one,
-                                                                        city=self.city_one,
-                                                                        assertIn=self.assertIn,
-                                                                        assertTrue=self.assertTrue)
+        TestHelper(self.city_one, User.objects.latest("id")).populate_city()
+        LoginPage(self.browser, self.live_server_url).navigate_to_main_throught_login(
+            user=self.user_one,
+            username=self.player_one,
+            password=self.password_one,
+            city=self.city_one,
+            assertIn=self.assertIn,
+            assertTrue=self.assertTrue,
+        )
         main_view = MainView(self.browser, self.live_server_url)
 
         main_view.next_turns(8)
 
-        bean = Bean.objects.latest('id')
-        potato = Potato.objects.latest('id')
-        lettuce = Lettuce.objects.latest('id')
+        bean = Bean.objects.latest("id")
+        potato = Potato.objects.latest("id")
+        lettuce = Lettuce.objects.latest("id")
         rc = RootClass(self.city_one, self.user_one)
         resources = rc.market.resources
 
@@ -83,19 +117,23 @@ class ResourceAllocationTest(BaseTest):
 
         main_view.logout()
 
-        LoginPage(self.browser,
-                  self.live_server_url).navigate_to_main_throught_login(user=self.user_two,
-                                                                        username=self.player_two,
-                                                                        password=self.password_two,
-                                                                        city=self.city_two,
-                                                                        assertIn=self.assertIn,
-                                                                        assertTrue=self.assertTrue)
+        LoginPage(self.browser, self.live_server_url).navigate_to_main_throught_login(
+            user=self.user_two,
+            username=self.player_two,
+            password=self.password_two,
+            city=self.city_two,
+            assertIn=self.assertIn,
+            assertTrue=self.assertTrue,
+        )
 
         main_view = MainView(self.browser, self.live_server_url)
         main_view.next_turns(8)
         main_view.get_resources_view()
-        self.assertEqual('{}/main/resources/'.format(self.live_server_url), str(self.browser.current_url))
-        self.assertIn('Surowce', self.browser.title)
+        self.assertEqual(
+            "{}/main/resources/".format(self.live_server_url),
+            str(self.browser.current_url),
+        )
+        self.assertIn("Surowce", self.browser.title)
         rc2 = RootClass(self.city_two, self.user_two)
         self.assertEqual(Bean.objects.filter(market=self.market_two).count(), 0)
         self.assertEqual(Potato.objects.filter(market=self.market_two).count(), 0)

@@ -9,7 +9,7 @@ class Market(models.Model):
 
 
 class Resource(models.Model):
-    name = models.CharField(default='Surowiec', max_length=8)
+    name = models.CharField(default="Surowiec", max_length=8)
     size = models.PositiveIntegerField(default=0)
     price = models.DecimalField(default=0, decimal_places=2, max_digits=20)
 
@@ -26,36 +26,38 @@ class MarketResource(Resource):
 
 
 class Mass(MarketResource):
-    name = models.CharField(default='Masa', max_length=5)
+    name = models.CharField(default="Masa", max_length=5)
 
 
 class Milk(MarketResource):
-    name = models.CharField(default='Mleko', max_length=5)
+    name = models.CharField(default="Mleko", max_length=5)
 
 
 class Beef(MarketResource):
-    name = models.CharField(default='Wołowina', max_length=8)
+    name = models.CharField(default="Wołowina", max_length=8)
 
 
 class Bean(MarketResource):
-    name = models.CharField(default='Fasola', max_length=10)
+    name = models.CharField(default="Fasola", max_length=10)
 
 
 class Potato(MarketResource):
-    name = models.CharField(default='Ziemniaki', max_length=10)
+    name = models.CharField(default="Ziemniaki", max_length=10)
 
 
 class Lettuce(MarketResource):
-    name = models.CharField(default='Sałata', max_length=10)
+    name = models.CharField(default="Sałata", max_length=10)
 
 
 class Commodity(MarketResource):
-    name = models.CharField(default='Towary', max_length=7)
+    name = models.CharField(default="Towary", max_length=7)
 
 
 class MassConventer(BuldingsWithWorkes):
     name = models.CharField(default="Konwenter Masy", max_length=16)
-    profession_type_provided = models.CharField(default="Pracownik konwentera masy", max_length=30)
+    profession_type_provided = models.CharField(
+        default="Pracownik konwentera masy", max_length=30
+    )
     energy_required = models.PositiveIntegerField(default=5)
     water_required = models.PositiveIntegerField(default=10)
     mass_production_rate = models.PositiveIntegerField(default=100)
@@ -63,17 +65,22 @@ class MassConventer(BuldingsWithWorkes):
     elementary_employee_needed = models.PositiveIntegerField(default=5)
 
     def product_mass(self, data):
-        size_total = int(self.mass_production_rate * self.productivity(data.list_of_workplaces, data.citizens_in_city))
+        size_total = int(
+            self.mass_production_rate
+            * self.productivity(data.list_of_workplaces, data.citizens_in_city)
+        )
         size = size_total if size_total > 1 else 1
         quality = self._get_quality(data.list_of_workplaces, data.citizens_in_city)
-        price = self.calculate_price_of_good(data.list_of_workplaces[self].workers_costs, size)
+        price = self.calculate_price_of_good(
+            data.list_of_workplaces[self].workers_costs, size
+        )
 
         if quality > 0 and len(data.list_of_workplaces[self].all_employees) >= 1:
             data.market.add_new_resource(Mass, size, quality, price, data.market.mi)
 
 
 class CattleFarm(AnimalFarm):
-    name = models.CharField(default='Farma byłda', max_length=15)
+    name = models.CharField(default="Farma byłda", max_length=15)
     profession_type_provided = models.CharField(default="Farmer bydła.", max_length=30)
     pastures = models.PositiveIntegerField(default=1)
     cattle_breeding_rate = models.FloatField(default=0.014)
@@ -91,9 +98,16 @@ class CattleFarm(AnimalFarm):
         return ((cat.size / self.pastures) ** -0.3) * 2
 
     def _accumulate_breeding(self, data, cattle):
-        self.accumulate_breding += (self.cattle_breeding_rate * self.productivity(data.list_of_workplaces, data.citizens_in_city))
+        self.accumulate_breding += self.cattle_breeding_rate * self.productivity(
+            data.list_of_workplaces, data.citizens_in_city
+        )
         if len(data.list_of_workplaces[self].all_employees) >= 1:
-            cattle.resource_production(self.pastures, data, data.list_of_workplaces[self].workers_costs, self.productivity(data.list_of_workplaces, data.citizens_in_city))
+            cattle.resource_production(
+                self.pastures,
+                data,
+                data.list_of_workplaces[self].workers_costs,
+                self.productivity(data.list_of_workplaces, data.citizens_in_city),
+            )
 
     def _release_accumulate_breeding(self, cattle, release_breeding):
         diff = release_breeding - round(release_breeding)
@@ -101,7 +115,11 @@ class CattleFarm(AnimalFarm):
         self.accumulate_breding = diff
 
     def _get_accumulate_breeding_rate_to_release(self, cattle):
-        return cattle.size * self.accumulate_breding * self._cattle_farm_productivity(cattle)
+        return (
+            cattle.size
+            * self.accumulate_breding
+            * self._cattle_farm_productivity(cattle)
+        )
 
     def farm_operation(self, data):
         if data.list_of_workplaces[self].cattle:
@@ -113,7 +131,7 @@ class CattleFarm(AnimalFarm):
 
 
 class Cattle(Resource):
-    name = models.CharField(default='Bydło', max_length=6)
+    name = models.CharField(default="Bydło", max_length=6)
     farm = models.OneToOneField(CattleFarm)
 
     def resource_production(self, pastures, data, workers_costs, farm_productivity):
@@ -121,17 +139,21 @@ class Cattle(Resource):
         size_total = int(self._size_of_production(pastures, farm_productivity))
         size = size_total if size_total > 1 else 1
         if quality > 0:
-            data.market.add_new_resource(resource_type=Milk,
-                                         size=size,
-                                         quality=quality,
-                                         price=self._calculate_price_of_good(workers_costs, size),
-                                         market=data.market.mi)
+            data.market.add_new_resource(
+                resource_type=Milk,
+                size=size,
+                quality=quality,
+                price=self._calculate_price_of_good(workers_costs, size),
+                market=data.market.mi,
+            )
 
     def _calculate_price_of_good(self, workers_costs, size_of_production):
-        return round(workers_costs/size_of_production, 2)
+        return round(workers_costs / size_of_production, 2)
 
     def _size_of_production(self, pastures, farm_productivity):
-        return round((self.size * (6 * self.pastures_productivity(pastures))) * farm_productivity)
+        return round(
+            (self.size * (6 * self.pastures_productivity(pastures))) * farm_productivity
+        )
 
     def _get_milk_quality(self, pastures):
         total = 100 * self.pastures_productivity(pastures)
@@ -145,17 +167,19 @@ class Cattle(Resource):
 
 
 class PotatoFarm(Farm):
-    VEG_TYPE = (Potato, 'potato')
-    name = models.CharField(default='Farma ziemniaków', max_length=20)
-    profession_type_provided = models.CharField(default="Farmer ziemniaków", max_length=30)
+    VEG_TYPE = (Potato, "potato")
+    name = models.CharField(default="Farma ziemniaków", max_length=20)
+    profession_type_provided = models.CharField(
+        default="Farmer ziemniaków", max_length=30
+    )
     time_to_grow_from = models.PositiveIntegerField(default=2)
     time_to_grow_to = models.PositiveIntegerField(default=6)
     max_harvest = models.PositiveIntegerField(default=500)
 
 
 class BeanFarm(Farm):
-    VEG_TYPE = (Bean, 'bean')
-    name = models.CharField(default='Farma fasoli', max_length=15)
+    VEG_TYPE = (Bean, "bean")
+    name = models.CharField(default="Farma fasoli", max_length=15)
     profession_type_provided = models.CharField(default="Farmer fasoli", max_length=30)
     time_to_grow_from = models.PositiveIntegerField(default=4)
     time_to_grow_to = models.PositiveIntegerField(default=8)
@@ -163,8 +187,8 @@ class BeanFarm(Farm):
 
 
 class LettuceFarm(Farm):
-    VEG_TYPE = (Lettuce, 'lettuce')
-    name = models.CharField(default='Farma sałaty', max_length=15)
+    VEG_TYPE = (Lettuce, "lettuce")
+    name = models.CharField(default="Farma sałaty", max_length=15)
     profession_type_provided = models.CharField(default="Farmer sałaty", max_length=30)
     time_to_grow_from = models.PositiveIntegerField(default=3)
     time_to_grow_to = models.PositiveIntegerField(default=5)

@@ -12,18 +12,16 @@ from resources.models import Market
 
 
 class TestFindPlaceToLive(TestCase):
-    fixtures = ['basic_fixture_resources_and_employees.json']
+    fixtures = ["basic_fixture_resources_and_employees.json"]
 
     def setUp(self):
         self.city = City.objects.get(id=1)
-        self.profile = Profile.objects.latest('id')
+        self.profile = Profile.objects.latest("id")
         Market.objects.create(profile=self.profile)
-        self.RC = RootClass(self.city, User.objects.latest('id'))
-        self.r1 = StandardLevelResidentialZone.objects.latest('id')
+        self.RC = RootClass(self.city, User.objects.latest("id"))
+        self.r1 = StandardLevelResidentialZone.objects.latest("id")
         self.r2 = StandardLevelResidentialZone.objects.create(
-            city_field=CityField.objects.get(id=1),
-            city=self.city,
-            max_population = 10
+            city_field=CityField.objects.get(id=1), city=self.city, max_population=10
         )
 
     def test_random_choice_scenario(self):
@@ -36,7 +34,7 @@ class TestFindPlaceToLive(TestCase):
             name="AnonKA",
             surname="FeSurname",
             sex=FEMALE,
-            resident_object=self.r1
+            resident_object=self.r1,
         )
         self.m = Citizen.objects.create(
             city=self.city,
@@ -47,9 +45,11 @@ class TestFindPlaceToLive(TestCase):
             name="AnON",
             surname="MaSurname",
             sex=MALE,
-            resident_object=self.r1
+            resident_object=self.r1,
         )
-        sa = SocialAction(self.city, self.profile, RootClass(self.city, User.objects.latest('id')))
+        sa = SocialAction(
+            self.city, self.profile, RootClass(self.city, User.objects.latest("id"))
+        )
         self.assertEqual(sa.find_place_to_live(self.m, self.f), self.r1)
 
     def test_pass_scenario_male(self):
@@ -61,7 +61,7 @@ class TestFindPlaceToLive(TestCase):
             health=5,
             name="AnonKA",
             surname="FeSurname",
-            sex=FEMALE
+            sex=FEMALE,
         )
         self.m = Citizen.objects.create(
             city=self.city,
@@ -72,9 +72,11 @@ class TestFindPlaceToLive(TestCase):
             name="AnON",
             surname="MaSurname",
             sex=MALE,
-            resident_object=self.r1
+            resident_object=self.r1,
         )
-        sa = SocialAction(self.city, self.profile, RootClass(self.city, User.objects.latest('id')))
+        sa = SocialAction(
+            self.city, self.profile, RootClass(self.city, User.objects.latest("id"))
+        )
         self.assertEqual(sa.find_place_to_live(self.m, self.f), self.r1)
 
     def test_failed_scenario_male(self):
@@ -88,7 +90,7 @@ class TestFindPlaceToLive(TestCase):
             health=5,
             name="AnonKA",
             surname="FeSurname",
-            sex=FEMALE
+            sex=FEMALE,
         )
         self.m = Citizen.objects.create(
             city=self.city,
@@ -99,12 +101,14 @@ class TestFindPlaceToLive(TestCase):
             name="AnON",
             surname="MaSurname",
             sex=MALE,
-            resident_object=self.r1
+            resident_object=self.r1,
         )
         self.assertEqual(self.f.resident_object, None)
         self.assertEqual(self.m.resident_object, self.r1)
         self.assertEqual(self.r1.max_population, 1)
-        sa = SocialAction(self.city, self.profile, RootClass(self.city, User.objects.latest('id')))
+        sa = SocialAction(
+            self.city, self.profile, RootClass(self.city, User.objects.latest("id"))
+        )
         self.assertEqual(sa.find_place_to_live(self.f, self.m), None)
 
     def test_pass_scenario_female(self):
@@ -117,7 +121,7 @@ class TestFindPlaceToLive(TestCase):
             name="AnonKA",
             surname="FeSurname",
             sex=FEMALE,
-            resident_object=self.r2
+            resident_object=self.r2,
         )
         self.m = Citizen.objects.create(
             city=self.city,
@@ -127,9 +131,11 @@ class TestFindPlaceToLive(TestCase):
             health=5,
             name="AnON",
             surname="MaSurname",
-            sex=MALE
+            sex=MALE,
         )
-        sa = SocialAction(self.city, self.profile, RootClass(self.city, User.objects.latest('id')))
+        sa = SocialAction(
+            self.city, self.profile, RootClass(self.city, User.objects.latest("id"))
+        )
         self.assertEqual(sa.find_place_to_live(self.m, self.f), self.r2)
 
     def test_failed_scenario_female(self):
@@ -144,7 +150,7 @@ class TestFindPlaceToLive(TestCase):
             name="AnonKA",
             surname="FeSurname",
             sex=FEMALE,
-            resident_object=self.r2
+            resident_object=self.r2,
         )
         self.m = Citizen.objects.create(
             city=self.city,
@@ -154,10 +160,12 @@ class TestFindPlaceToLive(TestCase):
             health=5,
             name="AnON",
             surname="MaSurname",
-            sex=MALE
+            sex=MALE,
         )
         self.assertEqual(self.m.resident_object, None)
         self.assertEqual(self.f.resident_object, self.r2)
         self.assertEqual(self.r2.max_population, 1)
-        sa = SocialAction(self.city, self.profile, RootClass(self.city, User.objects.latest('id')))
+        sa = SocialAction(
+            self.city, self.profile, RootClass(self.city, User.objects.latest("id"))
+        )
         self.assertEqual(sa.find_place_to_live(self.f, self.m), None)

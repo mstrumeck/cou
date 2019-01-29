@@ -6,7 +6,6 @@ from resources.models import MassConventer
 
 
 class TurnCalculation:
-
     def __init__(self, city, data, profile):
         self.city = city
         self.data = data
@@ -38,30 +37,29 @@ class TurnCalculation:
 
     def financial_actions(self):
         for f in self.data.families:
-            self.data.families[f].pay_rent(
-                self.city,
-                self.profile)
+            self.data.families[f].pay_rent(self.city, self.profile)
 
     def trade_district_actions(self):
         for c in self.data.companies:
             c.create_goods(self.data)
 
     def collect_mass(self):
-        for mass_collector in [mc for mc in self.data.list_of_buildings if isinstance(mc, MassConventer)]:
+        for mass_collector in [
+            mc for mc in self.data.list_of_buildings if isinstance(mc, MassConventer)
+        ]:
             mass_collector.product_mass(self.data)
 
     def update_breeding_status(self):
-        for farm in [b for b in self.data.list_of_buildings if isinstance(b, AnimalFarm)]:
+        for farm in [
+            b for b in self.data.list_of_buildings if isinstance(b, AnimalFarm)
+        ]:
             farm.farm_operation(self.data)
             if self.data.list_of_buildings[farm].cattle:
                 self.data.to_save.append(self.data.list_of_buildings[farm].cattle)
 
     def update_harvest_status(self):
         for farm in [b for b in self.data.list_of_buildings if isinstance(b, Farm)]:
-            farm.update_harvest(
-                self.profile.current_turn,
-                self.data
-            )
+            farm.update_harvest(self.profile.current_turn, self.data)
 
     def update_build_status(self):
         for building in self.data.list_of_buildings:

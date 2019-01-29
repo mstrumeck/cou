@@ -25,19 +25,36 @@ class CreateCitizen:
             sex=choice(Citizen.SEX)[0],
             edu_title=edu_title,
             father_id=0,
-            mother_id=0
+            mother_id=0,
         )
         if edu_title == ELEMENTARY:
-            Education.objects.create(citizen=c, name=ELEMENTARY, effectiveness=1, if_current=False)
+            Education.objects.create(
+                citizen=c, name=ELEMENTARY, effectiveness=1, if_current=False
+            )
         elif edu_title == COLLEGE:
-            Education.objects.create(citizen=c, name=ELEMENTARY, effectiveness=1, if_current=False)
-            Education.objects.create(citizen=c, name=COLLEGE, effectiveness=1, if_current=False)
+            Education.objects.create(
+                citizen=c, name=ELEMENTARY, effectiveness=1, if_current=False
+            )
+            Education.objects.create(
+                citizen=c, name=COLLEGE, effectiveness=1, if_current=False
+            )
         elif edu_title == PHD:
-            Education.objects.create(citizen=c, name=ELEMENTARY, effectiveness=1, if_current=False)
-            Education.objects.create(citizen=c, name=COLLEGE, effectiveness=1, if_current=False)
-            Education.objects.create(citizen=c, name=PHD, effectiveness=1, if_current=False)
+            Education.objects.create(
+                citizen=c, name=ELEMENTARY, effectiveness=1, if_current=False
+            )
+            Education.objects.create(
+                citizen=c, name=COLLEGE, effectiveness=1, if_current=False
+            )
+            Education.objects.create(
+                citizen=c, name=PHD, effectiveness=1, if_current=False
+            )
 
-        Profession.objects.create(citizen=c, name=workplace.profession_type_provided, proficiency=1.00, education=edu_title)
+        Profession.objects.create(
+            citizen=c,
+            name=workplace.profession_type_provided,
+            proficiency=1.00,
+            education=edu_title,
+        )
         Family.objects.create(surname=c.surname, city=self.city)
 
     def create_without_workplace(self):
@@ -49,10 +66,15 @@ class CreateCitizen:
             resident_object=self.choose_residential(),
             sex=choice(Citizen.SEX)[0],
             father_id=0,
-            mother_id=0
+            mother_id=0,
         )
         Family.objects.create(surname=c.surname, city=self.city)
 
     def choose_residential(self):
-        return choice([r for r in self.data.list_of_buildings if isinstance(r, Residential)
-                       and r.max_population >= r.population])
+        return choice(
+            [
+                r
+                for r in self.data.list_of_buildings
+                if isinstance(r, Residential) and r.max_population >= r.population
+            ]
+        )

@@ -6,13 +6,14 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 
 class BasePage:
-
     def __init__(self, driver, static_server):
         self.driver = driver
         self.static_server = static_server
 
     def wait_for_element_with_name(self, name):
-        WebDriverWait(self.driver, timeout=30).until(lambda b: b.find_element_by_name(name))
+        WebDriverWait(self.driver, timeout=30).until(
+            lambda b: b.find_element_by_name(name)
+        )
 
     def fill_form_by_css(self, form_css, value):
         elem = self.driver.find_element_by_css_selector(form_css)
@@ -44,7 +45,6 @@ class BasePage:
 
 
 class Homepage(BasePage):
-
     def getMainView(self):
         return MainView(self.driver, self.static_server)
 
@@ -52,13 +52,12 @@ class Homepage(BasePage):
         return LoginPage(self.driver, self.static_server)
 
     def click_registration_button(self):
-        return self.driver.find_element_by_link_text('Rejestracja').click()
+        return self.driver.find_element_by_link_text("Rejestracja").click()
 
 
 class MainView(BasePage):
-
     def logout(self):
-        return self.get_element_by_text('Wyloguj').click()
+        return self.get_element_by_text("Wyloguj").click()
 
     def choose_hex(self, hex_id):
         return self.get_element_by_id(hex_id).click()
@@ -73,39 +72,41 @@ class MainView(BasePage):
         self.choose_the_building(building_name)
         self.choose_hex(hex_id)
 
-    def build_the_building_from_multiple_choice(self, building_type, building_name, hex_id):
+    def build_the_building_from_multiple_choice(
+        self, building_type, building_name, hex_id
+    ):
         self.choose_the_building_type_button(building_type)
         time.sleep(1)
         self.choose_the_building(building_name)
         self.choose_hex(hex_id)
 
     def next_turn(self):
-        return self.get_element_by_text('Kolejna tura').click()
+        return self.get_element_by_text("Kolejna tura").click()
 
     def next_turns(self, nr_of_turns):
         for x in range(nr_of_turns):
             self.next_turn()
 
     def get_resources_view(self):
-        return self.get_element_by_text('Surowce').click()
+        return self.get_element_by_text("Surowce").click()
 
 
 class ResourcePage(BasePage):
-
     def navigate_to_main_view(self):
-        return self.get_element_by_text('Miasto').click()
+        return self.get_element_by_text("Miasto").click()
 
 
 class LoginPage(BasePage):
-
-    def navigate_to_main_throught_login(self, user, username, password, city, assertIn, assertTrue):
+    def navigate_to_main_throught_login(
+        self, user, username, password, city, assertIn, assertTrue
+    ):
         homepage = Homepage(self.driver, self.static_server)
-        homepage.navigate('/main/')
-        assertIn('Login', self.driver.title)
+        homepage.navigate("/main/")
+        assertIn("Login", self.driver.title)
         login_page = LoginPage(self.driver, self.static_server)
         login_page.login(username, password)
         assertTrue(user.is_authenticated)
-        assertIn('Miasto {}'.format(city.name), self.driver.title)
+        assertIn("Miasto {}".format(city.name), self.driver.title)
 
     def login(self, username, password):
         self.fill_username_field(username)
@@ -113,17 +114,16 @@ class LoginPage(BasePage):
         self.click_submit_button()
 
     def fill_username_field(self, username):
-        return self.fill_form_by_id('id_username',  username)
+        return self.fill_form_by_id("id_username", username)
 
     def fill_password_field(self, password):
-        return self.fill_form_by_id('id_password', password)
+        return self.fill_form_by_id("id_password", password)
 
     def click_submit_button(self):
-        return self.press_button_by_name('submit')
+        return self.press_button_by_name("submit")
 
 
 class SignupPage(BasePage):
-
     def create_account(self, username, password, city_name):
         self.set_username(username)
         self.set_password(password)
@@ -137,7 +137,7 @@ class SignupPage(BasePage):
         self.submit()
 
     def if_error_displayed(self):
-        error = self.get_element_by_css('errorlist')
+        error = self.get_element_by_css("errorlist")
         return error.is_displayed()
 
     def login(self, first, last):
@@ -145,10 +145,10 @@ class SignupPage(BasePage):
         self.fill_form_by_id("id_password", last)
 
     def set_username(self, username):
-        return self.fill_form_by_id('id_username', username)
+        return self.fill_form_by_id("id_username", username)
 
     def set_city_name(self, city_name):
-        return self.fill_form_by_id('id_name', city_name)
+        return self.fill_form_by_id("id_name", city_name)
 
     def setEmail(self, email):
         self.fill_form_by_id("id_email", email)
@@ -158,11 +158,14 @@ class SignupPage(BasePage):
         self.fill_form_by_id("id_password2", password)
 
     def set_fake_password(self, password):
-        self.fill_form_by_id('id_password1', password)
-        self.fill_form_by_id('id_password2', "".join([random.choice(string.ascii_letters) for letter in range(7)]))
+        self.fill_form_by_id("id_password1", password)
+        self.fill_form_by_id(
+            "id_password2",
+            "".join([random.choice(string.ascii_letters) for letter in range(7)]),
+        )
 
     def setProductName(self, name):
         self.fill_form_by_id("id_first_product_name", name)
 
     def submit(self):
-        return self.press_button_by_name('submit')
+        return self.press_button_by_name("submit")

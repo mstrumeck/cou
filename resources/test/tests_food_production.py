@@ -6,22 +6,37 @@ from city_engine.test.base import TestHelper
 from city_engine.turn_data.main import TurnCalculation
 from cou.abstract import RootClass
 from player.models import Profile
-from resources.models import Potato, Bean, Lettuce, Cattle, Milk, CattleFarm, Market, PotatoFarm, LettuceFarm, BeanFarm
+from resources.models import (
+    Potato,
+    Bean,
+    Lettuce,
+    Cattle,
+    Milk,
+    CattleFarm,
+    Market,
+    PotatoFarm,
+    LettuceFarm,
+    BeanFarm,
+)
 
 
 class FarmInstancesTests(test.TestCase):
-    fixtures = ['basic_fixture_resources_and_employees.json']
+    fixtures = ["basic_fixture_resources_and_employees.json"]
 
     def setUp(self):
-        self.profile = Profile.objects.latest('id')
-        self.user = User.objects.latest('id')
-        self.city = City.objects.latest('id')
+        self.profile = Profile.objects.latest("id")
+        self.user = User.objects.latest("id")
+        self.city = City.objects.latest("id")
         self.market = Market.objects.create(profile=self.profile)
-        self.cf = CattleFarm.objects.create(city=self.city, city_field=CityField.objects.latest('id'))
+        self.cf = CattleFarm.objects.create(
+            city=self.city, city_field=CityField.objects.latest("id")
+        )
         TestHelper(city=self.city, user=self.user).populate_city()
 
     def test_potato_creation(self):
-        pf = PotatoFarm.objects.create(city=self.city, city_field=CityField.objects.latest('id'))
+        pf = PotatoFarm.objects.create(
+            city=self.city, city_field=CityField.objects.latest("id")
+        )
         pf.max_harvest = 1000
         pf.save()
         TestHelper(city=self.city, user=self.user).populate_city()
@@ -40,14 +55,16 @@ class FarmInstancesTests(test.TestCase):
         self.assertEqual(pf.accumulate_harvest_costs, 0)
 
     def test_bean_update_harvest(self):
-        bf = BeanFarm.objects.create(city=self.city, city_field=CityField.objects.latest('id'))
+        bf = BeanFarm.objects.create(
+            city=self.city, city_field=CityField.objects.latest("id")
+        )
         bf.max_harvest = 1000
         bf.save()
         TestHelper(city=self.city, user=self.user).populate_city()
         rc = RootClass(city=self.city, user=self.user)
         self.assertEqual(rc.market.resources.get(Bean), None)
         self.assertEqual(Bean.objects.count(), 0)
-        for turn in range(bf.time_to_grow_from, bf.time_to_grow_to+1):
+        for turn in range(bf.time_to_grow_from, bf.time_to_grow_to + 1):
             bf.wage_payment(self.city, rc)
             bf.update_harvest(turn, rc)
         self.assertEqual(Bean.objects.count(), 1)
@@ -59,14 +76,16 @@ class FarmInstancesTests(test.TestCase):
         self.assertEqual(bf.accumulate_harvest_costs, 0)
 
     def test_lettuce_update_harvest(self):
-        lf = LettuceFarm.objects.create(city=self.city, city_field=CityField.objects.latest('id'))
+        lf = LettuceFarm.objects.create(
+            city=self.city, city_field=CityField.objects.latest("id")
+        )
         lf.max_harvest = 1000
         lf.save()
         TestHelper(city=self.city, user=self.user).populate_city()
         rc = RootClass(city=self.city, user=self.user)
         self.assertEqual(rc.market.resources.get(Lettuce), None)
         self.assertEqual(Lettuce.objects.count(), 0)
-        for turn in range(lf.time_to_grow_from, lf.time_to_grow_to+1):
+        for turn in range(lf.time_to_grow_from, lf.time_to_grow_to + 1):
             lf.wage_payment(self.city, rc)
             lf.update_harvest(turn, rc)
         self.assertEqual(Lettuce.objects.count(), 1)
@@ -79,7 +98,9 @@ class FarmInstancesTests(test.TestCase):
 
     def test_breed_update(self):
         data = RootClass(city=self.city, user=self.user)
-        tc = TurnCalculation(city=self.city, data=data, profile=Profile.objects.latest('id'))
+        tc = TurnCalculation(
+            city=self.city, data=data, profile=Profile.objects.latest("id")
+        )
 
         self.assertEqual(Cattle.objects.all().count(), 0)
         self.assertEqual(Milk.objects.all().count(), 0)
@@ -92,17 +113,17 @@ class FarmInstancesTests(test.TestCase):
         tc.save_all()
         self.assertEqual(len(data.market.resources[Milk].instances), 1)
         self.assertEqual(Milk.objects.count(), 1)
-        self.assertEqual(Milk.objects.latest('id').size, 33)
+        self.assertEqual(Milk.objects.latest("id").size, 33)
         self.assertEqual(data.market.resources[Milk].instances[-1].size, 33)
         self.assertEqual(data.market.resources[Milk].instances[-1].quality, 81)
-        self.assertEqual(Milk.objects.latest('id').quality, 81)
+        self.assertEqual(Milk.objects.latest("id").quality, 81)
         self.assertEqual(Cattle.objects.count(), 1)
 
         tc.update_breeding_status()
         tc.save_all()
         self.assertEqual(Cattle.objects.count(), 1)
-        self.assertEqual(Milk.objects.latest('id').size, 66)
-        self.assertEqual(Milk.objects.latest('id').quality, 81)
+        self.assertEqual(Milk.objects.latest("id").size, 66)
+        self.assertEqual(Milk.objects.latest("id").quality, 81)
         self.assertEqual(Milk.objects.count(), 1)
         self.assertEqual(len(data.market.resources[Milk].instances), 1)
         self.assertEqual(data.market.resources[Milk].instances[-1].size, 66)
@@ -111,8 +132,8 @@ class FarmInstancesTests(test.TestCase):
         tc.update_breeding_status()
         tc.save_all()
         self.assertEqual(Cattle.objects.count(), 1)
-        self.assertEqual(Milk.objects.latest('id').size, 99)
-        self.assertEqual(Milk.objects.latest('id').quality, 81)
+        self.assertEqual(Milk.objects.latest("id").size, 99)
+        self.assertEqual(Milk.objects.latest("id").quality, 81)
         self.assertEqual(Milk.objects.count(), 1)
         self.assertEqual(len(data.market.resources[Milk].instances), 1)
         self.assertEqual(data.market.resources[Milk].instances[-1].size, 99)
@@ -134,7 +155,7 @@ class FarmInstancesTests(test.TestCase):
         self.cf._release_accumulate_breeding(c, self.cf.accumulate_breding)
         c.save()
         self.assertEqual(c.size, 21)
-        self.assertEqual(Cattle.objects.latest('id').size, 21)
+        self.assertEqual(Cattle.objects.latest("id").size, 21)
         self.assertEqual(self.cf.accumulate_breding, 0.10000000000000009)
 
     def test_accumulate_breeding(self):
@@ -156,12 +177,12 @@ class FarmInstancesTests(test.TestCase):
         self.assertNotEqual(rc.list_of_workplaces[self.cf].cattle, [])
         self.assertEqual(rc.list_of_workplaces[self.cf].cattle.size, 20)
         self.assertEqual(Cattle.objects.all().count(), 1)
-        self.assertEqual(Cattle.objects.latest('id').size, 20)
+        self.assertEqual(Cattle.objects.latest("id").size, 20)
         self.cf.buy_cattle(20, rc)
         self.assertNotEqual(rc.list_of_workplaces[self.cf].cattle, [])
         rc.list_of_workplaces[self.cf].cattle.save()
         self.assertEqual(Cattle.objects.all().count(), 1)
-        self.assertEqual(Cattle.objects.latest('id').size, 40)
+        self.assertEqual(Cattle.objects.latest("id").size, 40)
         self.assertEqual(rc.list_of_workplaces[self.cf].cattle.size, 40)
 
     def test_buy_cattle(self):
@@ -170,7 +191,7 @@ class FarmInstancesTests(test.TestCase):
         self.assertEqual(rc.list_of_workplaces[self.cf].cattle, [])
         self.cf.buy_cattle(20, rc)
         self.assertEqual(Cattle.objects.all().count(), 1)
-        self.assertEqual(Cattle.objects.latest('id').size, 20)
+        self.assertEqual(Cattle.objects.latest("id").size, 20)
         self.assertNotEqual(rc.list_of_workplaces[self.cf].cattle, [])
         self.assertEqual(rc.list_of_workplaces[self.cf].cattle.size, 20)
 
@@ -180,10 +201,15 @@ class FarmInstancesTests(test.TestCase):
         rc = RootClass(city=self.city, user=self.user)
         self.assertEqual(rc.market.resources.get(Milk), None)
         self.cf.wage_payment(self.city, rc)
-        c.resource_production(1, rc, rc.list_of_workplaces[self.cf].workers_costs, self.cf.productivity(rc.list_of_workplaces, rc.citizens_in_city))
+        c.resource_production(
+            1,
+            rc,
+            rc.list_of_workplaces[self.cf].workers_costs,
+            self.cf.productivity(rc.list_of_workplaces, rc.citizens_in_city),
+        )
         self.assertEqual(Milk.objects.all().count(), 1, rc)
         self.assertEqual(len(rc.market.resources[Milk].instances), 1)
-        m = Milk.objects.latest('id')
+        m = Milk.objects.latest("id")
         self.assertEqual(m.size, 33)
         self.assertEqual(m.quality, 81)
         self.assertEqual(float(m.price), 24.48)
@@ -195,12 +221,17 @@ class FarmInstancesTests(test.TestCase):
         rc = RootClass(city=self.city, user=self.user)
         self.assertEqual(len(rc.market.resources[Milk].instances), 1)
         self.cf.wage_payment(self.city, rc)
-        c.resource_production(1, rc, rc.list_of_workplaces[self.cf].workers_costs, self.cf.productivity(rc.list_of_workplaces, rc.citizens_in_city))
+        c.resource_production(
+            1,
+            rc,
+            rc.list_of_workplaces[self.cf].workers_costs,
+            self.cf.productivity(rc.list_of_workplaces, rc.citizens_in_city),
+        )
         for x in rc.market.resources[Milk].instances:
             x.save()
         self.assertEqual(len(rc.market.resources[Milk].instances), 1)
         self.assertEqual(Milk.objects.all().count(), 1)
-        m = Milk.objects.latest('id')
+        m = Milk.objects.latest("id")
         self.assertEqual(m.size, 53)
         self.assertEqual(m.quality, 81)
         self.assertEqual(float(m.price), 0.38)
@@ -217,10 +248,15 @@ class FarmInstancesTests(test.TestCase):
         self.assertEqual(len(rc.market.resources[Milk].instances), 1)
         self.assertEqual(Milk.objects.all().count(), 1)
         self.cf.wage_payment(self.city, rc)
-        c.resource_production(1, rc, rc.list_of_workplaces[self.cf].workers_costs, self.cf.productivity(rc.list_of_workplaces, rc.citizens_in_city))
+        c.resource_production(
+            1,
+            rc,
+            rc.list_of_workplaces[self.cf].workers_costs,
+            self.cf.productivity(rc.list_of_workplaces, rc.citizens_in_city),
+        )
         self.assertEqual(len(rc.market.resources[Milk].instances), 2)
         self.assertEqual(Milk.objects.all().count(), 2)
-        m = Milk.objects.latest('id')
+        m = Milk.objects.latest("id")
         self.assertEqual(m.size, 33)
         self.assertEqual(m.quality, 81)
         self.assertEqual(float(m.price), 24.48)
@@ -239,4 +275,3 @@ class FarmInstancesTests(test.TestCase):
     def test_get_milk_quality_with_big_size(self):
         c = Cattle.objects.create(farm=self.cf, size=30)
         self.assertEqual(c._get_milk_quality(1), 72)
-

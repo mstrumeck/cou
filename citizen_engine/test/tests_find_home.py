@@ -12,16 +12,16 @@ from resources.models import Market
 
 
 class TestFindPlaceToLive(SocialTestHelper):
-    fixtures = ['basic_fixture_resources_and_employees.json']
+    fixtures = ["basic_fixture_resources_and_employees.json"]
 
     def setUp(self):
         self.city = City.objects.get(id=1)
-        self.profile = Profile.objects.latest('id')
+        self.profile = Profile.objects.latest("id")
         Market.objects.create(profile=self.profile)
-        self.RC = RootClass(self.city, User.objects.latest('id'))
+        self.RC = RootClass(self.city, User.objects.latest("id"))
 
     def test_if_right_homless_was_selected(self):
-        self.r1 = StandardLevelResidentialZone.objects.latest('id')
+        self.r1 = StandardLevelResidentialZone.objects.latest("id")
         self.r1.max_population = 1
         self.r1.save()
         self.f = Citizen.objects.create(
@@ -44,7 +44,7 @@ class TestFindPlaceToLive(SocialTestHelper):
             surname="MaSurname",
             sex=MALE,
         )
-        RC = RootClass(self.city, User.objects.latest('id'))
+        RC = RootClass(self.city, User.objects.latest("id"))
         sa = SocialAction(self.city, self.profile, RC)
         self.assertEqual(self.r1.resident.count(), 0)
         sa.find_home()
@@ -52,7 +52,7 @@ class TestFindPlaceToLive(SocialTestHelper):
         self.assertEqual(self.r1.resident.count(), 1)
 
     def test_random_choice_home_scenario_pass(self):
-        self.r1 = StandardLevelResidentialZone.objects.latest('id')
+        self.r1 = StandardLevelResidentialZone.objects.latest("id")
         self.f = Citizen.objects.create(
             city=self.city,
             age=21,
@@ -73,24 +73,38 @@ class TestFindPlaceToLive(SocialTestHelper):
             surname="MaSurname",
             sex=MALE,
         )
-        RC = RootClass(self.city, User.objects.latest('id'))
+        RC = RootClass(self.city, User.objects.latest("id"))
         sa = SocialAction(self.city, self.profile, RC)
         self.assertEqual(self.f.resident_object, None)
         self.assertEqual(self.m.resident_object, None)
-        self.assertEqual(list(StandardLevelResidentialZone.objects.latest('id').resident.all()), [])
-        self.assertEqual(RC.list_of_buildings[StandardLevelResidentialZone.objects.latest('id')].people_in_charge, 0)
+        self.assertEqual(
+            list(StandardLevelResidentialZone.objects.latest("id").resident.all()), []
+        )
+        self.assertEqual(
+            RC.list_of_buildings[
+                StandardLevelResidentialZone.objects.latest("id")
+            ].people_in_charge,
+            0,
+        )
         sa.find_home()
         self.save_all_ob_from(RC.list_of_buildings)
         self.save_all_ob_from(RC.citizens_in_city)
         self.m = Citizen.objects.get(id=self.m.id)
         self.f = Citizen.objects.get(id=self.f.id)
-        self.assertEqual(RootClass(self.city, User.objects.latest('id')).list_of_buildings[StandardLevelResidentialZone.objects.latest('id')].people_in_charge, 2)
-        self.assertNotEqual(list(StandardLevelResidentialZone.objects.latest('id').resident.all()), [])
+        self.assertEqual(
+            RootClass(self.city, User.objects.latest("id"))
+            .list_of_buildings[StandardLevelResidentialZone.objects.latest("id")]
+            .people_in_charge,
+            2,
+        )
+        self.assertNotEqual(
+            list(StandardLevelResidentialZone.objects.latest("id").resident.all()), []
+        )
         self.assertEqual(self.f.resident_object, self.r1)
         self.assertEqual(self.m.resident_object, self.r1)
 
     def test_random_choice_home_scenario_failed(self):
-        self.r1 = StandardLevelResidentialZone.objects.latest('id')
+        self.r1 = StandardLevelResidentialZone.objects.latest("id")
         self.r1.max_population = 0
         self.r1.save()
         self.f = Citizen.objects.create(
@@ -113,17 +127,38 @@ class TestFindPlaceToLive(SocialTestHelper):
             surname="MaSurname",
             sex=MALE,
         )
-        sa = SocialAction(self.city, self.profile, RootClass(self.city, User.objects.latest('id')))
+        sa = SocialAction(
+            self.city, self.profile, RootClass(self.city, User.objects.latest("id"))
+        )
         self.assertEqual(self.f.resident_object, None)
         self.assertEqual(self.m.resident_object, None)
-        self.assertEqual(list(StandardLevelResidentialZone.objects.latest('id').resident.all()), [])
-        self.assertEqual(RootClass(self.city, User.objects.latest('id')).list_of_buildings[StandardLevelResidentialZone.objects.latest('id')].people_in_charge, 0)
+        self.assertEqual(
+            list(StandardLevelResidentialZone.objects.latest("id").resident.all()), []
+        )
+        self.assertEqual(
+            RootClass(self.city, User.objects.latest("id"))
+            .list_of_buildings[StandardLevelResidentialZone.objects.latest("id")]
+            .people_in_charge,
+            0,
+        )
         sa.find_home()
-        self.assertEqual(RootClass(self.city, User.objects.latest('id')).list_of_buildings[StandardLevelResidentialZone.objects.latest('id')].people_in_charge, 0)
+        self.assertEqual(
+            RootClass(self.city, User.objects.latest("id"))
+            .list_of_buildings[StandardLevelResidentialZone.objects.latest("id")]
+            .people_in_charge,
+            0,
+        )
         sa.update_age()
-        self.assertEqual(RootClass(self.city, User.objects.latest('id')).list_of_buildings[StandardLevelResidentialZone.objects.latest('id')].people_in_charge, 0)
+        self.assertEqual(
+            RootClass(self.city, User.objects.latest("id"))
+            .list_of_buildings[StandardLevelResidentialZone.objects.latest("id")]
+            .people_in_charge,
+            0,
+        )
         self.m = Citizen.objects.get(id=self.m.id)
         self.f = Citizen.objects.get(id=self.f.id)
-        self.assertEqual(list(StandardLevelResidentialZone.objects.latest('id').resident.all()), [])
+        self.assertEqual(
+            list(StandardLevelResidentialZone.objects.latest("id").resident.all()), []
+        )
         self.assertEqual(self.f.resident_object, None)
         self.assertEqual(self.m.resident_object, None)

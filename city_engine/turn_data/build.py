@@ -3,7 +3,9 @@ from cou.abstract import AbstractAdapter
 
 
 def build_building(request, row, col, build_type):
-    build_type = {sub.__name__: sub for sub in AbstractAdapter().get_subclasses_of_all_buildings()}[build_type]
+    build_type = {
+        sub.__name__: sub for sub in AbstractAdapter().get_subclasses_of_all_buildings()
+    }[build_type]
     city = City.objects.get(user_id=request.user.id)
     city_field = CityField.objects.get(row=row, col=col, city_id=city.id)
 

@@ -1,6 +1,14 @@
 from django.contrib.auth.models import User
-from city_engine.models import StandardLevelResidentialZone, City, WindPlant, CityField, PrimarySchool,\
-    DustCart, DumpingGround, WaterTower
+from city_engine.models import (
+    StandardLevelResidentialZone,
+    City,
+    WindPlant,
+    CityField,
+    PrimarySchool,
+    DustCart,
+    DumpingGround,
+    WaterTower,
+)
 from citizen_engine.models import Citizen, Profession, Education
 from cou.abstract import RootClass
 from player.models import Profile
@@ -11,14 +19,14 @@ from resources.models import Market
 
 
 class TestFindWork(SocialTestHelper):
-    fixtures = ['basic_fixture_resources_and_employees.json']
+    fixtures = ["basic_fixture_resources_and_employees.json"]
 
     def setUp(self):
         self.city = City.objects.get(id=1)
-        self.profile = Profile.objects.latest('id')
+        self.profile = Profile.objects.latest("id")
         Market.objects.create(profile=self.profile)
-        self.RC = RootClass(self.city, User.objects.latest('id'))
-        self.r1 = StandardLevelResidentialZone.objects.latest('id')
+        self.RC = RootClass(self.city, User.objects.latest("id"))
+        self.r1 = StandardLevelResidentialZone.objects.latest("id")
         self.f = Citizen.objects.create(
             city=self.city,
             age=21,
@@ -29,7 +37,7 @@ class TestFindWork(SocialTestHelper):
             surname="",
             sex=FEMALE,
             resident_object=self.r1,
-            edu_title=ELEMENTARY
+            edu_title=ELEMENTARY,
         )
         self.m = Citizen.objects.create(
             city=self.city,
@@ -41,7 +49,7 @@ class TestFindWork(SocialTestHelper):
             surname="",
             sex=MALE,
             resident_object=self.r1,
-            edu_title=ELEMENTARY
+            edu_title=ELEMENTARY,
         )
         self.s = Citizen.objects.create(
             city=self.city,
@@ -53,15 +61,23 @@ class TestFindWork(SocialTestHelper):
             surname="",
             sex=MALE,
             resident_object=self.r1,
-            edu_title=COLLEGE
+            edu_title=COLLEGE,
         )
-        Education.objects.create(citizen=self.f, name=ELEMENTARY, effectiveness=0.5, if_current=False)
-        Education.objects.create(citizen=self.m, name=ELEMENTARY, effectiveness=0.5, if_current=False)
-        Education.objects.create(citizen=self.s, name=ELEMENTARY, effectiveness=0.5, if_current=False)
-        Education.objects.create(citizen=self.s, name=COLLEGE, effectiveness=0.5, if_current=False)
+        Education.objects.create(
+            citizen=self.f, name=ELEMENTARY, effectiveness=0.5, if_current=False
+        )
+        Education.objects.create(
+            citizen=self.m, name=ELEMENTARY, effectiveness=0.5, if_current=False
+        )
+        Education.objects.create(
+            citizen=self.s, name=ELEMENTARY, effectiveness=0.5, if_current=False
+        )
+        Education.objects.create(
+            citizen=self.s, name=COLLEGE, effectiveness=0.5, if_current=False
+        )
 
     def test_for_find_better_job(self):
-        RC = RootClass(self.city, User.objects.latest('id'))
+        RC = RootClass(self.city, User.objects.latest("id"))
         citizen = [x for x in RC.citizens_in_city].pop()
         self.assertEqual(citizen.workplace_object, None)
         CitizenWorkEngine(RC, self.city).human_resources_allocation()
@@ -73,13 +89,16 @@ class TestFindWork(SocialTestHelper):
         self.assertEqual(Profession.objects.filter(if_current=True).count(), 3)
         self.assertNotEqual(citizen.workplace_object, None)
         school = PrimarySchool.objects.create(
-                city=self.city,
-                city_field=CityField.objects.latest('id'),
-                if_under_construction=False
-            )
-        RC = RootClass(self.city, User.objects.latest('id'))
+            city=self.city,
+            city_field=CityField.objects.latest("id"),
+            if_under_construction=False,
+        )
+        RC = RootClass(self.city, User.objects.latest("id"))
         CitizenWorkEngine(RC, self.city).human_resources_allocation()
-        self.assertEqual(RC.list_of_workplaces[cwo].elementary_vacancies, elementary_vacancies_before + 1)
+        self.assertEqual(
+            RC.list_of_workplaces[cwo].elementary_vacancies,
+            elementary_vacancies_before + 1,
+        )
         for c in RC.citizens_in_city:
             c.save()
             [p.save() for p in RC.citizens_in_city[c].professions]
@@ -92,11 +111,11 @@ class TestFindWork(SocialTestHelper):
     def test_with_vehicles(self):
         WindPlant.objects.all().delete()
         WaterTower.objects.all().delete()
-        dg = DumpingGround.objects.latest('id')
+        dg = DumpingGround.objects.latest("id")
         dg.elementary_employee_needed = 0
         dg.save()
-        RC = RootClass(self.city, User.objects.latest('id'))
-        dc = DustCart.objects.latest('id')
+        RC = RootClass(self.city, User.objects.latest("id"))
+        dc = DustCart.objects.latest("id")
         self.assertEqual(dc.employee.all().count(), 0)
         CitizenWorkEngine(RC, self.city).human_resources_allocation()
         self.save_all_ob_from(RC.citizens_in_city)
@@ -106,17 +125,20 @@ class TestFindWork(SocialTestHelper):
     def test_work_engine_for_specific_degree(self):
         school = PrimarySchool.objects.create(
             city=self.city,
-            city_field=CityField.objects.latest('id'),
-            if_under_construction=False
+            city_field=CityField.objects.latest("id"),
+            if_under_construction=False,
         )
         self.assertEqual(school.employee.count(), 0)
         self.assertEqual(Profession.objects.all().count(), 0)
         self.assertEqual(self.s.workplace_object, None)
         self.assertEqual(self.f.workplace_object, None)
         self.assertEqual(self.m.workplace_object, None)
-        RC = RootClass(self.city, User.objects.latest('id'))
+        RC = RootClass(self.city, User.objects.latest("id"))
         self.assertEqual(len(RC.list_of_workplaces[school].all_employees), 0)
-        self.assertEqual(RC.list_of_workplaces[school].college_vacancies, school.college_employee_needed)
+        self.assertEqual(
+            RC.list_of_workplaces[school].college_vacancies,
+            school.college_employee_needed,
+        )
         CitizenWorkEngine(RC, self.city).human_resources_allocation()
         self.save_all_ob_from(RC.citizens_in_city)
         self.s = Citizen.objects.get(id=self.s.id)
@@ -128,23 +150,25 @@ class TestFindWork(SocialTestHelper):
         self.assertEqual(Profession.objects.all().count(), 3)
         self.assertNotEqual(self.m.workplace_object, None)
         self.assertNotEqual(self.f.workplace_object, None)
-        RC = RootClass(self.city, User.objects.latest('id'))
+        RC = RootClass(self.city, User.objects.latest("id"))
         self.assertEqual(len(RC.list_of_workplaces[school].all_employees), 1)
-        self.assertEqual(RC.list_of_workplaces[school].college_vacancies, school.college_employee_needed-1)
+        self.assertEqual(
+            RC.list_of_workplaces[school].college_vacancies,
+            school.college_employee_needed - 1,
+        )
 
     def test_failed_scenario(self):
         self.f.resident_object = None
         self.m.resident_object = None
         self.s.resident_object = None
-        RC = RootClass(self.city, User.objects.latest('id'))
+        RC = RootClass(self.city, User.objects.latest("id"))
         self.save_all_ob_from(RC.citizens_in_city)
         self.assertEqual(self.f.workplace_object, None)
         self.assertEqual(self.m.workplace_object, None)
         self.assertEqual(self.s.workplace_object, None)
-        RC = RootClass(self.city, User.objects.latest('id'))
+        RC = RootClass(self.city, User.objects.latest("id"))
         CitizenWorkEngine(RC, self.city).human_resources_allocation()
         self.save_all_ob_from(RC.citizens_in_city)
         self.assertEqual(self.f.workplace_object, None)
         self.assertEqual(self.m.workplace_object, None)
         self.assertEqual(self.s.workplace_object, None)
-

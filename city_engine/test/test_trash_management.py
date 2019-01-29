@@ -10,18 +10,20 @@ from resources.models import Market
 
 
 class CityStatsTests(test.TestCase):
-    fixtures = ['basic_fixture_resources_and_employees.json']
+    fixtures = ["basic_fixture_resources_and_employees.json"]
 
     def setUp(self):
-        self.city = City.objects.latest('id')
-        self.profile = Profile.objects.latest('id')
+        self.city = City.objects.latest("id")
+        self.profile = Profile.objects.latest("id")
         Market.objects.create(profile=self.profile)
-        TestHelper(self.city, User.objects.latest('id')).populate_city()
-        self.RC = RootClass(self.city, User.objects.latest('id'))
+        TestHelper(self.city, User.objects.latest("id")).populate_city()
+        self.RC = RootClass(self.city, User.objects.latest("id"))
         self.TM = TrashManagement(self.RC)
 
     def test_generate_trash_except_dumping_ground(self):
-        dg = DumpingGround.objects.create(city=self.city, city_field=CityField.objects.get(id=2))
+        dg = DumpingGround.objects.create(
+            city=self.city, city_field=CityField.objects.get(id=2)
+        )
         result = []
         for trash in dg.trash.values():
             result.append(trash)
@@ -41,12 +43,12 @@ class CityStatsTests(test.TestCase):
     def test_update_time(self):
         self.TM.generate_trash()
         for building in self.RC.list_of_buildings:
-            for trash in building.trash.values('time'):
-                self.assertEqual(trash['time'], 0)
+            for trash in building.trash.values("time"):
+                self.assertEqual(trash["time"], 0)
         self.TM.update_trash_time()
         for building in self.RC.list_of_buildings:
-            for trash in building.trash.values('time'):
-                self.assertEqual(trash['time'], 1)
+            for trash in building.trash.values("time"):
+                self.assertEqual(trash["time"], 1)
 
     def test_trash_delete(self):
         self.TM.generate_trash()

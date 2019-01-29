@@ -10,17 +10,21 @@ from .legacy.base import BaseTestOfficial
 
 
 class MassCollectorTest(BaseTestOfficial):
-    fixtures = ['basic_basic_fixture.json']
+    fixtures = ["basic_basic_fixture.json"]
 
     def test_mass_collector(self):
-        MassConventer.objects.create(city=self.city, city_field=CityField.objects.latest('id'), if_under_construction=False)
+        MassConventer.objects.create(
+            city=self.city,
+            city_field=CityField.objects.latest("id"),
+            if_under_construction=False,
+        )
         homepage = Homepage(self.browser, self.live_server_url)
-        homepage.navigate('/main/')
-        self.assertIn('Login', self.browser.title)
+        homepage.navigate("/main/")
+        self.assertIn("Login", self.browser.title)
         login_page = LoginPage(self.browser, self.live_server_url)
         login_page.login(username=self.user.username, password="Zapomnij#123")
-        self.assertTrue(User.objects.latest('id').is_authenticated)
-        self.assertIn('Miasto {}'.format(self.city.name), self.browser.title)
+        self.assertTrue(User.objects.latest("id").is_authenticated)
+        self.assertIn("Miasto {}".format(self.city.name), self.browser.title)
         main_view = MainView(self.browser, self.live_server_url)
         self.assertEqual(MassConventer.objects.all().count(), 1)
         rc = RootClass(self.city, self.user)
@@ -37,7 +41,7 @@ class MassCollectorTest(BaseTestOfficial):
             x.save()
         main_view.next_turns(3)
 
-        mc = MassConventer.objects.latest('id')
+        mc = MassConventer.objects.latest("id")
         self.assertEqual(mc.employee.all().count(), mc.elementary_employee_needed)
         self.assertEqual(Mass.objects.count(), 3)
         rc = RootClass(self.city, self.user)

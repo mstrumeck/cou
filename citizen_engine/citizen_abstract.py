@@ -7,10 +7,12 @@ class CitizenAbstract:
         self.profile = profile
         self.citizens_in_city = city_data.citizens_in_city
         self.families = city_data.families
-        self.mature_males = [p for p in self.citizens_in_city
-                             if p.sex == MALE and p.age > 17]
-        self.mature_females = [p for p in self.citizens_in_city
-                               if p.sex == FEMALE and p.age > 17]
+        self.mature_males = [
+            p for p in self.citizens_in_city if p.sex == MALE and p.age > 17
+        ]
+        self.mature_females = [
+            p for p in self.citizens_in_city if p.sex == FEMALE and p.age > 17
+        ]
         self.matures = [p for p in self.citizens_in_city if p.age > 17]
         self.chance_to_marriage = self.chance_to_marriage_calc()
         self.chance_to_born = self.chance_to_born_baby_calc()

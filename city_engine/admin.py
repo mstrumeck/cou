@@ -3,19 +3,24 @@ from .models import City, Residential, ProductionBuilding, CityField, PowerPlant
 
 
 class CityAdmin(admin.ModelAdmin):
-    list_display = ['name', 'user', 'publish', 'updated']
-    list_filter = ['publish', 'updated']
-    ordering = ['publish']
-    date_hierarchy = 'publish'
+    list_display = ["name", "user", "publish", "updated"]
+    list_filter = ["publish", "updated"]
+    ordering = ["publish"]
+    date_hierarchy = "publish"
+
+
 admin.site.register(City, CityAdmin)
 
 
 class ProductionAdmin(admin.ModelAdmin):
-    list_display = ['city_field']
+    list_display = ["city_field"]
+
+
 admin.site.register(ProductionBuilding, ProductionAdmin)
 
 
 class CityFieldAdmin(admin.ModelAdmin):
-    list_display = ['city', 'city_id']
-admin.site.register(CityField, CityFieldAdmin)
+    list_display = ["city", "city_id"]
 
+
+admin.site.register(CityField, CityFieldAdmin)

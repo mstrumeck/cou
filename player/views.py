@@ -19,24 +19,25 @@ from .models import Profile
 
 
 def main_page(request):
-    return render(request, 'registration/main_page.html')
+    return render(request, "registration/main_page.html")
 
 
 def signup(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         user_creation_form = UserCreationForm(request.POST)
         city_creation_form = CityCreationForm(request.POST)
         if user_creation_form.is_valid() and city_creation_form.is_valid():
             user_creation_form.save()
-            username = user_creation_form.cleaned_data.get('username')
-            raw_password = user_creation_form.cleaned_data.get('password1')
+            username = user_creation_form.cleaned_data.get("username")
+            raw_password = user_creation_form.cleaned_data.get("password1")
             user = authenticate(username=username, password=raw_password)
             login(request, user)
-            city_name = city_creation_form.cleaned_data.get('name')
+            city_name = city_creation_form.cleaned_data.get("name")
             new_city = City.objects.create(user_id=request.user.id, name=city_name)
             assign_city_fields_to_board(new_city)
             for x in range(30):
                 import names
+
                 sex = choice(Citizen.SEX)[0]
                 surname = names.get_last_name()
                 f = Family.objects.create(surname=surname, city=new_city)
@@ -50,14 +51,17 @@ def signup(request):
                     sex=sex,
                     family=f,
                     cash=500,
-                    edu_title=ELEMENTARY
+                    edu_title=ELEMENTARY,
                 )
                 Education.objects.create(citizen=c, name=ELEMENTARY, effectiveness=0.50)
 
             import random
-            s = StandardLevelResidentialZone.objects.create(city=new_city,
-                                                            if_under_construction=False,
-                                                            city_field=random.choice(list(CityField.objects.filter(city=new_city))))
+
+            s = StandardLevelResidentialZone.objects.create(
+                city=new_city,
+                if_under_construction=False,
+                city_field=random.choice(list(CityField.objects.filter(city=new_city))),
+            )
             s.self__init(50)
             s.save()
             new_city.save()
@@ -67,12 +71,19 @@ def signup(request):
             p.save()
             Market.objects.create(profile=p)
 
-            return redirect('/main/')
+            return redirect("/main/")
     else:
         user_creation_form = UserCreationForm()
         city_creation_form = CityCreationForm()
-    return render(request, 'registration/signup.html', {'user_creation_form': user_creation_form,
-                                                        'city_creation_form': city_creation_form})
+    return render(
+        request,
+        "registration/signup.html",
+        {
+            "user_creation_form": user_creation_form,
+            "city_creation_form": city_creation_form,
+        },
+    )
+
 
 # def signup(request):
 #     if request.method == 'POST':
@@ -97,14 +108,14 @@ def signup(request):
 
 
 def account_activation_sent(request):
-    return render_to_string(request, 'account_activation_email.html')
+    return render_to_string(request, "account_activation_email.html")
 
 
 def activate(request, uidb64, token):
     try:
         uid = force_text(urlsafe_base64_encode(uidb64))
         user = User.objects.get(pk=uid)
-    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
 
     if user is not None and account_activation_token.check_token(user, token):
@@ -112,6 +123,6 @@ def activate(request, uidb64, token):
         user.profile.email_confirmed = True
         user.save()
         login(request, user)
-        return redirect('home')
+        return redirect("home")
     else:
-        return render(request, 'account_activation_email.html')
+        return render(request, "account_activation_email.html")

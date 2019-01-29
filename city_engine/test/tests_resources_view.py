@@ -5,12 +5,11 @@ from .base import CityFixture
 
 
 class CityViewTests(CityFixture):
-
     def test_call_view_loads(self):
-        response = self.client.get('/main/resources/')
+        response = self.client.get("/main/resources/")
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'resources_view.html')
+        self.assertTemplateUsed(response, "resources_view.html")
 
     def test_resources_url(self):
-        view = resolve('/main/resources/')
+        view = resolve("/main/resources/")
         self.assertEquals(view.func, resources_view)

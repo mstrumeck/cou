@@ -11,14 +11,16 @@ from cou.abstract import RootClass
 
 
 class TrashCollectorTest(BaseTest):
-    fixtures = ['basic_fixture_resources_and_employees.json']
+    fixtures = ["basic_fixture_resources_and_employees.json"]
 
     def setUp(self):
         self.browser = webdriver.Chrome()
-        self.city = City.objects.latest('id')
-        self.user = User.objects.latest('id')
-        self.profile = Profile.objects.latest('id')
-        self.td = TradeDistrict.objects.create(city=self.city, city_field=CityField.objects.latest('id'))
+        self.city = City.objects.latest("id")
+        self.user = User.objects.latest("id")
+        self.profile = Profile.objects.latest("id")
+        self.td = TradeDistrict.objects.create(
+            city=self.city, city_field=CityField.objects.latest("id")
+        )
         self.fc = FoodCompany.objects.create(cash=1000000, trade_district=self.td)
         self.market = Market.objects.create(profile=self.profile)
         Mass.objects.create(size=60, quality=20, market=self.market, price=1.5)
@@ -26,12 +28,12 @@ class TrashCollectorTest(BaseTest):
     def test_trade_district(self):
         TestHelper(city=self.city, user=self.user).populate_city()
         homepage = Homepage(self.browser, self.live_server_url)
-        homepage.navigate('/main/')
-        self.assertIn('Login', self.browser.title)
+        homepage.navigate("/main/")
+        self.assertIn("Login", self.browser.title)
         login_page = LoginPage(self.browser, self.live_server_url)
         login_page.login(username=self.user.username, password="Zapomnij#123")
-        self.assertTrue(User.objects.latest('id').is_authenticated)
-        self.assertIn('Miasto {}'.format(self.city.name), self.browser.title)
+        self.assertTrue(User.objects.latest("id").is_authenticated)
+        self.assertIn("Miasto {}".format(self.city.name), self.browser.title)
         main_view = MainView(self.browser, self.live_server_url)
         rc = RootClass(self.city, self.user)
         self.assertEqual(Mass.objects.count(), 1)

@@ -2,8 +2,13 @@ from django import test
 from django.contrib.auth.models import User
 
 from citizen_engine.models import Citizen
-from city_engine.main_view_data.city_stats import CityStatsCenter, CityEnergyStats, CityRawWaterStats, \
-    CityBuildingStats, CityPopulationStats
+from city_engine.main_view_data.city_stats import (
+    CityStatsCenter,
+    CityEnergyStats,
+    CityRawWaterStats,
+    CityBuildingStats,
+    CityPopulationStats,
+)
 from city_engine.models import City
 from cou.abstract import RootClass
 from player.models import Profile
@@ -12,14 +17,14 @@ from .base import TestHelper
 
 
 class CityStatsTests(test.TestCase, TestHelper):
-    fixtures = ['basic_fixture_resources_and_employees.json']
+    fixtures = ["basic_fixture_resources_and_employees.json"]
 
     def setUp(self):
-        self.city = City.objects.latest('id')
-        self.profile = Profile.objects.latest('id')
+        self.city = City.objects.latest("id")
+        self.profile = Profile.objects.latest("id")
         Market.objects.create(profile=self.profile)
-        TestHelper(self.city, User.objects.latest('id')).populate_city()
-        self.RC = RootClass(self.city, User.objects.latest('id'))
+        TestHelper(self.city, User.objects.latest("id")).populate_city()
+        self.RC = RootClass(self.city, User.objects.latest("id"))
 
     def test_city_stats_center_methods(self):
         city_stats = CityStatsCenter(city=self.city, data=self.RC)
@@ -34,35 +39,63 @@ class CityStatsTests(test.TestCase, TestHelper):
         self.assertEqual(city_stats.building_under_construction, [])
 
     def test_energy_total_production(self):
-        self.assertEqual(CityEnergyStats(self.city, self.RC).calculate_energy_production_in_city(), 14)
+        self.assertEqual(
+            CityEnergyStats(self.city, self.RC).calculate_energy_production_in_city(),
+            14,
+        )
 
     def test_calculate_energy_allocation_in_city(self):
-        self.assertEqual(CityEnergyStats(self.city, self.RC).calculate_energy_allocation_in_city(), 0)
+        self.assertEqual(
+            CityEnergyStats(self.city, self.RC).calculate_energy_allocation_in_city(), 0
+        )
 
     def test_calculate_energy_usage_in_city(self):
-        self.assertEqual(CityEnergyStats(self.city, self.RC).calculate_energy_usage_in_city(), 7)
+        self.assertEqual(
+            CityEnergyStats(self.city, self.RC).calculate_energy_usage_in_city(), 7
+        )
 
     def test_calculate_water_production_in_city(self):
-        self.assertEqual(CityRawWaterStats(self.city, self.RC).calculate_raw_water_production_in_city(), 20)
+        self.assertEqual(
+            CityRawWaterStats(
+                self.city, self.RC
+            ).calculate_raw_water_production_in_city(),
+            20,
+        )
 
     def test_calculate_water_usage_in_city(self):
-        self.assertEqual(CityRawWaterStats(self.city, self.RC).calculate_raw_water_usage_in_city(), 0)
+        self.assertEqual(
+            CityRawWaterStats(self.city, self.RC).calculate_raw_water_usage_in_city(), 0
+        )
 
     def test_calculate_water_allocation_in_city(self):
-        self.assertEqual(CityRawWaterStats(self.city, self.RC).calculate_raw_water_allocation_in_city(), 0)
+        self.assertEqual(
+            CityRawWaterStats(
+                self.city, self.RC
+            ).calculate_raw_water_allocation_in_city(),
+            0,
+        )
 
     def test_list_of_building_under_construction(self):
-        self.assertEqual(CityBuildingStats(self.city, self.RC).list_of_buildings_under_construction(), [])
+        self.assertEqual(
+            CityBuildingStats(
+                self.city, self.RC
+            ).list_of_buildings_under_construction(),
+            [],
+        )
 
     # def test_list_of_buildings(self):
     #     self.assertEqual(CityBuildingStats(self.city, self.RC).list_of_buildings(),
     #     ['Budynek Mieszkalny', 'Elektrownia wiatrowa', 'Wieża ciśnień', 'Wieża ciśnień', 'Elektrownia wiatrowa'])
 
     def test_calculate_max_population(self):
-        self.assertEqual(CityPopulationStats(self.city, self.RC).calculate_max_population(), 30)
+        self.assertEqual(
+            CityPopulationStats(self.city, self.RC).calculate_max_population(), 30
+        )
 
     def test_home_ares_demand(self):
-        needed, total = map(int, CityBuildingStats(self.city, self.RC).home_areas_demand().split("/"))
+        needed, total = map(
+            int, CityBuildingStats(self.city, self.RC).home_areas_demand().split("/")
+        )
         self.assertEqual(needed, 0)
         self.assertEqual(total, Citizen.objects.all().count())
 
@@ -86,6 +119,3 @@ class CityStatsTests(test.TestCase, TestHelper):
     # def test_trade_areas_demand(self):
     #     print(CityBuildingStats(self.city, self.RC).trade_areas_demand())
     #     print(Residential.objects.values())
-
-
-

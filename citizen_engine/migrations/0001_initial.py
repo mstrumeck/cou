@@ -10,58 +10,148 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Citizen',
+            name="Citizen",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=15)),
-                ('surname', models.CharField(max_length=15)),
-                ('age', models.IntegerField()),
-                ('month_of_birth', models.IntegerField()),
-                ('sex', models.CharField(choices=[('Ml', 'Male'), ('Fl', 'Female')], max_length=5)),
-                ('edu_title', models.CharField(choices=[('EL', 'Elementary'), ('COL', 'College'), ('PhD', 'PhD')], default='None', max_length=10)),
-                ('cash', models.DecimalField(decimal_places=2, default=0.0, max_digits=10)),
-                ('health', models.IntegerField()),
-                ('partner_id', models.PositiveIntegerField(default=0)),
-                ('father_id', models.PositiveIntegerField(default=0)),
-                ('mother_id', models.PositiveIntegerField(default=0)),
-                ('workplace_object_id', models.PositiveIntegerField(null=True)),
-                ('resident_object_id', models.PositiveIntegerField(null=True)),
-                ('school_object_id', models.PositiveIntegerField(null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=15)),
+                ("surname", models.CharField(max_length=15)),
+                ("age", models.IntegerField()),
+                ("month_of_birth", models.IntegerField()),
+                (
+                    "sex",
+                    models.CharField(
+                        choices=[("Ml", "Male"), ("Fl", "Female")], max_length=5
+                    ),
+                ),
+                (
+                    "edu_title",
+                    models.CharField(
+                        choices=[
+                            ("EL", "Elementary"),
+                            ("COL", "College"),
+                            ("PhD", "PhD"),
+                        ],
+                        default="None",
+                        max_length=10,
+                    ),
+                ),
+                (
+                    "cash",
+                    models.DecimalField(decimal_places=2, default=0.0, max_digits=10),
+                ),
+                ("health", models.IntegerField()),
+                ("partner_id", models.PositiveIntegerField(default=0)),
+                ("father_id", models.PositiveIntegerField(default=0)),
+                ("mother_id", models.PositiveIntegerField(default=0)),
+                ("workplace_object_id", models.PositiveIntegerField(null=True)),
+                ("resident_object_id", models.PositiveIntegerField(null=True)),
+                ("school_object_id", models.PositiveIntegerField(null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Education',
+            name="Education",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(choices=[('EL', 'Elementary'), ('COL', 'College'), ('PhD', 'PhD')], max_length=15)),
-                ('effectiveness', models.FloatField(default=0.0)),
-                ('if_current', models.BooleanField(default=True)),
-                ('cur_year_of_learning', models.PositiveIntegerField(default=0)),
-                ('max_year_of_learning', models.PositiveIntegerField(default=0)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        choices=[
+                            ("EL", "Elementary"),
+                            ("COL", "College"),
+                            ("PhD", "PhD"),
+                        ],
+                        max_length=15,
+                    ),
+                ),
+                ("effectiveness", models.FloatField(default=0.0)),
+                ("if_current", models.BooleanField(default=True)),
+                ("cur_year_of_learning", models.PositiveIntegerField(default=0)),
+                ("max_year_of_learning", models.PositiveIntegerField(default=0)),
             ],
         ),
         migrations.CreateModel(
-            name='Family',
+            name="Family",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('surname', models.CharField(default='', max_length=30)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("surname", models.CharField(default="", max_length=30)),
             ],
         ),
         migrations.CreateModel(
-            name='Profession',
+            name="Profession",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(default='', max_length=30)),
-                ('job_grade', models.CharField(choices=[('Tr', 'Trainee'), ('Jr', 'Junior'), ('Rg', 'Regular'), ('Pr', 'Professional'), ('Ms', 'Master')], default='Tr', max_length=15)),
-                ('education', models.CharField(choices=[('EL', 'Elementary'), ('COL', 'College'), ('PhD', 'PhD')], default='None', max_length=10)),
-                ('proficiency', models.FloatField(default=0)),
-                ('if_current', models.BooleanField(default=True)),
-                ('citizen', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='citizen_engine.Citizen')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(default="", max_length=30)),
+                (
+                    "job_grade",
+                    models.CharField(
+                        choices=[
+                            ("Tr", "Trainee"),
+                            ("Jr", "Junior"),
+                            ("Rg", "Regular"),
+                            ("Pr", "Professional"),
+                            ("Ms", "Master"),
+                        ],
+                        default="Tr",
+                        max_length=15,
+                    ),
+                ),
+                (
+                    "education",
+                    models.CharField(
+                        choices=[
+                            ("EL", "Elementary"),
+                            ("COL", "College"),
+                            ("PhD", "PhD"),
+                        ],
+                        default="None",
+                        max_length=10,
+                    ),
+                ),
+                ("proficiency", models.FloatField(default=0)),
+                ("if_current", models.BooleanField(default=True)),
+                (
+                    "citizen",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="citizen_engine.Citizen",
+                    ),
+                ),
             ],
         ),
     ]

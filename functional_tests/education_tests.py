@@ -3,7 +3,12 @@ from django.test import override_settings
 from selenium import webdriver
 
 from citizen_engine.models import Citizen, Education
-from city_engine.models import City, StandardLevelResidentialZone, CityField, PrimarySchool
+from city_engine.models import (
+    City,
+    StandardLevelResidentialZone,
+    CityField,
+    PrimarySchool,
+)
 from cou.abstract import RootClass
 from cou.global_var import FEMALE, ELEMENTARY
 from functional_tests.page_objects import MainView, LoginPage, Homepage
@@ -14,16 +19,16 @@ from .legacy.base import BaseTest
 
 @override_settings(DEBUG=True)
 class CitizenBasicTests(BaseTest):
-    fixtures = ['basic_fixture_resources_and_employees.json']
+    fixtures = ["basic_fixture_resources_and_employees.json"]
 
     def setUp(self):
         self.browser = webdriver.Chrome()
-        self.city = City.objects.latest('id')
-        self.user = User.objects.latest('id')
+        self.city = City.objects.latest("id")
+        self.user = User.objects.latest("id")
         self.browser.implicitly_wait(3)
-        self.profile = Profile.objects.latest('id')
+        self.profile = Profile.objects.latest("id")
         self.market = Market.objects.create(profile=self.profile)
-        self.r1 = StandardLevelResidentialZone.objects.latest('id')
+        self.r1 = StandardLevelResidentialZone.objects.latest("id")
         self.f = Citizen.objects.create(
             city=self.city,
             age=8,
@@ -36,20 +41,19 @@ class CitizenBasicTests(BaseTest):
             resident_object=self.r1,
         )
         self.school = PrimarySchool.objects.create(
-            city=self.city,
-            city_field=CityField.objects.latest('id')
+            city=self.city, city_field=CityField.objects.latest("id")
         )
         self.profile.if_social_enabled = True
         self.profile.save()
 
     def test_school_assign(self):
         homepage = Homepage(self.browser, self.live_server_url)
-        homepage.navigate('/main/')
-        self.assertIn('Login', self.browser.title)
+        homepage.navigate("/main/")
+        self.assertIn("Login", self.browser.title)
         login_page = LoginPage(self.browser, self.live_server_url)
         login_page.login(username=self.user.username, password="Zapomnij#123")
-        self.assertTrue(User.objects.latest('id').is_authenticated)
-        self.assertIn('Miasto {}'.format(self.city.name), self.browser.title)
+        self.assertTrue(User.objects.latest("id").is_authenticated)
+        self.assertIn("Miasto {}".format(self.city.name), self.browser.title)
         s = Citizen.objects.create(
             city=self.city,
             age=8,
@@ -59,10 +63,12 @@ class CitizenBasicTests(BaseTest):
             name="0",
             surname="2",
             sex=FEMALE,
-            education='None',
-            resident_object=self.r1
+            education="None",
+            resident_object=self.r1,
         )
-        e2 = Education.objects.create(cur_year_of_learning=4, max_year_of_learning=8, citizen=s, name=ELEMENTARY)
+        e2 = Education.objects.create(
+            cur_year_of_learning=4, max_year_of_learning=8, citizen=s, name=ELEMENTARY
+        )
         main_view = MainView(self.browser, self.live_server_url)
         self.profile.current_turn = 6
         self.profile.save()
@@ -98,14 +104,19 @@ class CitizenBasicTests(BaseTest):
 
     def test_school_update_year(self):
         homepage = Homepage(self.browser, self.live_server_url)
-        homepage.navigate('/main/')
-        self.assertIn('Login', self.browser.title)
+        homepage.navigate("/main/")
+        self.assertIn("Login", self.browser.title)
         login_page = LoginPage(self.browser, self.live_server_url)
         login_page.login(username=self.user.username, password="Zapomnij#123")
-        self.assertTrue(User.objects.latest('id').is_authenticated)
-        self.assertIn('Miasto {}'.format(self.city.name), self.browser.title)
+        self.assertTrue(User.objects.latest("id").is_authenticated)
+        self.assertIn("Miasto {}".format(self.city.name), self.browser.title)
         main_view = MainView(self.browser, self.live_server_url)
-        e = Education.objects.create(cur_year_of_learning=0, max_year_of_learning=8, citizen=self.f, name=ELEMENTARY)
+        e = Education.objects.create(
+            cur_year_of_learning=0,
+            max_year_of_learning=8,
+            citizen=self.f,
+            name=ELEMENTARY,
+        )
         self.f.school_object = self.school
         self.f.save()
         self.profile.current_turn = 6
@@ -123,14 +134,19 @@ class CitizenBasicTests(BaseTest):
 
     def test_student_graduation(self):
         homepage = Homepage(self.browser, self.live_server_url)
-        homepage.navigate('/main/')
-        self.assertIn('Login', self.browser.title)
+        homepage.navigate("/main/")
+        self.assertIn("Login", self.browser.title)
         login_page = LoginPage(self.browser, self.live_server_url)
         login_page.login(username=self.user.username, password="Zapomnij#123")
-        self.assertTrue(User.objects.latest('id').is_authenticated)
-        self.assertIn('Miasto {}'.format(self.city.name), self.browser.title)
+        self.assertTrue(User.objects.latest("id").is_authenticated)
+        self.assertIn("Miasto {}".format(self.city.name), self.browser.title)
         main_view = MainView(self.browser, self.live_server_url)
-        e = Education.objects.create(cur_year_of_learning=7, max_year_of_learning=8, citizen=self.f, name=ELEMENTARY)
+        e = Education.objects.create(
+            cur_year_of_learning=7,
+            max_year_of_learning=8,
+            citizen=self.f,
+            name=ELEMENTARY,
+        )
         self.f.school_object = self.school
         self.f.save()
         self.profile.current_turn = 6

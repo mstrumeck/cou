@@ -12,14 +12,16 @@ from .models import FoodCompany, Food
 
 
 class CompanyTest(TestCase):
-    fixtures = ['basic_fixture_resources_and_employees.json']
+    fixtures = ["basic_fixture_resources_and_employees.json"]
 
     def setUp(self):
-        self.city = City.objects.latest('id')
-        self.profile = Profile.objects.latest('id')
+        self.city = City.objects.latest("id")
+        self.profile = Profile.objects.latest("id")
         self.market = Market.objects.create(profile=self.profile)
-        self.user = User.objects.latest('id')
-        self.td = TradeDistrict.objects.create(city=self.city, city_field=CityField.objects.latest('id'))
+        self.user = User.objects.latest("id")
+        self.td = TradeDistrict.objects.create(
+            city=self.city, city_field=CityField.objects.latest("id")
+        )
         self.fc = FoodCompany.objects.create(cash=10, trade_district=self.td)
         TestHelper(city=self.city, user=self.user).populate_city()
 
@@ -42,7 +44,9 @@ class CompanyTest(TestCase):
         self.assertEqual(company_in_container.energy_required, 20)
 
     def test_buy_mass_with_rest(self):
-        mass_on_market = Mass.objects.create(size=20, quality=20, market=self.market, price=1.5)
+        mass_on_market = Mass.objects.create(
+            size=20, quality=20, market=self.market, price=1.5
+        )
         materials = []
         rc = RootClass(city=self.city, user=self.user)
         self.assertEqual(mass_on_market.size, 20)
@@ -65,7 +69,9 @@ class CompanyTest(TestCase):
             self.assertEqual(mass.quality, 20)
 
     def test_buy_mass_none_left(self):
-        mass_on_market = Mass.objects.create(size=5, quality=20, market=self.market, price=1.5)
+        mass_on_market = Mass.objects.create(
+            size=5, quality=20, market=self.market, price=1.5
+        )
         materials = []
         rc = RootClass(city=self.city, user=self.user)
         self.assertEqual(mass_on_market.size, 5)
@@ -86,7 +92,9 @@ class CompanyTest(TestCase):
             self.assertEqual(mass.quality, 20)
 
     def test_buy_with_not_many_money(self):
-        mass_on_market = Mass.objects.create(size=10, quality=20, market=self.market, price=1.5)
+        mass_on_market = Mass.objects.create(
+            size=10, quality=20, market=self.market, price=1.5
+        )
         self.fc.cash = 5
         self.fc.save()
         materials = []
@@ -115,7 +123,9 @@ class CompanyTest(TestCase):
         company_in_container.energy = 10
 
     def test_goods_from_components(self):
-        mass_on_market = Mass.objects.create(size=20, quality=20, market=self.market, price=1.5)
+        mass_on_market = Mass.objects.create(
+            size=20, quality=20, market=self.market, price=1.5
+        )
         materials = [mass_on_market]
         rc = RootClass(city=self.city, user=self.user)
         self.set_resources_for_company(self.fc, rc)
@@ -128,7 +138,7 @@ class CompanyTest(TestCase):
         rc.market.save_all()
         rc.list_of_workplaces[self.fc].save_all()
         self.assertEqual(Food.objects.all().count(), 1)
-        food = Food.objects.latest('id')
+        food = Food.objects.latest("id")
         self.assertEqual(food.size, 20)
         self.assertEqual(food.quality, 7)
         self.assertEqual(food.company, self.fc)
@@ -151,7 +161,7 @@ class CompanyTest(TestCase):
         self.assertEqual(mass.quality, 20)
         self.assertEqual(mass.market, self.market)
         self.assertEqual(Food.objects.all().count(), 1)
-        food = Food.objects.latest('id')
+        food = Food.objects.latest("id")
         self.assertEqual(food.size, 6)
         self.assertEqual(food.quality, 7)
         self.assertEqual(food.company, self.fc)
@@ -172,18 +182,18 @@ class CompanyTest(TestCase):
         rc = RootClass(city=self.city, user=self.user)
         self.assertEqual(rc.market.resources.get(Mass), None)
         self.assertEqual(Food.objects.all().count(), 1)
-        food = Food.objects.latest('id')
+        food = Food.objects.latest("id")
         self.assertEqual(food.size, 20)
         self.assertEqual(food.quality, 7)
         self.assertEqual(food.company, self.fc)
 
     def test_create_data_for_trade_district(self):
         rc = RootClass(city=self.city, user=self.user)
-        b = BuildingDataContainer(instance=self.td,
-                                  citizens=Citizen.objects.filter(city=self.city),
-                                  profile=self.profile,
-                                  citizens_data=rc.citizens_in_city,
-                                  vehicles=rc.vehicles)
+        b = BuildingDataContainer(
+            instance=self.td,
+            citizens=Citizen.objects.filter(city=self.city),
+            profile=self.profile,
+            citizens_data=rc.citizens_in_city,
+            vehicles=rc.vehicles,
+        )
         self.assertEqual(b.people_in_charge, 5)
-
-
