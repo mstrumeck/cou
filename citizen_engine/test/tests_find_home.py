@@ -1,14 +1,14 @@
 from django.contrib.auth.models import User
-from django.test import TestCase
-from city_engine.models import StandardLevelResidentialZone, City
+
 from citizen_engine.models import Citizen
-from cou.abstract import RootClass
 from citizen_engine.social_actions import SocialAction
-from player.models import Profile
-from cou.global_var import FEMALE, MALE
-from .base import SocialTestHelper
+from city_engine.models import StandardLevelResidentialZone, City
 from city_engine.turn_data.main import TurnCalculation
+from cou.abstract import RootClass
+from cou.global_var import FEMALE, MALE
+from player.models import Profile
 from resources.models import Market
+from .base import SocialTestHelper
 
 
 class TestFindPlaceToLive(SocialTestHelper):

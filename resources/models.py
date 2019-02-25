@@ -65,10 +65,9 @@ class MassConventer(BuldingsWithWorkes):
     elementary_employee_needed = models.PositiveIntegerField(default=5)
 
     def product_mass(self, data):
+        container = data.list_of_workplaces[self]
         size_total = int(
-            self.mass_production_rate
-            * self.productivity(data.list_of_workplaces, data.citizens_in_city)
-        )
+            self.mass_production_rate * container.productivity)
         size = size_total if size_total > 1 else 1
         quality = self._get_quality(data.list_of_workplaces, data.citizens_in_city)
         price = self.calculate_price_of_good(
@@ -98,15 +97,14 @@ class CattleFarm(AnimalFarm):
         return ((cat.size / self.pastures) ** -0.3) * 2
 
     def _accumulate_breeding(self, data, cattle):
-        self.accumulate_breding += self.cattle_breeding_rate * self.productivity(
-            data.list_of_workplaces, data.citizens_in_city
-        )
+        container = data.list_of_workplaces[self]
+        self.accumulate_breding += self.cattle_breeding_rate * container.productivity
         if len(data.list_of_workplaces[self].all_employees) >= 1:
             cattle.resource_production(
                 self.pastures,
                 data,
                 data.list_of_workplaces[self].workers_costs,
-                self.productivity(data.list_of_workplaces, data.citizens_in_city),
+                container.productivity,
             )
 
     def _release_accumulate_breeding(self, cattle, release_breeding):
@@ -122,12 +120,12 @@ class CattleFarm(AnimalFarm):
         )
 
     def farm_operation(self, data):
-        if data.list_of_workplaces[self].cattle:
-            cattle = data.list_of_workplaces[self].cattle
-            self._accumulate_breeding(data, cattle)
-            release_breeding = self._get_accumulate_breeding_rate_to_release(cattle)
+        container = data.list_of_workplaces[self]
+        if container.cattle:
+            self._accumulate_breeding(data, container.cattle)
+            release_breeding = self._get_accumulate_breeding_rate_to_release(container.cattle)
             if release_breeding >= 1:
-                self._release_accumulate_breeding(cattle, release_breeding)
+                self._release_accumulate_breeding(container.cattle, release_breeding)
 
 
 class Cattle(Resource):

@@ -5,10 +5,11 @@ from citizen_engine.models import Citizen
 from city_engine.models import TradeDistrict, City, CityField
 from city_engine.test.base import TestHelper
 from cou.abstract import RootClass
-from cou.data_containers import BuildingDataContainer
+from cou.data_containers.data_containers import BuildingDataContainer
 from player.models import Profile
 from resources.models import Market, Mass
 from .models import FoodCompany, Food
+from cou.data_containers.buildings_semafor import BuildingSemafor
 
 
 class CompanyTest(TestCase):
@@ -195,5 +196,6 @@ class CompanyTest(TestCase):
             profile=self.profile,
             citizens_data=rc.citizens_in_city,
             vehicles=rc.vehicles,
+            semafor=BuildingSemafor()
         )
         self.assertEqual(b.people_in_charge, 5)

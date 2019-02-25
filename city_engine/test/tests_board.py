@@ -95,14 +95,14 @@ class HexDetailTests(test.TestCase):
         dg = DumpingGround.objects.latest("id")
         self.assertEqual(
             HexDetail(self.city, self.RC).add_trashcollector_details(dg),
-            "<p>Energia: 0/1</p><p>Wysypisko: 0/10000</p><p>Lista śmieciarek:</p><p>Śmieciarka: załoga 0/3</p>",
+            "<p>Energia: 0/10</p><p>Wysypisko: 0/10000</p><p>Lista śmieciarek:</p><p>Śmieciarka: załoga 0/3</p>",
         )
 
     def test_electricity_hex_box_detail(self):
         wp = WindPlant.objects.latest("id")
         self.assertEqual(
             HexDetail(self.city, self.RC).add_electricity_details(wp),
-            '<p name="detailEnergy">Produkowana energia: 0</p><p>Zalokowana energia: 0</p><p>Liczba reaktorów: 1/10</p><p>Śmieci: None</p>',
+            '<p name="detailEnergy">Produkowana energia: 0</p><p>Zalokowana energia: 0</p><p>Liczba reaktorów: 2/10</p><p>Śmieci: None</p>',
         )
 
     def test_waterplant_hex_box_detail(self):

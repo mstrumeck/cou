@@ -58,9 +58,7 @@ class CityEnergyStats:
     def calculate_energy_production_in_city(self):
         return sum(
             [
-                b.total_production(
-                    self.data.list_of_buildings, self.data.citizens_in_city
-                )
+                self.data.list_of_buildings[b].total_production
                 for b in self.data.list_of_buildings
                 if isinstance(b, PowerPlant)
             ]
@@ -69,14 +67,14 @@ class CityEnergyStats:
     def calculate_energy_allocation_in_city(self):
         return sum(
             [
-                b.energy_allocated
+                self.data.list_of_buildings[b].energy_allocated
                 for b in self.data.list_of_buildings
                 if isinstance(b, PowerPlant)
             ]
         )
 
     def calculate_energy_usage_in_city(self):
-        return sum([b.energy_required for b in self.data.list_of_buildings])
+        return sum([self.data.list_of_buildings[b].energy_required for b in self.data.list_of_buildings])
 
 
 class CityRawWaterStats:
@@ -93,9 +91,7 @@ class CityRawWaterStats:
     def calculate_raw_water_production_in_city(self):
         return sum(
             [
-                b.total_production(
-                    self.data.list_of_buildings, self.data.citizens_in_city
-                )
+                self.data.list_of_buildings[b].total_production
                 for b in self.data.list_of_buildings
                 if isinstance(b, Waterworks)
             ]
@@ -104,7 +100,7 @@ class CityRawWaterStats:
     def calculate_raw_water_usage_in_city(self):
         return sum(
             [
-                b.raw_water
+                self.data.list_of_buildings[b].raw_water
                 for b in self.data.list_of_buildings
                 if isinstance(b, SewageWorks)
             ]
@@ -113,7 +109,7 @@ class CityRawWaterStats:
     def calculate_raw_water_allocation_in_city(self):
         return sum(
             [
-                b.raw_water_allocated
+                self.data.list_of_buildings[b].raw_water_allocated
                 for b in self.data.list_of_buildings
                 if isinstance(b, Waterworks)
             ]
@@ -128,9 +124,7 @@ class CityCleanWaterStats:
     def calculate_clean_water_production_in_city(self):
         return sum(
             [
-                b.total_production(
-                    self.data.list_of_buildings, self.data.citizens_in_city
-                )
+                self.data.list_of_buildings[b].total_production
                 for b in self.data.list_of_buildings
                 if isinstance(b, SewageWorks)
             ]
@@ -142,7 +136,7 @@ class CityCleanWaterStats:
     def calculate_clean_water_allocated_in_city(self):
         return sum(
             [
-                b.clean_water_allocated
+                self.data.list_of_buildings[b].clean_water_allocated
                 for b in self.data.list_of_buildings
                 if isinstance(b, SewageWorks)
             ]

@@ -3,135 +3,160 @@ from abc import ABC
 from django.apps import apps
 
 from city_engine.models import (
-    BuldingsWithWorkes,
-    TradeDistrict,
-    DumpingGround,
-    DustCart,
+    PowerPlant,
+    SewageWorks,
+    Waterworks
 )
-from company_engine.models import FoodCompany, Food, Company
-from cou.global_var import ELEMENTARY, COLLEGE, PHD
-from resources.models import AnimalFarm, Cattle, MarketResource, Mass
+from resources.models import MarketResource
 
 
 class DataContainersWithEmployees(ABC):
-    def _create_data_for_building_with_worker(
-        self, instance, citizens, citizens_in_city
+
+    def _calculate_wage_for_employees(
+        self, wage_of_employees, total_wages, total_level, employees, employee_needed
     ):
-        self.workers_costs = 0
-        self.max_employees = sum(
-            [
-                instance.elementary_employee_needed,
-                instance.college_employee_needed,
-                instance.phd_employee_needed,
-            ]
-        )
-
-        self.elementary_employees = [
-            e
-            for e in citizens
-            if e.workplace_object == instance
-            and citizens_in_city[e].current_profession.education in (ELEMENTARY, "None")
-        ]
-
-        self.elementary_vacancies = instance.elementary_employee_needed - len(
-            [
-                e
-                for e in citizens
-                if e.workplace_object == instance
-                and citizens_in_city[e].current_profession.education == ELEMENTARY
-            ]
-        )
-
-        self.college_employees = [
-            e
-            for e in citizens
-            if e.workplace_object == instance
-            and citizens_in_city[e].current_profession.education == COLLEGE
-        ]
-
-        self.college_vacancies = instance.college_employee_needed - len(
-            [
-                e
-                for e in citizens
-                if e.workplace_object == instance
-                and citizens_in_city[e].current_profession.education == COLLEGE
-            ]
-        )
-
-        self.phd_employees = [
-            e
-            for e in citizens
-            if e.workplace_object == instance
-            and citizens_in_city[e].current_profession.education == PHD
-        ]
-
-        self.phd_vacancies = instance.phd_employee_needed - len(
-            [
-                e
-                for e in citizens
-                if e.workplace_object == instance
-                and citizens_in_city[e].current_profession.education == PHD
-            ]
-        )
-
-        self.all_employees = (
-            self.elementary_employees + self.college_employees + self.phd_employees
-        )
-        self.people_in_charge = len(self.all_employees)
-
-    def _create_data_for_dumping_ground(self, bi, citizens, citizens_in_city, vehicles):
-        self.vehicles = {}
-        if DustCart.objects.filter(dumping_ground=bi).exists:
-            for dc in DustCart.objects.filter(dumping_ground=bi):
-                vehicles[dc] = VehicleDataContainer(
-                    instance=dc, citizens=citizens, citizens_in_city=citizens_in_city
+        if employee_needed:
+            total_wages.append(wage_of_employees)
+            total_level.append(
+                (
+                    sum(
+                        [
+                            e.current_profession.proficiency
+                            if e.current_profession
+                            else 0
+                            for e in employees
+                        ]
+                    )
+                    / float(employee_needed)
                 )
+                * wage_of_employees
+            )
 
-    def _create_data_for_animal_farm(self, bi):
-        cattle_query = Cattle.objects.filter(farm=bi)
-        if cattle_query:
-            self.cattle = list(cattle_query).pop()
+    def employee_productivity(self, citizens_data):
+        wages = []
+        total = []
+        self._calculate_wage_for_employees(
+            wage_of_employees=1,
+            total_wages=wages,
+            total_level=total,
+            employees=[citizens_data[e] for e in self.elementary_employees],
+            employee_needed=self.bi.elementary_employee_needed,
+        )
+        self._calculate_wage_for_employees(
+            wage_of_employees=2,
+            total_wages=wages,
+            total_level=total,
+            employees=[citizens_data[e] for e in self.college_employees],
+            employee_needed=self.bi.college_employee_needed,
+        )
+        self._calculate_wage_for_employees(
+            wage_of_employees=3,
+            total_wages=wages,
+            total_level=total,
+            employees=[citizens_data[e] for e in self.phd_employees],
+            employee_needed=self.bi.phd_employee_needed,
+        )
+        if wages and total:
+            return float(sum(total)) / float(sum(wages))
         else:
-            self.cattle = []
+            return 0
 
-    def _create_data_for_trade_district(self, bi):
-        self.people_in_charge = 0
-        for model in [
-            model
-            for model in apps.get_app_config("company_engine").get_models()
-            if issubclass(model, Company) and model is not Company
-        ]:
-            if model.objects.filter(trade_district=bi).exists():
-                for instance in model.objects.filter(trade_district=bi):
-                    self.people_in_charge += instance.employee.count()
+    def _get_productivity(self, citizens):
+        employee_productivity = self.employee_productivity(citizens)
+        if employee_productivity == 0:
+            return 0
+        else:
+            t = [
+                employee_productivity,
+                self._energy_productivity(),
+                self._water_productivity(),
+            ]
+            return float(sum(t)) / float(len(t))
+
+    def _water_productivity(self):
+        if self.water is 0:
+            return 0.0
+        else:
+            return float(self.water) / float(self.bi.water_required)
+
+    def _energy_productivity(self):
+        if self.energy is 0:
+            return 0.0
+        else:
+            return float(self.energy) / float(self.energy_required)
+
+    def _get_clean_water_total_production(self, citizens_data):
+        if self.employee_productivity(citizens_data) == 0:
+            return 0
+        else:
+            t = [
+                    self.employee_productivity(citizens_data),
+                    self._energy_productivity(),
+                ]
+            if self.raw_water <= self.raw_water_required:
+                # return data_container.raw_water
+                return int(self.raw_water * (float(sum(t)) / float(len(t))))
+
+    def allocate_resources_in_target(self, target, data):
+        if isinstance(self.bi, PowerPlant):
+            self.allocate_energy_in_target(target)
+        if isinstance(self.bi, Waterworks):
+            self.allocate_raw_water_in_target(target, data.citizens_in_city)
+        if isinstance(self.bi, SewageWorks):
+            self.allocate_clean_water_in_target(target)
+
+    def allocate_clean_water_in_target(self, target):
+        if (
+            hasattr(target, "water")
+            and not isinstance(target, SewageWorks)
+            and not isinstance(target, Waterworks)
+        ):
+            while (
+                target.water_required > target.water
+                and self.total_production > 0
+                and self.clean_water_allocated < self.total_production
+            ):
+                self.clean_water_allocated += 1
+                target.water += 1
+
+    def allocate_raw_water_in_target(self, target, citizens_in_city):
+        if hasattr(target, "raw_water"):
+            while (
+                target.raw_water_required > target.raw_water
+                and self.raw_water_allocated < self.total_production
+            ):
+                self.raw_water_allocated += 1
+                target.raw_water += 1
+            target.total_production = target._get_clean_water_total_production(citizens_in_city)
+
+    def allocate_energy_in_target(self, target):
+        if hasattr(target, "energy") and not isinstance(target, PowerPlant):
+            while (
+                target.energy_required > target.energy
+                and self.energy_allocated < self.total_production
+            ):
+                self.energy_allocated += 1
+                target.energy += 1
 
 
 class CompaniesDataContainer(DataContainersWithEmployees):
-    def __init__(self, instance, citizens, citizens_in_city):
-        self.ci = instance
+    def __init__(self, instance, citizens, citizens_data, semafor):
+        self.bi = instance
         self.energy, self.energy_required = 0, 0
         self.water, self.water_required = 0, 0
-        self._create_data_for_building_with_worker(instance, citizens, citizens_in_city)
+        self.row_col_cor = (instance.trade_district.city_field.row, instance.trade_district.city_field.col)
         self.goods = {}
-        self.semafor()
+        semafor.select_semafor_schema(self, citizens, citizens_data)
         self.create_goods_produced_by_company()
         self._calculate_operation_requirements()
 
     def _calculate_operation_requirements(self):
         self.water_required = len(self.all_employees) * 2
         self.energy_required = len(self.all_employees) * 4
-        # DIRTY HACK - TO REMOVE
-        self.water = self.water_required
-        self.energy = self.energy_required
 
     def save_all(self):
         for good in self.goods:
             self.goods[good].save_all()
-
-    def semafor(self):
-        if isinstance(self.ci, FoodCompany):
-            self.available_components = [Mass]
-            self.goods_to_product = [Food]
 
     def _calculate_new_price(self, resource_in_company, size, price):
         return (resource_in_company.price + price) / (resource_in_company.size + size)
@@ -145,23 +170,23 @@ class CompaniesDataContainer(DataContainersWithEmployees):
                     return
             self.goods[good_type].instances.append(
                 good_type.objects.create(
-                    size=size, quality=quality, price=price, company=self.ci
+                    size=size, quality=quality, price=price, company=self.bi
                 )
             )
         else:
             self.goods[good_type] = ResourcesDataContainer(
                 [
                     good_type.objects.create(
-                        size=size, quality=quality, price=price, company=self.ci
+                        size=size, quality=quality, price=price, company=self.bi
                     )
                 ]
             )
 
     def create_goods_produced_by_company(self):
         for good in self.goods_to_product:
-            if good.objects.filter(company=self.ci).exists():
+            if good.objects.filter(company=self.bi).exists():
                 self.goods[good] = ResourcesDataContainer(
-                    instances_list=list(good.objects.filter(company=self.ci))
+                    instances_list=list(good.objects.filter(company=self.bi))
                 )
 
 
@@ -245,9 +270,8 @@ class CityFieldDataContainer:
 
 
 class VehicleDataContainer(DataContainersWithEmployees):
-    def __init__(self, instance, citizens, citizens_in_city):
+    def __init__(self, instance):
         self.bi = instance
-        self._create_data_for_building_with_worker(instance, citizens, citizens_in_city)
 
 
 class CitizenDataContainer:
@@ -323,6 +347,9 @@ class FamilyDataContainer:
 class ResidentialDataContainer:
     def __init__(self, instance, fields_data, profile):
         self.bi = instance
+        self.raw_water = 0
+        self.energy, self.energy_required = 0, 0
+        self.water, self.water_required = 0, 0
         self.profile = profile
         self.trash = [
             trash for trash in instance.trash.all() if instance.trash.all().exists()
@@ -330,6 +357,11 @@ class ResidentialDataContainer:
         self.row_col_cor = (instance.city_field.row, instance.city_field.col)
         self.people_in_charge = instance.resident.count()
         self.__create_data_for_residential(fields_data)
+        self.__resources_demand()
+
+    def __resources_demand(self):
+        self.water_required = self.people_in_charge * 3
+        self.energy_required = self.people_in_charge * 3
 
     def __create_data_for_residential(self, fields_data):
         divider = 2.5
@@ -352,23 +384,14 @@ class ResidentialDataContainer:
 
 
 class BuildingDataContainer(DataContainersWithEmployees):
-    def __init__(self, instance, citizens_data, citizens, profile, vehicles):
+    def __init__(self, instance, citizens_data, citizens, profile, vehicles, semafor):
         self.bi = instance
+        self.raw_water = 0
+        self.energy, self.energy_required = 0, 0
+        self.water, self.water_required = 0, 0
         self.profile = profile
         self.trash = [
             trash for trash in instance.trash.all() if instance.trash.all().exists()
         ]
         self.row_col_cor = (instance.city_field.row, instance.city_field.col)
-        self.semafor(citizens, citizens_data, vehicles)
-
-    def semafor(self, citizens, citizens_data, vehicles):
-        if isinstance(self.bi, BuldingsWithWorkes):
-            self._create_data_for_building_with_worker(self.bi, citizens, citizens_data)
-        if isinstance(self.bi, AnimalFarm):
-            self._create_data_for_animal_farm(self.bi)
-        if isinstance(self.bi, TradeDistrict):
-            self._create_data_for_trade_district(self.bi)
-        if isinstance(self.bi, DumpingGround):
-            self._create_data_for_dumping_ground(
-                self.bi, citizens, citizens_data, vehicles
-            )
+        semafor.select_semafor_schema(self, citizens, citizens_data, vehicles)

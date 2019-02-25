@@ -28,12 +28,12 @@ class CityStatsTests(test.TestCase, TestHelper):
 
     def test_city_stats_center_methods(self):
         city_stats = CityStatsCenter(city=self.city, data=self.RC)
-        self.assertEqual(city_stats.energy_bilans, 14)
+        self.assertEqual(city_stats.energy_bilans, 600)
         self.assertEqual(city_stats.energy_allocation, 0)
-        self.assertEqual(city_stats.energy_production, 14)
-        self.assertEqual(city_stats.raw_water_bilans, 20)
+        self.assertEqual(city_stats.energy_production, 600)
+        self.assertEqual(city_stats.raw_water_bilans, 100)
         self.assertEqual(city_stats.raw_water_allocation, 0)
-        self.assertEqual(city_stats.raw_water_production, 20)
+        self.assertEqual(city_stats.raw_water_production, 100)
         # self.assertEqual(city_stats.list_of_buildings,
         #                  ['Budynek Mieszkalny', 'Elektrownia wiatrowa', 'Elektrownia wiatrowa', 'Wieża ciśnień', 'Wieża ciśnień'])
         self.assertEqual(city_stats.building_under_construction, [])
@@ -41,7 +41,7 @@ class CityStatsTests(test.TestCase, TestHelper):
     def test_energy_total_production(self):
         self.assertEqual(
             CityEnergyStats(self.city, self.RC).calculate_energy_production_in_city(),
-            14,
+            600,
         )
 
     def test_calculate_energy_allocation_in_city(self):
@@ -51,7 +51,7 @@ class CityStatsTests(test.TestCase, TestHelper):
 
     def test_calculate_energy_usage_in_city(self):
         self.assertEqual(
-            CityEnergyStats(self.city, self.RC).calculate_energy_usage_in_city(), 7
+            CityEnergyStats(self.city, self.RC).calculate_energy_usage_in_city(), 114
         )
 
     def test_calculate_water_production_in_city(self):
@@ -59,7 +59,7 @@ class CityStatsTests(test.TestCase, TestHelper):
             CityRawWaterStats(
                 self.city, self.RC
             ).calculate_raw_water_production_in_city(),
-            20,
+            100,
         )
 
     def test_calculate_water_usage_in_city(self):

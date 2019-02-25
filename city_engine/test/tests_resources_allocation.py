@@ -31,7 +31,7 @@ class ResourcesAllocationsTests(test.TestCase, TestHelper):
             CityField.objects.filter(city=self.city).aggregate(Sum("pollution"))[
                 "pollution__sum"
             ],
-            30,
+            35,
         )
         self.RA.clean_allocation_data()
         TurnCalculation(self.city, self.RC, Profile.objects.latest("id")).save_all()
@@ -58,60 +58,8 @@ class ResourcesAllocationsTests(test.TestCase, TestHelper):
             CityField.objects.filter(city=self.city).aggregate(Sum("pollution"))[
                 "pollution__sum"
             ],
-            30,
+            35,
         )
-
-    def test_resources_allocation(self):
-        WindPlant.objects.update(energy_allocated=0)
-        WaterTower.objects.update(raw_water_allocated=0)
-        SewageWorks.objects.update(clean_water_allocated=0)
-
-        self.assertEqual(
-            WindPlant.objects.filter(city=self.city).aggregate(Sum("energy_allocated"))[
-                "energy_allocated__sum"
-            ],
-            0,
-        )
-        self.assertEqual(
-            WaterTower.objects.filter(city=self.city).aggregate(
-                Sum("raw_water_allocated")
-            )["raw_water_allocated__sum"],
-            0,
-        )
-        self.assertEqual(
-            SewageWorks.objects.filter(city=self.city).aggregate(
-                Sum("clean_water_allocated")
-            )["clean_water_allocated__sum"],
-            0,
-        )
-
-        for x in range(3):
-            self.RC = RootClass(self.city, User.objects.latest("id"))
-            TurnCalculation(
-                city=self.city, data=self.RC, profile=Profile.objects.latest("id")
-            ).run()
-
-        self.assertIn(
-            WindPlant.objects.filter(city=self.city).aggregate(Sum("energy_allocated"))[
-                "energy_allocated__sum"
-            ],
-            range(5, 25),
-        )
-        self.assertIn(
-            WaterTower.objects.filter(city=self.city).aggregate(
-                Sum("raw_water_allocated")
-            )["raw_water_allocated__sum"],
-            range(5, 50),
-        )
-        self.assertIn(
-            SewageWorks.objects.filter(city=self.city).aggregate(
-                Sum("clean_water_allocated")
-            )["clean_water_allocated__sum"],
-            range(5, 40),
-        )
-
-        self.assertNotEqual(sum([b.energy for b in self.RC.list_of_buildings]), 0)
-        self.assertNotEqual(sum([b.water for b in self.RC.list_of_buildings]), 0)
 
 
 class EmployeeAllocationTests(test.TestCase):

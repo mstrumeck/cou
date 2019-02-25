@@ -1,4 +1,6 @@
 from abc import ABC
+from .data_containers.buildings_semafor import BuildingSemafor
+from .data_containers.company_semafor import CompanySemafor
 
 from django.apps import apps
 
@@ -15,10 +17,9 @@ from city_engine.models import (
     TradeDistrict,
 )
 from company_engine.models import Company
-from cou.data_containers import (
+from cou.data_containers.data_containers import (
     BuildingDataContainer,
     CitizenDataContainer,
-    VehicleDataContainer,
     CityFieldDataContainer,
     ResidentialDataContainer,
     FamilyDataContainer,
@@ -115,7 +116,7 @@ class RootClass(BasicAbstract):
         for c in companies:
             self.to_save.append(c)
             self.companies[c] = CompaniesDataContainer(
-                instance=c, citizens=citizens, citizens_in_city=self.citizens_in_city
+                instance=c, citizens=citizens, citizens_data=self.citizens_in_city, semafor=CompanySemafor()
             )
 
     def preprocess_buildings(self, buildings, citizens):
@@ -127,6 +128,7 @@ class RootClass(BasicAbstract):
                 citizens_data=self.citizens_in_city,
                 profile=self.profile,
                 vehicles=self.vehicles,
+                semafor=BuildingSemafor()
             )
 
     def preprocess_citizens(self, citizens, residentials):
@@ -185,57 +187,53 @@ class RootClass(BasicAbstract):
         )
         self.preprocess_families()
         self.preprocess_buildings(buildings, citizens)
-        # self.preprocess_vehicles(vehicles, citizens)
         self.preprocess_companies(companies, citizens)
 
     def datasets_for_turn_calculation(self):
         power_resources_allocation_dataset = {
             "resource": "energy",
-            "list_of_source": {
-                b: self.list_of_buildings[b]
+            "list_of_source": [
+                self.list_of_buildings[b]
                 for b in self.list_of_buildings
                 if isinstance(b, PowerPlant) and b.if_under_construction is False
-            },
-            "list_without_source": {
-                b: self.list_of_buildings[b]
+            ],
+            "list_without_source": [
+                self.list_of_buildings[b]
                 for b in self.list_of_buildings
                 if not isinstance(b, PowerPlant) and b.if_under_construction is False
-            },
+                                   ] + [self.companies[c] for c in self.companies],
             "allocated_resource": "energy_allocated",
-            "msg": "power",
         }
         raw_water_resources_allocation_dataset = {
-            "list_of_source": {
-                b: self.list_of_buildings[b]
+            "list_of_source": [
+                self.list_of_buildings[b]
                 for b in self.list_of_buildings
                 if isinstance(b, Waterworks) and b.if_under_construction is False
-            },
-            "list_without_source": {
-                b: self.list_of_buildings[b]
+            ],
+            "list_without_source": [
+                self.list_of_buildings[b]
                 for b in self.list_of_buildings
                 if isinstance(b, SewageWorks) and b.if_under_construction is False
-            },
+            ],
             "allocated_resource": "raw_water_allocated",
-            "msg": "raw_water",
         }
         clean_water_resources_allocation_dataset = {
-            "list_of_source": {
-                b: self.list_of_buildings[b]
+            "list_of_source": [
+                self.list_of_buildings[b]
                 for b in self.list_of_buildings
                 if isinstance(b, SewageWorks) and b.if_under_construction is False
-            },
-            "list_without_source": {
-                b: self.list_of_buildings[b]
+            ],
+            "list_without_source": [
+                self.list_of_buildings[b]
                 for b in self.list_of_buildings
                 if not isinstance(b, SewageWorks)
                 and not isinstance(b, Waterworks)
                 and b.if_under_construction is False
-            },
+            ] + [self.companies[c] for c in self.companies],
             "allocated_resource": "clean_water_allocated",
-            "msg": "clean_water",
         }
         return [
+            power_resources_allocation_dataset,
             raw_water_resources_allocation_dataset,
             clean_water_resources_allocation_dataset,
-            power_resources_allocation_dataset,
         ]

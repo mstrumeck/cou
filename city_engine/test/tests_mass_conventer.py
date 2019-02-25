@@ -15,7 +15,7 @@ class TestMassConventer(test.TestCase):
     def setUp(self):
         self.city = City.objects.latest("id")
         self.mass_conventer = MassConventer.objects.create(
-            city_id=1, city_field_id=1, water=10, energy=5, if_under_construction=False
+            city_id=1, city_field_id=1, if_under_construction=False
         )
         self.m = Market.objects.create(profile=Profile.objects.latest("id"))
 
@@ -36,13 +36,13 @@ class TestMassConventer(test.TestCase):
         self.mass_conventer.product_mass(RC)
         self.assertNotEqual(list(Mass.objects.all()), [])
         self.assertEqual(float("{0:.2f}".format(Mass.objects.latest("id").quality)), 33)
-        self.assertEqual(Mass.objects.latest("id").size, 100)
+        self.assertEqual(Mass.objects.latest("id").size, 33)
         self.assertEqual(Mass.objects.latest("id").name, "Masa")
         self.mass_conventer.product_mass(RC)
         RC.market.save_all()
         self.assertEqual(Mass.objects.all().count(), 1)
-        self.assertEqual(Mass.objects.latest("id").size, 200)
-        self.assertEqual(float(Mass.objects.latest("id").price), 0.05)
+        self.assertEqual(Mass.objects.latest("id").size, 66)
+        self.assertEqual(float(Mass.objects.latest("id").price), 0.49)
 
     def test_product_mass_failed(self):
         self.assertEqual(list(Mass.objects.all()), [])
@@ -68,7 +68,7 @@ class TestMassConventer(test.TestCase):
         self.mass_conventer.product_mass(RC)
         self.assertNotEqual(list(Mass.objects.all()), [])
         self.assertEqual(float("{0:.2f}".format(Mass.objects.latest("id").quality)), 33)
-        self.assertEqual(Mass.objects.latest("id").size, 100)
+        self.assertEqual(Mass.objects.latest("id").size, 33)
         self.assertEqual(Mass.objects.latest("id").name, "Masa")
         self.assertEqual(self.mass_conventer.employee.all().count(), 5)
         citizen = RC.list_of_workplaces[self.mass_conventer].elementary_employees.pop()
@@ -78,9 +78,9 @@ class TestMassConventer(test.TestCase):
         self.mass_conventer.product_mass(RC)
         [x.save() for x in RC.to_save]
         self.assertEqual(Mass.objects.all().count(), 2)
-        self.assertEqual(Mass.objects.latest("id").size, 93)
+        self.assertEqual(Mass.objects.latest("id").size, 33)
         self.assertEqual(float("{0:.2f}".format(Mass.objects.latest("id").quality)), 27)
-        self.assertEqual(float(Mass.objects.latest("id").price), 8.69)
+        self.assertEqual(float(Mass.objects.latest("id").price), 24.48)
 
     def test_quality_with_random_number_of_elementary_employee(self):
         import random

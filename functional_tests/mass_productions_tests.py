@@ -46,6 +46,6 @@ class MassCollectorTest(BaseTestOfficial):
         self.assertEqual(Mass.objects.count(), 3)
         rc = RootClass(self.city, self.user)
         self.assertEqual(len(rc.market.resources[Mass].instances), 3)
-        self.assertEqual(rc.market.resources[Mass].total_size, 10)
+        self.assertEqual(rc.market.resources[Mass].total_size, 9)
         self.assertEqual(round(rc.market.resources[Mass].avg_quality), 17)
         self.assertEqual(round(rc.market.resources[Mass].avg_price), 164)

@@ -190,29 +190,29 @@ class CitizenBasicTests(BaseTest):
 
         main_view.next_turn()
         self.assertEqual(
-            RootClass(self.city, User.objects.latest("id")).families[family].cash, 636
+            int(RootClass(self.city, User.objects.latest("id")).families[family].cash), 638
         )
-        self.assertEqual(float(City.objects.latest("id").cash), 9481.64)
+        self.assertEqual(int(City.objects.latest("id").cash), 9481)
         self.assertEqual(
-            float(StandardLevelResidentialZone.objects.latest("id").cash), 162.36
+            int(StandardLevelResidentialZone.objects.latest("id").cash), 162
         )
 
         main_view.next_turn()
         self.assertEqual(
             RootClass(self.city, User.objects.latest("id")).families[family].cash, 554
         )
-        self.assertEqual(float(City.objects.latest("id").cash), 9482.46)
+        self.assertEqual(int(City.objects.latest("id").cash), 9482)
         self.assertEqual(
-            float(StandardLevelResidentialZone.objects.latest("id").cash), 243.54
+            int(StandardLevelResidentialZone.objects.latest("id").cash), 243
         )
 
         main_view.next_turn()
         self.assertEqual(
             RootClass(self.city, User.objects.latest("id")).families[family].cash, 472
         )
-        self.assertEqual(float(City.objects.latest("id").cash), 9483.28)
+        self.assertEqual(int(City.objects.latest("id").cash), 9483)
         self.assertEqual(
-            float(StandardLevelResidentialZone.objects.latest("id").cash), 324.72
+            int(StandardLevelResidentialZone.objects.latest("id").cash), 324
         )
 
         self.assertEqual(Citizen.objects.count(), 2)
@@ -321,10 +321,10 @@ class CitizenBasicTests(BaseTest):
         )
         self.m = Citizen.objects.get(id=self.m.id)
         self.f = Citizen.objects.get(id=self.f.id)
-        self.assertEqual(int(self.m.cash), 69)
-        self.assertEqual(int(self.f.cash), 69)
+        self.assertEqual(int(self.m.cash), 70)
+        self.assertEqual(int(self.f.cash), 70)
         self.assertEqual(
-            int(StandardLevelResidentialZone.objects.latest("id").cash), 160
+            int(StandardLevelResidentialZone.objects.latest("id").cash), 158
         )
         self.assertEqual(int(City.objects.latest("id").cash), 9481)
         self.assertEqual(
@@ -336,13 +336,13 @@ class CitizenBasicTests(BaseTest):
         self.assertEqual(Family.objects.all().count(), 1)
         main_view.next_turns(4)
         self.assertEqual(
-            int(StandardLevelResidentialZone.objects.latest("id").cash), 239
+            int(StandardLevelResidentialZone.objects.latest("id").cash), 237
         )
         self.assertEqual(int(City.objects.latest("id").cash), 9482)
         self.assertEqual(Citizen.objects.get(id=self.m.id).resident_object, None)
         self.assertEqual(Citizen.objects.get(id=self.f.id).resident_object, None)
-        self.assertEqual(int(Citizen.objects.get(id=self.m.id).cash), 29)
-        self.assertEqual(int(Citizen.objects.get(id=self.f.id).cash), 29)
+        self.assertEqual(int(Citizen.objects.get(id=self.m.id).cash), 30)
+        self.assertEqual(int(Citizen.objects.get(id=self.f.id).cash), 30)
 
     def test_find_home_failed(self):
         self.r1 = StandardLevelResidentialZone.objects.latest("id")

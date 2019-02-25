@@ -1,13 +1,12 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
-from city_engine.models import StandardLevelResidentialZone, City, WindPlant, CityField
+
 from citizen_engine.models import Citizen
-from citizen_engine.citizen_creation import CreateCitizen
-import random, string
-from cou.abstract import RootClass
 from citizen_engine.social_actions import SocialAction
-from player.models import Profile
+from city_engine.models import StandardLevelResidentialZone, City, CityField
+from cou.abstract import RootClass
 from cou.global_var import MALE, FEMALE
+from player.models import Profile
 from resources.models import Market
 
 

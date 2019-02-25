@@ -29,24 +29,6 @@ class CityViewTests(CityFixture):
         view = resolve("/main/")
         self.assertEquals(view.func, main_view)
 
-    def test_total_energy_production_view(self):
-        total_energy = 0
-        response = self.client.get("/main/")
-
-        self.assertTemplateUsed(response, "main_view.html")
-        user = User.objects.get(username="test_username")
-        self.RC = RootClass(self.city, user)
-        for models in self.RC.get_subclasses(
-            abstract_class=PowerPlant, app_label="city_engine"
-        ):
-            list_of_buildings = models.objects.filter(city=self.city)
-            for building in list_of_buildings:
-                total_energy += building.total_production(
-                    self.RC.list_of_buildings, self.RC.citizens_in_city
-                )
-
-        self.assertEqual(total_energy, self.city_stats.energy_production)
-
     def test_total_clean_water_production_view(self):
         response = self.client.get("/main/")
         self.assertTemplateUsed(response, "main_view.html")
@@ -168,7 +150,6 @@ class ModelsTests(test.TestCase, TestHelper):
             city_field=self.city_field1,
             if_under_construction=False,
             build_time=0,
-            energy_allocated=10,
             power_nodes=1,
         )
         water_tower = WaterTower.objects.create(
@@ -176,7 +157,6 @@ class ModelsTests(test.TestCase, TestHelper):
             city_field=self.city_field2,
             if_under_construction=False,
             build_time=0,
-            raw_water_allocated=10,
         )
         self.RC = RootClass(self.city, User.objects.latest("id"))
         TestHelper(self.city, User.objects.latest("id")).populate_city()

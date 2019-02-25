@@ -107,23 +107,24 @@ class HexDetail:
 
         if (row, col) in self.building_by_corr:
             build = self.building_by_corr[(row, col)]
+            container = self.data.list_of_buildings[build]
             hex_detail_box += "<p>{}</p>".format(build.name)
             hex_detail_box += "<p>Zanieczyszczenie: {}</p>".format(
                 self.city_field_pollution[(row, col)]
             )
             hex_detail_box += "<p>Woda: {}/{}</p>".format(
-                build.water, build.water_required
+                container.water, container.water_required
             )
             hex_detail_box += "<p>Energia : {}/{}</p>".format(
-                build.energy, build.energy_required
+                container.energy, container.energy_required
             )
             hex_detail_box += "<p>W trakcie budowy: {}</p>".format(
                 build.if_under_construction
             )
             if isinstance(build, BuldingsWithWorkes):
-                build_set = self.data.list_of_buildings[build]
+                container = self.data.list_of_buildings[build]
                 hex_detail_box += '<p name="detailEmployees">Pracownicy: {}/{}</p>'.format(
-                    build_set.people_in_charge, build_set.max_employees
+                    container.people_in_charge, container.max_employees
                 )
                 if isinstance(build, Waterworks):
                     hex_detail_box += self.add_waterworks_details(build)
@@ -142,36 +143,34 @@ class HexDetail:
         return hex_detail_box
 
     def add_sewage_works_details(self, build):
+        container = self.data.list_of_buildings[build]
         hex_detail_box = ""
         hex_detail_box += "<p>Pompowana czysta woda: {}/{}</p>".format(
-            build.clean_water_allocated,
-            build.total_production(
-                self.data.list_of_buildings, self.data.citizens_in_city
-            ),
+            container.clean_water_allocated,
+            container.total_production
         )
-        hex_detail_box += "<p>Przepustowość : {}</p>".format(build.raw_water_required)
+        hex_detail_box += "<p>Przepustowość : {}</p>".format(container.raw_water_required)
         return hex_detail_box
 
     def add_electricity_details(self, build):
+        container = self.data.list_of_buildings[build]
         hex_detail_box = ""
         hex_detail_box += (
             '<p name="detailEnergy">Produkowana energia: '
             + str(
-                build.total_production(
-                    self.data.list_of_buildings, self.data.citizens_in_city
-                )
+                container.total_production
             )
             + "</p>"
         )
         hex_detail_box += (
-            "<p>Zalokowana energia: " + str(build.energy_allocated) + "</p>"
+            "<p>Zalokowana energia: " + str(container.energy_allocated) + "</p>"
         )
         if build is WindPlant:
             hex_detail_box += "<p>Liczba turbin: "
         else:
             hex_detail_box += "<p>Liczba reaktorów: "
             hex_detail_box += (
-                str(build.power_nodes) + "/" + str(build.max_power_nodes) + "</p>"
+                str(build.power_nodes) + "/" + str(container.max_power_nodes) + "</p>"
             )
         hex_detail_box += "<p>Śmieci: {}</p>".format(
             build.trash.aggregate(Sum("size"))["size__sum"]
@@ -179,18 +178,17 @@ class HexDetail:
         return hex_detail_box
 
     def add_waterworks_details(self, build):
+        container = self.data.list_of_buildings[build]
         hex_detail_box = ""
         hex_detail_box += (
             '<p name="detailWater">Pompowana surowa woda: '
             + str(
-                build.total_production(
-                    self.data.list_of_buildings, self.data.citizens_in_city
-                )
+                container.total_production
             )
             + "</p>"
         )
         hex_detail_box += (
-            "<p>Surowa woda zalokowana: " + str(build.raw_water_allocated) + "</p>"
+            "<p>Surowa woda zalokowana: " + str(container.raw_water_allocated) + "</p>"
         )
         hex_detail_box += "<p>Śmieci: {}</p>".format(
             build.trash.aggregate(Sum("size"))["size__sum"]
@@ -198,9 +196,10 @@ class HexDetail:
         return hex_detail_box
 
     def add_trashcollector_details(self, build):
+        container = self.data.list_of_buildings[build]
         hex_detail_box = ""
         hex_detail_box += "<p>Energia: {}/{}</p>".format(
-            build.energy, build.energy_required
+            container.energy, container.energy_required
         )
         hex_detail_box += "<p>Wysypisko: {}/{}</p>".format(
             build.current_space_for_trash, build.max_space_for_trash

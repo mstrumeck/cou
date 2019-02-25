@@ -49,7 +49,7 @@ class TrashCollectorTest(BaseTest):
         self.assertEqual(len(rc.companies[self.fc].goods[Food].instances), 1)
         self.assertEqual(rc.companies[self.fc].goods[Food].total_size, 60)
         self.assertEqual(rc.companies[self.fc].goods[Food].avg_price, 1.50)
-        self.assertEqual(rc.companies[self.fc].goods[Food].avg_quality, 10)
+        self.assertEqual(rc.companies[self.fc].goods[Food].avg_quality, 5)
 
         Mass.objects.create(size=60, quality=50, market=self.market, price=2)
         main_view.next_turn()
@@ -57,10 +57,10 @@ class TrashCollectorTest(BaseTest):
         self.assertEqual(len(rc.companies[self.fc].goods[Food].instances), 2)
         self.assertEqual(rc.companies[self.fc].goods[Food].total_size, 120)
         self.assertEqual(rc.companies[self.fc].goods[Food].avg_price, 1.75)
-        self.assertEqual(rc.companies[self.fc].goods[Food].avg_quality, 17.5)
+        self.assertEqual(rc.companies[self.fc].goods[Food].avg_quality, 9)
         first = rc.companies[self.fc].goods[Food].instances[0]
         self.assertEqual(float(first.price), 1.50)
-        self.assertEqual(first.quality, 10)
+        self.assertEqual(first.quality, 5)
         second = rc.companies[self.fc].goods[Food].instances[1]
         self.assertEqual(float(second.price), 2)
-        self.assertEqual(second.quality, 25)
+        self.assertEqual(second.quality, 13)

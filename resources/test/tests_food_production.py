@@ -205,7 +205,7 @@ class FarmInstancesTests(test.TestCase):
             1,
             rc,
             rc.list_of_workplaces[self.cf].workers_costs,
-            self.cf.productivity(rc.list_of_workplaces, rc.citizens_in_city),
+            rc.list_of_workplaces[self.cf].productivity,
         )
         self.assertEqual(Milk.objects.all().count(), 1, rc)
         self.assertEqual(len(rc.market.resources[Milk].instances), 1)
@@ -225,7 +225,7 @@ class FarmInstancesTests(test.TestCase):
             1,
             rc,
             rc.list_of_workplaces[self.cf].workers_costs,
-            self.cf.productivity(rc.list_of_workplaces, rc.citizens_in_city),
+            rc.list_of_workplaces[self.cf].productivity,
         )
         for x in rc.market.resources[Milk].instances:
             x.save()
@@ -252,7 +252,7 @@ class FarmInstancesTests(test.TestCase):
             1,
             rc,
             rc.list_of_workplaces[self.cf].workers_costs,
-            self.cf.productivity(rc.list_of_workplaces, rc.citizens_in_city),
+            rc.list_of_workplaces[self.cf].productivity,
         )
         self.assertEqual(len(rc.market.resources[Milk].instances), 2)
         self.assertEqual(Milk.objects.all().count(), 2)
