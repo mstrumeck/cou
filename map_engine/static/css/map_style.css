@@ -1,0 +1,114 @@
+
+body {
+    margin: 0 auto;
+    padding: 0;
+    font-family: Arial, helvetica, sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    width: 100%;
+    background: #efefef;
+}
+#board {
+    border-style: solid;
+}
+
+.hexagon {
+    float: left;
+    margin-left: 1.5px;
+    margin-bottom: -8px;
+}
+
+.hexagon:hover .hexagon-top {
+    border-bottom: 10px solid red;
+    }
+
+.hexagon:hover .hexagon-middle {
+    background: red;
+    }
+
+.hexagon:hover .hexagon-bottom {
+    border-top: 10px solid red;
+    }
+
+.hexagon-top {
+    width: 0;
+    border-bottom: 10px solid #6C6;
+    border-left: 15.5px solid transparent;
+    border-right: 15.5px solid transparent;
+}
+
+.ht-Sea {
+    border-bottom: 10px solid blue;
+}
+
+.ht-Mountain {
+    border-bottom: 10px solid grey;
+}
+
+.ht-Fertile {
+    border-bottom: 10px solid green;
+}
+
+
+.start {
+    background: red;
+}
+
+.ht-line {
+    border-bottom: 10px solid black;
+}
+
+.hexagon-middle {
+    width: 31px;
+    height: 20px;
+    background: #6C6;
+}
+
+.hm-Sea {
+    background: blue;
+}
+
+.hm-Mountain {
+    background: grey;
+}
+
+.hm-Fertile {
+    background: green;
+}
+
+.hm-line {
+    background: black;
+}
+
+.hexagon-bottom {
+    width: 0;
+    border-top: 10px solid #6C6;
+    border-left: 15.5px solid transparent;
+    border-right: 15.5px solid transparent;
+}
+
+.hb-Sea {
+    border-top: 10px solid blue;
+}
+
+.hb-Mountain {
+    border-top: 10px solid grey;
+}
+
+.hb-Fertile {
+    border-top: 10px solid green;
+}
+
+.hb-line {
+    border-top: 10px solid black;
+}
+
+.hex-row {
+    clear: left;
+    width:4500px;
+}
+
+.hex-row.even {
+    margin-left: 15.5px;
+}
+

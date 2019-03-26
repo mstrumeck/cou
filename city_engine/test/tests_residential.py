@@ -3,7 +3,7 @@ import random
 from django import test
 from django.contrib.auth.models import User
 
-from city_engine.models import City, StandardLevelResidentialZone, CityField
+from city_engine.models import City, StandardLevelResidentialZone, Field
 from cou.abstract import RootClass
 from player.models import Profile
 from resources.models import Market
@@ -16,8 +16,7 @@ class StandardResidential(test.TestCase, TestHelper):
     def setUp(self):
         self.city = City.objects.latest("id")
         self.user = User.objects.latest("id")
-        self.profile = Profile.objects.latest("id")
-        Market.objects.create(profile=self.profile)
+        Market.objects.create(profile=self.user.profile)
         self.s = StandardLevelResidentialZone.objects.latest("id")
 
     def test_rent_calculation(self):
@@ -35,7 +34,7 @@ class StandardResidential(test.TestCase, TestHelper):
         self.s.save()
         self.assertEqual(self.s.max_population, mp)
         cf_id = self.s.city_field.id
-        cf = CityField.objects.get(id=cf_id)
+        cf = Field.objects.get(id=cf_id)
         cf.pollution = 20
         cf.save()
         self.assertEqual(
@@ -50,8 +49,8 @@ class StandardResidential(test.TestCase, TestHelper):
         )
 
     def test_with_different_taxation_level(self):
-        self.profile.standard_residential_zone_taxation = 0.08
-        self.profile.save()
+        self.user.profile.standard_residential_zone_taxation = 0.08
+        self.user.profile.save()
         self.assertEqual(
             RootClass(self.city, self.user).list_of_buildings[self.s].rent, 691.2
         )

@@ -10,12 +10,15 @@ from django.utils.http import urlsafe_base64_encode
 
 from citizen_engine.models import Citizen, Family, Education
 from city_engine.main_view_data.board import assign_city_fields_to_board
-from city_engine.models import City, CityField, StandardLevelResidentialZone
+from city_engine.models import City, Field, StandardLevelResidentialZone
 from cou.global_var import ELEMENTARY
-from player.forms import CityCreationForm
+from player.forms import CityCreationForm, MapForm
 from player.tokens import account_activation_token
 from resources.models import Market
 from .models import Profile
+from map_engine.models import Map, Field
+from django import forms
+import random
 
 
 def main_page(request):
@@ -26,15 +29,23 @@ def signup(request):
     if request.method == "POST":
         user_creation_form = UserCreationForm(request.POST)
         city_creation_form = CityCreationForm(request.POST)
-        if user_creation_form.is_valid() and city_creation_form.is_valid():
+        map_form = MapForm(request.POST)
+
+        if user_creation_form.is_valid() and city_creation_form.is_valid() and map_form.is_valid():
             user_creation_form.save()
             username = user_creation_form.cleaned_data.get("username")
             raw_password = user_creation_form.cleaned_data.get("password1")
-            user = authenticate(username=username, password=raw_password)
-            login(request, user)
+            chosen_map = map_form.cleaned_data.get("maps")
             city_name = city_creation_form.cleaned_data.get("name")
-            new_city = City.objects.create(user_id=request.user.id, name=city_name)
-            assign_city_fields_to_board(new_city)
+            import random
+            start_place = random.choice(Field.objects.filter(map=chosen_map, if_start=True))
+            user = authenticate(username=username, password=raw_password)
+            player = Profile.objects.get(user=user)
+
+            login(request, user)
+            new_city = City.objects.create(player=player, name=city_name, map_id=chosen_map)
+            assign_city_fields_to_board(start_place, chosen_map, player)
+
             for x in range(30):
                 import names
 
@@ -60,27 +71,28 @@ def signup(request):
             s = StandardLevelResidentialZone.objects.create(
                 city=new_city,
                 if_under_construction=False,
-                city_field=random.choice(list(CityField.objects.filter(city=new_city))),
+                city_field=random.choice(list(Field.objects.filter(player=player))),
             )
             s.self__init(50)
             s.save()
             new_city.save()
 
-            p = Profile.objects.get(user=user)
-            p.if_social_enabled = True
-            p.save()
-            Market.objects.create(profile=p)
+            # player.if_social_enabled = True
+            player.save()
+            Market.objects.create(profile=player)
 
             return redirect("/main/")
     else:
         user_creation_form = UserCreationForm()
         city_creation_form = CityCreationForm()
+        map_form = MapForm(request.POST)
     return render(
         request,
         "registration/signup.html",
         {
             "user_creation_form": user_creation_form,
             "city_creation_form": city_creation_form,
+            "map_form": map_form
         },
     )
 

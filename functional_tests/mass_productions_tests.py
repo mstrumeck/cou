@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 
 from citizen_engine.models import Education
-from city_engine.models import CityField
+from city_engine.models import Field
 from cou.abstract import RootClass
 from functional_tests.page_objects import MainView, LoginPage, Homepage
 from resources.models import Mass
@@ -15,7 +15,7 @@ class MassCollectorTest(BaseTestOfficial):
     def test_mass_collector(self):
         MassConventer.objects.create(
             city=self.city,
-            city_field=CityField.objects.latest("id"),
+            city_field=Field.objects.latest("id"),
             if_under_construction=False,
         )
         homepage = Homepage(self.browser, self.live_server_url)

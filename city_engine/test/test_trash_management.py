@@ -2,10 +2,9 @@ from django import test
 from django.contrib.auth.models import User
 
 from city_engine.main_view_data.trash_management import TrashManagement
-from city_engine.models import City, DumpingGround, CityField, Trash
+from city_engine.models import City, DumpingGround, Field, Trash
 from city_engine.test.base import TestHelper
 from cou.abstract import RootClass
-from player.models import Profile
 from resources.models import Market
 
 
@@ -14,15 +13,15 @@ class CityStatsTests(test.TestCase):
 
     def setUp(self):
         self.city = City.objects.latest("id")
-        self.profile = Profile.objects.latest("id")
-        Market.objects.create(profile=self.profile)
-        TestHelper(self.city, User.objects.latest("id")).populate_city()
-        self.RC = RootClass(self.city, User.objects.latest("id"))
+        self.user = User.objects.latest('id')
+        Market.objects.create(profile=self.user.profile)
+        TestHelper(self.city, self.user).populate_city()
+        self.RC = RootClass(self.city, self.user)
         self.TM = TrashManagement(self.RC)
 
     def test_generate_trash_except_dumping_ground(self):
         dg = DumpingGround.objects.create(
-            city=self.city, city_field=CityField.objects.get(id=2)
+            city=self.city, city_field=Field.objects.latest('id')
         )
         result = []
         for trash in dg.trash.values():

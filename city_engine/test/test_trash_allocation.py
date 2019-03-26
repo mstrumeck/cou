@@ -9,7 +9,7 @@ from city_engine.models import (
     Trash,
     WindPlant,
     WaterTower,
-    CityField,
+    Field,
 )
 from city_engine.test.base import TestHelper
 from city_engine.turn_data.main import TurnCalculation
@@ -25,9 +25,9 @@ class TestTrashAllocation(test.TestCase):
         self.city = City.objects.latest("id")
         self.wind_plant = WindPlant.objects.latest("id")
         self.water_tower = WaterTower.objects.latest("id")
-        self.profile = Profile.objects.latest("id")
-        Market.objects.create(profile=self.profile)
-        TestHelper(self.city, User.objects.latest("id")).populate_city()
+        self.user = User.objects.latest('id')
+        Market.objects.create(profile=self.user.profile)
+        TestHelper(self.city, self.user).populate_city()
         self.RC = RootClass(self.city, User.objects.latest("id"))
         self.trash_management = TrashManagement(data=self.RC)
         self.collect_garbage = CollectGarbage(city=self.city, data=self.RC)
@@ -36,12 +36,12 @@ class TestTrashAllocation(test.TestCase):
         DumpingGround.objects.update(current_space_for_trash=0)
         dumping_ground = DumpingGround.objects.latest("id")
         self.assertEqual(dumping_ground.current_space_for_trash, 0)
-        self.RC = RootClass(self.city, User.objects.latest("id"))
+        self.RC = RootClass(self.city, self.user)
         TrashManagement(data=self.RC).generate_trash()
-        self.RC = RootClass(self.city, User.objects.latest("id"))
+        self.RC = RootClass(self.city, self.user)
         CollectGarbage(city=self.city, data=self.RC).run()
         TurnCalculation(
-            city=self.city, data=self.RC, profile=Profile.objects.latest("id")
+            city=self.city, data=self.RC, profile=self.user.profile
         ).save_all()
         self.RC = RootClass(self.city, User.objects.latest("id"))
         self.assertEqual(
@@ -78,7 +78,7 @@ class TestTrashAllocation(test.TestCase):
         dg2 = DumpingGround.objects.create(
             if_under_construction=False,
             city=self.city,
-            city_field=CityField.objects.get(id=1),
+            city_field=Field.objects.latest("id"),
         )
         self.RC = RootClass(self.city, User.objects.latest("id"))
         self.collect_garbage = CollectGarbage(city=self.city, data=self.RC)
@@ -130,7 +130,7 @@ class TestTrashAllocation(test.TestCase):
         self.RC = RootClass(self.city, User.objects.latest("id"))
         CollectGarbage(city=self.city, data=self.RC).run()
         TurnCalculation(
-            city=self.city, data=self.RC, profile=Profile.objects.latest("id")
+            city=self.city, data=self.RC, profile=self.user.profile
         ).save_all()
         dumping_ground = DumpingGround.objects.latest("id")
         self.assertGreater(dumping_ground.current_space_for_trash, 30)

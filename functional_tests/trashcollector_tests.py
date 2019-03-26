@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.db.models import Sum
 
 from city_engine.models import (
-    CityField,
+    Field,
     City,
     WindPlant,
     DumpingGround,
@@ -54,47 +54,47 @@ class TrashCollectorTest(BaseTest):
             assertTrue=self.assertTrue,
         )
         main_view = MainView(self.browser, self.live_server_url)
-        cf_id = CityField.objects.latest("id").id
+        cf_id = Field.objects.latest("id").id
         SewageWorks.objects.create(
             city=self.city_one,
-            city_field=CityField.objects.get(id=cf_id),
+            city_field=Field.objects.get(id=cf_id),
             if_under_construction=False,
         )
         WaterTower.objects.create(
             city=self.city_one,
-            city_field=CityField.objects.get(id=cf_id - 1),
+            city_field=Field.objects.get(id=cf_id - 1),
             if_under_construction=False,
         )
         WaterTower.objects.create(
             city=self.city_one,
-            city_field=CityField.objects.get(id=cf_id - 2),
+            city_field=Field.objects.get(id=cf_id - 2),
             if_under_construction=False,
         )
         WindPlant.objects.create(
             city=self.city_one,
-            city_field=CityField.objects.get(id=cf_id - 3),
+            city_field=Field.objects.get(id=cf_id - 3),
             if_under_construction=False,
         )
         WindPlant.objects.create(
             city=self.city_one,
-            city_field=CityField.objects.get(id=cf_id - 4),
+            city_field=Field.objects.get(id=cf_id - 4),
             if_under_construction=False,
         )
         dg = DumpingGround.objects.create(
             city=self.city_one,
-            city_field=CityField.objects.get(id=cf_id - 5),
+            city_field=Field.objects.get(id=cf_id - 5),
             if_under_construction=False,
         )
         DustCart.objects.create(dumping_ground=dg)
         StandardLevelResidentialZone.objects.create(
             city=self.city_one,
-            city_field=CityField.objects.get(id=cf_id - 6),
+            city_field=Field.objects.get(id=cf_id - 6),
             max_population=30,
             if_under_construction=False,
         )
         StandardLevelResidentialZone.objects.create(
             city=self.city_one,
-            city_field=CityField.objects.get(id=cf_id - 7),
+            city_field=Field.objects.get(id=cf_id - 7),
             max_population=30,
             if_under_construction=False,
         )
@@ -113,7 +113,7 @@ class TrashCollectorTest(BaseTest):
         self.assertGreater(dumping_ground.current_space_for_trash, 100)
         self.assertEqual(dust_cart.employee.count(), 3)
         self.assertGreater(
-            CityField.objects.filter(city=self.city_one).aggregate(Sum("pollution"))[
+            Field.objects.filter(city=self.city_one).aggregate(Sum("pollution"))[
                 "pollution__sum"
             ],
             36,

@@ -16,17 +16,17 @@ class TestTurnCalculation(test.TestCase, TestHelper):
     fixtures = ["basic_fixture_resources_and_employees.json"]
 
     def setUp(self):
-        self.profile = Profile.objects.latest("id")
+        self.user = User.objects.latest('id')
         self.city = City.objects.latest("id")
-        Market.objects.create(profile=self.profile)
-        self.data = RootClass(city=self.city, user=User.objects.latest("id"))
+        Market.objects.create(profile=self.user.profile)
+        self.data = RootClass(city=self.city, user=self.user)
 
     def test_calculate_maintanance_cost(self):
         self.assertEqual(
             TurnCalculation(
-                self.city, self.data, Profile.objects.latest("id")
+                self.city, self.data, self.user.profile
             ).calculate_maintenance_cost(),
-            50,
+            40,
         )
 
     def test_financial_action(self):
@@ -63,5 +63,5 @@ class TestTurnCalculation(test.TestCase, TestHelper):
         p.save()
         m.save()
         data = RootClass(city=self.city, user=User.objects.latest("id"))
-        tc = TurnCalculation(self.city, data, Profile.objects.latest("id"))
+        tc = TurnCalculation(self.city, data, self.user.profile)
         tc.financial_actions()

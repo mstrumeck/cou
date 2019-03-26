@@ -1,170 +1,300 @@
 [
 {
-  "model": "city_engine.cityfield",
+  "model": "map_engine.map",
   "pk": 1,
   "fields": {
-    "city": 1,
-    "col": 0,
-    "row": 0,
+    "name": "",
+    "rows": 106,
+    "cols": 66
+  }
+},
+{
+  "model": "map_engine.field",
+  "pk": 4697,
+  "fields": {
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": "Mountain",
+    "col": 17,
+    "row": 73,
+    "if_start": false,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 2,
+  "model": "map_engine.field",
+  "pk": 4698,
   "fields": {
-    "city": 1,
-    "col": 1,
-    "row": 0,
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": null,
+    "col": 18,
+    "row": 73,
+    "if_start": false,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 3,
+  "model": "map_engine.field",
+  "pk": 4699,
   "fields": {
-    "city": 1,
-    "col": 2,
-    "row": 0,
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": null,
+    "col": 19,
+    "row": 73,
+    "if_start": false,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 4,
+  "model": "map_engine.field",
+  "pk": 4761,
   "fields": {
-    "city": 1,
-    "col": 3,
-    "row": 0,
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": "Mountain",
+    "col": 16,
+    "row": 74,
+    "if_start": false,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 5,
+  "model": "map_engine.field",
+  "pk": 4762,
   "fields": {
-    "city": 1,
-    "col": 0,
-    "row": 1,
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": "Mountain",
+    "col": 17,
+    "row": 74,
+    "if_start": false,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 6,
+  "model": "map_engine.field",
+  "pk": 4763,
   "fields": {
-    "city": 1,
-    "col": 1,
-    "row": 1,
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": null,
+    "col": 18,
+    "row": 74,
+    "if_start": false,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 7,
+  "model": "map_engine.field",
+  "pk": 4764,
   "fields": {
-    "city": 1,
-    "col": 2,
-    "row": 1,
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": null,
+    "col": 19,
+    "row": 74,
+    "if_start": false,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 8,
+  "model": "map_engine.field",
+  "pk": 4826,
   "fields": {
-    "city": 1,
-    "col": 3,
-    "row": 1,
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": null,
+    "col": 16,
+    "row": 75,
+    "if_start": false,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 9,
+  "model": "map_engine.field",
+  "pk": 4827,
   "fields": {
-    "city": 1,
-    "col": 0,
-    "row": 2,
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": "Fertile",
+    "col": 17,
+    "row": 75,
+    "if_start": false,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 10,
+  "model": "map_engine.field",
+  "pk": 4828,
   "fields": {
-    "city": 1,
-    "col": 1,
-    "row": 2,
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": null,
+    "col": 18,
+    "row": 75,
+    "if_start": true,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 11,
+  "model": "map_engine.field",
+  "pk": 4829,
   "fields": {
-    "city": 1,
-    "col": 2,
-    "row": 2,
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": "Sea",
+    "col": 19,
+    "row": 75,
+    "if_start": false,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 12,
+  "model": "map_engine.field",
+  "pk": 4830,
   "fields": {
-    "city": 1,
-    "col": 3,
-    "row": 2,
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": null,
+    "col": 20,
+    "row": 75,
+    "if_start": false,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 13,
+  "model": "map_engine.field",
+  "pk": 4891,
   "fields": {
-    "city": 1,
-    "col": 0,
-    "row": 3,
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": null,
+    "col": 16,
+    "row": 76,
+    "if_start": false,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 14,
+  "model": "map_engine.field",
+  "pk": 4892,
   "fields": {
-    "city": 1,
-    "col": 1,
-    "row": 3,
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": null,
+    "col": 17,
+    "row": 76,
+    "if_start": false,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 15,
+  "model": "map_engine.field",
+  "pk": 4893,
   "fields": {
-    "city": 1,
-    "col": 2,
-    "row": 3,
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": null,
+    "col": 18,
+    "row": 76,
+    "if_start": false,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 16,
+  "model": "map_engine.field",
+  "pk": 4894,
   "fields": {
-    "city": 1,
-    "col": 3,
-    "row": 3,
+    "map": 1,
+    "player": 1,
+    "resource": "Uran",
+    "terrain": null,
+    "col": 19,
+    "row": 76,
+    "if_start": false,
     "pollution": 0
   }
 },
+{
+  "model": "map_engine.field",
+  "pk": 4957,
+  "fields": {
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": null,
+    "col": 17,
+    "row": 77,
+    "if_start": false,
+    "pollution": 0
+  }
+},
+{
+  "model": "map_engine.field",
+  "pk": 4958,
+  "fields": {
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": null,
+    "col": 18,
+    "row": 77,
+    "if_start": false,
+    "pollution": 0
+  }
+},
+{
+  "model": "map_engine.field",
+  "pk": 4959,
+  "fields": {
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": null,
+    "col": 19,
+    "row": 77,
+    "if_start": false,
+    "pollution": 0
+  }
+},
+
+{
+  "model": "city_engine.city",
+  "pk": 1,
+  "fields": {
+    "player": 1,
+    "map": 1,
+    "name": "Wroc\u0142aw",
+    "cash": "1000000.00",
+    "trade_zones_taxation": 0.05,
+    "publish": "2019-03-13",
+    "updated": "2019-03-13"
+  }
+},
+
 {
   "model": "auth.user",
   "pk": 1,
   "fields": {
-    "password": "pbkdf2_sha256$36000$t8WTQJzyzJHo$0jTenbr6Ej7rXXN3BPo8PtYhIkAFhPIdDqWokwkrxNI=",
-    "last_login": "2018-04-21T19:42:37.237Z",
+    "password": "pbkdf2_sha256$36000$iZtFeFH1xX5d$zE1Gk405043YeL6IVZP8oXE2yddlgk7QQKpABtE+cJk=",
+    "last_login": "2019-03-13T18:50:33.842Z",
     "is_superuser": false,
     "username": "Micha\u0142",
     "first_name": "",
@@ -172,20 +302,9 @@
     "email": "",
     "is_staff": false,
     "is_active": true,
-    "date_joined": "2018-04-21T19:42:36.829Z",
+    "date_joined": "2019-03-13T18:50:32.933Z",
     "groups": [],
     "user_permissions": []
-  }
-},
-{
-  "model": "city_engine.city",
-  "pk": 1,
-  "fields": {
-    "user": 1,
-    "name": "Wroc\u0142aw",
-    "cash": "9805.00",
-    "publish": "2018-04-21",
-    "updated": "2018-04-21"
   }
 }
 ]

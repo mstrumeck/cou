@@ -14,7 +14,6 @@ from cou.global_var import (
     MASTER,
     PROFESSIONAL,
 )
-from player.models import Profile
 from resources.models import Market
 
 
@@ -24,8 +23,8 @@ class ProfessionUpdateLevelTests(TestCase):
     def setUp(self):
         self.city = City.objects.get(id=1)
         self.user = User.objects.latest("id")
-        self.profile = Profile.objects.latest("id")
-        Market.objects.create(profile=self.profile)
+        self.user = User.objects.latest('id')
+        Market.objects.create(profile=self.user.profile)
         self.r1 = StandardLevelResidentialZone.objects.latest("id")
         self.s = Citizen.objects.create(
             city=self.city,

@@ -47,15 +47,20 @@ class ResourceAllocation:
             surroundings = self.field_surroundings(
                 self.data.list_of_buildings[build].row_col_cor
             )
-            pollution_to_allocate = build.pollution_calculation(
-                self.data.list_of_buildings[build].people_in_charge
-            ) / len(surroundings)
-            for field in [
-                self.data.city_fields_in_city[field].row_col
-                for field in self.data.city_fields_in_city
-                if self.data.city_fields_in_city[field].row_col in surroundings
-            ]:
-                self.fields_in_city_by_corr[field].pollution += pollution_to_allocate
+            pollution_to_allocate = self.get_pollution_to_allocate(build, surroundings)
+            if pollution_to_allocate:
+                for field in [
+                    self.data.city_fields_in_city[field].row_col
+                    for field in self.data.city_fields_in_city
+                    if self.data.city_fields_in_city[field].row_col in surroundings
+                ]:
+                    self.fields_in_city_by_corr[field].pollution += pollution_to_allocate
+
+    def get_pollution_to_allocate(self, build, surroundings):
+        pollution_in_build = build.pollution_calculation(self.data.list_of_buildings[build].people_in_charge)
+        if pollution_in_build and surroundings:
+            return pollution_in_build / len(surroundings)
+        return 0
 
     def field_surroundings(self, field):
         row = field[0]
@@ -73,6 +78,6 @@ class ResourceAllocation:
         return [
             sur
             for sur in pattern
-            if (sur[0] >= 0 and sur[0] <= ROW_NUM)
-            and (sur[1] >= 0 and sur[1] <= HEX_NUM_IN_ROW)
+            if (sur[0] >= self.data.min_row and sur[0] <= self.data.max_row)
+            and (sur[1] >= self.data.min_col and sur[1] <= self.data.max_col)
         ]

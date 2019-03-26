@@ -1,7 +1,7 @@
 from functional_tests.page_objects import MainView, LoginPage, Homepage
-from city_engine.models import City, CityField, TradeDistrict
+from city_engine.models import City, Field, TradeDistrict
 from resources.models import Market, Mass
-from .legacy.base import BaseTest, BaseTestOfficial
+from .legacy.base import BaseTest
 from django.contrib.auth.models import User
 from selenium import webdriver
 from company_engine.models import FoodCompany, Food
@@ -19,7 +19,7 @@ class TrashCollectorTest(BaseTest):
         self.user = User.objects.latest("id")
         self.profile = Profile.objects.latest("id")
         self.td = TradeDistrict.objects.create(
-            city=self.city, city_field=CityField.objects.latest("id")
+            city=self.city, city_field=Field.objects.latest("id")
         )
         self.fc = FoodCompany.objects.create(cash=1000000, trade_district=self.td)
         self.market = Market.objects.create(profile=self.profile)

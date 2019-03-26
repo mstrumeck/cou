@@ -1,162 +1,290 @@
 [
 {
-  "model": "city_engine.cityfield",
+  "model": "map_engine.map",
   "pk": 1,
   "fields": {
-    "city": 1,
-    "col": 0,
-    "row": 0,
+    "name": "",
+    "rows": 106,
+    "cols": 66
+  }
+},
+{
+  "model": "map_engine.field",
+  "pk": 4697,
+  "fields": {
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": "Mountain",
+    "col": 17,
+    "row": 73,
+    "if_start": false,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 2,
+  "model": "map_engine.field",
+  "pk": 4698,
   "fields": {
-    "city": 1,
-    "col": 1,
-    "row": 0,
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": null,
+    "col": 18,
+    "row": 73,
+    "if_start": false,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 3,
+  "model": "map_engine.field",
+  "pk": 4699,
   "fields": {
-    "city": 1,
-    "col": 2,
-    "row": 0,
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": null,
+    "col": 19,
+    "row": 73,
+    "if_start": false,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 4,
+  "model": "map_engine.field",
+  "pk": 4761,
   "fields": {
-    "city": 1,
-    "col": 3,
-    "row": 0,
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": "Mountain",
+    "col": 16,
+    "row": 74,
+    "if_start": false,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 5,
+  "model": "map_engine.field",
+  "pk": 4762,
   "fields": {
-    "city": 1,
-    "col": 0,
-    "row": 1,
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": "Mountain",
+    "col": 17,
+    "row": 74,
+    "if_start": false,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 6,
+  "model": "map_engine.field",
+  "pk": 4763,
   "fields": {
-    "city": 1,
-    "col": 1,
-    "row": 1,
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": null,
+    "col": 18,
+    "row": 74,
+    "if_start": false,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 7,
+  "model": "map_engine.field",
+  "pk": 4764,
   "fields": {
-    "city": 1,
-    "col": 2,
-    "row": 1,
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": null,
+    "col": 19,
+    "row": 74,
+    "if_start": false,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 8,
+  "model": "map_engine.field",
+  "pk": 4826,
   "fields": {
-    "city": 1,
-    "col": 3,
-    "row": 1,
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": null,
+    "col": 16,
+    "row": 75,
+    "if_start": false,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 9,
+  "model": "map_engine.field",
+  "pk": 4827,
   "fields": {
-    "city": 1,
-    "col": 0,
-    "row": 2,
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": "Fertile",
+    "col": 17,
+    "row": 75,
+    "if_start": false,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 10,
+  "model": "map_engine.field",
+  "pk": 4828,
   "fields": {
-    "city": 1,
-    "col": 1,
-    "row": 2,
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": null,
+    "col": 18,
+    "row": 75,
+    "if_start": true,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 11,
+  "model": "map_engine.field",
+  "pk": 4829,
   "fields": {
-    "city": 1,
-    "col": 2,
-    "row": 2,
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": "Sea",
+    "col": 19,
+    "row": 75,
+    "if_start": false,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 12,
+  "model": "map_engine.field",
+  "pk": 4830,
   "fields": {
-    "city": 1,
-    "col": 3,
-    "row": 2,
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": null,
+    "col": 20,
+    "row": 75,
+    "if_start": false,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 13,
+  "model": "map_engine.field",
+  "pk": 4891,
   "fields": {
-    "city": 1,
-    "col": 0,
-    "row": 3,
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": null,
+    "col": 16,
+    "row": 76,
+    "if_start": false,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 14,
+  "model": "map_engine.field",
+  "pk": 4892,
   "fields": {
-    "city": 1,
-    "col": 1,
-    "row": 3,
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": null,
+    "col": 17,
+    "row": 76,
+    "if_start": false,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 15,
+  "model": "map_engine.field",
+  "pk": 4893,
   "fields": {
-    "city": 1,
-    "col": 2,
-    "row": 3,
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": null,
+    "col": 18,
+    "row": 76,
+    "if_start": false,
     "pollution": 0
   }
 },
 {
-  "model": "city_engine.cityfield",
-  "pk": 16,
+  "model": "map_engine.field",
+  "pk": 4894,
   "fields": {
-    "city": 1,
-    "col": 3,
-    "row": 3,
+    "map": 1,
+    "player": 1,
+    "resource": "Uran",
+    "terrain": null,
+    "col": 19,
+    "row": 76,
+    "if_start": false,
     "pollution": 0
+  }
+},
+{
+  "model": "map_engine.field",
+  "pk": 4957,
+  "fields": {
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": null,
+    "col": 17,
+    "row": 77,
+    "if_start": false,
+    "pollution": 0
+  }
+},
+{
+  "model": "map_engine.field",
+  "pk": 4958,
+  "fields": {
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": null,
+    "col": 18,
+    "row": 77,
+    "if_start": false,
+    "pollution": 0
+  }
+},
+{
+  "model": "map_engine.field",
+  "pk": 4959,
+  "fields": {
+    "map": 1,
+    "player": 1,
+    "resource": null,
+    "terrain": null,
+    "col": 19,
+    "row": 77,
+    "if_start": false,
+    "pollution": 0
+  }
+},
+{
+  "model": "city_engine.city",
+  "pk": 1,
+  "fields": {
+    "player": 1,
+    "map": 1,
+    "name": "Wroc\u0142aw",
+    "cash": "1000000.00",
+    "trade_zones_taxation": 0.05,
+    "publish": "2019-03-13",
+    "updated": "2019-03-13"
   }
 },
 {
@@ -164,18 +292,19 @@
   "pk": 1,
   "fields": {
     "city": 1,
-    "city_field": 8,
+    "city_field": 4699,
+    "cash": "0.00",
     "if_under_construction": false,
-    "current_build_time": 1,
+    "maintenance_cost": 0,
+    "current_build_time": 7,
     "pollution_rate": 0.0,
     "pollution_product": 0,
     "recycling": 0,
-    "name": "Budynek Mieszkalny",
     "population": 0,
-    "max_population": 4,
+    "max_population": 30,
     "build_time": 7,
     "build_cost": 600000,
-    "maintenance_cost": 10
+    "name": "Normalna dzielnica mieszkalna"
   }
 },
 {
@@ -183,20 +312,22 @@
   "pk": 1,
   "fields": {
     "city": 1,
-    "city_field": 6,
+    "city_field": 4892,
+    "cash": "0.00",
     "if_under_construction": false,
     "current_build_time": 3,
     "pollution_product": 0,
     "recycling": 0,
-    "elementary_employee_needed": 5,
     "college_employee_needed": 0,
     "phd_employee_needed": 0,
     "power_nodes": 2,
     "name": "Elektrownia wiatrowa",
+    "profession_type_provided": "Pracownik elektrowni wiatrowej",
     "build_time": 3,
     "build_cost": 100,
     "maintenance_cost": 10,
-    "pollution_rate": 1.8
+    "pollution_rate": 1.8,
+    "elementary_employee_needed": 5
   }
 },
 {
@@ -204,20 +335,22 @@
   "pk": 2,
   "fields": {
     "city": 1,
-    "city_field": 7,
+    "city_field": 4957,
+    "cash": "0.00",
     "if_under_construction": false,
     "current_build_time": 3,
     "pollution_product": 0,
     "recycling": 0,
-    "elementary_employee_needed": 5,
     "college_employee_needed": 0,
     "phd_employee_needed": 0,
     "power_nodes": 2,
     "name": "Elektrownia wiatrowa",
+    "profession_type_provided": "Pracownik elektrowni wiatrowej",
     "build_time": 3,
     "build_cost": 100,
     "maintenance_cost": 10,
-    "pollution_rate": 1.8
+    "pollution_rate": 1.8,
+    "elementary_employee_needed": 5
   }
 },
 {
@@ -225,19 +358,21 @@
   "pk": 1,
   "fields": {
     "city": 1,
-    "city_field": 10,
+    "city_field": 4828,
+    "cash": "0.00",
     "if_under_construction": false,
     "current_build_time": 1,
     "pollution_product": 0,
     "recycling": 0,
-    "elementary_employee_needed": 5,
     "college_employee_needed": 0,
     "phd_employee_needed": 0,
     "pollution_rate": 0.5,
     "name": "Wie\u017ca ci\u015bnie\u0144",
+    "profession_type_provided": "Pracownik wie\u017cy ci\u015bnie\u0144",
     "build_time": 1,
     "build_cost": 50,
-    "maintenance_cost": 5
+    "maintenance_cost": 5,
+    "elementary_employee_needed": 5
   }
 },
 {
@@ -245,62 +380,68 @@
   "pk": 2,
   "fields": {
     "city": 1,
-    "city_field": 11,
+    "city_field": 4763,
+    "cash": "0.00",
     "if_under_construction": false,
     "current_build_time": 1,
     "pollution_product": 0,
     "recycling": 0,
-    "elementary_employee_needed": 5,
     "college_employee_needed": 0,
     "phd_employee_needed": 0,
     "pollution_rate": 0.5,
     "name": "Wie\u017ca ci\u015bnie\u0144",
+    "profession_type_provided": "Pracownik wie\u017cy ci\u015bnie\u0144",
     "build_time": 1,
     "build_cost": 50,
-    "maintenance_cost": 5
+    "maintenance_cost": 5,
+    "elementary_employee_needed": 5
   }
 },
-  {
-    "model": "city_engine.sewageworks",
-    "pk": 1,
-    "fields":{
-      "city": 1,
-      "city_field": 16,
-      "if_under_construction": false,
-      "current_build_time": 1,
-      "pollution_product": 0,
-      "recycling": 0,
-      "elementary_employee_needed": 3,
-      "college_employee_needed": 0,
-      "phd_employee_needed": 0,
-      "name":  "Oczyszczalnia ścieków",
-      "build_time": 2,
-      "build_cost" :75,
-      "maintenance_cost": 10,
-      "pollution_rate": 2.0
-    }
-  },
+{
+  "model": "city_engine.sewageworks",
+  "pk": 1,
+  "fields": {
+    "city": 1,
+    "city_field": 4893,
+    "cash": "0.00",
+    "if_under_construction": false,
+    "current_build_time": 2,
+    "pollution_product": 0,
+    "recycling": 0,
+    "college_employee_needed": 0,
+    "phd_employee_needed": 0,
+    "name": "Oczyszczalnia \u015bciek\u00f3w",
+    "profession_type_provided": "Pracownik oczyszczalni",
+    "build_time": 2,
+    "build_cost": 75,
+    "maintenance_cost": 10,
+    "pollution_rate": 2.0,
+    "elementary_employee_needed": 3
+  }
+},
 {
   "model": "city_engine.dumpingground",
   "pk": 1,
   "fields": {
     "city": 1,
-    "city_field": 12,
+    "city_field": 4891,
+    "cash": "0.00",
     "if_under_construction": false,
     "current_build_time": 2,
     "pollution_product": 0,
     "recycling": 0,
-    "elementary_employee_needed": 5,
     "college_employee_needed": 0,
     "phd_employee_needed": 0,
     "name": "Wysypisko \u015bmieci",
+    "profession_type_provided": "Pracownik wysypiska \u015bmieci",
     "build_time": 2,
     "build_cost": 100,
     "maintenance_cost": 10,
     "limit_of_dust_cars": 6,
     "current_space_for_trash": 0,
     "max_space_for_trash": 10000,
-    "pollution_rate": 3.0
+    "pollution_rate": 3.0,
+    "elementary_employee_needed": 5
   }
 },
 {
@@ -309,22 +450,23 @@
   "fields": {
     "city": 1,
     "maintenance_cost": 0,
+    "college_employee_needed": 0,
+    "phd_employee_needed": 0,
     "dumping_ground": 1,
+    "profession_type_provided": "\u015amieciarz",
     "name": "\u015amieciarka",
     "cost": 10,
     "elementary_employee_needed": 3,
-    "college_employee_needed": 0,
-    "phd_employee_needed": 0,
     "curr_capacity": 0,
     "max_capacity": 60
   }
 },
-{
+    {
   "model": "auth.user",
   "pk": 1,
   "fields": {
-    "password": "pbkdf2_sha256$36000$pLSg7NAsDSIH$Etzt6n0N4/hZ2ME4WO1mhRPIBtUKZxvCz/zwTFYJgfI=",
-    "last_login": "2018-04-21T19:54:18.265Z",
+    "password": "pbkdf2_sha256$36000$iZtFeFH1xX5d$zE1Gk405043YeL6IVZP8oXE2yddlgk7QQKpABtE+cJk=",
+    "last_login": "2019-03-13T18:50:33.842Z",
     "is_superuser": false,
     "username": "Micha\u0142",
     "first_name": "",
@@ -332,20 +474,23 @@
     "email": "",
     "is_staff": false,
     "is_active": true,
-    "date_joined": "2018-04-21T19:54:17.602Z",
+    "date_joined": "2019-03-13T18:50:32.933Z",
     "groups": [],
     "user_permissions": []
   }
 },
-{
-  "model": "city_engine.city",
+  {
+  "model": "player.profile",
   "pk": 1,
   "fields": {
     "user": 1,
-    "name": "Wroc\u0142aw",
-    "cash": "9280.00",
-    "publish": "2018-04-21",
-    "updated": "2018-04-21"
+    "email_confirmed": false,
+    "current_turn": 1,
+    "chance_to_marriage_percent": 0.8,
+    "chance_to_born_baby_percent": 0.6,
+    "standard_residential_zone_taxation": 0.01,
+    "primary_school_education_ratio": 0.0104,
+    "if_social_enabled": false
   }
 }
 ]

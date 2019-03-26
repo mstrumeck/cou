@@ -1,15 +1,13 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
-from city_engine.models import StandardLevelResidentialZone, City, WindPlant
-from citizen_engine.models import Citizen, Family
+
 from citizen_engine.citizen_creation import CreateCitizen
-import random, string
-from cou.abstract import RootClass
+from citizen_engine.models import Citizen, Family
 from citizen_engine.social_actions import SocialAction
-from player.models import Profile
-from citizen_engine.citizen_abstract import CitizenAbstract
-from cou.global_var import MALE, FEMALE, ELEMENTARY
+from city_engine.models import StandardLevelResidentialZone, City, WindPlant
 from city_engine.turn_data.main import TurnCalculation
+from cou.abstract import RootClass
+from cou.global_var import MALE, FEMALE, ELEMENTARY
 from resources.models import Market
 
 
@@ -18,10 +16,10 @@ class CitizenGetMarriedTests(TestCase):
 
     def setUp(self):
         self.city = City.objects.get(id=1)
-        self.profile = Profile.objects.latest("id")
+        self.user = User.objects.latest('id')
         self.she_family = Family.objects.create(city=self.city, surname="00")
         self.he_family = Family.objects.create(city=self.city, surname="01")
-        Market.objects.create(profile=self.profile)
+        Market.objects.create(profile=self.user.profile)
         self.f = Citizen.objects.create(
             city=self.city,
             age=21,
@@ -48,7 +46,7 @@ class CitizenGetMarriedTests(TestCase):
         self.RC = RootClass(self.city, User.objects.latest("id"))
 
     def test_chance_to_married_succed_scenario(self):
-        self.profile.chance_to_marriage_percent = 1.00
+        self.user.profile.chance_to_marriage_percent = 1.00
         m = Citizen.objects.get(id=self.m.id)
         f = Citizen.objects.get(id=self.f.id)
         self.assertEqual(m.partner_id, 0)
@@ -66,12 +64,12 @@ class CitizenGetMarriedTests(TestCase):
             1,
         )
         self.assertEqual(len(self.RC.families), 2)
-        sa = SocialAction(self.city, self.profile, self.RC)
+        sa = SocialAction(self.city, self.user.profile, self.RC)
         sa.match_marriages()
-        TurnCalculation(self.city, self.RC, self.profile).save_all()
+        TurnCalculation(self.city, self.RC, self.user.profile).save_all()
         self.RC = RootClass(self.city, User.objects.latest("id"))
         self.assertEqual(len(self.RC.families), 1)
-        self.assertEqual(self.profile.chance_to_marriage_percent, 1.00)
+        self.assertEqual(self.user.profile.chance_to_marriage_percent, 1.00)
         m = Citizen.objects.get(id=self.m.id)
         f = Citizen.objects.get(id=self.f.id)
         self.assertEqual(m.partner_id, f.id)
@@ -91,7 +89,7 @@ class CitizenGetMarriedTests(TestCase):
         )
 
     def test_chance_to_married_failed_scenario(self):
-        self.profile.chance_to_marriage_percent = 0.00
+        self.user.profile.chance_to_marriage_percent = 0.00
         m = Citizen.objects.get(id=self.m.id)
         f = Citizen.objects.get(id=self.f.id)
         self.assertEqual(m.partner_id, 0)
@@ -103,11 +101,11 @@ class CitizenGetMarriedTests(TestCase):
             1,
         )
         sa = SocialAction(
-            self.city, self.profile, RootClass(self.city, User.objects.latest("id"))
+            self.city, self.user.profile, RootClass(self.city, User.objects.latest("id"))
         )
         sa.match_marriages()
         sa.update_age()
-        self.assertEqual(self.profile.chance_to_marriage_percent, 0.00)
+        self.assertEqual(self.user.profile.chance_to_marriage_percent, 0.00)
         m = Citizen.objects.get(id=self.m.id)
         f = Citizen.objects.get(id=self.f.id)
         self.assertEqual(m.partner_id, 0)
@@ -124,7 +122,7 @@ class CitizenGetMarriedTests(TestCase):
         )
 
     def test_chance_to_married_failed_becouse_lack_of_residential_scenario(self):
-        self.profile.chance_to_marriage_percent = 1.00
+        self.user.profile.chance_to_marriage_percent = 1.00
         m = Citizen.objects.get(id=self.m.id)
         f = Citizen.objects.get(id=self.f.id)
         self.assertEqual(m.partner_id, 0)
@@ -140,11 +138,11 @@ class CitizenGetMarriedTests(TestCase):
             1,
         )
         sa = SocialAction(
-            self.city, self.profile, RootClass(self.city, User.objects.latest("id"))
+            self.city, self.user.profile, RootClass(self.city, User.objects.latest("id"))
         )
         sa.match_marriages()
         sa.update_age()
-        self.assertEqual(self.profile.chance_to_marriage_percent, 1.00)
+        self.assertEqual(self.user.profile.chance_to_marriage_percent, 1.00)
         self.assertEqual(res.max_population, 1)
         m = Citizen.objects.get(id=self.m.id)
         f = Citizen.objects.get(id=self.f.id)
@@ -165,11 +163,11 @@ class BornChildTests(TestCase):
 
     def setUp(self):
         self.city = City.objects.get(id=1)
-        self.profile = Profile.objects.latest("id")
         self.r1 = StandardLevelResidentialZone.objects.latest("id")
+        self.user = User.objects.latest('id')
         he_family = Family.objects.create(surname="01", city=self.city)
         she_family = Family.objects.create(surname="02", city=self.city)
-        Market.objects.create(profile=self.profile)
+        Market.objects.create(profile=self.user.profile)
         self.f = Citizen.objects.create(
             city=self.city,
             age=21,
@@ -193,25 +191,25 @@ class BornChildTests(TestCase):
             sex=MALE,
             family=he_family,
         )
-        self.profile.chance_to_marriage_percent = 1.00
+        self.user.profile.chance_to_marriage_percent = 1.00
         self.RC = RootClass(self.city, User.objects.latest("id"))
-        self.sa = SocialAction(self.city, self.profile, self.RC)
+        self.sa = SocialAction(self.city, self.user.profile, self.RC)
         self.sa.match_marriages()
 
     def test(self):
-        self.profile.current_turn = 2
-        self.profile.save()
+        self.user.profile.current_turn = 2
+        self.user.profile.save()
         self.assertEqual(self.m.age, 21)
         self.assertEqual(self.f.age, 21)
         self.sa.update_age()
-        TurnCalculation(self.city, self.RC, self.profile).save_all()
+        TurnCalculation(self.city, self.RC, self.user.profile).save_all()
         self.m = Citizen.objects.get(id=self.m.id)
         self.f = Citizen.objects.get(id=self.f.id)
         self.assertEqual(self.m.age, 22)
         self.assertEqual(self.f.age, 22)
 
     def test_born_child_success_scenario(self):
-        self.profile.chance_to_born_baby_percent = 1.00
+        self.user.profile.chance_to_born_baby_percent = 1.00
         self.sa.citizen_data.chance_to_born = (
             self.sa.citizen_data.chance_to_born_baby_calc()
         )
@@ -223,7 +221,7 @@ class BornChildTests(TestCase):
         self.assertEqual(ch.mother_id, self.f.id)
 
     def test_born_child_failed_scenario(self):
-        self.profile.chance_to_born_baby_percent = 0.00
+        self.user.profile.chance_to_born_baby_percent = 0.00
         self.sa.citizen_data.chance_to_born = (
             self.sa.citizen_data.chance_to_born_baby_calc()
         )
@@ -237,8 +235,8 @@ class CitizenCreationsTest(TestCase):
 
     def setUp(self):
         self.city = City.objects.get(id=1)
-        self.profile = Profile.objects.latest("id")
-        Market.objects.create(profile=self.profile)
+        self.user = User.objects.latest("id")
+        Market.objects.create(profile=self.user.profile)
         self.RC = RootClass(self.city, User.objects.latest("id"))
 
     def test_allocate_citizen_to_res_and_work(self):

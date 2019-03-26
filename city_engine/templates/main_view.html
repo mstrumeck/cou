@@ -22,30 +22,8 @@
 <p>Miasto: {{ city.name }}</p>
 <p>Pieniądze: {{ city.cash }}</p>
 <p>Masa: {{ city.mass }}</p>
-<p>Koszty utrzymania: {{ total_cost_of_maintenance }}</p>
-
-<p>Obecna populacja {{ current_population }}/{{ max_population }}</p>
 
 <h1>Statystyki</h1>
-<table class="table">
-    <thead>
-        <tr>
-            <th></th>
-            <th>Energia</th>
-            <th>Surowa Woda</th>
-            <th>Oczyszczona Woda</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for resources in city_resources_stats %}
-            <tr>
-                {% for stats in resources %}
-                <th>{{ stats }}</th>
-                {% endfor %}
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
 
 <p>{{ profile.current_turn }}/12</p>
 {% if city.cash > 0 %}
@@ -58,9 +36,6 @@
 <h1>BANKRUT</h1>
 {% endif %}
 
-<p>Zapotrzebowanie na strefy mieszkalne: {{ home_demands }}</p>
-<p>Zapotrzebowanie na strefy przemysłowe: {{ industial_demands }}</p>
-<p>Zapotrzebowanie na strefy handlowe: {{ trade_demands }}</p>
 
 <div class="container">
     <h2>Dynamic Tabs</h2>
@@ -145,10 +120,10 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for name, start, end in buildings_under_construction %}
+                {% for b in buildings_under_construction %}
                 <tr>
-                    <th>{{ name }}</th>
-                    <th>{{ start }}/{{ end }}</th>
+                    <th>{{ b.name }}</th>
+                    <th>{{ b.current_build_time }}/{{ b.build_time }}</th>
                 </tr>
                 {% endfor %}
                 </tbody>
@@ -211,7 +186,7 @@
         data: {
             isActive: false,
             activeBuilding: '',
-            numOfResidents: 0
+            numOfResidents: 0,
         },
         methods: {
             filter: function (typeOfBuilding) {
@@ -226,19 +201,11 @@
                     this.activeBuilding = typeOfBuilding;
                 }
             },
-            ifLeadZero: function (rc) {
-                if (rc <= 9) {
-                    return '0' + rc;
-                } else {
-                    return rc;
-                }
-            },
             getRowCol: function (rc) {
-                rc = this.ifLeadZero(rc);
                 if (this.isActive && this.activeBuilding === "StandardLevelResidentialZone") {
-                    window.location.replace("/build_resident/" + rc + "/" + this.numOfResidents);
+                    window.location.replace("/build_resident/" + rc[0] + "/" + rc[1] + "/" + this.numOfResidents);
                 } else if (this.activeBuilding) {
-                    window.location.replace("/build/" + rc + "/" + this.activeBuilding + "");
+                    window.location.replace("/build/" + rc[0] + "/" + rc[1] + "/" + this.activeBuilding + "");
                 }
             }
         }

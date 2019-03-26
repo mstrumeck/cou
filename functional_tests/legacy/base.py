@@ -1,24 +1,22 @@
+from random import choice, randrange
+
+import names
+from django.contrib.auth.models import User
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from selenium import webdriver
+
+from citizen_engine.models import Citizen, Family
+from citizen_engine.models import Education
 from city_engine.main_view_data.board import assign_city_fields_to_board
-from city_engine.test.base import TestHelper
-from city_engine.main_view_data.city_stats import CityStatsCenter
 from city_engine.models import (
     City,
-    CityField,
+    Field,
     StandardLevelResidentialZone,
-    WaterTower,
-    WindPlant,
-    SewageWorks,
-    DumpingGround,
 )
-from django.contrib.auth.models import User
-from selenium import webdriver
+from city_engine.test.base import TestHelper
+from cou.global_var import ELEMENTARY
+from map_engine.models import Map
 from player.models import Profile
-from citizen_engine.models import Citizen, Family
-from cou.global_var import FEMALE, MALE, ELEMENTARY, COLLEGE
-from random import choice, randrange
-from citizen_engine.models import Education
-import names
 from resources.models import Market
 
 
@@ -63,7 +61,7 @@ class BaseTestOfficial(StaticLiveServerTestCase):
             )
             Education.objects.create(citizen=c, name=ELEMENTARY, effectiveness=0.50)
 
-        field = list(CityField.objects.all())
+        field = list(Field.objects.all())
         s = StandardLevelResidentialZone.objects.create(
             city=self.city, if_under_construction=False, city_field=field.pop()
         )
@@ -139,12 +137,10 @@ class BaseTestForTwoPlayers(StaticLiveServerTestCase):
         )
 
         self.first_city = City.objects.create(name="Wrocław", user=self.first_user)
-        assign_city_fields_to_board(self.first_city)
+        assign_city_fields_to_board(self.first_city, player=self.first_user.player, map=Map.objects.latest('id'))
 
         self.second_city = City.objects.create(name="Łódź", user=self.second_user)
-        assign_city_fields_to_board(self.second_city)
-        self.first_city_stats = CityStatsCenter(self.first_city)
-        self.second_city_stats = CityStatsCenter(self.second_city)
+        assign_city_fields_to_board(self.second_city, player=self.second_user.player, map=Map.objects.latest('id'))
 
     def tearDown(self):
         self.browser.quit()

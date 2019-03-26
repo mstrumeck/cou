@@ -1,7 +1,6 @@
 import decimal
 
 from django.apps import apps
-from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -11,6 +10,9 @@ from cou.global_var import (
     COLLEGE,
     STANDARD_RESIDENTIAL_ZONE_COST_PER_RESIDENT,
 )
+from map_engine.models import Field
+from map_engine.models import Map
+from player.models import Profile
 
 
 class Trash(models.Model):
@@ -23,7 +25,8 @@ class Trash(models.Model):
 
 
 class City(models.Model):
-    user = models.ForeignKey(User)
+    player = models.ForeignKey(Profile)
+    map = models.ForeignKey(Map)
     name = models.TextField(max_length=15, unique=True)
     cash = models.DecimalField(default=1000000, decimal_places=2, max_digits=20)
     trade_zones_taxation = models.FloatField(default=0.05)
@@ -34,16 +37,9 @@ class City(models.Model):
         return self.name
 
 
-class CityField(models.Model):
-    city = models.ForeignKey(City)
-    col = models.PositiveIntegerField()
-    row = models.PositiveIntegerField()
-    pollution = models.PositiveIntegerField(default=0)
-
-
 class Building(models.Model):
     city = models.ForeignKey(City)
-    city_field = models.ForeignKey(CityField)
+    city_field = models.ForeignKey(Field)
     cash = models.DecimalField(default=0, decimal_places=2, max_digits=20)
     if_under_construction = models.BooleanField(default=True)
     build_cost = models.PositiveIntegerField(default=0)

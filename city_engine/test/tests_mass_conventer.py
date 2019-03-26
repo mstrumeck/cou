@@ -5,7 +5,7 @@ from citizen_engine.models import Citizen, Education, Profession
 from city_engine.models import City
 from city_engine.test.base import TestHelper
 from cou.abstract import RootClass
-from player.models import Profile
+from map_engine.models import Field
 from resources.models import Market, Mass, MassConventer
 
 
@@ -15,9 +15,10 @@ class TestMassConventer(test.TestCase):
     def setUp(self):
         self.city = City.objects.latest("id")
         self.mass_conventer = MassConventer.objects.create(
-            city_id=1, city_field_id=1, if_under_construction=False
+            city_id=1, city_field=Field.objects.latest('id'), if_under_construction=False
         )
-        self.m = Market.objects.create(profile=Profile.objects.latest("id"))
+        self.user = User.objects.latest('id')
+        self.m = Market.objects.create(profile=self.user.profile)
 
     def tearDown(self):
         self.mass_conventer.college_employee_needed = 0

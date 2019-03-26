@@ -1,8 +1,8 @@
 from random import randint, choice
 
 from citizen_engine.citizen_creation import CreateCitizen
-from city_engine.main_view_data.city_stats import CityPopulationStats
 from cou.global_var import ELEMENTARY, COLLEGE, PHD
+from city_engine.models import Residential
 
 
 class EmployeeAllocation:
@@ -14,9 +14,7 @@ class EmployeeAllocation:
         self.update_population()
 
     def update_population(self):
-        max_population = CityPopulationStats(
-            self.city, self.data
-        ).calculate_max_population()
+        max_population = sum([x.max_population for x in self.data.list_of_buildings if isinstance(x, Residential)])
         if len(self.data.citizens_in_city) < max_population:
             if self.not_full_production_buildings() is not None:
                 dif_population = max_population - len(self.data.citizens_in_city)

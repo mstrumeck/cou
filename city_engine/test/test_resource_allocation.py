@@ -1,27 +1,19 @@
 from django import test
 from django.contrib.auth.models import User
 
-from city_engine.main_view_data.trash_management import TrashManagement, CollectGarbage
+from city_engine.main_view_data.resources_allocation import ResourceAllocation
 from city_engine.models import (
-    DumpingGround,
     City,
-    DustCart,
-    Trash,
     WindPlant,
     WaterTower,
-    CityField,
-    SewageWorks,
-    PowerPlant
+    Field,
+    SewageWorks
 )
 from city_engine.test.base import TestHelper
-from city_engine.turn_data.main import TurnCalculation
+from company_engine.models import TradeDistrict, FoodCompany
 from cou.abstract import RootClass
 from player.models import Profile
 from resources.models import Market
-from city_engine.main_view_data.resources_allocation import ResourceAllocation
-from citizen_engine.models import Citizen
-from company_engine.models import Company, TradeDistrict, FoodCompany
-from city_engine.models import StandardLevelResidentialZone
 
 
 class BuldingResourceAttrs(test.TestCase):
@@ -29,9 +21,8 @@ class BuldingResourceAttrs(test.TestCase):
 
     def setUp(self):
         self.city = City.objects.latest("id")
-        self.profile = Profile.objects.latest("id")
         self.user = User.objects.latest('id')
-        Market.objects.create(profile=self.profile)
+        Market.objects.create(profile=self.user.profile)
         TestHelper(self.city, User.objects.latest("id")).populate_city()
 
     def test_energy_allocation_with_default_settings(self):
@@ -63,10 +54,10 @@ class BuldingResourceAttrs(test.TestCase):
             self.assertEqual(w.total_production, 5)
         ResourceAllocation(self.city, rc).run()
         test_buildings = list(rc.list_of_buildings.values())
-        self.assertEqual(10, test_buildings[0].energy)
+        self.assertEqual(0, test_buildings[0].energy)
         self.assertEqual(0, test_buildings[3].energy)
         self.assertEqual(0, test_buildings[4].energy)
-        self.assertEqual(0, test_buildings[5].energy)
+        self.assertEqual(10, test_buildings[5].energy)
         self.assertEqual(0, test_buildings[6].energy)
 
         self.assertEqual(sum([rc.list_of_buildings[x].energy for x in rc.list_of_buildings]),
@@ -135,7 +126,7 @@ class BuldingResourceAttrs(test.TestCase):
         self.assertEqual(w_list[1].raw_water_allocated, 250)
         s = SewageWorks.objects.latest('id')
         self.assertEqual(rc.list_of_buildings[s].raw_water, 1000)
-    #
+
     def test_clean_water_allocation(self):
         rc = RootClass(self.city, self.user)
         s = SewageWorks.objects.latest('id')
@@ -167,13 +158,12 @@ class ResourceAllocationForCompany(test.TestCase):
 
     def setUp(self):
         self.city = City.objects.latest("id")
-        self.profile = Profile.objects.latest("id")
         self.user = User.objects.latest('id')
-        Market.objects.create(profile=self.profile)
+        Market.objects.create(profile=self.user.profile)
 
     def test_if_company_get_resources(self):
         self.td = TradeDistrict.objects.create(
-            city=self.city, city_field_id=CityField.objects.latest("id").id-2, if_under_construction=False
+            city=self.city, city_field_id=Field.objects.latest("id").id - 2, if_under_construction=False
         )
         self.fc = FoodCompany.objects.create(cash=10, trade_district=self.td)
         TestHelper(self.city, User.objects.latest("id")).populate_city()

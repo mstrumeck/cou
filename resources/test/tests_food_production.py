@@ -1,11 +1,10 @@
 from django import test
 from django.contrib.auth.models import User
 
-from city_engine.models import City, CityField
+from city_engine.models import City, Field
 from city_engine.test.base import TestHelper
 from city_engine.turn_data.main import TurnCalculation
 from cou.abstract import RootClass
-from player.models import Profile
 from resources.models import (
     Potato,
     Bean,
@@ -24,18 +23,17 @@ class FarmInstancesTests(test.TestCase):
     fixtures = ["basic_fixture_resources_and_employees.json"]
 
     def setUp(self):
-        self.profile = Profile.objects.latest("id")
         self.user = User.objects.latest("id")
         self.city = City.objects.latest("id")
-        self.market = Market.objects.create(profile=self.profile)
+        self.market = Market.objects.create(profile=self.user.profile)
         self.cf = CattleFarm.objects.create(
-            city=self.city, city_field=CityField.objects.latest("id")
+            city=self.city, city_field=Field.objects.latest("id")
         )
         TestHelper(city=self.city, user=self.user).populate_city()
 
     def test_potato_creation(self):
         pf = PotatoFarm.objects.create(
-            city=self.city, city_field=CityField.objects.latest("id")
+            city=self.city, city_field=Field.objects.latest("id")
         )
         pf.max_harvest = 1000
         pf.save()
@@ -56,7 +54,7 @@ class FarmInstancesTests(test.TestCase):
 
     def test_bean_update_harvest(self):
         bf = BeanFarm.objects.create(
-            city=self.city, city_field=CityField.objects.latest("id")
+            city=self.city, city_field=Field.objects.latest("id")
         )
         bf.max_harvest = 1000
         bf.save()
@@ -77,7 +75,7 @@ class FarmInstancesTests(test.TestCase):
 
     def test_lettuce_update_harvest(self):
         lf = LettuceFarm.objects.create(
-            city=self.city, city_field=CityField.objects.latest("id")
+            city=self.city, city_field=Field.objects.latest("id")
         )
         lf.max_harvest = 1000
         lf.save()
@@ -99,7 +97,7 @@ class FarmInstancesTests(test.TestCase):
     def test_breed_update(self):
         data = RootClass(city=self.city, user=self.user)
         tc = TurnCalculation(
-            city=self.city, data=data, profile=Profile.objects.latest("id")
+            city=self.city, data=data, profile=self.user.profile
         )
 
         self.assertEqual(Cattle.objects.all().count(), 0)

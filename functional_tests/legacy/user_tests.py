@@ -1,5 +1,5 @@
 from city_engine.main_view_data.board import HEX_NUM
-from city_engine.models import City, CityField
+from city_engine.models import City, Field
 from functional_tests.page_objects import Homepage, SignupPage, MainView
 from .base import BaseTest
 
@@ -19,7 +19,7 @@ class SignupAndLoginTests(BaseTest):
         )
         self.assertIn("Miasto {}".format(self.city_one_name), self.browser.title)
         self.assertEqual(
-            CityField.objects.filter(
+            Field.objects.filter(
                 city=City.objects.get(name=self.city_one_name)
             ).count(),
             HEX_NUM,
@@ -38,7 +38,7 @@ class SignupAndLoginTests(BaseTest):
         )
         self.assertIn("Miasto {}".format(self.city_two_name), self.browser.title)
         self.assertEqual(
-            CityField.objects.filter(
+            Field.objects.filter(
                 city=City.objects.get(name=self.city_two_name)
             ).count(),
             HEX_NUM,

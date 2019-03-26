@@ -6,7 +6,6 @@ from city_engine.models import StandardLevelResidentialZone, City
 from city_engine.turn_data.main import TurnCalculation
 from cou.abstract import RootClass
 from cou.global_var import FEMALE, MALE
-from player.models import Profile
 from resources.models import Market
 from .base import SocialTestHelper
 
@@ -16,8 +15,8 @@ class TestFindPlaceToLive(SocialTestHelper):
 
     def setUp(self):
         self.city = City.objects.get(id=1)
-        self.profile = Profile.objects.latest("id")
-        Market.objects.create(profile=self.profile)
+        self.user = User.objects.latest("id")
+        Market.objects.create(profile=self.user.profile)
         self.RC = RootClass(self.city, User.objects.latest("id"))
 
     def test_if_right_homless_was_selected(self):
@@ -45,10 +44,10 @@ class TestFindPlaceToLive(SocialTestHelper):
             sex=MALE,
         )
         RC = RootClass(self.city, User.objects.latest("id"))
-        sa = SocialAction(self.city, self.profile, RC)
+        sa = SocialAction(self.city, self.user.profile, RC)
         self.assertEqual(self.r1.resident.count(), 0)
         sa.find_home()
-        TurnCalculation(self.city, RC, self.profile).save_all()
+        TurnCalculation(self.city, RC, self.user.profile).save_all()
         self.assertEqual(self.r1.resident.count(), 1)
 
     def test_random_choice_home_scenario_pass(self):
@@ -74,7 +73,7 @@ class TestFindPlaceToLive(SocialTestHelper):
             sex=MALE,
         )
         RC = RootClass(self.city, User.objects.latest("id"))
-        sa = SocialAction(self.city, self.profile, RC)
+        sa = SocialAction(self.city, self.user.profile, RC)
         self.assertEqual(self.f.resident_object, None)
         self.assertEqual(self.m.resident_object, None)
         self.assertEqual(
@@ -128,7 +127,7 @@ class TestFindPlaceToLive(SocialTestHelper):
             sex=MALE,
         )
         sa = SocialAction(
-            self.city, self.profile, RootClass(self.city, User.objects.latest("id"))
+            self.city, self.user.profile, RootClass(self.city, User.objects.latest("id"))
         )
         self.assertEqual(self.f.resident_object, None)
         self.assertEqual(self.m.resident_object, None)

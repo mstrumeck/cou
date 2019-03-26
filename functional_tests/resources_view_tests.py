@@ -5,7 +5,7 @@ from city_engine.models import (
     WindPlant,
     WaterTower,
     StandardLevelResidentialZone,
-    CityField,
+    Field,
 )
 from city_engine.test.base import TestHelper
 from cou.abstract import RootClass
@@ -18,46 +18,46 @@ from .legacy.base import BaseTest
 class ResourceAllocationTest(BaseTest):
     def test_resources_view_for_two_players(self):
         self.create_first_user()
-        cf_id = CityField.objects.latest("id").id
+        cf_id = Field.objects.latest("id").id
         SewageWorks.objects.create(
-            city=self.city_one, city_field=CityField.objects.get(id=cf_id)
+            city=self.city_one, city_field=Field.objects.get(id=cf_id)
         )
         WaterTower.objects.create(
-            city=self.city_one, city_field=CityField.objects.get(id=cf_id - 1)
+            city=self.city_one, city_field=Field.objects.get(id=cf_id - 1)
         )
         s1 = StandardLevelResidentialZone.objects.create(
             city=self.city_one,
-            city_field=CityField.objects.get(id=cf_id - 2),
+            city_field=Field.objects.get(id=cf_id - 2),
             max_population=30,
         )
         s2 = StandardLevelResidentialZone.objects.create(
             city=self.city_one,
-            city_field=CityField.objects.get(id=cf_id - 3),
+            city_field=Field.objects.get(id=cf_id - 3),
             max_population=30,
         )
         WaterTower.objects.create(
-            city=self.city_one, city_field=CityField.objects.get(id=cf_id - 4)
+            city=self.city_one, city_field=Field.objects.get(id=cf_id - 4)
         )
         WindPlant.objects.create(
-            city=self.city_one, city_field=CityField.objects.get(id=cf_id - 5)
+            city=self.city_one, city_field=Field.objects.get(id=cf_id - 5)
         )
         WindPlant.objects.create(
-            city=self.city_one, city_field=CityField.objects.get(id=cf_id - 6)
+            city=self.city_one, city_field=Field.objects.get(id=cf_id - 6)
         )
         WindPlant.objects.create(
-            city=self.city_one, city_field=CityField.objects.get(id=cf_id - 7)
+            city=self.city_one, city_field=Field.objects.get(id=cf_id - 7)
         )
         PotatoFarm.objects.create(
-            city=self.city_one, city_field=CityField.objects.get(id=cf_id - 8)
+            city=self.city_one, city_field=Field.objects.get(id=cf_id - 8)
         )
         LettuceFarm.objects.create(
-            city=self.city_one, city_field=CityField.objects.get(id=cf_id - 9)
+            city=self.city_one, city_field=Field.objects.get(id=cf_id - 9)
         )
         BeanFarm.objects.create(
-            city=self.city_one, city_field=CityField.objects.get(id=cf_id - 10)
+            city=self.city_one, city_field=Field.objects.get(id=cf_id - 10)
         )
         f = CattleFarm.objects.create(
-            city=self.city_one, city_field=CityField.objects.get(id=cf_id - 11)
+            city=self.city_one, city_field=Field.objects.get(id=cf_id - 11)
         )
         Cattle.objects.create(farm=f, size=30, price=20)
 

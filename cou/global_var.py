@@ -24,3 +24,11 @@ ENERGY_CITIZEN_NEED = 3
 FOOD = "Food"
 CLOTHES = "Clothes"
 MASS = "Mass"
+
+COAL = "Coal"
+IRON = "Iron"
+TITAN = "Titan"
+URAN = "Uran"
+MOUNTAIN = "Mountain"
+FERTILE = "Fertile"
+SEA = "Sea"

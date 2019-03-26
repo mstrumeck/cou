@@ -20,9 +20,10 @@ class TestRootClass(test.TestCase):
 
     def setUp(self):
         self.city = City.objects.latest("id")
-        Market.objects.create(profile=Profile.objects.latest("id"))
+        self.user = User.objects.latest('id')
+        Market.objects.create(profile=self.user.profile)
         self.RC = RootClass(
-            city=City.objects.latest("id"), user=User.objects.latest("id")
+            city=City.objects.latest("id"), user=self.user
         )
 
     def test_keys_in_dataset(self):

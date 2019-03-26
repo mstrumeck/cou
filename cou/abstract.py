@@ -7,7 +7,7 @@ from django.apps import apps
 from citizen_engine.models import Citizen, Family
 from city_engine.models import (
     Building,
-    CityField,
+    Field,
     BuldingsWithWorkes,
     Vehicle,
     PowerPlant,
@@ -102,6 +102,11 @@ class RootClass(BasicAbstract):
         self.families = {}
         self.companies = {}
         self.preprocess_data()
+        if self.list_of_buildings:
+            self.max_row = max([self.list_of_buildings[r].row_col_cor[0] or 0 for r in self.list_of_buildings])
+            self.min_row = min([self.list_of_buildings[r].row_col_cor[0] or 0 for r in self.list_of_buildings])
+            self.max_col = max([self.list_of_buildings[r].row_col_cor[1] or 0 for r in self.list_of_buildings])
+            self.min_col = min([self.list_of_buildings[r].row_col_cor[1] or 0 for r in self.list_of_buildings])
         self.list_of_workplaces = {
             **{
                 b: self.list_of_buildings[b]
@@ -139,7 +144,7 @@ class RootClass(BasicAbstract):
             )
 
     def preprocess_city_fields(self):
-        for field in CityField.objects.filter(city=self.city):
+        for field in Field.objects.filter(player=self.profile):
             self.city_fields_in_city[field] = CityFieldDataContainer(field)
             self.to_save.append(field)
 

@@ -37,10 +37,38 @@ body {
     border-right: 31px solid transparent;
 }
 
+.ht-Sea {
+    border-bottom: 20px solid blue;
+}
+
+.ht-Mountain {
+    border-bottom: 20px solid grey;
+}
+
+.ht-Fertile {
+    border-bottom: 20px solid green;
+}
+
+.empty {
+    opacity: 0;
+}
+
 .hexagon-middle {
     width: 62px;
     height: 40px;
     background: #6C6;
+}
+
+.hm-Sea {
+    background: blue;
+}
+
+.hm-Mountain {
+    background: grey;
+}
+
+.hm-Fertile {
+    background: green;
 }
 
 .hexagon-bottom {
@@ -48,6 +76,18 @@ body {
     border-top: 20px solid #6C6;
     border-left: 31px solid transparent;
     border-right: 31px solid transparent;
+}
+
+.hb-Sea {
+    border-top: 20px solid blue;
+}
+
+.hb-Mountain {
+    border-top: 20px solid grey;
+}
+
+.hb-Fertile {
+    border-top: 20px solid green;
 }
 
 .hex-row {

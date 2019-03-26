@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 
 from citizen_engine.models import Citizen
-from city_engine.models import TradeDistrict, City, CityField
+from city_engine.models import TradeDistrict, City, Field
 from city_engine.test.base import TestHelper
 from cou.abstract import RootClass
 from cou.data_containers.data_containers import BuildingDataContainer
@@ -16,12 +16,11 @@ class CompanyTest(TestCase):
     fixtures = ["basic_fixture_resources_and_employees.json"]
 
     def setUp(self):
-        self.city = City.objects.latest("id")
-        self.profile = Profile.objects.latest("id")
-        self.market = Market.objects.create(profile=self.profile)
         self.user = User.objects.latest("id")
+        self.city = City.objects.latest("id")
+        self.market = Market.objects.create(profile=self.user.profile)
         self.td = TradeDistrict.objects.create(
-            city=self.city, city_field=CityField.objects.latest("id")
+            city=self.city, city_field=Field.objects.latest("id")
         )
         self.fc = FoodCompany.objects.create(cash=10, trade_district=self.td)
         TestHelper(city=self.city, user=self.user).populate_city()
@@ -193,7 +192,7 @@ class CompanyTest(TestCase):
         b = BuildingDataContainer(
             instance=self.td,
             citizens=Citizen.objects.filter(city=self.city),
-            profile=self.profile,
+            profile=self.user.profile,
             citizens_data=rc.citizens_in_city,
             vehicles=rc.vehicles,
             semafor=BuildingSemafor()

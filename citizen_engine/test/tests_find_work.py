@@ -1,21 +1,21 @@
 from django.contrib.auth.models import User
+
+from citizen_engine.models import Citizen, Profession, Education
+from citizen_engine.work_engine import CitizenWorkEngine
 from city_engine.models import (
     StandardLevelResidentialZone,
     City,
     WindPlant,
-    CityField,
+    Field,
     PrimarySchool,
     DustCart,
     DumpingGround,
     WaterTower,
 )
-from citizen_engine.models import Citizen, Profession, Education
 from cou.abstract import RootClass
-from player.models import Profile
 from cou.global_var import MALE, FEMALE, ELEMENTARY, COLLEGE
-from citizen_engine.work_engine import CitizenWorkEngine
-from .base import SocialTestHelper
 from resources.models import Market
+from .base import SocialTestHelper
 
 
 class TestFindWork(SocialTestHelper):
@@ -23,8 +23,8 @@ class TestFindWork(SocialTestHelper):
 
     def setUp(self):
         self.city = City.objects.get(id=1)
-        self.profile = Profile.objects.latest("id")
-        Market.objects.create(profile=self.profile)
+        self.user = User.objects.latest('id')
+        Market.objects.create(profile=self.user.profile)
         self.RC = RootClass(self.city, User.objects.latest("id"))
         self.r1 = StandardLevelResidentialZone.objects.latest("id")
         self.f = Citizen.objects.create(
@@ -90,7 +90,7 @@ class TestFindWork(SocialTestHelper):
         self.assertNotEqual(citizen.workplace_object, None)
         school = PrimarySchool.objects.create(
             city=self.city,
-            city_field=CityField.objects.latest("id"),
+            city_field=Field.objects.latest("id"),
             if_under_construction=False,
         )
         RC = RootClass(self.city, User.objects.latest("id"))
@@ -125,7 +125,7 @@ class TestFindWork(SocialTestHelper):
     def test_work_engine_for_specific_degree(self):
         school = PrimarySchool.objects.create(
             city=self.city,
-            city_field=CityField.objects.latest("id"),
+            city_field=Field.objects.latest("id"),
             if_under_construction=False,
         )
         self.assertEqual(school.employee.count(), 0)

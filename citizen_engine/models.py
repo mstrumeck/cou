@@ -1,18 +1,14 @@
+import random
+
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
+
+from city_engine.main_view_data.global_variables import ROW_NUM, HEX_NUM_IN_ROW
 from city_engine.models import (
-    WindPlant,
-    WaterTower,
-    ProductionBuilding,
     City,
-    Residential,
-    DumpingGround,
-    DustCart,
     BuldingsWithWorkes,
 )
-from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
-from django.contrib.contenttypes.models import ContentType
-from city_engine.main_view_data.global_variables import ROW_NUM, HEX_NUM_IN_ROW
-import random
 from cou.global_var import (
     TRAINEE,
     JUNIOR,

@@ -6,7 +6,7 @@ from citizen_engine.models import Citizen, Education
 from city_engine.models import (
     City,
     StandardLevelResidentialZone,
-    CityField,
+    Field,
     PrimarySchool,
 )
 from cou.abstract import RootClass
@@ -41,7 +41,7 @@ class CitizenBasicTests(BaseTest):
             resident_object=self.r1,
         )
         self.school = PrimarySchool.objects.create(
-            city=self.city, city_field=CityField.objects.latest("id")
+            city=self.city, city_field=Field.objects.latest("id")
         )
         self.profile.if_social_enabled = True
         self.profile.save()

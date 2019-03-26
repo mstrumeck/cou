@@ -8,7 +8,7 @@ from citizen_engine.models import Citizen, Education
 from city_engine.models import (
     City,
     StandardLevelResidentialZone,
-    CityField,
+    Field,
     PrimarySchool,
 )
 from cou.abstract import RootClass
@@ -32,7 +32,7 @@ class CitizenBasicTests(BaseTest):
         self.r1 = StandardLevelResidentialZone.objects.latest("id")
         self.school = PrimarySchool.objects.create(
             city=self.city,
-            city_field=CityField.objects.latest("id"),
+            city_field=Field.objects.latest("id"),
             if_under_construction=False,
         )
         self.teacher = Citizen.objects.create(

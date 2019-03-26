@@ -1,0 +1,19 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/style.css"  type="text/css" media="screen">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+    <title>Lista Map</title>
+</head>
+<body>
+    <h1><a href="{% url 'map_engine:create_new_map' %}">Stwórz nową mape</a></h1>
+    <h1>Lista Map</h1>
+    {% for m in maps %}
+    <a href="{% url 'map_engine:show_map' map_id=m.id %}">Mapa: {{ m.id }}</a>
+    {% endfor %}
+</body>
+</html>

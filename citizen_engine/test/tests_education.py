@@ -4,7 +4,7 @@ from city_engine.models import (
     StandardLevelResidentialZone,
     City,
     WindPlant,
-    CityField,
+    Field,
     PrimarySchool,
 )
 from citizen_engine.models import Citizen, Education, Profession
@@ -12,7 +12,6 @@ from citizen_engine.work_engine import CitizenWorkEngine
 from cou.abstract import RootClass
 from citizen_engine.social_actions import SocialAction
 from city_engine.turn_data.main import TurnCalculation
-from player.models import Profile
 from cou.global_var import (
     FEMALE,
     ELEMENTARY,
@@ -32,9 +31,9 @@ class TestEducation(TestCase):
 
     def setUp(self):
         self.city = City.objects.get(id=1)
-        self.profile = Profile.objects.latest("id")
+        self.user = User.objects.latest('id')
         self.r1 = StandardLevelResidentialZone.objects.latest("id")
-        Market.objects.create(profile=self.profile)
+        Market.objects.create(profile=self.user.profile)
         self.f = Citizen.objects.create(
             city=self.city,
             age=8,
@@ -48,10 +47,10 @@ class TestEducation(TestCase):
             resident_object=self.r1,
         )
         self.school = PrimarySchool.objects.create(
-            city=self.city, city_field=CityField.objects.latest("id")
+            city=self.city, city_field=Field.objects.latest("id")
         )
         self.RC = RootClass(self.city, User.objects.latest("id"))
-        self.sa = SocialAction(self.city, self.profile, self.RC)
+        self.sa = SocialAction(self.city, self.user.profile, self.RC)
 
     def test_assign_student_to_school_pass_without_education(self):
         self.assertEqual(self.f.school_object, None)
@@ -81,7 +80,7 @@ class TestEducation(TestCase):
         RC = RootClass(self.city, User.objects.latest("id"))
         self.assertEqual(RC.citizens_in_city[self.f].current_education, None)
         self.school.check_for_student_in_city(self.f, RC.citizens_in_city[self.f])
-        TurnCalculation(self.city, RC, self.profile).save_all()
+        TurnCalculation(self.city, RC, self.user.profile).save_all()
         RC = RootClass(self.city, User.objects.latest("id"))
         self.assertEqual(self.f.school_object, self.school)
         self.assertEqual(self.f.education_set.all().count(), 1)
@@ -100,7 +99,7 @@ class TestEducation(TestCase):
             name=ELEMENTARY,
         )
         self.RC = RootClass(self.city, User.objects.latest("id"))
-        self.sa = SocialAction(self.city, self.profile, self.RC)
+        self.sa = SocialAction(self.city, self.user.profile, self.RC)
         self.assertEqual(
             self.RC.citizens_in_city[self.f].current_education.cur_year_of_learning, 0
         )
@@ -131,7 +130,7 @@ class TestEducation(TestCase):
         e.save()
         self.school.save()
         self.RC = RootClass(self.city, User.objects.latest("id"))
-        self.sa = SocialAction(self.city, self.profile, self.RC)
+        self.sa = SocialAction(self.city, self.user.profile, self.RC)
         self.f = Citizen.objects.get(id=self.f.id)
         e = Education.objects.get(id=e.id)
         RC = RootClass(self.city, User.objects.latest("id"))
@@ -147,11 +146,11 @@ class TestSchoolMonthlyRunFailed(TestCase):
 
     def setUp(self):
         self.city = City.objects.get(id=1)
-        self.profile = Profile.objects.latest("id")
-        Market.objects.create(profile=self.profile)
+        self.user = User.objects.latest('id')
+        Market.objects.create(profile=self.user.profile)
         self.r1 = StandardLevelResidentialZone.objects.latest("id")
         self.school = PrimarySchool.objects.create(
-            city=self.city, city_field=CityField.objects.latest("id")
+            city=self.city, city_field=Field.objects.latest("id")
         )
         self.m = Citizen.objects.create(
             city=self.city,
@@ -184,10 +183,12 @@ class TestSchoolMonthlyRunFailed(TestCase):
     #     Education.objects.create(citizen=self.s, name=ELEMENTARY, effectiveness=1, if_current=False)
     #     Education.objects.create(citizen=self.s, name=COLLEGE, effectiveness=1, if_current=False)
     #     Education.objects.create(citizen=self.m, name=ELEMENTARY)
-    #     RC = RootClass(self.city, User.objects.latest('id'))
+    #     self.s.edu_title = COLLEGE
+    #     self.m.edu_title = ELEMENTARY
+    #     RC = RootClass(self.city, self.user)
     #     self.assertEqual(RC.citizens_in_city[self.m]['current_education'].effectiveness, 0)
     #     self.assertEqual(RC.citizens_in_city[self.s]['current_profession'], None)
-    #     self.school.monthly_run(RC.citizens_in_city, self.profile)
+    #     self.school.monthly_run(RC.citizens_in_city, self.user.profile)
     #     self.assertEqual(RC.citizens_in_city[self.m]['current_education'].effectiveness, 0)
     #     self.assertEqual(RC.citizens_in_city[self.s]['current_profession'], None)
 
@@ -225,7 +226,7 @@ class TestSchoolMonthlyRunFailed(TestCase):
         self.assertEqual(
             RC.citizens_in_city[self.s].current_profession.proficiency, 0.5
         )
-        self.school.monthly_run(RC.citizens_in_city, self.profile)
+        self.school.monthly_run(RC.citizens_in_city, self.user.profile)
         self.assertEqual(RC.citizens_in_city[self.m].current_education.effectiveness, 0)
         self.assertEqual(
             RC.citizens_in_city[self.s].current_profession.proficiency, 0.5
@@ -244,7 +245,7 @@ class TestSchoolMonthlyRunFailed(TestCase):
         self.assertEqual(
             RC.citizens_in_city[self.s].current_profession.proficiency, 0.5
         )
-        self.school.monthly_run(RC.citizens_in_city, self.profile)
+        self.school.monthly_run(RC.citizens_in_city, self.user.profile)
         self.assertEqual(RC.citizens_in_city[self.m].current_education.effectiveness, 0)
         self.assertEqual(
             RC.citizens_in_city[self.s].current_profession.proficiency, 0.5
@@ -256,11 +257,11 @@ class TestSchoolMonthlyRunPass(TestCase):
 
     def setUp(self):
         self.city = City.objects.get(id=1)
-        self.profile = Profile.objects.latest("id")
-        Market.objects.create(profile=self.profile)
+        self.user = User.objects.latest('id')
+        Market.objects.create(profile=self.user.profile)
         self.r1 = StandardLevelResidentialZone.objects.latest("id")
         self.school = PrimarySchool.objects.create(
-            city=self.city, city_field=CityField.objects.latest("id")
+            city=self.city, city_field=Field.objects.latest("id")
         )
         self.m = Citizen.objects.create(
             city=self.city,
@@ -307,7 +308,7 @@ class TestSchoolMonthlyRunPass(TestCase):
         self.assertEqual(
             RC.citizens_in_city[self.s].current_profession.proficiency, 0.5
         )
-        SocialAction(city=self.city, profile=self.profile, city_data=RC).run()
+        SocialAction(city=self.city, profile=self.user.profile, city_data=RC).run()
         self.assertEqual(
             RC.citizens_in_city[self.s].current_profession.proficiency, 0.52
         )
@@ -324,7 +325,7 @@ class TestSchoolMonthlyRunPass(TestCase):
             RC.citizens_in_city[self.s].current_profession.proficiency, 0.5
         )
         for x in range(6):
-            SocialAction(city=self.city, profile=self.profile, city_data=RC).run()
+            SocialAction(city=self.city, profile=self.user.profile, city_data=RC).run()
         self.assertEqual(
             RC.citizens_in_city[self.s].current_profession.proficiency,
             0.5660526315789475,

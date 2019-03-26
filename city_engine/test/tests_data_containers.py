@@ -19,8 +19,8 @@ class DataContainersTests(test.TestCase):
 
     def setUp(self):
         self.city = City.objects.latest("id")
-        self.profile = Profile.objects.latest("id")
-        Market.objects.create(profile=self.profile)
+        self.user = User.objects.latest('id')
+        Market.objects.create(profile=self.user.profile)
 
     def test_valid_field_for_building_with_worker(self):
         dg = DumpingGround.objects.latest("id")
@@ -347,7 +347,7 @@ class DataContainersTests(test.TestCase):
         m.partner_id = p.id
         p.save()
         m.save()
-        self.assertEqual(self.city.cash, 9480)
+        self.assertEqual(self.city.cash, 1000000.00)
         rc = RootClass(self.city, User.objects.latest("id"))
         self.assertEqual(rc.families[family].cash, 220)
         self.assertEqual(rc.citizens_in_city[p].ci.resident_object, sr)
@@ -355,11 +355,11 @@ class DataContainersTests(test.TestCase):
         self.assertEqual(rc.citizens_in_city[p].ci.cash, 150)
         self.assertEqual(rc.citizens_in_city[m].ci.cash, 70)
         self.assertEqual(rc.list_of_buildings[sr].bi.cash, 0)
-        rc.families[family].pay_rent(self.city, Profile.objects.latest("id"))
+        rc.families[family].pay_rent(self.city, self.user.profile)
         self.assertEqual(rc.citizens_in_city[p].ci.cash, 109.00)
         self.assertEqual(rc.citizens_in_city[m].ci.cash, 29)
         self.assertEqual(float(rc.list_of_buildings[sr].bi.cash), 81.18)
-        self.assertEqual(float(self.city.cash), 9480.82)
+        self.assertEqual(float(self.city.cash), 1000000.82)
         self.assertEqual(rc.citizens_in_city[p].ci.resident_object, sr)
         self.assertEqual(rc.citizens_in_city[m].ci.resident_object, sr)
 
@@ -396,7 +396,7 @@ class DataContainersTests(test.TestCase):
         m.partner_id = p.id
         p.save()
         m.save()
-        self.assertEqual(self.city.cash, 9480)
+        self.assertEqual(self.city.cash, 1000000.00)
         rc = RootClass(self.city, User.objects.latest("id"))
         self.assertEqual(rc.families[family].cash, 40)
         self.assertEqual(rc.citizens_in_city[p].ci.cash, 20)
@@ -404,14 +404,14 @@ class DataContainersTests(test.TestCase):
         self.assertEqual(rc.list_of_buildings[sr].bi.cash, 0)
         self.assertEqual(rc.citizens_in_city[p].ci.resident_object, sr)
         self.assertEqual(rc.citizens_in_city[m].ci.resident_object, sr)
-        rc.families[family].pay_rent(self.city, Profile.objects.latest("id"))
+        rc.families[family].pay_rent(self.city, self.user.profile)
         self.assertEqual(rc.families[family].cash, 40)
         self.assertEqual(rc.citizens_in_city[p].ci.cash, 20)
         self.assertEqual(rc.citizens_in_city[m].ci.cash, 20)
         self.assertEqual(rc.list_of_buildings[sr].bi.cash, 0)
         self.assertEqual(rc.citizens_in_city[p].ci.resident_object, None)
         self.assertEqual(rc.citizens_in_city[m].ci.resident_object, None)
-        self.assertEqual(self.city.cash, 9480)
+        self.assertEqual(self.city.cash, 1000000.00)
 
     def test_pay_rent_failed_becouse_homless(self):
         sr = StandardLevelResidentialZone.objects.latest("id")
@@ -444,7 +444,7 @@ class DataContainersTests(test.TestCase):
         m.partner_id = p.id
         p.save()
         m.save()
-        self.assertEqual(self.city.cash, 9480)
+        self.assertEqual(self.city.cash, 1000000.00)
         rc = RootClass(self.city, User.objects.latest("id"))
         self.assertEqual(rc.families[family].cash, 2320)
         self.assertEqual(rc.citizens_in_city[p].ci.cash, 1150)
@@ -452,14 +452,14 @@ class DataContainersTests(test.TestCase):
         self.assertEqual(rc.list_of_buildings[sr].bi.cash, 0)
         self.assertEqual(rc.citizens_in_city[p].ci.resident_object, None)
         self.assertEqual(rc.citizens_in_city[m].ci.resident_object, None)
-        rc.families[family].pay_rent(self.city, Profile.objects.latest("id"))
+        rc.families[family].pay_rent(self.city, self.user.profile)
         self.assertEqual(rc.families[family].cash, 2320)
         self.assertEqual(rc.citizens_in_city[p].ci.cash, 1150)
         self.assertEqual(rc.citizens_in_city[m].ci.cash, 1170)
         self.assertEqual(rc.list_of_buildings[sr].bi.cash, 0)
         self.assertEqual(rc.citizens_in_city[p].ci.resident_object, None)
         self.assertEqual(rc.citizens_in_city[m].ci.resident_object, None)
-        self.assertEqual(self.city.cash, 9480)
+        self.assertEqual(self.city.cash, 1000000)
 
     def test_pay_rent_success_but_without_18_years_old_son(self):
         sr = StandardLevelResidentialZone.objects.latest("id")
@@ -506,7 +506,7 @@ class DataContainersTests(test.TestCase):
         m.partner_id = p.id
         p.save()
         m.save()
-        self.assertEqual(self.city.cash, 9480)
+        self.assertEqual(self.city.cash, 1000000)
         rc = RootClass(self.city, User.objects.latest("id"))
         self.assertEqual(rc.families[family].cash, 370)
         self.assertEqual(rc.citizens_in_city[p].ci.resident_object, sr)
@@ -516,12 +516,12 @@ class DataContainersTests(test.TestCase):
         self.assertEqual(rc.citizens_in_city[m].ci.cash, 70)
         self.assertEqual(rc.citizens_in_city[son].ci.cash, 150)
         self.assertEqual(rc.list_of_buildings[sr].bi.cash, 0)
-        rc.families[family].pay_rent(self.city, Profile.objects.latest("id"))
+        rc.families[family].pay_rent(self.city, self.user.profile)
         self.assertEqual(rc.citizens_in_city[p].ci.cash, 109)
         self.assertEqual(rc.citizens_in_city[m].ci.cash, 29)
         self.assertEqual(rc.citizens_in_city[son].ci.cash, 150)
         self.assertEqual(float(rc.list_of_buildings[sr].bi.cash), 81.18)
-        self.assertEqual(float(self.city.cash), 9480.82)
+        self.assertEqual(float(self.city.cash), 1000000.82)
         self.assertEqual(rc.citizens_in_city[p].ci.resident_object, sr)
         self.assertEqual(rc.citizens_in_city[m].ci.resident_object, sr)
         self.assertEqual(rc.citizens_in_city[son].ci.resident_object, sr)

@@ -3,10 +3,9 @@ from django.test import TestCase
 
 from citizen_engine.models import Citizen
 from citizen_engine.social_actions import SocialAction
-from city_engine.models import StandardLevelResidentialZone, City, CityField
+from city_engine.models import StandardLevelResidentialZone, City, Field
 from cou.abstract import RootClass
 from cou.global_var import MALE, FEMALE
-from player.models import Profile
 from resources.models import Market
 
 
@@ -15,12 +14,12 @@ class TestFindPlaceToLive(TestCase):
 
     def setUp(self):
         self.city = City.objects.get(id=1)
-        self.profile = Profile.objects.latest("id")
-        Market.objects.create(profile=self.profile)
+        self.user = User.objects.latest("id")
+        Market.objects.create(profile=self.user.profile)
         self.RC = RootClass(self.city, User.objects.latest("id"))
         self.r1 = StandardLevelResidentialZone.objects.latest("id")
         self.r2 = StandardLevelResidentialZone.objects.create(
-            city_field=CityField.objects.get(id=1), city=self.city, max_population=10
+            city_field=Field.objects.latest('id'), city=self.city, max_population=10
         )
 
     def test_random_choice_scenario(self):
@@ -47,7 +46,7 @@ class TestFindPlaceToLive(TestCase):
             resident_object=self.r1,
         )
         sa = SocialAction(
-            self.city, self.profile, RootClass(self.city, User.objects.latest("id"))
+            self.city, self.user.profile, RootClass(self.city, User.objects.latest("id"))
         )
         self.assertEqual(sa.find_place_to_live(self.m, self.f), self.r1)
 
@@ -74,7 +73,7 @@ class TestFindPlaceToLive(TestCase):
             resident_object=self.r1,
         )
         sa = SocialAction(
-            self.city, self.profile, RootClass(self.city, User.objects.latest("id"))
+            self.city, self.user.profile, RootClass(self.city, User.objects.latest("id"))
         )
         self.assertEqual(sa.find_place_to_live(self.m, self.f), self.r1)
 
@@ -106,7 +105,7 @@ class TestFindPlaceToLive(TestCase):
         self.assertEqual(self.m.resident_object, self.r1)
         self.assertEqual(self.r1.max_population, 1)
         sa = SocialAction(
-            self.city, self.profile, RootClass(self.city, User.objects.latest("id"))
+            self.city, self.user.profile, RootClass(self.city, User.objects.latest("id"))
         )
         self.assertEqual(sa.find_place_to_live(self.f, self.m), None)
 
@@ -133,7 +132,7 @@ class TestFindPlaceToLive(TestCase):
             sex=MALE,
         )
         sa = SocialAction(
-            self.city, self.profile, RootClass(self.city, User.objects.latest("id"))
+            self.city, self.user.profile, RootClass(self.city, User.objects.latest("id"))
         )
         self.assertEqual(sa.find_place_to_live(self.m, self.f), self.r2)
 
@@ -165,6 +164,6 @@ class TestFindPlaceToLive(TestCase):
         self.assertEqual(self.f.resident_object, self.r2)
         self.assertEqual(self.r2.max_population, 1)
         sa = SocialAction(
-            self.city, self.profile, RootClass(self.city, User.objects.latest("id"))
+            self.city, self.user.profile, RootClass(self.city, User.objects.latest("id"))
         )
         self.assertEqual(sa.find_place_to_live(self.f, self.m), None)

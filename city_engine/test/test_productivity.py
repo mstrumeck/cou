@@ -15,8 +15,8 @@ class ProductivityTests(TestCase):
 
     def setUp(self):
         self.city = City.objects.get(id=1)
-        self.profile = Profile.objects.latest("id")
-        Market.objects.create(profile=self.profile)
+        self.user = User.objects.latest('id')
+        Market.objects.create(profile=self.user.profile)
         self.RC = RootClass(self.city, User.objects.latest("id"))
         self.m = Citizen.objects.create(
             city=self.city,

@@ -3,7 +3,7 @@ from django.test import override_settings
 from selenium import webdriver
 
 from citizen_engine.models import Citizen, Family
-from city_engine.models import City, CityField, StandardLevelResidentialZone
+from city_engine.models import City, Field, StandardLevelResidentialZone
 from cou.abstract import RootClass
 from cou.global_var import FEMALE, MALE
 from functional_tests.page_objects import MainView, LoginPage, Homepage
@@ -224,7 +224,7 @@ class CitizenBasicTests(BaseTest):
         self.she_family = Family.objects.create(city=self.city, surname="00")
         self.he_family = Family.objects.create(city=self.city, surname="01")
         self.r2 = StandardLevelResidentialZone.objects.create(
-            city_field=CityField.objects.get(id=1), city=self.city, max_population=1
+            city_field=Field.objects.get(id=1), city=self.city, max_population=1
         )
         self.f = Citizen.objects.create(
             city=self.city,

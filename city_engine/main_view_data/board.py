@@ -1,7 +1,6 @@
-import numpy as np
 from django.db.models import Sum
 
-from city_engine.models import CityField
+from city_engine.models import Field
 from city_engine.models import (
     WindPlant,
     BuldingsWithWorkes,
@@ -11,16 +10,23 @@ from city_engine.models import (
     Residential,
     SewageWorks,
 )
-from .global_variables import HEX_NUM_IN_ROW, HEX_NUM, ROW_NUM
+from .global_variables import HEX_NUM_IN_ROW, ROW_NUM
 
 
-def assign_city_fields_to_board(city):
-    fields = [x for x in range(1, int(HEX_NUM) + 1)]
-    chunk_fields = np.array_split(fields, HEX_NUM_IN_ROW)
-    for num_of_col, col in enumerate(chunk_fields):
-        col = list(col)
-        for row in range(len(col)):
-            CityField.objects.create(city=city, row=row, col=num_of_col)
+def assign_city_fields_to_board(chosen_field, map, player):
+    cf = Field.objects.get(id=chosen_field.id)
+    sur = [Field.objects.get(row=corr[0], col=corr[1], map=map) for corr in field_surrounding(cf.row, cf.col)]
+    for f in sur:
+        f.player = player
+        f.save()
+    cf.player = player
+    cf.save()
+
+
+def field_surrounding(x, y):
+    return [(x, y-1), (x, y+1), (x-1, y), (x-1, y+1), (x+1, y), (x+1, y+1), (x-1, y-1),
+            (x-2, y-1), (x-2, y), (x-2, y+1), (x-1, y-2), (x-1, y+1), (x+1, y-1),
+            (x, y-2), (x, y+2), (x+1, y-2), (x+1, y+1), (x+2, y-1), (x+2, y), (x+2, y+1)]
 
 
 class Board:
