@@ -1,6 +1,7 @@
 from django.db import models
 from cou.global_var import COAL, IRON, URAN, TITAN, MOUNTAIN, SEA, FERTILE
 from player.models import Profile
+from .temp_models import TempField
 
 
 class Map(models.Model):
@@ -10,6 +11,7 @@ class Map(models.Model):
 
 
 class Field(models.Model):
+    temp_model = TempField
     RESOURCES = (
         (COAL, 'Węgiel'),
         (IRON, 'Żelazo'),
@@ -21,8 +23,8 @@ class Field(models.Model):
         (SEA, "Morze"),
         (FERTILE, "Pola uprawne")
     )
-    map = models.ForeignKey(Map)
-    player = models.ForeignKey(Profile, null=True)
+    map = models.ForeignKey(Map, on_delete=True)
+    player = models.ForeignKey(Profile, null=True, on_delete=True)
     resource = models.CharField(choices=RESOURCES, null=True, max_length=10)
     terrain = models.CharField(choices=TERRAIN, null=True, max_length=10)
     col = models.PositiveIntegerField()

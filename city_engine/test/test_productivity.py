@@ -58,7 +58,7 @@ class ProductivityTests(TestCase):
         w.save()
         rc = RootClass(self.city, User.objects.latest("id"))
         self.assertEqual(
-            rc.list_of_buildings[w].employee_productivity(rc.citizens_in_city), 0.00
+            rc.list_of_buildings[w].employee_productivity(), 0.00
         )
 
     def test_hundred_percent(self):
@@ -72,7 +72,7 @@ class ProductivityTests(TestCase):
         )
         rc = RootClass(self.city, User.objects.latest("id"))
         self.assertEqual(
-            rc.list_of_buildings[w].employee_productivity(rc.citizens_in_city), 1.00
+            rc.list_of_buildings[w].employee_productivity(), 1.00
         )
 
     def test_fityteen_percent(self):
@@ -86,7 +86,7 @@ class ProductivityTests(TestCase):
         )
         rc = RootClass(self.city, User.objects.latest("id"))
         self.assertEqual(
-            rc.list_of_buildings[w].employee_productivity(rc.citizens_in_city), 0.50
+            rc.list_of_buildings[w].employee_productivity(), 0.50
         )
 
     def test_hundred_percent_scenario_two(self):
@@ -105,7 +105,7 @@ class ProductivityTests(TestCase):
         )
         rc = RootClass(self.city, User.objects.latest("id"))
         self.assertEqual(
-            rc.list_of_buildings[w].employee_productivity(rc.citizens_in_city), 1.00
+            rc.list_of_buildings[w].employee_productivity(), 1.00
         )
 
     def test_066(self):
@@ -124,7 +124,7 @@ class ProductivityTests(TestCase):
         )
         rc = RootClass(self.city, User.objects.latest("id"))
         self.assertEqual(
-            rc.list_of_buildings[w].employee_productivity(rc.citizens_in_city),
+            rc.list_of_buildings[w].employee_productivity(),
             0.6666666666666666,
         )
 
@@ -145,7 +145,7 @@ class ProductivityTests(TestCase):
         )
         rc = RootClass(self.city, User.objects.latest("id"))
         self.assertEqual(
-            rc.list_of_buildings[w].employee_productivity(rc.citizens_in_city),
+            rc.list_of_buildings[w].employee_productivity(),
             0.3333333333333333,
         )
 
@@ -171,7 +171,7 @@ class ProductivityTests(TestCase):
         )
         rc = RootClass(self.city, User.objects.latest("id"))
         self.assertEqual(
-            rc.list_of_buildings[w].employee_productivity(rc.citizens_in_city), 1.00
+            rc.list_of_buildings[w].employee_productivity(), 1.00
         )
 
     def test_phd_half(self):
@@ -192,5 +192,5 @@ class ProductivityTests(TestCase):
         )
         rc = RootClass(self.city, User.objects.latest("id"))
         self.assertEqual(
-            rc.list_of_buildings[w].employee_productivity(rc.citizens_in_city), 0.5
+            rc.list_of_buildings[w].employee_productivity(), 0.5
         )

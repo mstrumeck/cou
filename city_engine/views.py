@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse
+# from django.core.urlresolvers import reverse
 from django.shortcuts import HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.safestring import mark_safe
@@ -57,7 +57,7 @@ def main_view(request):
 
 
 @login_required
-def resources_view(request):
+def resources(request):
     profile = Profile.objects.get(user_id=request.user.id)
     city = City.objects.get(player=profile)
     rc = RootClass(city, request.user)
@@ -81,16 +81,16 @@ def turn_calculations(request):
     data = RootClass(city, request.user)
     TurnCalculation(city, data, profile).run()
     # return render(request, 'city_calculation_view.html')
-    return HttpResponseRedirect(reverse("city_engine:main"))
+    return HttpResponseRedirect("/main")
 
 
 @login_required
 def build(request, row, col, build_type):
     build_building(request, row, col, build_type)
-    return HttpResponseRedirect(reverse("city_engine:main"))
+    return HttpResponseRedirect("/main")
 
 
 @login_required
 def build_resident(request, row, col, max_population):
     build_resident_zone(request, row, col, max_population)
-    return HttpResponseRedirect(reverse("city_engine:main"))
+    return HttpResponseRedirect("/main")

@@ -1,17 +1,18 @@
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 
-from city_engine.models import TradeDistrict, Trash
-from resources.models import Resource
+from city_engine import models as ce_models
 import decimal
+import company_engine.temp_models as ce_temp_model
 
 
 class Company(models.Model):
-    trade_district = models.ForeignKey(TradeDistrict)
+    temp_model = ce_temp_model.TempCompany
+    trade_district = models.ForeignKey(ce_models.TradeDistrict, on_delete=True)
     name = models.CharField(max_length=20)
     cash = models.DecimalField(decimal_places=2, max_digits=20, default=0)
 
-    trash = GenericRelation(Trash)
+    trash = GenericRelation(ce_models.Trash)
 
     profession_type_provided = models.CharField(default="", max_length=1)
     elementary_employee_needed = models.PositiveIntegerField(default=5)
@@ -43,50 +44,32 @@ class Company(models.Model):
             return workers_costs / decimal.Decimal(size_of_production)
         return 0
 
-    def create_goods(self, data):
-        if self._get_productivity(data):
-            materials = []
-            self.buy_components(materials, data)
-            if materials:
-                self.make_goods_from_components(materials, data)
-
-    def make_goods_from_components(self, materials, data):
-        self_data_container = data.list_of_workplaces[self]
-        GOODS_TO_PRODUCT = self_data_container.goods_to_product
-        for good_type in GOODS_TO_PRODUCT:
-            for material in materials:
-                data.list_of_workplaces[self].add_new_good(
-                    good_type,
-                    material.size,
-                    self._get_quality_of_product(material.quality, data),
-                    material.price,
-                )
-
-                material.delete()
-                materials.pop(materials.index(material))
-
-    def buy_components(self, materials, data):
-        COMPONENTS = data.list_of_workplaces[self].available_components
-        for component_type in COMPONENTS:
-            if component_type in data.market.resources:
-                for component in data.market.resources[component_type].instances:
-                    if self.cash >= component.price:
-                        temp_comp = component_type.objects.create(
-                            size=0, quality=component.quality, market=data.market.mi
-                        )
-                        temp_comp.price = component.price  # To Remove
-                        while self.cash >= component.price and component.size > 0:
-                            self.cash -= component.price
-                            temp_comp.size += 1
-                            component.size -= 1
-
-                        materials.append(temp_comp)
-                        if component.size == 0:
-                            component.delete()
-
-    def _get_quality_of_product(self, product_quality, data):
-        quality = [product_quality, self._get_quality(data)]
-        return round((sum(quality) / len(quality)) * self._get_productivity(data))
+    # def create_goods(self, data):
+    #     cont = data.list_of_workplaces[self]
+    #     if self._get_productivity(data):
+    #         materials = []
+    #         self.buy_components(materials, data)
+    #         if materials:
+    #             cont.make_goods_from_components(materials)
+    #
+    # def buy_components(self, materials, data):
+    #     COMPONENTS = data.list_of_workplaces[self].available_components
+    #     for component_type in COMPONENTS:
+    #         if component_type in data.market.resources:
+    #             for component in data.market.resources[component_type].instances:
+    #                 if self.cash >= component.price:
+    #                     temp_comp = component_type.objects.create(
+    #                         size=0, quality=component.quality, market=data.market.mi
+    #                     )
+    #                     temp_comp.price = component.price  # To Remove
+    #                     while self.cash >= component.price and component.size > 0:
+    #                         self.cash -= component.price
+    #                         temp_comp.size += 1
+    #                         component.size -= 1
+    #
+    #                     materials.append(temp_comp)
+    #                     if component.size == 0:
+    #                         component.delete()
 
     def _get_productivity(self, data):
         productivity = [
@@ -126,24 +109,16 @@ class Company(models.Model):
                 data.list_of_workplaces, data.citizens_in_city, e_cat
             )
             if employees:
-                total.append(
-                    self._get_sum_edu_effectiveness(employees)
-                    / getattr(self, e_cat_needed)
-                    / 3
-                )
+                total.append(self._get_sum_edu_effectiveness(employees) / getattr(self, e_cat_needed) / 3)
         return sum(total)
 
     def _get_employee_by_appendix(self, workplaces, citizens, appendix):
         return (
-            [citizens[e] for e in getattr(workplaces[self], appendix)]
-            if getattr(workplaces[self], appendix)
-            else []
+            [citizens[e] for e in getattr(workplaces[self], appendix)] if getattr(workplaces[self], appendix) else []
         )
 
     def _get_avg_all_edu_effectiveness(self, citizen):
-        return sum([edu.effectiveness for edu in citizen.educations]) / len(
-            [edu.effectiveness for edu in citizen.educations]
-        )
+        return sum([edu.effectiveness for edu in citizen.educations]) / len([edu.effectiveness for edu in citizen.educations])
 
     def _get_sum_edu_effectiveness(self, employee_cat):
         return sum([self._get_avg_all_edu_effectiveness(c) for c in employee_cat])
@@ -153,10 +128,5 @@ class Company(models.Model):
 
 
 class FoodCompany(Company):
+    temp_model = ce_temp_model.TempFoodCompany
     elementary_employee_needed = models.PositiveIntegerField(default=5)
-
-
-class Food(Resource):
-    company = models.ForeignKey(FoodCompany)
-    name = models.CharField(default="Jedzenie", max_length=9)
-    quality = models.PositiveIntegerField(default=0)

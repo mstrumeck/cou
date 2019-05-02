@@ -1,19 +1,20 @@
-from django.conf.urls import url
+# from django.conf.urls import url
+from django.urls import path
 
 from . import views
 
+app_name = "city_engine"
+
 urlpatterns = [
-    url(r"^main/$", views.main_view, name="main"),
-    url(r"^turn_calculations/$", views.turn_calculations, name="turn_calculations"),
-    url(
-        r"^build/(?P<row>\d+)/(?P<col>\d+)/(?P<build_type>[-\w]+)/$",
+    path(r"main/", views.main_view, name="main"),
+    path(r"main/turn_calculations/", views.turn_calculations, name="turn_calculations"),
+    path(
+        r"build/<row>/<col>/<build_type>/",
         views.build,
-        name="build",
     ),
-    url(
-        r"^build_resident/(?P<row>\d+)/(?P<col>\d+)/(?P<max_population>\d+)/$",
+    path(
+        r"build_resident/<row>/<col>/<max_population>/",
         views.build_resident,
-        name="build_resident",
     ),
-    url(r"^main/resources/$", views.resources_view, name="resources"),
+    path(r"main/resources/", views.resources, name="resources"),
 ]

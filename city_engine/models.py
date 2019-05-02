@@ -5,6 +5,21 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
+from city_engine.temp_models import (
+    TempResidential,
+    TempTradeDistrict,
+    DataContainersWithEmployees,
+    TempRopePlant,
+    TempCoalPlant,
+    TempAnimalFarm,
+    TempPowerPlant,
+    TempSewageWorks,
+    TempWaterTower,
+    TempFarm,
+    TempBuild,
+    TempWindPlant,
+    TempDumpingGround
+)
 from cou.global_var import (
     ELEMENTARY,
     COLLEGE,
@@ -25,8 +40,8 @@ class Trash(models.Model):
 
 
 class City(models.Model):
-    player = models.ForeignKey(Profile)
-    map = models.ForeignKey(Map)
+    player = models.ForeignKey(Profile, on_delete=True)
+    map = models.ForeignKey(Map, on_delete=True)
     name = models.TextField(max_length=15, unique=True)
     cash = models.DecimalField(default=1000000, decimal_places=2, max_digits=20)
     trade_zones_taxation = models.FloatField(default=0.05)
@@ -38,8 +53,9 @@ class City(models.Model):
 
 
 class Building(models.Model):
-    city = models.ForeignKey(City)
-    city_field = models.ForeignKey(Field)
+    temp_model = TempBuild
+    city = models.ForeignKey(City, on_delete=True)
+    city_field = models.ForeignKey(Field, on_delete=True)
     cash = models.DecimalField(default=0, decimal_places=2, max_digits=20)
     if_under_construction = models.BooleanField(default=True)
     build_cost = models.PositiveIntegerField(default=0)
@@ -63,6 +79,7 @@ class Building(models.Model):
 
 
 class BuldingsWithWorkes(Building):
+    temp_model = DataContainersWithEmployees
     profession_type_provided = models.CharField(default="", max_length=1)
     elementary_employee_needed = models.PositiveIntegerField(default=0)
     college_employee_needed = models.PositiveIntegerField(default=0)
@@ -78,69 +95,18 @@ class BuldingsWithWorkes(Building):
             return workers_costs / decimal.Decimal(size_of_production)
         return 0
 
-    def wage_payment(self, city, data):
-        import decimal
-
-        total_payment = []
-        for e in data.list_of_workplaces[self].all_employees:
-            se = decimal.Decimal(data.citizens_in_city[e].salary_expectation)
-            e.cash += se
-            city.cash -= se
-            total_payment.append(se)
-        data.list_of_workplaces[self].workers_costs = sum(total_payment)
-
     def trash_calculation(self, employee):
         return float(self.pollution_calculation(employee)) * float(self.pollution_rate)
 
     def pollution_calculation(self, employee):
         return self.pollution_rate * float(employee)
 
-    def update_proficiency_of_profession_for_employees(self, employees):
-        for employee in employees:
-            employee.current_profession.update_proficiency(employee)
-
-    def _get_quality(self, workplaces, citizens):
-        total = []
-        employee_categories = [
-            "elementary_employees",
-            "college_employees",
-            "phd_employees",
-        ]
-        employee_categories_needed = [
-            "elementary_employee_needed",
-            "college_employee_needed",
-            "phd_employee_needed",
-        ]
-        for e_cat, e_cat_needed in zip(employee_categories, employee_categories_needed):
-            employees = self._get_employee_by_appendix(workplaces, citizens, e_cat)
-            if employees:
-                total.append(
-                    self._get_sum_edu_effectiveness(employees)
-                    / getattr(self, e_cat_needed)
-                    / 3
-                )
-        return round(100 * sum(total))
-
-    def _get_employee_by_appendix(self, workplaces, citizens, appendix):
-        return (
-            [citizens[e] for e in getattr(workplaces[self], appendix)]
-            if getattr(workplaces[self], appendix)
-            else []
-        )
-
-    def _get_avg_all_edu_effectiveness(self, citizen):
-        return sum([edu.effectiveness for edu in citizen.educations]) / len(
-            [edu.effectiveness for edu in citizen.educations]
-        )
-
-    def _get_sum_edu_effectiveness(self, employee_cat):
-        return sum([self._get_avg_all_edu_effectiveness(c) for c in employee_cat])
-
     class Meta:
         abstract = True
 
 
 class Residential(Building):
+    temp_model = TempResidential
     name = models.CharField(max_length=20, default="Budynek Mieszkalny")
     population = models.PositiveIntegerField(default=0)
     max_population = models.PositiveIntegerField(default=0)
@@ -163,6 +129,7 @@ class Residential(Building):
 
 
 class StandardLevelResidentialZone(Residential):
+    temp_model = TempResidential
     name = models.CharField(max_length=30, default="Normalna dzielnica mieszkalna")
 
     def self__init(self, max_population):
@@ -172,6 +139,7 @@ class StandardLevelResidentialZone(Residential):
 
 
 class TradeDistrict(Building):
+    temp_model = TempTradeDistrict
     name = models.CharField(default="Dzielnica handlowa", max_length=20)
     if_under_construction = models.BooleanField(default=False)
     build_time = models.PositiveIntegerField(default=0)
@@ -205,6 +173,7 @@ class ProductionBuilding(BuldingsWithWorkes):
 
 
 class PowerPlant(BuldingsWithWorkes):
+    temp_model = TempPowerPlant
     name = models.CharField(max_length=20)
     power_nodes = models.PositiveIntegerField(default=0)
 
@@ -219,6 +188,7 @@ class PowerPlant(BuldingsWithWorkes):
 
 
 class WindPlant(PowerPlant):
+    temp_model = TempWindPlant
     name = models.CharField(default="Elektrownia wiatrowa", max_length=20)
     profession_type_provided = models.CharField(
         default="Pracownik elektrowni wiatrowej", max_length=30
@@ -238,6 +208,7 @@ class WindPlant(PowerPlant):
 
 
 class RopePlant(PowerPlant):
+    temp_model = TempRopePlant
     name = models.CharField(default="Elektrownia na ropę", max_length=20)
     profession_type_provided = models.CharField(
         default="Pracownik elektrowni na ropę", max_length=30
@@ -257,6 +228,7 @@ class RopePlant(PowerPlant):
 
 
 class CoalPlant(PowerPlant):
+    temp_model = TempCoalPlant
     name = models.CharField(default="Elektrownia węglowa", max_length=20)
     profession_type_provided = models.CharField(
         default="Pracownik elektrowni węglowej", max_length=30
@@ -276,6 +248,7 @@ class CoalPlant(PowerPlant):
 
 
 class Waterworks(BuldingsWithWorkes):
+    temp_model = TempWaterTower
     name = models.CharField(max_length=20)
     pollution_rate = models.FloatField(default=0.5)
 
@@ -287,6 +260,7 @@ class Waterworks(BuldingsWithWorkes):
 
 
 class WaterTower(Waterworks):
+    temp_model = TempWaterTower
     name = models.CharField(default="Wieża ciśnień", max_length=20)
     profession_type_provided = models.CharField(
         default="Pracownik wieży ciśnień", max_length=30
@@ -304,6 +278,7 @@ class WaterTower(Waterworks):
 
 
 class SewageWorks(BuldingsWithWorkes):
+    temp_model = TempSewageWorks
     name = models.CharField(default="Oczyszczalnia ścieków", max_length=30)
     profession_type_provided = models.CharField(
         default="Pracownik oczyszczalni", max_length=30
@@ -322,6 +297,7 @@ class SewageWorks(BuldingsWithWorkes):
 
 
 class Farm(BuldingsWithWorkes):
+    temp_model = TempFarm
     build_time = models.PositiveIntegerField(default=1)
     build_cost = models.PositiveIntegerField(default=200)
     maintenance_cost = models.PositiveIntegerField(default=20)
@@ -355,9 +331,7 @@ class Farm(BuldingsWithWorkes):
             data.market.add_new_resource(
                 resource_type=veg_type,
                 size=int(self.accumulate_harvest),
-                quality=self._get_quality(
-                    data.list_of_workplaces, data.citizens_in_city
-                ),
+                quality=container._get_quality(),
                 price=round(self.accumulate_harvest_costs, 2),
                 market=data.market.mi,
             )
@@ -375,6 +349,7 @@ class Farm(BuldingsWithWorkes):
 
 
 class AnimalFarm(BuldingsWithWorkes):
+    temp_model = TempAnimalFarm
     build_time = models.PositiveIntegerField(default=1)
     build_cost = models.PositiveIntegerField(default=200)
     maintenance_cost = models.PositiveIntegerField(default=20)
@@ -391,6 +366,7 @@ class AnimalFarm(BuldingsWithWorkes):
 
 
 class School(BuldingsWithWorkes):
+    temp_model = DataContainersWithEmployees
     name = models.CharField(default="Szkoła", max_length=6)
     max_students = models.PositiveIntegerField(default=0)
     age_of_start = models.PositiveIntegerField(default=0)
@@ -472,6 +448,7 @@ class School(BuldingsWithWorkes):
 
 
 class PrimarySchool(School):
+    temp_model = DataContainersWithEmployees
     name = models.CharField(default="Szkoła Podstawowa", max_length=17)
     max_students = models.PositiveIntegerField(default=10)
     build_time = models.PositiveIntegerField(default=2)
@@ -486,6 +463,7 @@ class PrimarySchool(School):
 
 
 class DumpingGround(BuldingsWithWorkes):
+    temp_model = TempDumpingGround
     name = models.CharField(default="Wysypisko śmieci", max_length=20)
     profession_type_provided = models.CharField(
         default="Pracownik wysypiska śmieci", max_length=30

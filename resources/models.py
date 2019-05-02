@@ -1,11 +1,12 @@
 from django.db import models
 
-from city_engine.models import BuldingsWithWorkes, AnimalFarm, Farm
+from city_engine import models as ce_models
 from player.models import Profile
+from company_engine.models import FoodCompany
 
 
 class Market(models.Model):
-    profile = models.OneToOneField(Profile)
+    profile = models.OneToOneField(Profile, on_delete=True)
 
 
 class Resource(models.Model):
@@ -17,8 +18,14 @@ class Resource(models.Model):
         abstract = True
 
 
+class Food(Resource):
+    company = models.ForeignKey(FoodCompany, on_delete=True)
+    name = models.CharField(default="Jedzenie", max_length=9)
+    quality = models.PositiveIntegerField(default=0)
+
+
 class MarketResource(Resource):
-    market = models.ForeignKey(Market)
+    market = models.ForeignKey(Market, on_delete=True)
     quality = models.PositiveIntegerField(default=0)
 
     class Meta:
@@ -53,7 +60,7 @@ class Commodity(MarketResource):
     name = models.CharField(default="Towary", max_length=7)
 
 
-class MassConventer(BuldingsWithWorkes):
+class MassConventer(ce_models.BuldingsWithWorkes):
     name = models.CharField(default="Konwenter Masy", max_length=16)
     profession_type_provided = models.CharField(
         default="Pracownik konwentera masy", max_length=30
@@ -69,7 +76,7 @@ class MassConventer(BuldingsWithWorkes):
         size_total = int(
             self.mass_production_rate * container.productivity)
         size = size_total if size_total > 1 else 1
-        quality = self._get_quality(data.list_of_workplaces, data.citizens_in_city)
+        quality = container._get_quality()
         price = self.calculate_price_of_good(
             data.list_of_workplaces[self].workers_costs, size
         )
@@ -78,7 +85,7 @@ class MassConventer(BuldingsWithWorkes):
             data.market.add_new_resource(Mass, size, quality, price, data.market.mi)
 
 
-class CattleFarm(AnimalFarm):
+class CattleFarm(ce_models.AnimalFarm):
     name = models.CharField(default="Farma byłda", max_length=15)
     profession_type_provided = models.CharField(default="Farmer bydła.", max_length=30)
     pastures = models.PositiveIntegerField(default=1)
@@ -130,7 +137,7 @@ class CattleFarm(AnimalFarm):
 
 class Cattle(Resource):
     name = models.CharField(default="Bydło", max_length=6)
-    farm = models.OneToOneField(CattleFarm)
+    farm = models.OneToOneField(CattleFarm, on_delete=True)
 
     def resource_production(self, pastures, data, workers_costs, farm_productivity):
         quality = self._get_milk_quality(pastures)
@@ -164,7 +171,7 @@ class Cattle(Resource):
         return ((self.size / pastures) ** -0.3) * 2
 
 
-class PotatoFarm(Farm):
+class PotatoFarm(ce_models.Farm):
     VEG_TYPE = (Potato, "potato")
     name = models.CharField(default="Farma ziemniaków", max_length=20)
     profession_type_provided = models.CharField(
@@ -175,7 +182,7 @@ class PotatoFarm(Farm):
     max_harvest = models.PositiveIntegerField(default=500)
 
 
-class BeanFarm(Farm):
+class BeanFarm(ce_models.Farm):
     VEG_TYPE = (Bean, "bean")
     name = models.CharField(default="Farma fasoli", max_length=15)
     profession_type_provided = models.CharField(default="Farmer fasoli", max_length=30)
@@ -184,7 +191,7 @@ class BeanFarm(Farm):
     max_harvest = models.PositiveIntegerField(default=500)
 
 
-class LettuceFarm(Farm):
+class LettuceFarm(ce_models.Farm):
     VEG_TYPE = (Lettuce, "lettuce")
     name = models.CharField(default="Farma sałaty", max_length=15)
     profession_type_provided = models.CharField(default="Farmer sałaty", max_length=30)

@@ -32,14 +32,10 @@ class ResourceAllocation:
                     abs(x[0][1] - provider_ob.row_col_cor[1]),
                 ))
             allocated_resource = dataset["allocated_resource"]
-            provider_total_production = provider_ob.total_production
+            provider_total_production = provider_ob._get_total_production()
             guard = 0
-            while getattr(provider_ob, allocated_resource) < provider_total_production \
-                    and guard < len(second_pattern):
-                provider_ob.allocate_resources_in_target(
-                    second_pattern[guard][1],
-                    self.data
-                )
+            while getattr(provider_ob, allocated_resource) < provider_total_production and guard < len(second_pattern):
+                provider_ob.allocate_resources_in_target(second_pattern[guard][1])
                 guard += 1
 
     def pollution_allocation(self):

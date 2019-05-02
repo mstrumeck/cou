@@ -33,7 +33,8 @@ class TestMassConventer(test.TestCase):
         TestHelper(self.city, User.objects.latest("id")).populate_city()
         self.assertEqual(list(Mass.objects.all()), [])
         RC = RootClass(self.city, User.objects.latest("id"))
-        self.mass_conventer.wage_payment(self.city, RC)
+        mc = RC.list_of_workplaces[MassConventer.objects.latest('id')]
+        mc.wage_payment(self.city)
         self.mass_conventer.product_mass(RC)
         self.assertNotEqual(list(Mass.objects.all()), [])
         self.assertEqual(float("{0:.2f}".format(Mass.objects.latest("id").quality)), 33)
@@ -53,7 +54,8 @@ class TestMassConventer(test.TestCase):
         )
         self.assertEqual(self.mass_conventer.employee.all().count(), 0)
         self.assertEqual(Mass.objects.all().count(), 0)
-        self.mass_conventer.wage_payment(self.city, RC)
+        mc = RC.list_of_workplaces[MassConventer.objects.latest('id')]
+        mc.wage_payment(self.city)
         self.mass_conventer.product_mass(RC)
         self.assertEqual(
             len(RC.list_of_workplaces[self.mass_conventer].all_employees), 0
@@ -65,16 +67,16 @@ class TestMassConventer(test.TestCase):
         TestHelper(self.city, User.objects.latest("id")).populate_city()
         self.assertEqual(list(Mass.objects.all()), [])
         RC = RootClass(self.city, User.objects.latest("id"))
-        self.mass_conventer.wage_payment(self.city, RC)
+        mc = RC.list_of_workplaces[MassConventer.objects.latest('id')]
+        mc.wage_payment(self.city)
         self.mass_conventer.product_mass(RC)
         self.assertNotEqual(list(Mass.objects.all()), [])
         self.assertEqual(float("{0:.2f}".format(Mass.objects.latest("id").quality)), 33)
         self.assertEqual(Mass.objects.latest("id").size, 33)
         self.assertEqual(Mass.objects.latest("id").name, "Masa")
         self.assertEqual(self.mass_conventer.employee.all().count(), 5)
-        citizen = RC.list_of_workplaces[self.mass_conventer].elementary_employees.pop()
-        del RC.citizens_in_city[citizen]
-        citizen.delete()
+        RC.list_of_workplaces[self.mass_conventer].elementary_employees.pop()
+        Citizen.objects.latest('id').delete()
         self.assertEqual(self.mass_conventer.employee.all().count(), 4)
         self.mass_conventer.product_mass(RC)
         [x.save() for x in RC.to_save]
@@ -91,7 +93,8 @@ class TestMassConventer(test.TestCase):
         TestHelper(self.city, User.objects.latest("id")).populate_city()
         self.assertEqual(list(self.m.mass_set.all()), [])
         RC = RootClass(self.city, User.objects.latest("id"))
-        self.mass_conventer.wage_payment(self.city, RC)
+        mc = RC.list_of_workplaces[MassConventer.objects.latest('id')]
+        mc.wage_payment(self.city)
         self.mass_conventer.product_mass(RC)
         self.assertNotEqual(list(self.m.mass_set.all()), [])
         self.assertEqual(float("{0:.2f}".format(Mass.objects.latest("id").quality)), 33)
@@ -105,7 +108,8 @@ class TestMassConventer(test.TestCase):
         TestHelper(self.city, User.objects.latest("id")).populate_city()
         self.assertEqual(list(Mass.objects.all()), [])
         RC = RootClass(self.city, User.objects.latest("id"))
-        self.mass_conventer.wage_payment(self.city, RC)
+        mc = RC.list_of_workplaces[MassConventer.objects.latest('id')]
+        mc.wage_payment(self.city)
         self.mass_conventer.product_mass(RC)
         self.assertNotEqual(list(Mass.objects.all()), [])
         self.assertEqual(float("{0:.2f}".format(Mass.objects.latest("id").quality)), 67)
@@ -120,7 +124,8 @@ class TestMassConventer(test.TestCase):
         TestHelper(self.city, User.objects.latest("id")).populate_city()
         self.assertEqual(list(Mass.objects.all()), [])
         RC = RootClass(self.city, User.objects.latest("id"))
-        self.mass_conventer.wage_payment(self.city, RC)
+        mc = RC.list_of_workplaces[MassConventer.objects.latest('id')]
+        mc.wage_payment(self.city)
         self.mass_conventer.product_mass(RC)
         self.assertNotEqual(list(Mass.objects.all()), [])
         self.assertEqual(Mass.objects.latest("id").quality, 100)

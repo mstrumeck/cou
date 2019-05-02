@@ -20,7 +20,7 @@ class Profile(models.Model):
 
 
 class Message(models.Model):
-    profile = models.ForeignKey(Profile)
+    profile = models.ForeignKey(Profile, on_delete=True)
     turn = models.IntegerField(default=0)
     text = models.TextField()
 

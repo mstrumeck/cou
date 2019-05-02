@@ -57,12 +57,12 @@ class WagePaymentTest(TestCase):
         )
         RC = RootClass(self.city, User.objects.latest("id"))
         self.assertEqual(self.city.cash, 1000000.00)
-        self.assertEqual(RC.citizens_in_city[self.s].ci.cash, 100)
+        self.assertEqual(RC.citizens_in_city[self.s].instance.cash, 100)
         self.assertEqual(RC.list_of_workplaces[self.school].workers_costs, 0)
         CitizenWorkEngine(RC, self.city).wage_payment_in_all_workplaces()
         self.assertEqual(round(RC.list_of_workplaces[self.school].workers_costs), 226)
         self.assertEqual(int(self.city.cash), 999773)
-        self.assertEqual(int(RC.citizens_in_city[self.s].ci.cash), 326)
+        self.assertEqual(int(RC.citizens_in_city[self.s].instance.cash), 326)
 
     def test_wage_payment_for_person_pass_with_one_education(self):
         Education.objects.create(
@@ -73,12 +73,12 @@ class WagePaymentTest(TestCase):
         )
         RC = RootClass(self.city, User.objects.latest("id"))
         self.assertEqual(self.city.cash, 1000000.00)
-        self.assertEqual(RC.citizens_in_city[self.s].ci.cash, 100)
+        self.assertEqual(RC.citizens_in_city[self.s].instance.cash, 100)
         self.assertEqual(RC.list_of_workplaces[self.school].workers_costs, 0)
         CitizenWorkEngine(RC, self.city).wage_payment_in_all_workplaces()
         self.assertEqual(round(RC.list_of_workplaces[self.school].workers_costs), 113)
         self.assertEqual(int(self.city.cash), 999886)
-        self.assertEqual(int(RC.citizens_in_city[self.s].ci.cash), 213)
+        self.assertEqual(int(RC.citizens_in_city[self.s].instance.cash), 213)
 
     def test_wage_payment_for_person_pass_with_three_educations(self):
         Education.objects.create(
@@ -95,9 +95,9 @@ class WagePaymentTest(TestCase):
         )
         RC = RootClass(self.city, User.objects.latest("id"))
         self.assertEqual(self.city.cash, 1000000.00)
-        self.assertEqual(RC.citizens_in_city[self.s].ci.cash, 100)
+        self.assertEqual(RC.citizens_in_city[self.s].instance.cash, 100)
         self.assertEqual(RC.list_of_workplaces[self.school].workers_costs, 0)
         CitizenWorkEngine(RC, self.city).wage_payment_in_all_workplaces()
         self.assertEqual(round(RC.list_of_workplaces[self.school].workers_costs), 364)
         self.assertEqual(int(self.city.cash), 999636)
-        self.assertEqual(int(RC.citizens_in_city[self.s].ci.cash), 463)
+        self.assertEqual(int(RC.citizens_in_city[self.s].instance.cash), 463)

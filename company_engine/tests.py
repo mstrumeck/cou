@@ -1,15 +1,12 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from citizen_engine.models import Citizen
 from city_engine.models import TradeDistrict, City, Field
 from city_engine.test.base import TestHelper
 from cou.abstract import RootClass
-from cou.data_containers.data_containers import BuildingDataContainer
-from player.models import Profile
+from resources.models import Food
 from resources.models import Market, Mass
-from .models import FoodCompany, Food
-from cou.data_containers.buildings_semafor import BuildingSemafor
+from .models import FoodCompany
 
 
 class CompanyTest(TestCase):
@@ -54,9 +51,10 @@ class CompanyTest(TestCase):
         self.assertEqual(materials, [])
         self.assertEqual(self.fc.cash, 10)
         self.assertEqual(Mass.objects.all().count(), 1)
-        self.fc.buy_components(materials, rc)
+        rc.companies[self.fc].buy_components(materials)
         rc.market.save_all()
         rc.list_of_workplaces[self.fc].save_all()
+        self.fc.refresh_from_db()
         self.assertEqual(Mass.objects.all().count(), 2)
         self.assertEqual(self.fc.cash, 1)
         mass_on_market = Mass.objects.get(id=mass_on_market.id)
@@ -79,9 +77,10 @@ class CompanyTest(TestCase):
         self.assertEqual(materials, [])
         self.assertEqual(self.fc.cash, 10)
         self.assertEqual(Mass.objects.all().count(), 1)
-        self.fc.buy_components(materials, rc)
+        rc.companies[self.fc].buy_components(materials)
         rc.market.save_all()
         rc.list_of_workplaces[self.fc].save_all()
+        self.fc.refresh_from_db()
         self.assertEqual(Mass.objects.all().count(), 1)
         self.assertEqual(self.fc.cash, 2.5)
         self.assertEqual(list(Mass.objects.filter(id=mass_on_market.id)), [])
@@ -104,9 +103,9 @@ class CompanyTest(TestCase):
         self.assertEqual(materials, [])
         self.assertEqual(self.fc.cash, 5)
         self.assertEqual(Mass.objects.all().count(), 1)
-        self.fc.buy_components(materials, rc)
+        rc.companies[self.fc].buy_components(materials)
         rc.market.save_all()
-        rc.list_of_workplaces[self.fc].save_all()
+        self.fc.refresh_from_db()
         self.assertEqual(Mass.objects.all().count(), 2)
         self.assertEqual(self.fc.cash, 0.50)
         mass_on_market = Mass.objects.get(id=mass_on_market.id)
@@ -116,7 +115,7 @@ class CompanyTest(TestCase):
         self.assertNotEqual(mass_on_market, materials[-1])
         self.assertEqual(materials[-1].size, 3)
         self.assertEqual(materials[-1].quality, 20)
-
+    #
     def set_resources_for_company(self, company, rc):
         company_in_container = rc.list_of_workplaces[company]
         company_in_container.water = 8
@@ -134,13 +133,13 @@ class CompanyTest(TestCase):
         self.assertNotEqual(materials, [])
         self.assertEqual(self.fc.cash, 10)
         self.assertEqual(Mass.objects.all().count(), 1)
-        self.fc.make_goods_from_components(materials, rc)
+        rc.companies[self.fc].make_goods_from_components(materials)
         rc.market.save_all()
         rc.list_of_workplaces[self.fc].save_all()
         self.assertEqual(Food.objects.all().count(), 1)
         food = Food.objects.latest("id")
         self.assertEqual(food.size, 20)
-        self.assertEqual(food.quality, 7)
+        self.assertEqual(food.quality, 8)
         self.assertEqual(food.company, self.fc)
 
     def test_create_goods_half_production(self):
@@ -151,7 +150,7 @@ class CompanyTest(TestCase):
         self.assertEqual(mass.quality, 20)
         self.assertEqual(self.fc.cash, 10)
         self.assertEqual(Mass.objects.all().count(), 1)
-        self.fc.create_goods(rc)
+        rc.companies[self.fc].create_goods()
         rc.market.save_all()
         rc.list_of_workplaces[self.fc].save_all()
         self.assertEqual(Mass.objects.all().count(), 1)
@@ -163,7 +162,7 @@ class CompanyTest(TestCase):
         self.assertEqual(Food.objects.all().count(), 1)
         food = Food.objects.latest("id")
         self.assertEqual(food.size, 6)
-        self.assertEqual(food.quality, 7)
+        self.assertEqual(food.quality, 8)
         self.assertEqual(food.company, self.fc)
 
     def test_create_goods_all_production(self):
@@ -171,12 +170,13 @@ class CompanyTest(TestCase):
         self.fc.cash = 50
         self.fc.save()
         rc = RootClass(city=self.city, user=self.user)
+        fc = rc.companies[self.fc]
         self.set_resources_for_company(self.fc, rc)
         self.assertEqual(mass.size, 20)
         self.assertEqual(mass.quality, 20)
         self.assertEqual(self.fc.cash, 50)
         self.assertEqual(len(rc.market.resources[Mass].instances), 1)
-        self.fc.create_goods(rc)
+        fc.create_goods()
         rc.market.save_all()
         rc.list_of_workplaces[self.fc].save_all()
         rc = RootClass(city=self.city, user=self.user)
@@ -184,17 +184,5 @@ class CompanyTest(TestCase):
         self.assertEqual(Food.objects.all().count(), 1)
         food = Food.objects.latest("id")
         self.assertEqual(food.size, 20)
-        self.assertEqual(food.quality, 7)
+        self.assertEqual(food.quality, 8)
         self.assertEqual(food.company, self.fc)
-
-    def test_create_data_for_trade_district(self):
-        rc = RootClass(city=self.city, user=self.user)
-        b = BuildingDataContainer(
-            instance=self.td,
-            citizens=Citizen.objects.filter(city=self.city),
-            profile=self.user.profile,
-            citizens_data=rc.citizens_in_city,
-            vehicles=rc.vehicles,
-            semafor=BuildingSemafor()
-        )
-        self.assertEqual(b.people_in_charge, 5)

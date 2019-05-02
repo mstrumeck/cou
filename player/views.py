@@ -46,8 +46,8 @@ def signup(request):
             new_city = City.objects.create(player=player, name=city_name, map_id=chosen_map)
             assign_city_fields_to_board(start_place, chosen_map, player)
 
+            import names
             for x in range(30):
-                import names
 
                 sex = choice(Citizen.SEX)[0]
                 surname = names.get_last_name()

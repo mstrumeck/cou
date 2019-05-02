@@ -108,20 +108,6 @@ class TestFindWork(SocialTestHelper):
         citizen = [x for x in RC.citizens_in_city].pop()
         self.assertEqual(citizen.workplace_object, school)
 
-    def test_with_vehicles(self):
-        WindPlant.objects.all().delete()
-        WaterTower.objects.all().delete()
-        dg = DumpingGround.objects.latest("id")
-        dg.elementary_employee_needed = 0
-        dg.save()
-        RC = RootClass(self.city, User.objects.latest("id"))
-        dc = DustCart.objects.latest("id")
-        self.assertEqual(dc.employee.all().count(), 0)
-        CitizenWorkEngine(RC, self.city).human_resources_allocation()
-        self.save_all_ob_from(RC.citizens_in_city)
-        self.save_all_ob_from(RC.list_of_workplaces)
-        self.assertEqual(dc.employee.all().count(), 3)
-
     def test_work_engine_for_specific_degree(self):
         school = PrimarySchool.objects.create(
             city=self.city,

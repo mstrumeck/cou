@@ -445,23 +445,6 @@
   }
 },
 {
-  "model": "city_engine.dustcart",
-  "pk": 1,
-  "fields": {
-    "city": 1,
-    "maintenance_cost": 0,
-    "college_employee_needed": 0,
-    "phd_employee_needed": 0,
-    "dumping_ground": 1,
-    "profession_type_provided": "\u015amieciarz",
-    "name": "\u015amieciarka",
-    "cost": 10,
-    "elementary_employee_needed": 3,
-    "curr_capacity": 0,
-    "max_capacity": 60
-  }
-},
-{
   "model": "resources.market",
   "pk": 1,
   "fields": {

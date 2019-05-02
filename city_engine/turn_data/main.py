@@ -41,7 +41,7 @@ class TurnCalculation:
 
     def trade_district_actions(self):
         for c in self.data.companies:
-            c.create_goods(self.data)
+            self.data.list_of_buildings[c].create_goods()
 
     def collect_mass(self):
         for mass_collector in [

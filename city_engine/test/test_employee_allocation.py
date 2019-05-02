@@ -36,7 +36,6 @@ class EmployeeAllocationTest(test.TestCase, TestHelper):
                 [WindPlant.objects.get(id=1), ELEMENTARY],
                 [WindPlant.objects.get(id=2), ELEMENTARY],
                 [DumpingGround.objects.get(id=1), ELEMENTARY],
-                [DustCart.objects.get(id=1), ELEMENTARY],
                 [WaterTower.objects.get(id=1), ELEMENTARY],
                 [WaterTower.objects.get(id=2), ELEMENTARY],
             ],
@@ -97,20 +96,3 @@ class EmployeeAllocationTest(test.TestCase, TestHelper):
         self.assertIn(
             Citizen.objects.filter(city=self.city).count(), [x for x in range(30)]
         )
-
-    def test_employee_to_vehicle_allocation(self):
-        city_field_one = Field.objects.latest('id')
-        city_field_two = Field.objects.latest('id')
-        residential = StandardLevelResidentialZone.objects.create(
-            city=self.city, if_under_construction=False, city_field=city_field_two
-        )
-        dumping_ground = DumpingGround.objects.create(
-            city=self.city, if_under_construction=False, city_field=city_field_one
-        )
-        dust_cart = DustCart.objects.create(
-            city=self.city, dumping_ground=dumping_ground
-        )
-        self.assertEqual(dust_cart.employee.count(), 0)
-        TestHelper(self.city, User.objects.latest("id")).populate_city()
-        dust_cart = DustCart.objects.latest("id")
-        self.assertEqual(dust_cart.employee.count(), 3)

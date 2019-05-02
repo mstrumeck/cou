@@ -21,21 +21,24 @@ from cou.global_var import (
     COLLEGE,
     PHD,
 )
+from citizen_engine.temp_models import TempFamily, TempCitizen
 
 
 class Family(models.Model):
+    temp_model = TempFamily
     surname = models.CharField(default="", max_length=30)
-    city = models.ForeignKey(City)
+    city = models.ForeignKey(City, on_delete=models.CASCADE)
 
 
 class Citizen(models.Model):
+    temp_model = TempCitizen
     EDUCATION = ((ELEMENTARY, "Elementary"), (COLLEGE, "College"), (PHD, "PhD"))
-
     SEX = ((MALE, "Male"), (FEMALE, "Female"))
-    city = models.ForeignKey(City)
+
+    city = models.ForeignKey(City, on_delete=models.CASCADE)
     name = models.CharField(max_length=15)
     surname = models.CharField(max_length=15)
-    family = models.ForeignKey(Family, null=True)
+    family = models.ForeignKey(Family, null=True, on_delete=models.CASCADE)
     age = models.IntegerField()
     month_of_birth = models.IntegerField()
     sex = models.CharField(choices=SEX, max_length=5)
@@ -189,7 +192,7 @@ class Profession(models.Model):
             JOB_GRADES, (50, 40, 190, 120, 480), (0.10, 0.40, 0.60, 1, 1.30)
         )
     }
-    citizen = models.ForeignKey(Citizen)
+    citizen = models.ForeignKey(Citizen, on_delete=models.CASCADE)
     name = models.CharField(default="", max_length=30)
     job_grade = models.CharField(choices=JOB_GRADES, max_length=15, default=TRAINEE)
     education = models.CharField(choices=EDUCATION, max_length=10, default="None")
@@ -230,7 +233,7 @@ class Education(models.Model):
         "None": "elementary_vacancies",
     }
     EDUCATION = ((ELEMENTARY, "Elementary"), (COLLEGE, "College"), (PHD, "PhD"))
-    citizen = models.ForeignKey(Citizen)
+    citizen = models.ForeignKey(Citizen, on_delete=models.CASCADE)
     name = models.CharField(choices=EDUCATION, max_length=15)
     effectiveness = models.FloatField(default=0.00)
     if_current = models.BooleanField(default=True)

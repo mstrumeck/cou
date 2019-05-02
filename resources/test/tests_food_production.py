@@ -42,7 +42,7 @@ class FarmInstancesTests(test.TestCase):
         self.assertEqual(rc.market.resources.get(Potato), None)
         self.assertEqual(Potato.objects.count(), 0)
         for turn in range(pf.time_to_grow_from, pf.time_to_grow_to + 1):
-            pf.wage_payment(self.city, rc)
+            rc.list_of_workplaces[pf].wage_payment(self.city)
             pf.update_harvest(turn, rc)
         self.assertEqual(Potato.objects.count(), 1)
         self.assertEqual(len(rc.market.resources[Potato].instances), 1)
@@ -63,7 +63,7 @@ class FarmInstancesTests(test.TestCase):
         self.assertEqual(rc.market.resources.get(Bean), None)
         self.assertEqual(Bean.objects.count(), 0)
         for turn in range(bf.time_to_grow_from, bf.time_to_grow_to + 1):
-            bf.wage_payment(self.city, rc)
+            rc.list_of_workplaces[bf].wage_payment(self.city)
             bf.update_harvest(turn, rc)
         self.assertEqual(Bean.objects.count(), 1)
         self.assertEqual(len(rc.market.resources[Bean].instances), 1)
@@ -84,7 +84,7 @@ class FarmInstancesTests(test.TestCase):
         self.assertEqual(rc.market.resources.get(Lettuce), None)
         self.assertEqual(Lettuce.objects.count(), 0)
         for turn in range(lf.time_to_grow_from, lf.time_to_grow_to + 1):
-            lf.wage_payment(self.city, rc)
+            rc.list_of_workplaces[lf].wage_payment(self.city)
             lf.update_harvest(turn, rc)
         self.assertEqual(Lettuce.objects.count(), 1)
         self.assertEqual(len(rc.market.resources[Lettuce].instances), 1)
@@ -105,7 +105,7 @@ class FarmInstancesTests(test.TestCase):
         self.cf.buy_cattle(20, data)
         self.assertEqual(Milk.objects.count(), 0)
         self.assertEqual(Cattle.objects.count(), 1)
-        self.cf.wage_payment(self.city, data)
+        data.list_of_workplaces[self.cf].wage_payment(self.city)
 
         tc.update_breeding_status()
         tc.save_all()
@@ -141,7 +141,7 @@ class FarmInstancesTests(test.TestCase):
         Cattle.objects.create(farm=self.cf, size=20)
         rc = RootClass(city=self.city, user=self.user)
         self.assertEqual(Milk.objects.all().count(), 0)
-        self.cf.wage_payment(self.city, rc)
+        rc.list_of_workplaces[self.cf].wage_payment(self.city)
         self.cf.farm_operation(rc)
         self.assertEqual(len(rc.market.resources[Milk].instances), 1)
         self.assertEqual(Milk.objects.all().count(), 1)
@@ -160,7 +160,7 @@ class FarmInstancesTests(test.TestCase):
         rc = RootClass(city=self.city, user=self.user)
         c = Cattle.objects.create(farm=self.cf, size=20)
         self.assertEqual(self.cf.accumulate_breding, 0)
-        self.cf.wage_payment(self.city, rc)
+        rc.list_of_workplaces[self.cf].wage_payment(self.city)
         self.cf._accumulate_breeding(rc, c)
         self.assertEqual(self.cf.accumulate_breding, 0.004666666666666666)
         self.assertEqual(Milk.objects.all().count(), 1)
@@ -186,7 +186,7 @@ class FarmInstancesTests(test.TestCase):
     def test_buy_cattle(self):
         rc = RootClass(city=self.city, user=self.user)
         self.assertEqual(Cattle.objects.all().count(), 0)
-        self.assertEqual(rc.list_of_workplaces[self.cf].cattle, [])
+        self.assertIsNone(rc.list_of_workplaces[self.cf].cattle)
         self.cf.buy_cattle(20, rc)
         self.assertEqual(Cattle.objects.all().count(), 1)
         self.assertEqual(Cattle.objects.latest("id").size, 20)
@@ -198,7 +198,7 @@ class FarmInstancesTests(test.TestCase):
         c = Cattle.objects.create(farm=self.cf, size=20)
         rc = RootClass(city=self.city, user=self.user)
         self.assertEqual(rc.market.resources.get(Milk), None)
-        self.cf.wage_payment(self.city, rc)
+        rc.list_of_workplaces[self.cf].wage_payment(self.city)
         c.resource_production(
             1,
             rc,
@@ -218,7 +218,7 @@ class FarmInstancesTests(test.TestCase):
         Milk.objects.create(size=20, quality=81, market=self.market, price=8.24)
         rc = RootClass(city=self.city, user=self.user)
         self.assertEqual(len(rc.market.resources[Milk].instances), 1)
-        self.cf.wage_payment(self.city, rc)
+        rc.list_of_workplaces[self.cf].wage_payment(self.city)
         c.resource_production(
             1,
             rc,
@@ -245,7 +245,7 @@ class FarmInstancesTests(test.TestCase):
         rc = RootClass(city=self.city, user=self.user)
         self.assertEqual(len(rc.market.resources[Milk].instances), 1)
         self.assertEqual(Milk.objects.all().count(), 1)
-        self.cf.wage_payment(self.city, rc)
+        rc.list_of_workplaces[self.cf].wage_payment(self.city)
         c.resource_production(
             1,
             rc,

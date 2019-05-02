@@ -9,9 +9,9 @@ from city_engine.models import (
     Waterworks,
     RopePlant,
     CoalPlant,
+    DumpingGround
 )
 from cou.abstract import RootClass
-from player.models import Profile
 from resources.models import Market
 
 

@@ -25,12 +25,7 @@ class CitizenWorkEngine:
 
     def update_work_experience(self):
         for wb in self.data.list_of_workplaces:
-            wb.update_proficiency_of_profession_for_employees(
-                [
-                    self.data.citizens_in_city[c]
-                    for c in self.data.list_of_workplaces[wb].all_employees
-                ]
-            )
+            self.data.list_of_workplaces[wb].update_proficiency_of_profession_for_employees()
 
     def assign_better_job(self):
         for e in (
@@ -94,9 +89,7 @@ class CitizenWorkEngine:
                 )
 
     def wage_payment_in_all_workplaces(self):
-        for w in (
-            w
-            for w in self.data.list_of_workplaces
-            if not isinstance(w, Company) or not isinstance(w, ProductionBuilding)
-        ):
-            w.wage_payment(self.city, self.data)
+        for w in (self.data.list_of_workplaces[w] for w in self.data.list_of_workplaces
+                  if not isinstance(w, Company) or not isinstance(w, ProductionBuilding)
+                  ):
+            w.wage_payment(self.city)
