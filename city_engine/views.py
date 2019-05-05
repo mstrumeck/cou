@@ -78,7 +78,7 @@ def resources(request):
 def turn_calculations(request):
     profile = Profile.objects.get(user_id=request.user.id)
     city = City.objects.get(player=profile)
-    data = RootClass(city, request.user)
+    data = RootClass(city, request.user, is_turn_calculation=True)
     TurnCalculation(city, data, profile).run()
     # return render(request, 'city_calculation_view.html')
     return HttpResponseRedirect("/main")

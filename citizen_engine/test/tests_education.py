@@ -1,27 +1,22 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
+
+from citizen_engine.models import Citizen, Education, Profession
+from citizen_engine.social_actions import SocialAction
+from citizen_engine.work_engine import CitizenWorkEngine
 from city_engine.models import (
     StandardLevelResidentialZone,
     City,
-    WindPlant,
     Field,
     PrimarySchool,
 )
-from citizen_engine.models import Citizen, Education, Profession
-from citizen_engine.work_engine import CitizenWorkEngine
-from cou.abstract import RootClass
-from citizen_engine.social_actions import SocialAction
 from city_engine.turn_data.main import TurnCalculation
+from cou.abstract import RootClass
 from cou.global_var import (
     FEMALE,
     ELEMENTARY,
     MALE,
     COLLEGE,
-    TRAINEE,
-    JUNIOR,
-    REGULAR,
-    MASTER,
-    PROFESSIONAL,
 )
 from resources.models import Market
 

@@ -89,31 +89,6 @@ class ProfessionUpdateLevelTests(TestCase):
             RC.citizens_in_city[self.s].current_profession.job_grade, REGULAR
         )
 
-    def test_train_to_regular(self):
-        Education.objects.create(
-            citizen=self.s, name=ELEMENTARY, effectiveness=1, if_current=False
-        )
-        Education.objects.create(
-            citizen=self.s, name=COLLEGE, effectiveness=1, if_current=False
-        )
-        Profession.objects.create(citizen=self.s, proficiency=0.0, name="Nauczyciel")
-        RC = RootClass(self.city, User.objects.latest("id"))
-        self.assertEqual(RC.citizens_in_city[self.s].current_profession.proficiency, 0)
-        self.assertEqual(
-            RC.citizens_in_city[self.s].current_profession.job_grade, TRAINEE
-        )
-        for x in range(24):
-            RC.citizens_in_city[self.s].current_profession.update_proficiency(
-                RC.citizens_in_city[self.s]
-            )
-        self.assertEqual(
-            RC.citizens_in_city[self.s].current_profession.proficiency,
-            0.4515789473684213,
-        )
-        self.assertEqual(
-            RC.citizens_in_city[self.s].current_profession.job_grade, REGULAR
-        )
-
     def test_train_to_professional(self):
         Education.objects.create(
             citizen=self.s, name=ELEMENTARY, effectiveness=1, if_current=False

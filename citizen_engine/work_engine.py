@@ -1,6 +1,6 @@
-from city_engine.models import ProductionBuilding, Vehicle
-from company_engine.models import Company
 from citizen_engine.models import Education
+from city_engine.models import ProductionBuilding
+from company_engine.models import Company
 
 
 class CitizenWorkEngine:
@@ -10,8 +10,7 @@ class CitizenWorkEngine:
         self.active_workplaces = {
             w: self.data.list_of_workplaces[w]
             for w in self.data.list_of_workplaces
-            if isinstance(w, Vehicle)
-            or isinstance(w, Company)
+            if isinstance(w, Company)
             or w.if_under_construction is False
         }
 

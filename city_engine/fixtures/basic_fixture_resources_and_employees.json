@@ -415,7 +415,6 @@
     "build_time": 2,
     "build_cost": 100,
     "maintenance_cost": 10,
-    "limit_of_dust_cars": 6,
     "current_space_for_trash": 0,
     "max_space_for_trash": 10000,
     "pollution_rate": 3.0,

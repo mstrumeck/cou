@@ -5,12 +5,8 @@ from citizen_engine.work_engine import CitizenWorkEngine
 from city_engine.models import (
     StandardLevelResidentialZone,
     City,
-    WindPlant,
     Field,
     PrimarySchool,
-    DustCart,
-    DumpingGround,
-    WaterTower,
 )
 from cou.abstract import RootClass
 from cou.global_var import MALE, FEMALE, ELEMENTARY, COLLEGE
@@ -120,7 +116,7 @@ class TestFindWork(SocialTestHelper):
         self.assertEqual(self.f.workplace_object, None)
         self.assertEqual(self.m.workplace_object, None)
         RC = RootClass(self.city, User.objects.latest("id"))
-        self.assertEqual(len(RC.list_of_workplaces[school].all_employees), 0)
+        self.assertEqual(len(RC.list_of_workplaces[school].all_people_in_building), 0)
         self.assertEqual(
             RC.list_of_workplaces[school].college_vacancies,
             school.college_employee_needed,
@@ -137,7 +133,7 @@ class TestFindWork(SocialTestHelper):
         self.assertNotEqual(self.m.workplace_object, None)
         self.assertNotEqual(self.f.workplace_object, None)
         RC = RootClass(self.city, User.objects.latest("id"))
-        self.assertEqual(len(RC.list_of_workplaces[school].all_employees), 1)
+        self.assertEqual(len(RC.list_of_workplaces[school].all_people_in_building), 1)
         self.assertEqual(
             RC.list_of_workplaces[school].college_vacancies,
             school.college_employee_needed - 1,

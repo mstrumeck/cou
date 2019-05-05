@@ -1,5 +1,6 @@
 from resources import models as r_models
 from django.apps import apps
+from city_engine.temp_models import DataContainersWithEmployees
 
 
 class MarketDataContainer:
@@ -69,3 +70,20 @@ class TempResources:
                 good.save()
             elif good.id is not None and good.size == 0:
                 good.delete()
+
+
+class TempMassConverter(DataContainersWithEmployees):
+    def __init__(self, instance, profile, employees, market):
+        super().__init__(instance, profile, employees, market)
+
+    def product_mass(self):
+        size_total = int(
+            self.instance.mass_production_rate * self.productivity)
+        size = size_total if size_total > 1 else 1
+        quality = self._get_quality()
+        price = self.instance.calculate_price_of_good(
+            self.workers_costs, size
+        )
+
+        if quality > 0 and len(self.all_people_in_building) >= 1:
+            self.market.add_new_resource(r_models.Mass, size, quality, price, self.market.mi)

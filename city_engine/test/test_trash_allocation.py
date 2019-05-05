@@ -86,7 +86,7 @@ class TestTrashAllocation(test.TestCase):
         TrashManagement(data=self.rc).generate_trash()
         self.rc = RootClass(self.city, self.user)
         dg = DumpingGround.objects.latest("id")
-        temp_dumping_ground = TempDumpingGround(instance=dg, profile=self.user.profile, employees=self.rc.citizens_in_city)
+        temp_dumping_ground = TempDumpingGround(instance=dg, profile=self.user.profile, employees=self.rc.citizens_in_city, market=self.rc.market)
         self.assertEqual(int(temp_dumping_ground._get_total_employees_capacity()), 166)
 
         temp_dumping_ground.people_in_charge = 10
@@ -102,7 +102,7 @@ class TestTrashAllocation(test.TestCase):
         TrashManagement(data=self.rc).generate_trash()
         self.rc = RootClass(self.city, self.user)
         dg = DumpingGround.objects.latest("id")
-        temp_dumping_ground = TempDumpingGround(instance=dg, profile=self.user.profile, employees=self.rc.citizens_in_city)
+        temp_dumping_ground = TempDumpingGround(instance=dg, profile=self.user.profile, employees=self.rc.citizens_in_city, market=self.rc.market)
         wp = self.rc.list_of_buildings[WindPlant.objects.latest('id')]
         self.assertNotEqual(wp.trash, [])
         self.assertEqual(temp_dumping_ground.current_capacity, 0)

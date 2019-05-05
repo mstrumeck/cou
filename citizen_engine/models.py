@@ -4,6 +4,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
+from citizen_engine.temp_models import TempFamily, TempCitizen
 from city_engine.main_view_data.global_variables import ROW_NUM, HEX_NUM_IN_ROW
 from city_engine.models import (
     City,
@@ -21,7 +22,6 @@ from cou.global_var import (
     COLLEGE,
     PHD,
 )
-from citizen_engine.temp_models import TempFamily, TempCitizen
 
 
 class Family(models.Model):
@@ -44,7 +44,7 @@ class Citizen(models.Model):
     sex = models.CharField(choices=SEX, max_length=5)
     edu_title = models.CharField(choices=EDUCATION, max_length=10, default="None")
     cash = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    health = models.IntegerField()
+    health = models.FloatField(default=0.60)
 
     partner_id = models.PositiveIntegerField(default=0)
     father_id = models.PositiveIntegerField(default=0)
@@ -72,6 +72,9 @@ class Citizen(models.Model):
     )
     school_object_id = models.PositiveIntegerField(null=True)
     school_object = GenericForeignKey("school_content_type", "school_object_id")
+
+    def kill(self):
+        self.delete()
 
     def change_work_for_better(self, workplaces, citizens, save_instance):
         possible_workplaces, edu_level = self._possible_workplaces(workplaces)
@@ -242,3 +245,16 @@ class Education(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Disease(models.Model):
+    citizen = models.ForeignKey(Citizen, on_delete=models.CASCADE)
+    is_fatal = models.BooleanField(default=False)
+    fatal_counter = models.IntegerField(default=1)
+
+    def is_disease_cause_death(self):
+        if random.random() < self.fatal_counter * (self.citizen.age / 500.00):
+            return True
+        self.fatal_counter += 1
+        self.save(update_fields=['fatal_counter'])
+        return False

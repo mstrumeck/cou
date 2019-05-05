@@ -4,13 +4,10 @@ from django.contrib.auth.models import User
 from citizen_engine.models import Citizen
 from city_engine.main_view_data.employee_allocation import EmployeeAllocation
 from city_engine.models import (
-    Field,
-    StandardLevelResidentialZone,
     City,
     WindPlant,
     WaterTower,
     ProductionBuilding,
-    DustCart,
     DumpingGround,
 )
 from city_engine.test.base import TestHelper

@@ -18,7 +18,8 @@ from city_engine.temp_models import (
     TempFarm,
     TempBuild,
     TempWindPlant,
-    TempDumpingGround
+    TempDumpingGround,
+    TempClinic
 )
 from cou.global_var import (
     ELEMENTARY,
@@ -471,7 +472,6 @@ class DumpingGround(BuldingsWithWorkes):
     build_time = models.PositiveIntegerField(default=2)
     build_cost = models.PositiveIntegerField(default=100)
     maintenance_cost = models.PositiveIntegerField(default=10)
-    limit_of_dust_cars = models.PositiveIntegerField(default=6)
     current_space_for_trash = models.PositiveIntegerField(default=0)
     max_space_for_trash = models.PositiveIntegerField(default=10000)
     pollution_rate = models.FloatField(default=3.0)
@@ -482,99 +482,18 @@ class DumpingGround(BuldingsWithWorkes):
             self.current_build_time += 1
         elif self.current_build_time == self.build_time:
             self.if_under_construction = False
-            DustCart.objects.create(dumping_ground=self, city=self.city)
 
 
-class Vehicle(models.Model):
-    city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True)
-    name = models.CharField(max_length=20)
-    cost = models.PositiveIntegerField(default=0)
-    maintenance_cost = models.PositiveIntegerField(default=0)
-    profession_type_provided = models.CharField(default="", max_length=1)
-    elementary_employee_needed = models.PositiveIntegerField(default=0)
-    college_employee_needed = models.PositiveIntegerField(default=0)
-    phd_employee_needed = models.PositiveIntegerField(default=0)
-    employee = GenericRelation(
-        to="citizen_engine.Citizen",
-        object_id_field="workplace_object_id",
-        content_type_field="workplace_content_type",
-    )
-
-    def update_proficiency_of_profession_for_employees(self, employees):
-        for employee in employees:
-            employee.current_profession.update_proficiency(employee)
-
-    def wage_payment(self, city, data):
-        import decimal
-
-        total_payment = []
-        for e in data.list_of_workplaces[self].all_employees:
-            se = decimal.Decimal(data.citizens_in_city[e].salary_expectation)
-            e.cash += se
-            city.cash -= se
-            total_payment.append(se)
-        data.list_of_workplaces[self].workers_costs = sum(total_payment)
-
-    def calculate_wage_for_employees(
-        self, wage_of_employees, total_wages, total_level, employees, employee_needed
-    ):
-        if employee_needed:
-            total_wages.append(wage_of_employees)
-            total_level.append(
-                (
-                    sum(
-                        [
-                            e.current_profession.proficiency
-                            if e.current_profession
-                            else 0
-                            for e in employees
-                        ]
-                    )
-                    / float(employee_needed)
-                )
-                * wage_of_employees
-            )
-
-    def employee_productivity(self, workplaces, citizens):
-        wages = []
-        total = []
-        self.calculate_wage_for_employees(
-            wage_of_employees=1,
-            total_wages=wages,
-            total_level=total,
-            employees=[citizens[e] for e in workplaces[self].elementary_employees],
-            employee_needed=self.elementary_employee_needed,
-        )
-        self.calculate_wage_for_employees(
-            wage_of_employees=2,
-            total_wages=wages,
-            total_level=total,
-            employees=[citizens[e] for e in workplaces[self].college_employees],
-            employee_needed=self.college_employee_needed,
-        )
-        self.calculate_wage_for_employees(
-            wage_of_employees=3,
-            total_wages=wages,
-            total_level=total,
-            employees=[citizens[e] for e in workplaces[self].phd_employees],
-            employee_needed=self.phd_employee_needed,
-        )
-        return float(sum(total)) / float(sum(wages))
+class MedicalEstablishment(BuldingsWithWorkes):
 
     class Meta:
         abstract = True
 
-    def __str__(self):
-        return self.name
 
-
-class DustCart(Vehicle):
-    dumping_ground = models.ForeignKey(
-        DumpingGround, on_delete=models.SET_NULL, null=True
-    )
-    profession_type_provided = models.CharField(default="Śmieciarz", max_length=30)
-    name = models.CharField(default="Śmieciarka", max_length=20)
-    cost = models.PositiveIntegerField(default=10)
-    elementary_employee_needed = models.PositiveIntegerField(default=3)
-    curr_capacity = models.PositiveIntegerField(default=0)
-    max_capacity = models.PositiveIntegerField(default=60)
+class Clinic(MedicalEstablishment):
+    temp_model = TempClinic
+    name = models.CharField(default="Klinika", max_length=20)
+    build_time = models.PositiveIntegerField(default=2)
+    build_cost = models.PositiveIntegerField(default=1000)
+    college_employee_needed = models.PositiveIntegerField(default=10)
+    phd_employee_needed = models.PositiveIntegerField(default=5)

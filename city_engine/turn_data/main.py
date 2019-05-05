@@ -1,7 +1,7 @@
 from citizen_engine.social_actions import SocialAction
 from city_engine.main_view_data.resources_allocation import ResourceAllocation
 from city_engine.main_view_data.trash_management import TrashManagement, CollectGarbage
-from city_engine.models import Farm, AnimalFarm
+from city_engine.models import Farm, AnimalFarm, MedicalEstablishment
 from resources.models import MassConventer
 
 
@@ -12,6 +12,8 @@ class TurnCalculation:
         self.profile = profile
 
     def run(self):
+        self.health_of_population_action()
+        self.health_care_actions()
         TrashManagement(self.data).run()
         SocialAction(self.city, self.profile, self.data).run()
         ResourceAllocation(self.city, self.data).run()
@@ -24,6 +26,14 @@ class TurnCalculation:
         self.update_breeding_status()
         self.trade_district_actions()
         self.save_all()
+
+    def health_care_actions(self):
+        for h in (b for b in self.data.list_of_buildings.values() if isinstance(b.instance, MedicalEstablishment)):
+            h.work()
+
+    def health_of_population_action(self):
+        for c in self.data.citizens_in_city.values():
+            c.probability_of_being_sick()
 
     def save_all(self):
         self.city.save()

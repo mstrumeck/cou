@@ -6,8 +6,7 @@ from django.db.models import F
 
 class TempCompany(DataContainersWithEmployees):
     def __init__(self, instance, profile, employees, market):
-        super().__init__(instance, profile, employees)
-        self.market = market
+        super().__init__(instance, profile, employees, market)
         self.goods = {}
 
     def _get_row_col_cor(self):
@@ -69,12 +68,12 @@ class TempCompany(DataContainersWithEmployees):
         ]
         for employees, needed_employees in e:
             if employees and needed_employees:
-                total.append(self._get_sum_edu_effectiveness(employees) / needed_employees / 3)
+                total.append(self._get_sum_of_edu_avg_effectiveness(employees) / needed_employees / 3)
         return sum(total)
 
     def _calculate_operation_requirements(self):
-        self.water_required = len(self.all_employees) * 2
-        self.energy_required = len(self.all_employees) * 4
+        self.water_required = len(self.all_people_in_building) * 2
+        self.energy_required = len(self.all_people_in_building) * 4
 
     def save_all(self):
         for good in self.goods:

@@ -1,6 +1,6 @@
 from django.db.models import F
 
-from city_engine.models import DumpingGround, DustCart
+from city_engine.models import DumpingGround
 
 
 class TrashManagement:

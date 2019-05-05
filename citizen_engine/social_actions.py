@@ -24,25 +24,17 @@ class SocialAction:
         self.update_age()
 
     def update_age(self):
-        for c in (
-            p
-            for p in self.citizen_data.citizens_in_city
-            if p.month_of_birth == self.profile.current_turn
-        ):
+        for c in (p for p in self.citizen_data.citizens_in_city if p.month_of_birth == self.profile.current_turn):
             c.age += 1
 
     def launch_school(self):
-        for sch in [
-            b for b in self.city_data.list_of_workplaces if isinstance(b, School)
-        ]:
+        for sch in [b for b in self.city_data.list_of_workplaces if isinstance(b, School)]:
             if self.profile.current_turn == 8:
                 sch.yearly_run(self.citizen_data.citizens_in_city)
             sch.monthly_run(self.citizen_data.citizens_in_city, self.profile)
 
     def find_home(self):
-        homeless = [
-            h for h in self.citizen_data.citizens_in_city if h.resident_object is None
-        ]
+        homeless = [h for h in self.citizen_data.citizens_in_city if h.resident_object is None]
         if homeless:
             resident_with_space = [
                 r

@@ -3,6 +3,7 @@ from django.db import models
 from city_engine import models as ce_models
 from player.models import Profile
 from company_engine.models import FoodCompany
+from .temp_models import TempMassConverter
 
 
 class Market(models.Model):
@@ -61,6 +62,7 @@ class Commodity(MarketResource):
 
 
 class MassConventer(ce_models.BuldingsWithWorkes):
+    temp_model = TempMassConverter
     name = models.CharField(default="Konwenter Masy", max_length=16)
     profession_type_provided = models.CharField(
         default="Pracownik konwentera masy", max_length=30
@@ -70,19 +72,6 @@ class MassConventer(ce_models.BuldingsWithWorkes):
     mass_production_rate = models.PositiveIntegerField(default=100)
     build_time = models.PositiveIntegerField(default=1)
     elementary_employee_needed = models.PositiveIntegerField(default=5)
-
-    def product_mass(self, data):
-        container = data.list_of_workplaces[self]
-        size_total = int(
-            self.mass_production_rate * container.productivity)
-        size = size_total if size_total > 1 else 1
-        quality = container._get_quality()
-        price = self.calculate_price_of_good(
-            data.list_of_workplaces[self].workers_costs, size
-        )
-
-        if quality > 0 and len(data.list_of_workplaces[self].all_employees) >= 1:
-            data.market.add_new_resource(Mass, size, quality, price, data.market.mi)
 
 
 class CattleFarm(ce_models.AnimalFarm):
@@ -106,7 +95,7 @@ class CattleFarm(ce_models.AnimalFarm):
     def _accumulate_breeding(self, data, cattle):
         container = data.list_of_workplaces[self]
         self.accumulate_breding += self.cattle_breeding_rate * container.productivity
-        if len(data.list_of_workplaces[self].all_employees) >= 1:
+        if len(data.list_of_workplaces[self].all_people_in_building) >= 1:
             cattle.resource_production(
                 self.pastures,
                 data,

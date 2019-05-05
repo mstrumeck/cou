@@ -6,7 +6,6 @@ from citizen_engine.models import Citizen, Family
 from city_engine.models import (
     Building,
     Field,
-    Vehicle,
     PowerPlant,
     Waterworks,
     SewageWorks,
@@ -14,11 +13,11 @@ from city_engine.models import (
     TradeDistrict,
     AnimalFarm
 )
+from city_engine.temp_models import DataContainersWithEmployees
 from company_engine.models import Company
 from player.models import Profile
-from city_engine.temp_models import DataContainersWithEmployees
-from resources.temp_models import MarketDataContainer
 from resources.models import Cattle
+from resources.temp_models import MarketDataContainer
 
 
 class BasicAbstract(ABC):
@@ -44,15 +43,6 @@ class BasicAbstract(ABC):
         return self.get_subclasses(
             abstract_class=Building, app_label="city_engine"
         ) + self.get_subclasses(abstract_class=Building, app_label="resources")
-
-    def get_queries_of_vehicles(self):
-        result = []
-        for sub in self.get_subclasses(abstract_class=Vehicle, app_label="city_engine"):
-            data = sub.objects.filter(city=self.city)
-            if data.exists():
-                for v in data:
-                    result.append(v)
-        return result
 
     def get_quersies_of_buildings(self):
         result = []
@@ -81,9 +71,10 @@ class AbstractAdapter(BasicAbstract):
 
 
 class RootClass(BasicAbstract):
-    def __init__(self, city, user):
+    def __init__(self, city, user, is_turn_calculation=False):
         self.city = city
         self.user = user
+        self.is_turn_calculation = is_turn_calculation
         self.profile = Profile.objects.get(user_id=self.user.id)
         self.market = MarketDataContainer(self.profile.market)
         self.to_save = []
@@ -121,12 +112,33 @@ class RootClass(BasicAbstract):
                      and not isinstance(b, Company)
                      and not isinstance(b, AnimalFarm)):
             self.to_save.append(b)
-            self.list_of_buildings[b] = b.temp_model(instance=b, profile=self.profile, employees=self.citizens_in_city)
+            self.list_of_buildings[b] = b.temp_model(
+                instance=b,
+                profile=self.profile,
+                employees=self.citizens_in_city,
+                market=self.market)
 
-    def preprocess_citizens(self, citizens, residentials):
+    def probability_of_death(self, diseases):
+        for d in (d for d in diseases if d.is_fatal):
+            if d.is_disease_cause_death():
+                return True
+        return False
+
+    def preprocess_citizens(self, citizens):
         for citizen in citizens:
+            diseases = list(citizen.disease_set.all())
+            if self.is_turn_calculation:
+                if self.probability_of_death(diseases):
+                    citizen.kill()
+                    continue
+
             self.to_save.append(citizen)
-            self.citizens_in_city[citizen] = citizen.temp_model(instance=citizen, to_save=self.to_save, residentials=residentials)
+            self.citizens_in_city[citizen] = citizen.temp_model(
+                instance=citizen,
+                to_save=self.to_save,
+                home=self.list_of_buildings[citizen.resident_object] if citizen.resident_object else None,
+                diseases=diseases
+            )
 
     def preprocess_city_fields(self):
         for field in Field.objects.filter(player=self.profile):
@@ -140,6 +152,13 @@ class RootClass(BasicAbstract):
                 instance=residential,
                 profile=self.profile,
             )
+
+    def add_citizen_data_to_residentials(self):
+        for residential in self.list_of_buildings:
+            self.list_of_buildings[residential].fill_data_by_residents(
+                [self.citizens_in_city[c] for c in residential.resident.all()]
+            )
+
 
     def preprocess_families(self):
         for family in Family.objects.filter(city=self.city):
@@ -163,21 +182,19 @@ class RootClass(BasicAbstract):
                 instance=af,
                 profile=self.profile,
                 employees=self.citizens_in_city,
-                cattle=Cattle.objects.filter(farm=af).last())
+                cattle=Cattle.objects.filter(farm=af).last(),
+                market=self.market)
 
     def preprocess_data(self):
         citizens = Citizen.objects.filter(city=self.city)
         buildings = self.get_quersies_of_buildings()
-        # vehicles = self.get_queries_of_vehicles()
         companies = self.get_queries_of_companies(
             (b for b in buildings if isinstance(b, TradeDistrict))
         )
         self.preprocess_city_fields()
         self.preprocess_residentials(buildings)
-        self.preprocess_citizens(citizens, [
-            self.list_of_buildings[r] for r in self.list_of_buildings if isinstance(r, Residential)
-            ],
-        )
+        self.preprocess_citizens(citizens)
+        self.add_citizen_data_to_residentials()
         self.preprocess_families()
         self.preprocess_buildings(buildings)
         self.preprocess_animal_farms(buildings)
