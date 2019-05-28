@@ -1,12 +1,12 @@
 from django import test
 from django.contrib.auth.models import User
 
-from citizen_engine.models import Citizen, Education, Profession, Disease
+from citizen_engine.models import Citizen, Disease
 from city_engine.models import City, Clinic, WindPlant
 from city_engine.test.base import TestHelper
 from cou.abstract import RootClass
 from map_engine.models import Field
-from resources.models import Market, Mass, MassConventer
+from resources.models import Market
 
 
 class TestClinic(test.TestCase):
@@ -57,4 +57,3 @@ class TestClinic(test.TestCase):
         self.rc = RootClass(self.city, User.objects.latest("id"))
         wp_ob = self.rc.list_of_buildings[wp]
         self.assertEqual(wp_ob.employee_productivity(), 0.8)
-

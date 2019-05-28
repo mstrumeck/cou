@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 
 from city_engine.models import City, StandardLevelResidentialZone, Field
 from cou.abstract import RootClass
-from player.models import Profile
 from resources.models import Market
 from .base import TestHelper
 
@@ -54,3 +53,46 @@ class StandardResidential(test.TestCase, TestHelper):
         self.assertEqual(
             RootClass(self.city, self.user).list_of_buildings[self.s].rent, 691.2
         )
+
+    def test_get_quality_of_education_with_elementary_employees_only(self):
+        TestHelper(self.city, User.objects.latest("id")).populate_city()
+        rc = RootClass(self.city, User.objects.latest("id"))
+        r = rc.list_of_buildings[self.s]
+        self.assertEqual(r._get_quality_of_education(), 0.3333333333333333)
+
+    def test_get_quality_of_education_with_college_employees_only(self):
+        rc = RootClass(self.city, User.objects.latest("id"))
+        for b in rc.list_of_buildings:
+            b.elementary_employee_needed = 0
+            b.college_employee_needed = 5
+            b.save()
+        TestHelper(self.city, User.objects.latest("id")).populate_city()
+        rc = RootClass(self.city, User.objects.latest("id"))
+        r = rc.list_of_buildings[self.s]
+        self.assertEqual(r.people_in_charge, 25)
+        self.assertEqual(r._get_quality_of_education(), 0.5)
+
+    def test_get_quality_of_education_with_phd_employees_only(self):
+        rc = RootClass(self.city, User.objects.latest("id"))
+        for b in rc.list_of_buildings:
+            b.elementary_employee_needed = 0
+            b.phd_employee_needed = 5
+            b.save()
+        TestHelper(self.city, User.objects.latest("id")).populate_city()
+        rc = RootClass(self.city, User.objects.latest("id"))
+        r = rc.list_of_buildings[self.s]
+        self.assertEqual(r.people_in_charge, 25)
+        self.assertEqual(r._get_quality_of_education(), 1)
+
+    def test_get_quality_of_education_with_all_employees_type(self):
+        rc = RootClass(self.city, User.objects.latest("id"))
+        for b in rc.list_of_buildings:
+            b.elementary_employee_needed = 2
+            b.college_employee_needed = 2
+            b.phd_employee_needed = 2
+            b.save()
+        TestHelper(self.city, User.objects.latest("id")).populate_city()
+        rc = RootClass(self.city, User.objects.latest("id"))
+        r = rc.list_of_buildings[self.s]
+        self.assertEqual(r.people_in_charge, 30)
+        self.assertEqual(r._get_quality_of_education(), 0.3333333333333333)

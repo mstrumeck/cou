@@ -100,6 +100,17 @@ class RootClass(BasicAbstract):
             **self.companies,
         }
 
+    def kill_person(self, person_instance):
+        del self.citizens_in_city[person_instance.instance]
+        person_instance.instance.delete()
+
+    def destroy_building(self, building):
+        for x in self.list_of_buildings[building.instance].all_people_in_building:
+            x.instance.workplace_object = None
+            x.instance.save()
+        del self.list_of_buildings[building.instance]
+        building.instance.delete()
+
     def preprocess_companies(self, companies):
         for c in companies:
             self.to_save.append(c)
@@ -158,7 +169,6 @@ class RootClass(BasicAbstract):
             self.list_of_buildings[residential].fill_data_by_residents(
                 [self.citizens_in_city[c] for c in residential.resident.all()]
             )
-
 
     def preprocess_families(self):
         for family in Family.objects.filter(city=self.city):

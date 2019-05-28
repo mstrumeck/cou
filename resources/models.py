@@ -1,8 +1,8 @@
 from django.db import models
 
 from city_engine import models as ce_models
-from player.models import Profile
 from company_engine.models import FoodCompany
+from player.models import Profile
 from .temp_models import TempMassConverter
 
 
@@ -94,13 +94,14 @@ class CattleFarm(ce_models.AnimalFarm):
 
     def _accumulate_breeding(self, data, cattle):
         container = data.list_of_workplaces[self]
-        self.accumulate_breding += self.cattle_breeding_rate * container.productivity
+        productivity = container._get_productivity()
+        self.accumulate_breding += self.cattle_breeding_rate * productivity
         if len(data.list_of_workplaces[self].all_people_in_building) >= 1:
             cattle.resource_production(
                 self.pastures,
                 data,
                 data.list_of_workplaces[self].workers_costs,
-                container.productivity,
+                productivity,
             )
 
     def _release_accumulate_breeding(self, cattle, release_breeding):

@@ -35,7 +35,7 @@ class TempCitizen:
         return sum([edu.effectiveness for edu in self.educations]) / len(self.educations)
 
     def _get_chance_to_get_sick(self):
-        base = self.instance.health + self._get_wage_avg_all_edu_effectiveness()
+        base = self.instance.health + self.get_wage_avg_all_edu_effectiveness()
         pollution = self.instance.health * self._get_sum_of_pollutions()
         age = self.instance.health * (self.instance.age/100.00)
         return base - pollution - age
@@ -49,7 +49,7 @@ class TempCitizen:
     def _get_sum_of_pollutions(self):
         return sum([self._get_pollution_from_place_of_living(), self._get_pollution_from_workplace()])/100.00
 
-    def _get_wage_avg_all_edu_effectiveness(self):
+    def get_wage_avg_all_edu_effectiveness(self):
         avg_with_wage_for_educations = 6
         return sum([edu.effectiveness for edu in self.educations]) / avg_with_wage_for_educations
 

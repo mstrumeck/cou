@@ -1,5 +1,6 @@
-from cou.global_var import COLLEGE, ELEMENTARY, PHD
 import random
+
+from cou.global_var import COLLEGE, ELEMENTARY, PHD
 
 
 class TempBuild:
@@ -9,9 +10,26 @@ class TempBuild:
         self.energy, self.energy_required = 0, 0
         self.water, self.water_required = 0, 0
         self.row_col_cor = self._get_row_col_cor()
-        self.trash = [
-            trash for trash in instance.trash.all() if instance.trash.all().exists()
-        ]
+        self.trash = [trash for trash in instance.trash.all() if instance.trash.all().exists()]
+        self.is_in_fire = False
+        self.fire_prevention = 0.0
+
+    def _get_sum_of_edu_avg_effectiveness_with_wages(self, citizens):
+        return sum([c.get_wage_avg_all_edu_effectiveness() for c in citizens])
+
+    def _get_sum_of_edu_avg_effectiveness(self, citizens):
+        return sum([c.get_avg_all_edu_effectiveness() for c in citizens])
+
+    def set_in_fire(self):
+        self.is_in_fire = True
+
+    def probability_of_fire(self):
+        fire_factors = self._get_fire_factors()
+        fire_probability_divisor = len(fire_factors) * 2
+        fire_probability = sum(fire_factors) / fire_probability_divisor
+        base_probability_of_fire = 0.6
+        if random.random() < (base_probability_of_fire - fire_probability):
+            self.set_in_fire()
 
     def _get_row_col_cor(self):
         return (self.instance.city_field.row, self.instance.city_field.col)
@@ -35,11 +53,13 @@ class DataContainersWithEmployees(TempBuild):
         self.phd_vacancies = self.instance.phd_employee_needed - len(self.phd_employees)
         self.all_people_in_building = (self.elementary_employees + self.college_employees + self.phd_employees)
         self.people_in_charge = len(self.all_people_in_building)
-        self.productivity = self._get_productivity()
 
     def update_proficiency_of_profession_for_employees(self):
         for employee in self.all_people_in_building:
             employee.current_profession.update_proficiency(employee)
+
+    def _get_fire_factors(self):
+        return [self._get_productivity(), self._get_quality() / 100.00, self.fire_prevention]
 
     def _get_quality(self, num_of_employee_categories=3):
         total = []
@@ -52,9 +72,6 @@ class DataContainersWithEmployees(TempBuild):
             if employees and needed_employees:
                 total.append(self._get_sum_of_edu_avg_effectiveness(employees) / needed_employees / num_of_employee_categories)
         return round(100 * sum(total))
-
-    def _get_sum_of_edu_avg_effectiveness(self, employees):
-        return sum([c.get_avg_all_edu_effectiveness() for c in employees])
 
     def wage_payment(self, city):
         import decimal
@@ -141,6 +158,28 @@ class TempResidential(TempBuild):
         self.people_in_charge = len(residents)
         self.water_required = self._resources_demand()
         self.energy_required = self._resources_demand()
+
+    def _get_fire_factors(self):
+        return [self._get_quality_of_education(), self.fire_prevention]
+
+    def get_citizens_by_education(self, citizens, education_level):
+        return [c for c in citizens if c.instance.resident_object == self.instance and c.instance.edu_title in education_level]
+
+    def _get_quality_of_education(self):
+        total = []
+        wages = []
+        e = [
+            (self.get_citizens_by_education(self.all_people_in_building, (ELEMENTARY, "None")), 3),
+            (self.get_citizens_by_education(self.all_people_in_building, (COLLEGE,)), 2),
+            (self.get_citizens_by_education(self.all_people_in_building, (PHD,)), 1)
+        ]
+        for employees, wage in e:
+            if employees:
+                wages.append(wage)
+                total.append(self._get_sum_of_edu_avg_effectiveness(employees) / self.people_in_charge)
+        if wages:
+            return sum(total) / float(max(wages))
+        return 0
 
     def _resources_demand(self):
         return self.people_in_charge * 3
@@ -289,7 +328,7 @@ class TempDumpingGround(DataContainersWithEmployees):
         self.total_employees_capacity = self._get_total_employees_capacity()
 
     def _get_total_employees_capacity(self):
-        return (100 * self.productivity) * self.people_in_charge
+        return (100 * self._get_productivity()) * self.people_in_charge
 
     def collect_trash(self, building):
         if self.total_employees_capacity:
@@ -314,6 +353,8 @@ class TempAnimalFarm(TempFarm):
 class TempClinic(DataContainersWithEmployees):
     def __init__(self, instance, profile, employees, market):
         super().__init__(instance, profile, employees, market)
+        self.energy_required = 10
+        self.water_required = 15
         self.max_treatment_capacity = 30
         self.current_treatment_capacity = int((self.people_in_charge / self.max_employees) * self.max_treatment_capacity)
 
@@ -334,5 +375,25 @@ class TempClinic(DataContainersWithEmployees):
     def _treat_citizen(self, c, after_treatment):
         self.current_treatment_capacity -= 1
         after_treatment.append(c)
-        if self.productivity > random.random():
+        if self._get_productivity() > random.random():
             c.diseases[0].delete()
+
+
+class TempFireStation(DataContainersWithEmployees):
+    def __init__(self, instance, profile, employees, market):
+        super().__init__(instance, profile, employees, market)
+        self.energy_required = 10
+        self.water_required = 20
+        self._max_fire_prevention_capacity = 15
+        self.fire_prevention_capacity = int((self.people_in_charge / self.max_employees) * self._max_fire_prevention_capacity)
+
+    def ensure_fire_prevention(self, buildings_in_city):
+        pattern = sorted([b for b in buildings_in_city.values() if not isinstance(b, TempFireStation)], key=lambda x: (
+            abs(x.row_col_cor[0] - self.row_col_cor[0]),
+            abs(x.row_col_cor[1] - self.row_col_cor[1]),
+        ))
+        for b in pattern[:self.fire_prevention_capacity]:
+            b.fire_prevention = self._get_productivity()
+
+    def is_handle_with_fire(self):
+        return True if random.random() < self._get_productivity() else False

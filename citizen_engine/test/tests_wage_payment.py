@@ -63,7 +63,7 @@ class WagePaymentTest(TestCase):
         self.assertEqual(round(RC.list_of_workplaces[self.school].workers_costs), 226)
         self.assertEqual(int(self.city.cash), 999773)
         self.assertEqual(int(RC.citizens_in_city[self.s].instance.cash), 326)
-        self.assertEqual(round(RC.citizens_in_city[self.s]._get_wage_avg_all_edu_effectiveness(), 2), 0.33)
+        self.assertEqual(round(RC.citizens_in_city[self.s].get_wage_avg_all_edu_effectiveness(), 2), 0.33)
         self.assertEqual(RC.citizens_in_city[self.s].get_avg_all_edu_effectiveness(), 1)
 
     def test_wage_payment_for_person_pass_with_one_education(self):
@@ -81,7 +81,7 @@ class WagePaymentTest(TestCase):
         self.assertEqual(round(RC.list_of_workplaces[self.school].workers_costs), 113)
         self.assertEqual(int(self.city.cash), 999886)
         self.assertEqual(int(RC.citizens_in_city[self.s].instance.cash), 213)
-        self.assertEqual(round(RC.citizens_in_city[self.s]._get_wage_avg_all_edu_effectiveness(), 2), 0.17)
+        self.assertEqual(round(RC.citizens_in_city[self.s].get_wage_avg_all_edu_effectiveness(), 2), 0.17)
         self.assertEqual(RC.citizens_in_city[self.s].get_avg_all_edu_effectiveness(), 1)
 
     def test_wage_payment_for_person_pass_with_three_educations(self):
@@ -105,5 +105,5 @@ class WagePaymentTest(TestCase):
         self.assertEqual(round(RC.list_of_workplaces[self.school].workers_costs), 364)
         self.assertEqual(int(self.city.cash), 999636)
         self.assertEqual(int(RC.citizens_in_city[self.s].instance.cash), 463)
-        self.assertEqual(round(RC.citizens_in_city[self.s]._get_wage_avg_all_edu_effectiveness(), 2), 0.5)
+        self.assertEqual(round(RC.citizens_in_city[self.s].get_wage_avg_all_edu_effectiveness(), 2), 0.5)
         self.assertEqual(RC.citizens_in_city[self.s].get_avg_all_edu_effectiveness(), 1)

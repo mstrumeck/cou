@@ -1,8 +1,10 @@
 from citizen_engine.social_actions import SocialAction
 from city_engine.main_view_data.resources_allocation import ResourceAllocation
 from city_engine.main_view_data.trash_management import TrashManagement, CollectGarbage
-from city_engine.models import Farm, AnimalFarm, MedicalEstablishment
+from city_engine.models import Farm, AnimalFarm, MedicalEstablishment, TempFireStation
 from resources.models import MassConventer
+import random
+from .fire_strategy import FireStrategy
 
 
 class TurnCalculation:
@@ -10,8 +12,11 @@ class TurnCalculation:
         self.city = city
         self.data = data
         self.profile = profile
+        self.fire_strategy = FireStrategy(self.data)
 
     def run(self):
+        self.fire_strategy.calculate_probability_of_fire_among_the_all_buildings()
+        self.fire_strategy.simulate_fire_in_the_city()
         self.health_of_population_action()
         self.health_care_actions()
         TrashManagement(self.data).run()

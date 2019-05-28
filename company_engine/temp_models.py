@@ -1,7 +1,8 @@
+from django.db.models import F
+
+from city_engine.temp_models import DataContainersWithEmployees
 from resources import models as r_models
 from resources.temp_models import TempResources
-from city_engine.temp_models import DataContainersWithEmployees
-from django.db.models import F
 
 
 class TempCompany(DataContainersWithEmployees):
@@ -56,10 +57,10 @@ class TempCompany(DataContainersWithEmployees):
                 materials.pop(materials.index(material))
 
     def _get_quality_of_product(self, product_quality):
-        quality = [product_quality, self._get_quality()]
+        quality = [product_quality, self._get_quality_of_education()]
         return round((sum(quality) / len(quality)) * self._get_productivity())
 
-    def _get_quality(self):
+    def _get_quality_of_education(self):
         total = []
         e = [
             (self.elementary_employees, self.instance.elementary_employee_needed),

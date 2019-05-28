@@ -1,6 +1,7 @@
-from resources import models as r_models
 from django.apps import apps
+
 from city_engine.temp_models import DataContainersWithEmployees
+from resources import models as r_models
 
 
 class MarketDataContainer:
@@ -78,7 +79,7 @@ class TempMassConverter(DataContainersWithEmployees):
 
     def product_mass(self):
         size_total = int(
-            self.instance.mass_production_rate * self.productivity)
+            self.instance.mass_production_rate * self._get_productivity())
         size = size_total if size_total > 1 else 1
         quality = self._get_quality()
         price = self.instance.calculate_price_of_good(

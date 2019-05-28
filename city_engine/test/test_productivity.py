@@ -6,7 +6,6 @@ from city_engine.models import City
 from city_engine.models import WindPlant
 from cou.abstract import RootClass
 from cou.global_var import MALE, ELEMENTARY, COLLEGE
-from player.models import Profile
 from resources.models import Market
 
 

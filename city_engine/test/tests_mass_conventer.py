@@ -81,9 +81,9 @@ class TestMassConventer(test.TestCase):
         mc.product_mass()
         [x.save() for x in RC.to_save]
         self.assertEqual(Mass.objects.all().count(), 2)
-        self.assertEqual(Mass.objects.latest("id").size, 33)
+        self.assertEqual(Mass.objects.latest("id").size, 26)
         self.assertEqual(float("{0:.2f}".format(Mass.objects.latest("id").quality)), 27)
-        self.assertEqual(float(Mass.objects.latest("id").price), 24.48)
+        self.assertEqual(float(Mass.objects.latest("id").price), 31.08)
 
     def test_quality_with_random_number_of_elementary_employee(self):
         import random
@@ -129,3 +129,32 @@ class TestMassConventer(test.TestCase):
         mc.product_mass()
         self.assertNotEqual(list(Mass.objects.all()), [])
         self.assertEqual(Mass.objects.latest("id").quality, 100)
+
+    def test_quality_with_phd_employee_only(self):
+        import random
+
+        self.mass_conventer.elementary_employee_needed = 0
+        self.mass_conventer.phd_employee_needed = random.randrange(1, 20)
+        self.mass_conventer.save()
+        TestHelper(self.city, User.objects.latest("id")).populate_city()
+        self.assertEqual(list(Mass.objects.all()), [])
+        RC = RootClass(self.city, User.objects.latest("id"))
+        mc = RC.list_of_workplaces[MassConventer.objects.latest('id')]
+        mc.wage_payment(self.city)
+        mc.product_mass()
+        self.assertNotEqual(list(Mass.objects.all()), [])
+        self.assertEqual(Mass.objects.latest("id").quality, 33)
+
+    def test_quality_with_college_employee_only(self):
+        import random
+        self.mass_conventer.elementary_employee_needed = 0
+        self.mass_conventer.college_employee_needed = random.randrange(1, 20)
+        self.mass_conventer.save()
+        TestHelper(self.city, User.objects.latest("id")).populate_city()
+        self.assertEqual(list(Mass.objects.all()), [])
+        RC = RootClass(self.city, User.objects.latest("id"))
+        mc = RC.list_of_workplaces[MassConventer.objects.latest('id')]
+        mc.wage_payment(self.city)
+        mc.product_mass()
+        self.assertNotEqual(list(Mass.objects.all()), [])
+        self.assertEqual(Mass.objects.latest("id").quality, 33)

@@ -19,7 +19,8 @@ from city_engine.temp_models import (
     TempBuild,
     TempWindPlant,
     TempDumpingGround,
-    TempClinic
+    TempClinic,
+    TempFireStation
 )
 from cou.global_var import (
     ELEMENTARY,
@@ -320,7 +321,7 @@ class Farm(BuldingsWithWorkes):
     def update_harvest(self, turn, data):
         container = data.list_of_buildings[self]
         if turn >= self.time_to_grow_from and turn < self.time_to_grow_to:
-            harvest_size = self.max_harvest * container.productivity
+            harvest_size = self.max_harvest * container._get_productivity()
             self.accumulate_harvest_costs += float(
                 self.calculate_price_of_good(
                     data.list_of_workplaces[self].workers_costs, harvest_size
@@ -497,3 +498,12 @@ class Clinic(MedicalEstablishment):
     build_cost = models.PositiveIntegerField(default=1000)
     college_employee_needed = models.PositiveIntegerField(default=10)
     phd_employee_needed = models.PositiveIntegerField(default=5)
+
+
+class FireStation(BuldingsWithWorkes):
+    temp_model = TempFireStation
+    name = models.CharField(default="Straż Pożarna", max_length=20)
+    build_time = models.PositiveIntegerField(default=1)
+    build_cost = models.PositiveIntegerField(default=1500)
+    elementary_employee_needed = models.PositiveIntegerField(default=10)
+    college_employee_needed = models.PositiveIntegerField(default=5)

@@ -91,11 +91,11 @@ class TestTrashAllocation(test.TestCase):
 
         temp_dumping_ground.people_in_charge = 10
         temp_dumping_ground.productivity = 0.66
-        self.assertEqual(temp_dumping_ground._get_total_employees_capacity(), 660)
+        self.assertEqual(int(temp_dumping_ground._get_total_employees_capacity()), 333)
 
         temp_dumping_ground.people_in_charge = 2
         temp_dumping_ground.productivity = 0.10
-        self.assertEqual(temp_dumping_ground._get_total_employees_capacity(), 20)
+        self.assertEqual(int(temp_dumping_ground._get_total_employees_capacity()), 66)
 
     def test_collect_trash_by_temp_model(self):
         self.rc = RootClass(self.city, self.user)
