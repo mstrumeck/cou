@@ -28,16 +28,14 @@ class StandardResidential(test.TestCase, TestHelper):
         )
 
     def test_rent_calculation_with_pollution(self):
+        self.rc = RootClass(self.city, self.user)
         mp = random.randrange(1, 30)
         self.s.self__init(max_population=mp)
         self.s.save()
-        self.assertEqual(self.s.max_population, mp)
-        cf_id = self.s.city_field.id
-        cf = Field.objects.get(id=cf_id)
-        cf.pollution = 20
-        cf.save()
+        self.rc.city_fields_in_city[self.s.city_field].pollution = 0.20
+        self.rc.list_of_buildings[self.s].rent = self.rc.list_of_buildings[self.s]._get_rent()
         self.assertEqual(
-            RootClass(self.city, self.user).list_of_buildings[self.s].rent, 64.8
+            self.rc.list_of_buildings[self.s].rent, 64.8
         )
 
     def test_with_one_person(self):

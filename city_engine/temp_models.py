@@ -1,6 +1,17 @@
 import random
 
+import itertools
+
 from cou.global_var import COLLEGE, ELEMENTARY, PHD
+
+
+class TempTrash:
+    def __init__(self, size, owner):
+        self.size = size
+        self.owner = owner
+
+    def delete(self):
+        del self
 
 
 class TempBuild:
@@ -11,8 +22,24 @@ class TempBuild:
         self.water, self.water_required = 0, 0
         self.row_col_cor = self._get_row_col_cor()
         self.trash = [trash for trash in instance.trash.all() if instance.trash.all().exists()]
+        self.temp_trash = []
         self.is_in_fire = False
         self.fire_prevention = 0.0
+        self.pollution_rate = 0.0
+
+    def convert_temp_trash_to_perm(self):
+        for t in self.temp_trash:
+            self.trash.append(self.instance.trash.create(size=t.size, time=1))
+
+    def create_trash(self):
+        if self.trash_calculation():
+            self.temp_trash.append(TempTrash(size=self.trash_calculation(), owner=self))
+
+    def trash_calculation(self):
+        return float(self.pollution_calculation()) * float(self.pollution_rate)
+
+    def pollution_calculation(self):
+        return self.pollution_rate * self.people_in_charge
 
     def _get_sum_of_edu_avg_effectiveness_with_wages(self, citizens):
         return sum([c.get_wage_avg_all_edu_effectiveness() for c in citizens])
@@ -36,15 +63,18 @@ class TempBuild:
 
 
 class DataContainersWithEmployees(TempBuild):
-    def __init__(self, instance, profile, employees, market):
+    def __init__(self, instance, profile, market):
         super().__init__(instance, profile)
         self.market = market
         self.workers_costs = 0
+        self.pollution_rate = 0.4
         self.max_employees = sum(
             [self.instance.elementary_employee_needed,
              self.instance.college_employee_needed,
              self.instance.phd_employee_needed]
         )
+
+    def create_employess_data(self, employees):
         self.elementary_employees = self.get_employees_by_education(employees, (ELEMENTARY, "None"))
         self.college_employees = self.get_employees_by_education(employees, (COLLEGE, ))
         self.phd_employees = self.get_employees_by_education(employees, (PHD, ))
@@ -149,9 +179,11 @@ class DataContainersWithEmployees(TempBuild):
 
 
 class TempResidential(TempBuild):
-    def __init__(self, instance, profile):
+    def __init__(self, instance, profile, field):
         super().__init__(instance, profile)
+        self.field = field
         self.rent = self._get_rent()
+        self.pollution_rate = 0.4
 
     def fill_data_by_residents(self, residents):
         self.all_people_in_building = residents
@@ -187,44 +219,102 @@ class TempResidential(TempBuild):
     def _get_rent(self):
         divider = 2.5
         basic_rent = (
-            (
-                self.instance.build_cost
-                * (self.profile.standard_residential_zone_taxation / divider)
-            )
+            (self.instance.build_cost * (self.profile.standard_residential_zone_taxation / divider))
             / self.instance.max_population
             if self.instance.build_cost and self.instance.max_population
             else 0
         )
         taxation = basic_rent * self.profile.standard_residential_zone_taxation
         pollution_penalty = (
-            basic_rent * (self.instance.city_field.pollution / 100)
-            if self.instance.city_field.pollution
+            basic_rent * self.field.pollution
+            if self.field.pollution
             else 0
         )
         return (basic_rent - pollution_penalty) + taxation
 
 
-class TempTradeDistrict(TempBuild):
-    def __init__(self, instance, profile, building_in_district):
-        super().__init__(instance, profile)
-        self.building_in_district = building_in_district
+class TempDistrict:
+    def __init__(self, instance, profile, companies, support_buildings):
+        self.instance = instance
+        self.profile = profile
+        self.companies = companies
+        self.support_buildings = support_buildings
+        self.row_col_cor = self._get_row_col_cor()
+        self.trash = []
+        self.temp_trash = []
+        self.fire_prevention = 0.0
 
-    # def _create_data_for_trade_district(self, data_container):
-    #     data_container.people_in_charge = 0
-    #     for model in [
-    #         model
-    #         for model in apps.get_app_config("company_engine").get_models()
-    #         if issubclass(model, Company) and model is not Company
-    #     ]:
-    #         if model.objects.filter(trade_district=data_container.bi).exists():
-    #             for instance in model.objects.filter(trade_district=data_container.bi):
-    #                 data_container.people_in_charge += instance.employee.count()
+    def allocate_resources(self):
+        if self.companies or self.support_buildings:
+            num_of_sb = len(self.support_buildings) if self.support_buildings else 0
+            num_of_c = len(self.companies) if self.companies else 0
+            energy_to_allocate = int(self.energy / (num_of_sb + num_of_c))
+            water_to_allocate = int(self.water / (num_of_sb + num_of_c))
+            for b in itertools.chain(self.companies.values(), self.support_buildings.values()):
+                b.energy = energy_to_allocate
+                b.water = water_to_allocate
+
+    def convert_temp_trash_to_perm(self):
+        for t in self.temp_trash:
+            self.trash.append(self.instance.trash.create(size=t.size, time=1))
+
+    def create_trash(self):
+        if self.companies:
+            for c in self.companies.values():
+                if c.trash_calculation():
+                    self.temp_trash.append(TempTrash(size=c.trash_calculation(), owner=c))
+
+        if self.support_buildings:
+            for s in self.support_buildings.values():
+                if s.trash_calculation():
+                    self.temp_trash.append(TempTrash(size=s.trash_calculation(), owner=s))
+
+    def trash_calculation(self):
+        return self.pollution_calculation() * self.pollution_rate
+
+    def pollution_calculation(self):
+        return self.pollution_rate * self.people_in_charge
+
+    def _get_data_from_support_buildings(self):
+        if self.support_buildings:
+            return sum([sb.people_in_charge for sb in self.support_buildings.values()]),\
+                   sum([sb.water_required for sb in self.support_buildings.values()]),\
+                   sum([sb.energy_required for sb in self.support_buildings.values()])
+        return 0, 0, 0
+
+    def _get_data_from_companies(self):
+        if self.companies:
+            return sum([b.people_in_charge for b in self.companies.values()]),\
+                   sum([c.water_required for c in self.companies.values()]),\
+                   sum([c.energy_required for c in self.companies.values()]),
+        return 0, 0, 0
+
+    def get_people_in_charge(self):
+        people_in_charge_sb, water_required_sb, energy_required_sb = self._get_data_from_support_buildings()
+        people_in_charge_c, water_required_c, energy_required_c = self._get_data_from_companies()
+        self.people_in_charge = people_in_charge_c + people_in_charge_sb
+        self.energy, self.energy_required = 0, energy_required_c + energy_required_sb
+        self.water, self.water_required = 0, water_required_c + water_required_sb
+
+    def _get_row_col_cor(self):
+        return (self.instance.city_field.row, self.instance.city_field.col)
+
+    def _get_trash(self):
+        return [c.trash.all() for c in self.companies]
+
+
+class TempTradeDistrict(TempDistrict):
+    def __init__(self, instance, profile, companies, support_buildings=None):
+        super().__init__(instance, profile, companies, support_buildings)
 
 
 class TempPowerPlant(DataContainersWithEmployees):
-    def __init__(self, instance, profile, employees, market):
-        super().__init__(instance, profile, employees, market)
+    def __init__(self, instance, profile, market):
+        super().__init__(instance, profile, market)
         self.energy_allocated = 0
+
+    def pollution_calculation(self):
+        return (self.instance.power_nodes + self.people_in_charge) * self.pollution_rate
 
     def _get_total_production(self):
         if not self.employee_productivity():
@@ -245,32 +335,32 @@ class TempPowerPlant(DataContainersWithEmployees):
 
 
 class TempWindPlant(TempPowerPlant):
-    def __init__(self, instance, profile, employees, market):
-        super().__init__(instance, profile, employees, market)
+    def __init__(self, instance, profile, market):
+        super().__init__(instance, profile, market)
         self.energy_production = 100
         self.max_power_nodes = 10
         self.water_required = 5
 
 
 class TempCoalPlant(TempPowerPlant):
-    def __init__(self, instance, profile, employees, market):
-        super().__init__(instance, profile, employees, market)
+    def __init__(self, instance, profile, market):
+        super().__init__(instance, profile, market)
         self.energy_production = 200
         self.max_power_nodes = 2
         self.water_required = 20
 
 
 class TempRopePlant(TempPowerPlant):
-    def __init__(self, instance, profile, employees, market):
-        super().__init__(instance, profile, employees, market)
+    def __init__(self, instance, profile, market):
+        super().__init__(instance, profile, market)
         self.energy_production = 150
         self.max_power_nodes = 4
         self.water_required = 20
 
 
 class TempWaterTower(DataContainersWithEmployees):
-    def __init__(self, instance, profile, employees, market):
-        super().__init__(instance, profile, employees, market)
+    def __init__(self, instance, profile, market):
+        super().__init__(instance, profile, market)
         self.raw_water_production = 100
         self.raw_water_allocated = 0
 
@@ -295,8 +385,8 @@ class TempWaterTower(DataContainersWithEmployees):
 
 
 class TempSewageWorks(DataContainersWithEmployees):
-    def __init__(self, instance, profile, employees, market):
-        super().__init__(instance, profile, employees, market)
+    def __init__(self, instance, profile, market):
+        super().__init__(instance, profile, market)
         self.raw_water_required = 1000
         self.raw_water = 0
         self.clean_water_allocated = 0
@@ -322,9 +412,12 @@ class TempSewageWorks(DataContainersWithEmployees):
 
 
 class TempDumpingGround(DataContainersWithEmployees):
-    def __init__(self, instance, profile, employees, market):
-        super().__init__(instance, profile, employees, market)
+    def __init__(self, instance, profile, market):
+        super().__init__(instance, profile, market)
         self.current_capacity = instance.current_space_for_trash
+
+    def create_employess_data(self, employees):
+        super().create_employess_data(employees)
         self.total_employees_capacity = self._get_total_employees_capacity()
 
     def _get_total_employees_capacity(self):
@@ -339,23 +432,33 @@ class TempDumpingGround(DataContainersWithEmployees):
                 if trash.size == 0:
                     trash.delete()
 
+            for trash in building.temp_trash:
+                while self.total_employees_capacity >= self.current_capacity and trash.size > 0:
+                    self.current_capacity += 1
+                    trash.size -= 1
+                if trash.size <= 0:
+                    building.temp_trash.remove(trash)
+
 
 class TempFarm(DataContainersWithEmployees):
     pass
 
 
 class TempAnimalFarm(TempFarm):
-    def __init__(self, instance, profile, employees, market, cattle):
-        super().__init__(instance, profile, employees, market)
+    def __init__(self, instance, profile, market, cattle):
+        super().__init__(instance, profile, market)
         self.cattle = cattle
 
 
 class TempClinic(DataContainersWithEmployees):
-    def __init__(self, instance, profile, employees, market):
-        super().__init__(instance, profile, employees, market)
+    def __init__(self, instance, profile, market):
+        super().__init__(instance, profile, market)
         self.energy_required = 10
         self.water_required = 15
         self.max_treatment_capacity = 30
+
+    def create_employess_data(self, employees):
+        super().create_employess_data(employees)
         self.current_treatment_capacity = int((self.people_in_charge / self.max_employees) * self.max_treatment_capacity)
 
     def work(self, list_of_buildings):
@@ -380,12 +483,11 @@ class TempClinic(DataContainersWithEmployees):
 
 
 class TempFireStation(DataContainersWithEmployees):
-    def __init__(self, instance, profile, employees, market):
-        super().__init__(instance, profile, employees, market)
+    def __init__(self, instance, profile, market):
+        super().__init__(instance, profile, market)
         self.energy_required = 10
         self.water_required = 20
         self._max_fire_prevention_capacity = 15
-        self.fire_prevention_capacity = int((self.people_in_charge / self.max_employees) * self._max_fire_prevention_capacity)
 
     def ensure_fire_prevention(self, buildings_in_city):
         pattern = sorted([b for b in buildings_in_city.values() if not isinstance(b, TempFireStation)], key=lambda x: (
@@ -394,6 +496,10 @@ class TempFireStation(DataContainersWithEmployees):
         ))
         for b in pattern[:self.fire_prevention_capacity]:
             b.fire_prevention = self._get_productivity()
+
+    def create_employess_data(self, employees):
+        super().create_employess_data(employees)
+        self.fire_prevention_capacity = int((self.people_in_charge / self.max_employees) * self._max_fire_prevention_capacity)
 
     def is_handle_with_fire(self):
         return True if random.random() < self._get_productivity() else False

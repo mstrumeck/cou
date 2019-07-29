@@ -8,8 +8,11 @@ from city_engine.models import (
     WaterTower,
     SewageWorks
 )
+from city_engine.models import TradeDistrict
 from city_engine.test.base import TestHelper
+from company_engine.models import FoodCompany
 from cou.abstract import RootClass
+from map_engine.models import Field
 from resources.models import Market
 
 
@@ -138,26 +141,3 @@ class BuldingResourceAttrs(test.TestCase):
         self.assertEqual(sum([rc.list_of_buildings[x].water for x in rc.list_of_buildings]), 4)
         self.assertEqual(rc.list_of_buildings[s].raw_water, 30)
         self.assertEqual(rc.list_of_buildings[s].clean_water_allocated, 4)
-
-
-# class ResourceAllocationForCompany(test.TestCase):
-#     fixtures = ["basic_fixture_resources_and_employees2.json"]
-#
-#     def setUp(self):
-#         self.city = City.objects.latest("id")
-#         self.user = User.objects.latest('id')
-#         Market.objects.create(profile=self.user.profile)
-#
-#     def test_if_company_get_resources(self):
-#         self.td = TradeDistrict.objects.create(
-#             city=self.city, city_field_id=Field.objects.latest("id").id - 2, if_under_construction=False
-#         )
-#         self.fc = FoodCompany.objects.create(cash=10, trade_district=self.td)
-#         TestHelper(self.city, User.objects.latest("id")).populate_city()
-#         rc = RootClass(self.city, self.user)
-#         fc_container = rc.companies[self.fc]
-#         self.assertEqual(0, fc_container.water)
-#         self.assertEqual(0, fc_container.energy)
-#         ResourceAllocation(self.city, rc).run()
-#         self.assertEqual(fc_container.water, fc_container.water_required)
-#         self.assertEqual(fc_container.energy, fc_container.energy_required)

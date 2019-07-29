@@ -73,6 +73,12 @@ class Citizen(models.Model):
     school_object_id = models.PositiveIntegerField(null=True)
     school_object = GenericForeignKey("school_content_type", "school_object_id")
 
+    def create_disease(self, diseases, chance_to_get_sick):
+        disease = Disease.objects.create(
+            citizen=self,
+            is_fatal=random.choice([True, False]) if chance_to_get_sick < 0.35 else False)
+        diseases.append(disease)
+
     def kill(self):
         self.delete()
 

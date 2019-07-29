@@ -69,6 +69,5 @@ class TestTurnCalculation(test.TestCase, TestHelper):
     def test_turn_calculation_run(self):
         TestHelper(self.city, User.objects.latest("id")).populate_city()
         rc = RootClass(self.city, User.objects.latest("id"))
-        print(rc.list_of_buildings)
         tc = TurnCalculation(self.city, rc, self.user.profile)
         tc.run()

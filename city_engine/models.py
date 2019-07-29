@@ -97,12 +97,6 @@ class BuldingsWithWorkes(Building):
             return workers_costs / decimal.Decimal(size_of_production)
         return 0
 
-    def trash_calculation(self, employee):
-        return float(self.pollution_calculation(employee)) * float(self.pollution_rate)
-
-    def pollution_calculation(self, employee):
-        return self.pollution_rate * float(employee)
-
     class Meta:
         abstract = True
 
@@ -123,12 +117,6 @@ class Residential(Building):
     class Meta:
         abstract = True
 
-    def pollution_calculation(self, employee):
-        return float(employee) * self.pollution_rate
-
-    def trash_calculation(self, employee):
-        return self.pollution_calculation(employee) * self.population
-
 
 class StandardLevelResidentialZone(Residential):
     temp_model = TempResidential
@@ -138,22 +126,6 @@ class StandardLevelResidentialZone(Residential):
         self.max_population = 1 if max_population <= 0 else max_population
         self.build_time = 1 if max_population <= 4 else int(max_population / 4)
         self.build_cost = STANDARD_RESIDENTIAL_ZONE_COST_PER_RESIDENT * max_population
-
-
-class TradeDistrict(Building):
-    temp_model = TempTradeDistrict
-    name = models.CharField(default="Dzielnica handlowa", max_length=20)
-    if_under_construction = models.BooleanField(default=False)
-    build_time = models.PositiveIntegerField(default=0)
-    current_build_time = models.PositiveIntegerField(default=0)
-    pollution_rate = models.FloatField(default=1.5)
-    pollution_product = models.PositiveIntegerField(default=0)
-
-    def trash_calculation(self, employee):
-        return float(self.pollution_calculation(employee)) * float(self.pollution_rate)
-
-    def pollution_calculation(self, employee):
-        return self.pollution_rate * float(employee)
 
 
 class ProductionBuilding(BuldingsWithWorkes):
@@ -181,9 +153,6 @@ class PowerPlant(BuldingsWithWorkes):
 
     class Meta:
         abstract = True
-
-    def pollution_calculation(self, employee):
-        return (self.power_nodes + employee) * self.pollution_rate
 
     def __str__(self):
         return self.name
@@ -256,9 +225,6 @@ class Waterworks(BuldingsWithWorkes):
 
     class Meta:
         abstract = True
-
-    def pollution_calculation(self, employee):
-        return employee * self.pollution_rate
 
 
 class WaterTower(Waterworks):
@@ -507,3 +473,19 @@ class FireStation(BuldingsWithWorkes):
     build_cost = models.PositiveIntegerField(default=1500)
     elementary_employee_needed = models.PositiveIntegerField(default=10)
     college_employee_needed = models.PositiveIntegerField(default=5)
+
+
+class District(models.Model):
+    city = models.ForeignKey(City, on_delete=True)
+    city_field = models.ForeignKey(Field, on_delete=True)
+
+    class Meta:
+        abstract = True
+
+
+class TradeDistrict(District):
+    temp_model = TempTradeDistrict
+    name = models.CharField(default="Dzielnica handlowa", max_length=20)
+    max_num_of_companies = models.IntegerField(default=2)
+    max_num_of_support_buildings = models.IntegerField(default=2)
+    trash = GenericRelation(Trash)

@@ -18,8 +18,7 @@
     "terrain": "Mountain",
     "col": 17,
     "row": 73,
-    "if_start": false,
-    "pollution": 0
+    "if_start": false
   }
 },
 {
@@ -32,8 +31,7 @@
     "terrain": null,
     "col": 18,
     "row": 73,
-    "if_start": false,
-    "pollution": 0
+    "if_start": false
   }
 },
 {
@@ -46,8 +44,7 @@
     "terrain": null,
     "col": 19,
     "row": 73,
-    "if_start": false,
-    "pollution": 0
+    "if_start": false
   }
 },
 {
@@ -60,8 +57,7 @@
     "terrain": "Mountain",
     "col": 16,
     "row": 74,
-    "if_start": false,
-    "pollution": 0
+    "if_start": false
   }
 },
 {
@@ -74,8 +70,7 @@
     "terrain": "Mountain",
     "col": 17,
     "row": 74,
-    "if_start": false,
-    "pollution": 0
+    "if_start": false
   }
 },
 {
@@ -88,8 +83,7 @@
     "terrain": null,
     "col": 18,
     "row": 74,
-    "if_start": false,
-    "pollution": 0
+    "if_start": false
   }
 },
 {
@@ -102,8 +96,7 @@
     "terrain": null,
     "col": 19,
     "row": 74,
-    "if_start": false,
-    "pollution": 0
+    "if_start": false
   }
 },
 {
@@ -116,8 +109,7 @@
     "terrain": null,
     "col": 16,
     "row": 75,
-    "if_start": false,
-    "pollution": 0
+    "if_start": false
   }
 },
 {
@@ -130,8 +122,7 @@
     "terrain": "Fertile",
     "col": 17,
     "row": 75,
-    "if_start": false,
-    "pollution": 0
+    "if_start": false
   }
 },
 {
@@ -144,8 +135,7 @@
     "terrain": null,
     "col": 18,
     "row": 75,
-    "if_start": true,
-    "pollution": 0
+    "if_start": true
   }
 },
 {
@@ -158,8 +148,7 @@
     "terrain": "Sea",
     "col": 19,
     "row": 75,
-    "if_start": false,
-    "pollution": 0
+    "if_start": false
   }
 },
 {
@@ -172,8 +161,7 @@
     "terrain": null,
     "col": 20,
     "row": 75,
-    "if_start": false,
-    "pollution": 0
+    "if_start": false
   }
 },
 {
@@ -186,8 +174,7 @@
     "terrain": null,
     "col": 16,
     "row": 76,
-    "if_start": false,
-    "pollution": 0
+    "if_start": false
   }
 },
 {
@@ -200,8 +187,7 @@
     "terrain": null,
     "col": 17,
     "row": 76,
-    "if_start": false,
-    "pollution": 0
+    "if_start": false
   }
 },
 {
@@ -214,8 +200,7 @@
     "terrain": null,
     "col": 18,
     "row": 76,
-    "if_start": false,
-    "pollution": 0
+    "if_start": false
   }
 },
 {
@@ -228,8 +213,7 @@
     "terrain": null,
     "col": 19,
     "row": 76,
-    "if_start": false,
-    "pollution": 0
+    "if_start": false
   }
 },
 {
@@ -242,8 +226,7 @@
     "terrain": null,
     "col": 17,
     "row": 77,
-    "if_start": false,
-    "pollution": 0
+    "if_start": false
   }
 },
 {
@@ -256,8 +239,7 @@
     "terrain": null,
     "col": 18,
     "row": 77,
-    "if_start": false,
-    "pollution": 0
+    "if_start": false
   }
 },
 {
@@ -270,8 +252,7 @@
     "terrain": null,
     "col": 19,
     "row": 77,
-    "if_start": false,
-    "pollution": 0
+    "if_start": false
   }
 },
 

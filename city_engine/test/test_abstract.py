@@ -8,8 +8,7 @@ from city_engine.models import (
     PowerPlant,
     Waterworks,
     RopePlant,
-    CoalPlant,
-    DumpingGround
+    CoalPlant
 )
 from cou.abstract import RootClass
 from resources.models import Market

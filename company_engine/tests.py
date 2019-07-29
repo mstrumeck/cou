@@ -115,7 +115,7 @@ class CompanyTest(TestCase):
         self.assertNotEqual(mass_on_market, materials[-1])
         self.assertEqual(materials[-1].size, 3)
         self.assertEqual(materials[-1].quality, 20)
-    #
+
     def set_resources_for_company(self, company, rc):
         company_in_container = rc.list_of_workplaces[company]
         company_in_container.water = 8

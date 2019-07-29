@@ -74,8 +74,8 @@ class TempResources:
 
 
 class TempMassConverter(DataContainersWithEmployees):
-    def __init__(self, instance, profile, employees, market):
-        super().__init__(instance, profile, employees, market)
+    def __init__(self, instance, profile, market):
+        super().__init__(instance, profile, market)
 
     def product_mass(self):
         size_total = int(

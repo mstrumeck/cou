@@ -6,9 +6,16 @@ from resources.temp_models import TempResources
 
 
 class TempCompany(DataContainersWithEmployees):
-    def __init__(self, instance, profile, employees, market):
-        super().__init__(instance, profile, employees, market)
+    def __init__(self, instance, profile, market):
+        super().__init__(instance, profile, market)
         self.goods = {}
+        self.pollution_rate = 0.4
+
+    def trash_calculation(self):
+        return self.pollution_calculation() * self.pollution_rate
+
+    def pollution_calculation(self):
+        return self.pollution_rate * self.people_in_charge
 
     def _get_row_col_cor(self):
         return (self.instance.trade_district.city_field.row, self.instance.trade_district.city_field.col)
@@ -43,7 +50,6 @@ class TempCompany(DataContainersWithEmployees):
         self.instance.save(update_fields=['cash'])
 
     def make_goods_from_components(self, materials):
-        # self_data_container = data.list_of_workplaces[self]
         GOODS_TO_PRODUCT = self.goods_to_product
         for good_type in GOODS_TO_PRODUCT:
             for material in materials:
@@ -73,8 +79,8 @@ class TempCompany(DataContainersWithEmployees):
         return sum(total)
 
     def _calculate_operation_requirements(self):
-        self.water_required = len(self.all_people_in_building) * 2
-        self.energy_required = len(self.all_people_in_building) * 4
+        self.water_required = self.people_in_charge * 2
+        self.energy_required = self.people_in_charge * 4
 
     def save_all(self):
         for good in self.goods:
@@ -105,11 +111,14 @@ class TempCompany(DataContainersWithEmployees):
                     instances_list=list(good.objects.filter(company=self.instance))
                 )
 
+    def create_employess_data(self, employees):
+        super().create_employess_data(employees)
+        self._calculate_operation_requirements()
+
 
 class TempFoodCompany(TempCompany):
-    def __init__(self, instance, profile, employees, market):
-        super().__init__(instance, profile, employees, market)
+    def __init__(self, instance, profile, market):
+        super().__init__(instance, profile, market)
         self.available_components = [r_models.Mass]
         self.goods_to_product = [r_models.Food]
         self.create_goods_produced_by_company()
-        self._calculate_operation_requirements()

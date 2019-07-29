@@ -9,7 +9,6 @@ from city_engine.models import (
     WindPlant,
     WaterTower,
 )
-from city_engine.temp_models import TempDumpingGround
 from city_engine.test.base import TestHelper
 from city_engine.turn_data.main import TurnCalculation
 from cou.abstract import RootClass
@@ -35,18 +34,35 @@ class TestTrashAllocation(test.TestCase):
         dumping_ground = DumpingGround.objects.latest("id")
         self.assertEqual(dumping_ground.current_space_for_trash, 0)
         self.RC = RootClass(self.city, self.user)
+        self.assertEqual(Trash.objects.count(), 0)
+        self.assertEqual(sum([len(b.temp_trash) for b in self.RC.list_of_buildings.values()]), 0)
         TrashManagement(data=self.RC).generate_trash()
-        self.RC = RootClass(self.city, self.user)
+        self.assertEqual(Trash.objects.count(), 0)
+        self.assertEqual(sum([len(b.temp_trash) for b in self.RC.list_of_buildings.values()]), 6)
         CollectGarbage(city=self.city, data=self.RC).run()
-        TurnCalculation(
-            city=self.city, data=self.RC, profile=self.user.profile
-        ).save_all()
-        self.RC = RootClass(self.city, User.objects.latest("id"))
-        self.assertEqual(
-            list(TrashManagement(data=self.RC).list_of_all_trashes_in_city()), []
-        )
+        self.assertEqual(Trash.objects.count(), 0)
+        self.assertEqual(sum([len(b.temp_trash) for b in self.RC.list_of_buildings.values()]), 0)
+        TurnCalculation(city=self.city, data=self.RC, profile=self.user.profile).save_all()
         dumping_ground = DumpingGround.objects.latest("id")
-        self.assertGreater(dumping_ground.current_space_for_trash, 50)
+        self.assertGreater(dumping_ground.current_space_for_trash, 10)
+
+    def test_of_collect_garbage_with_save_trash_to_another_turn(self):
+        DumpingGround.objects.update(current_space_for_trash=0)
+        dumping_ground = DumpingGround.objects.latest("id")
+        self.assertEqual(dumping_ground.current_space_for_trash, 0)
+        self.RC = RootClass(self.city, self.user)
+        self.assertEqual(Trash.objects.count(), 0)
+        self.assertEqual(sum([len(b.temp_trash) for b in self.RC.list_of_buildings.values()]), 0)
+        for x in range(10):
+            TrashManagement(data=self.RC).generate_trash()
+        self.assertEqual(Trash.objects.count(), 0)
+        self.assertEqual(sum([len(b.temp_trash) for b in self.RC.list_of_buildings.values()]), 60)
+        CollectGarbage(city=self.city, data=self.RC).run()
+        TurnCalculation(city=self.city, data=self.RC, profile=self.user.profile).save_all()
+        self.assertEqual(Trash.objects.count(), 30)
+        self.assertEqual(sum([len(b.temp_trash) for b in self.RC.list_of_buildings.values()]), 30)
+        dumping_ground = DumpingGround.objects.latest("id")
+        self.assertGreater(dumping_ground.current_space_for_trash, 10)
 
     def test_existing_dumping_grounds_with_slots(self):
         self.assertNotEqual(
@@ -64,29 +80,28 @@ class TestTrashAllocation(test.TestCase):
         Trash.objects.all().delete()
         self.RC = RootClass(self.city, User.objects.latest("id"))
         self.assertEqual(
-            self.RC.list_of_buildings[WindPlant.objects.latest("id")].trash, []
+            self.RC.list_of_buildings[WindPlant.objects.latest("id")].temp_trash, []
         )
         self.assertEqual(
-            self.RC.list_of_buildings[WaterTower.objects.latest("id")].trash, []
+            self.RC.list_of_buildings[WaterTower.objects.latest("id")].temp_trash, []
         )
         TrashManagement(data=self.RC).generate_trash()
         self.RC = RootClass(self.city, User.objects.latest("id"))
-        self.assertNotEqual(
-            self.RC.list_of_buildings[WindPlant.objects.latest("id")].trash, []
-        )
-        self.assertNotEqual(
-            self.RC.list_of_buildings[WaterTower.objects.latest("id")].trash, []
+        self.assertEqual(
+            self.RC.list_of_buildings[WindPlant.objects.latest("id")].temp_trash, []
         )
         self.assertEqual(
-            self.RC.list_of_buildings[DumpingGround.objects.latest("id")].trash, []
+            self.RC.list_of_buildings[WaterTower.objects.latest("id")].temp_trash, []
+        )
+        self.assertEqual(
+            self.RC.list_of_buildings[DumpingGround.objects.latest("id")].temp_trash, []
         )
 
     def test_max_capacity_of_dumping_ground(self):
         self.rc = RootClass(self.city, self.user)
         TrashManagement(data=self.rc).generate_trash()
-        self.rc = RootClass(self.city, self.user)
         dg = DumpingGround.objects.latest("id")
-        temp_dumping_ground = TempDumpingGround(instance=dg, profile=self.user.profile, employees=self.rc.citizens_in_city, market=self.rc.market)
+        temp_dumping_ground = self.rc.list_of_buildings[dg]
         self.assertEqual(int(temp_dumping_ground._get_total_employees_capacity()), 166)
 
         temp_dumping_ground.people_in_charge = 10
@@ -100,12 +115,11 @@ class TestTrashAllocation(test.TestCase):
     def test_collect_trash_by_temp_model(self):
         self.rc = RootClass(self.city, self.user)
         TrashManagement(data=self.rc).generate_trash()
-        self.rc = RootClass(self.city, self.user)
         dg = DumpingGround.objects.latest("id")
-        temp_dumping_ground = TempDumpingGround(instance=dg, profile=self.user.profile, employees=self.rc.citizens_in_city, market=self.rc.market)
+        temp_dumping_ground = self.rc.list_of_buildings[dg]
         wp = self.rc.list_of_buildings[WindPlant.objects.latest('id')]
-        self.assertNotEqual(wp.trash, [])
+        self.assertNotEqual(wp.temp_trash, [])
         self.assertEqual(temp_dumping_ground.current_capacity, 0)
         temp_dumping_ground.collect_trash(wp)
         self.assertNotEqual(temp_dumping_ground.current_capacity, 0)
-        self.assertNotEqual(wp.trash, [])
+        self.assertEqual(wp.temp_trash, [])

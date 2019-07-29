@@ -1,12 +1,11 @@
 import decimal
 import random
 
-import citizen_engine.models as ce_models
-
 
 class TempCitizen:
-    def __init__(self, instance, to_save, home, diseases):
+    def __init__(self, instance, to_save, home, diseases, workplace):
         self.instance = instance
+        self.workplace = workplace
         self.educations = self.instance.education_set.all()
         self.professions = self.instance.profession_set.all()
         to_save += list(self.educations) + list(self.professions)
@@ -26,10 +25,7 @@ class TempCitizen:
     def probability_of_being_sick(self):
         chance_to_get_sick = self._get_chance_to_get_sick()
         if random.random() > chance_to_get_sick:
-            disease = ce_models.Disease.objects.create(
-                citizen=self.instance,
-                is_fatal=random.choice([True, False]) if chance_to_get_sick < 0.35 else False)
-            self.diseases.append(disease)
+            self.instance.create_disease(self.diseases, chance_to_get_sick)
 
     def get_avg_all_edu_effectiveness(self):
         return sum([edu.effectiveness for edu in self.educations]) / len(self.educations)
@@ -41,10 +37,10 @@ class TempCitizen:
         return base - pollution - age
 
     def _get_pollution_from_place_of_living(self):
-        return self.instance.resident_object.city_field.pollution if self.instance.resident_object else random.randrange(20)
+        return self.home.field.pollution
 
     def _get_pollution_from_workplace(self):
-        return self.instance.workplace_object.city_field.pollution if self.instance.workplace_object else 0
+        return self.workplace.pollution_calculation() if self.workplace else 0
 
     def _get_sum_of_pollutions(self):
         return sum([self._get_pollution_from_place_of_living(), self._get_pollution_from_workplace()])/100.00

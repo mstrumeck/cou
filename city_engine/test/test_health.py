@@ -7,6 +7,7 @@ from city_engine.test.base import TestHelper
 from cou.abstract import RootClass
 from map_engine.models import Field
 from resources.models import Market
+from unittest import mock
 
 
 class TestClinic(test.TestCase):
@@ -28,7 +29,8 @@ class TestClinic(test.TestCase):
         self.clinic.productivity = 1
         self.assertEqual(Disease.objects.count(), 1)
         self.assertEqual(self.clinic.current_treatment_capacity, 30)
-        self.clinic.work(self.rc.list_of_buildings)
+        with mock.patch('random.random', mock.Mock(return_value=0)):
+            self.clinic.work(self.rc.list_of_buildings)
         self.assertEqual(Disease.objects.count(), 0)
         self.assertEqual(self.clinic.current_treatment_capacity, 29)
 
@@ -36,7 +38,8 @@ class TestClinic(test.TestCase):
         self.clinic.productivity = 0
         self.assertEqual(Disease.objects.count(), 1)
         self.assertEqual(self.clinic.current_treatment_capacity, 30)
-        self.clinic.work(self.rc.list_of_buildings)
+        with mock.patch('random.random', mock.Mock(return_value=1)):
+            self.clinic.work(self.rc.list_of_buildings)
         self.assertEqual(Disease.objects.count(), 1)
         self.assertEqual(self.clinic.current_treatment_capacity, 29)
 

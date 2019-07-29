@@ -1,9 +1,8 @@
 from citizen_engine.social_actions import SocialAction
 from city_engine.main_view_data.resources_allocation import ResourceAllocation
 from city_engine.main_view_data.trash_management import TrashManagement, CollectGarbage
-from city_engine.models import Farm, AnimalFarm, MedicalEstablishment, TempFireStation
+from city_engine.models import Farm, AnimalFarm, MedicalEstablishment
 from resources.models import MassConventer
-import random
 from .fire_strategy import FireStrategy
 
 
@@ -55,8 +54,8 @@ class TurnCalculation:
             self.data.families[f].pay_rent(self.city, self.profile)
 
     def trade_district_actions(self):
-        for c in self.data.companies:
-            self.data.list_of_buildings[c].create_goods()
+        for c in self.data.companies.values():
+            c.create_goods()
 
     def collect_mass(self):
         for mass_collector in [

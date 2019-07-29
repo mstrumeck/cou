@@ -6,6 +6,7 @@ from city_engine.models import StandardLevelResidentialZone, City, WindPlant
 from cou.abstract import RootClass
 from cou.global_var import FEMALE, ELEMENTARY, COLLEGE
 from resources.models import Market
+from unittest import mock
 
 
 class CitizenHealthTest(TestCase):
@@ -55,51 +56,25 @@ class CitizenHealthTest(TestCase):
         )
         self.RC = RootClass(self.city, User.objects.latest("id"))
 
-    def test_get_pollution_from_workplace(self):
-        self.assertEqual(self.RC.citizens_in_city[self.s]._get_pollution_from_workplace(), 0)
-        self.assertEqual(self.RC.citizens_in_city[self.f]._get_pollution_from_workplace(), 0)
-        self.s.resident_object.city_field.pollution = 50
-        self.s.workplace_object.city_field.pollution = 50
-        self.s.workplace_object.city_field.save()
-        self.s.resident_object.city_field.save()
-        self.RC = RootClass(self.city, User.objects.latest("id"))
-        self.assertEqual(self.RC.citizens_in_city[self.s]._get_pollution_from_workplace(), 50)
-        self.assertEqual(self.RC.citizens_in_city[self.f]._get_pollution_from_workplace(), 0)
-
-    def test_get_pollution_from_place_of_living(self):
-        self.assertEqual(self.RC.citizens_in_city[self.s]._get_pollution_from_place_of_living(), 0)
-        self.assertEqual(self.RC.citizens_in_city[self.f]._get_pollution_from_place_of_living(), 0)
-        self.s.resident_object.city_field.pollution = 50
-        self.s.workplace_object.city_field.pollution = 50
-        self.s.workplace_object.city_field.save()
-        self.s.resident_object.city_field.save()
-        self.RC = RootClass(self.city, User.objects.latest("id"))
-        self.assertEqual(self.RC.citizens_in_city[self.s]._get_pollution_from_place_of_living(), 50)
-        self.assertEqual(self.RC.citizens_in_city[self.f]._get_pollution_from_place_of_living(), 50)
-
     def test_get_chance_to_get_sick_with_high_pollution(self):
         self.s.resident_object.city_field.pollution = 50
         self.s.workplace_object.city_field.pollution = 50
         self.s.workplace_object.city_field.save()
         self.s.resident_object.city_field.save()
-        self.assertEqual(round(self.RC.citizens_in_city[self.s]._get_chance_to_get_sick(), 2), -0.08)
-        self.assertEqual(round(self.RC.citizens_in_city[self.f]._get_chance_to_get_sick(), 2), 0.34)
+        self.assertEqual(round(self.RC.citizens_in_city[self.s]._get_chance_to_get_sick(), 2), 0.51)
+        self.assertEqual(round(self.RC.citizens_in_city[self.f]._get_chance_to_get_sick(), 2), 0.64)
 
     def test_get_chance_to_get_sick(self):
-        self.assertEqual(round(self.RC.citizens_in_city[self.s]._get_chance_to_get_sick(), 2), 0.52)
+        self.assertEqual(round(self.RC.citizens_in_city[self.s]._get_chance_to_get_sick(), 2), 0.51)
         self.assertEqual(round(self.RC.citizens_in_city[self.f]._get_chance_to_get_sick(), 2), 0.64)
 
     def test_get_sum_of_pollution(self):
-        self.assertEqual(self.RC.citizens_in_city[self.s]._get_sum_of_pollutions(), 0)
+        self.assertEqual(self.RC.citizens_in_city[self.s]._get_sum_of_pollutions(), 0.008)
         self.assertEqual(self.RC.citizens_in_city[self.f]._get_sum_of_pollutions(), 0)
-        self.s.resident_object.city_field.pollution = 50
-        self.s.workplace_object.city_field.pollution = 50
-        self.s.workplace_object.city_field.save()
-        self.s.resident_object.city_field.save()
-        self.RC = RootClass(self.city, User.objects.latest("id"))
-        self.assertEqual(self.RC.citizens_in_city[self.s]._get_sum_of_pollutions(), 1.0)
+        for field in self.RC.city_fields_in_city.values():
+            field.pollution = 50
+        self.assertEqual(self.RC.citizens_in_city[self.s]._get_sum_of_pollutions(), 0.508)
         self.assertEqual(self.RC.citizens_in_city[self.f]._get_sum_of_pollutions(), 0.5)
-
 
     def test_being_sick_success(self):
         self.s.resident_object.city_field.pollution = 50
@@ -111,7 +86,8 @@ class CitizenHealthTest(TestCase):
         self.assertEqual(self.s.health, -100)
         self.assertEqual(Disease.objects.count(), 0)
         ob = self.RC.citizens_in_city[self.s]
-        ob.probability_of_being_sick()
+        with mock.patch('random.random', mock.Mock(return_value=1)):
+            ob.probability_of_being_sick()
         self.assertEqual(Disease.objects.count(), 1)
         self.RC = RootClass(self.city, User.objects.latest("id"))
         self.assertEqual(len(self.RC.citizens_in_city[self.s].diseases), 1)
@@ -122,7 +98,8 @@ class CitizenHealthTest(TestCase):
         self.assertEqual(self.s.health, 100)
         self.assertEqual(Disease.objects.count(), 0)
         ob = self.RC.citizens_in_city[self.s]
-        ob.probability_of_being_sick()
+        with mock.patch('random.random', mock.Mock(return_value=0)):
+            ob.probability_of_being_sick()
         self.assertEqual(Disease.objects.count(), 0)
         self.RC = RootClass(self.city, User.objects.latest("id"))
         self.assertEqual(self.RC.citizens_in_city[self.s].diseases, [])

@@ -1,7 +1,3 @@
-from city_engine.main_view_data.global_variables import HEX_NUM_IN_ROW, ROW_NUM
-from city_engine.models import PowerPlant, Waterworks, SewageWorks
-
-
 class ResourceAllocation:
     def __init__(self, city, data):
         self.city = city
@@ -12,17 +8,13 @@ class ResourceAllocation:
         }
 
     def run(self):
-        # self.clean_allocation_data()
         self.all_resource_allocation()
-        # self.pollution_allocation()
-
-    def clean_allocation_data(self):
-        for f in self.data.city_fields_in_city:
-            f.pollution = 0
 
     def all_resource_allocation(self):
         for dataset in self.data.datasets_for_turn_calculation():
             self.resource_allocation(dataset)
+        for district in self.data.list_of_trade_districts.values():
+            district.allocate_resources()
         self.pollution_allocation()
 
     def resource_allocation(self, dataset):
@@ -39,21 +31,16 @@ class ResourceAllocation:
                 guard += 1
 
     def pollution_allocation(self):
-        for build in self.data.list_of_buildings:
-            surroundings = self.field_surroundings(
-                self.data.list_of_buildings[build].row_col_cor
-            )
+        for build in self.data.list_of_buildings.values():
+            surroundings = self.field_surroundings(build.row_col_cor)
             pollution_to_allocate = self.get_pollution_to_allocate(build, surroundings)
             if pollution_to_allocate:
-                for field in [
-                    self.data.city_fields_in_city[field].row_col
-                    for field in self.data.city_fields_in_city
-                    if self.data.city_fields_in_city[field].row_col in surroundings
-                ]:
-                    self.fields_in_city_by_corr[field].pollution += pollution_to_allocate
+                for field in (field for field in self.data.city_fields_in_city.values()
+                              if field.row_col in surroundings):
+                    field.pollution += pollution_to_allocate
 
     def get_pollution_to_allocate(self, build, surroundings):
-        pollution_in_build = build.pollution_calculation(self.data.list_of_buildings[build].people_in_charge)
+        pollution_in_build = build.pollution_calculation()
         if pollution_in_build and surroundings:
             return pollution_in_build / len(surroundings)
         return 0

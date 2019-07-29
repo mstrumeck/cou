@@ -1,6 +1,5 @@
-from django.db.models import F
-
-from city_engine.models import DumpingGround
+from city_engine.temp_models import TempDumpingGround
+import itertools
 
 
 class TrashManagement:
@@ -12,14 +11,13 @@ class TrashManagement:
         self.update_trash_time()
 
     def generate_trash(self):
-        for building in (b for b in self.data.list_of_buildings if not isinstance(b, DumpingGround)):
-            tc = building.trash_calculation(self.data.list_of_buildings[building].people_in_charge)
-            if tc > 0:
-                building.trash.create(size=tc)
+        for building in (b for b in list(itertools.chain(self.data.list_of_buildings.values(), self.data.list_of_trade_districts.values())) if not isinstance(b, TempDumpingGround)):
+            building.create_trash()
 
     def update_trash_time(self):
-        for building in self.data.list_of_buildings:
-            building.trash.update(time=F("time") + 1)
+        for building in self.data.list_of_buildings.values():
+            for t in building.trash:
+                t.time += 1
 
     def list_of_all_trashes_in_city(self):
         result = []
@@ -34,14 +32,18 @@ class CollectGarbage:
         self.city = city
         self.data = data
 
+    def move_temp_trash_to_perm(self):
+        for building in (b for b in list(self.data.list_of_buildings.values()) + list(self.data.list_of_trade_districts.values()) if not isinstance(b, TempDumpingGround)):
+            building.convert_temp_trash_to_perm()
+
     def existing_dumping_grounds_with_slots(self):
-        return (self.data.list_of_buildings[dg] for dg in self.data.list_of_buildings if isinstance(dg, DumpingGround)
-                and dg.max_space_for_trash > dg.current_space_for_trash)
+        return (dg for dg in self.data.list_of_buildings.values() if isinstance(dg, TempDumpingGround)
+                and dg.instance.max_space_for_trash > dg.instance.current_space_for_trash)
 
     def run(self):
         buildings_with_trash = {
-            self.data.list_of_buildings[b].row_col_cor: self.data.list_of_buildings[b] for b in self.data.list_of_buildings
-            if not isinstance(b, DumpingGround)
+            b.row_col_cor: b for b in self.data.list_of_buildings.values()
+            if not isinstance(b, TempDumpingGround)
         }
         for dg in self.existing_dumping_grounds_with_slots():
             pattern = sorted(buildings_with_trash,
@@ -52,3 +54,4 @@ class CollectGarbage:
                 dg.collect_trash(buildings_with_trash[target])
                 guard += 1
             dg.instance.current_space_for_trash = dg.current_capacity
+        self.move_temp_trash_to_perm()

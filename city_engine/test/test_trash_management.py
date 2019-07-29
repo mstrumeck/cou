@@ -35,9 +35,9 @@ class CityStatsTests(test.TestCase):
         self.assertEqual(result, [])
 
     def test_generate_trash(self):
-        self.assertEqual(Trash.objects.all().count(), 0)
+        self.assertEqual(sum([len(b.temp_trash) for b in self.RC.list_of_buildings.values()]), 0)
         self.TM.generate_trash()
-        self.assertEqual(Trash.objects.all().count(), 4)
+        self.assertEqual(sum([len(b.temp_trash) for b in self.RC.list_of_buildings.values()]), 5)
 
     def test_update_time(self):
         self.TM.generate_trash()
@@ -49,8 +49,3 @@ class CityStatsTests(test.TestCase):
             for trash in building.trash.values("time"):
                 self.assertEqual(trash["time"], 1)
 
-    def test_trash_delete(self):
-        self.TM.generate_trash()
-        self.assertEqual(Trash.objects.all().count(), 4)
-        Trash.objects.all().delete()
-        self.assertEqual(Trash.objects.all().count(), 0)

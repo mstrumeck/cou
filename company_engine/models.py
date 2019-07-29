@@ -44,33 +44,6 @@ class Company(models.Model):
             return workers_costs / decimal.Decimal(size_of_production)
         return 0
 
-    # def create_goods(self, data):
-    #     cont = data.list_of_workplaces[self]
-    #     if self._get_productivity(data):
-    #         materials = []
-    #         self.buy_components(materials, data)
-    #         if materials:
-    #             cont.make_goods_from_components(materials)
-    #
-    # def buy_components(self, materials, data):
-    #     COMPONENTS = data.list_of_workplaces[self].available_components
-    #     for component_type in COMPONENTS:
-    #         if component_type in data.market.resources:
-    #             for component in data.market.resources[component_type].instances:
-    #                 if self.cash >= component.price:
-    #                     temp_comp = component_type.objects.create(
-    #                         size=0, quality=component.quality, market=data.market.mi
-    #                     )
-    #                     temp_comp.price = component.price  # To Remove
-    #                     while self.cash >= component.price and component.size > 0:
-    #                         self.cash -= component.price
-    #                         temp_comp.size += 1
-    #                         component.size -= 1
-    #
-    #                     materials.append(temp_comp)
-    #                     if component.size == 0:
-    #                         component.delete()
-
     def _get_productivity(self, data):
         productivity = [
             self._get_energy_productivity(data),

@@ -30,4 +30,3 @@ class Field(models.Model):
     col = models.PositiveIntegerField()
     row = models.PositiveIntegerField()
     if_start = models.BooleanField(default=False)
-    pollution = models.PositiveIntegerField(default=0)
