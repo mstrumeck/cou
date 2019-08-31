@@ -1,5 +1,6 @@
 import decimal
 import random
+from itertools import chain
 
 
 class TempCitizen:
@@ -8,7 +9,7 @@ class TempCitizen:
         self.workplace = workplace
         self.educations = self.instance.education_set.all()
         self.professions = self.instance.profession_set.all()
-        to_save += list(self.educations) + list(self.professions)
+        to_save.extend(list(chain(self.educations, self.professions)))
         current_educations = [e for e in self.educations if e.if_current is True]
         current_professions = [p for p in self.professions if p.if_current is True]
         self.current_education = (current_educations.pop() if current_educations else None)
@@ -17,9 +18,41 @@ class TempCitizen:
         self.salary_expectation = self._calculate_salary_expectation()
         self.diseases = diseases
 
+    def change_citizen_into_criminal(self):
+        self.current_profession.if_current = False
+        self.workplace = None
+        self.current_profession = self.instance.create_criminal_profession()
+
+    def is_become_a_criminal(self):
+        return random.random() > self._probability_of_become_a_criminal()
+
+    def _probability_of_become_a_criminal(self):
+        education = self.get_avg_all_edu_effectiveness(3)
+        pollutions = self._get_sum_of_pollutions()
+        sum_of_all_trashes = sum([trash.size for trash in self._get_list_of_trashes()])
+        plus_factors = education + self.instance.health
+        minus_factors = (pollutions + sum_of_all_trashes) / 10.00
+        factor_if_homeless = self._is_factor_exist(self.home)
+        factor_if_unemployed = self._is_factor_exist(self.workplace)
+        return plus_factors - (minus_factors + factor_if_unemployed + factor_if_homeless)
+
+    def _is_factor_exist(self, factor):
+        return -0.25 if factor else 0.25
+
+    def _get_list_of_trashes_from_temp_object(self, obj):
+        if obj:
+            return list(chain(obj.temp_trash, obj.trash))
+        return []
+
+    def _get_list_of_trashes(self):
+        return list(chain(
+            self._get_list_of_trashes_from_temp_object(self.home),
+            self._get_list_of_trashes_from_temp_object(self.workplace)
+        ))
+
     def _calculate_salary_expectation(self) -> float:
         home_rent = self.home.rent if self.home else 0
-        return (round(home_rent * ((1 + self.current_profession.proficiency) * len(self.educations)), 2,)
+        return (round(home_rent * ((1 + self.current_profession.proficiency) * len(self.educations)), 2, )
                 if self.home and self.current_profession else 0)
 
     def probability_of_being_sick(self):
@@ -27,17 +60,19 @@ class TempCitizen:
         if random.random() > chance_to_get_sick:
             self.instance.create_disease(self.diseases, chance_to_get_sick)
 
-    def get_avg_all_edu_effectiveness(self):
+    def get_avg_all_edu_effectiveness(self, divisor=None):
+        if divisor:
+            return sum([edu.effectiveness for edu in self.educations]) / divisor
         return sum([edu.effectiveness for edu in self.educations]) / len(self.educations)
 
     def _get_chance_to_get_sick(self):
         base = self.instance.health + self.get_wage_avg_all_edu_effectiveness()
         pollution = self.instance.health * self._get_sum_of_pollutions()
-        age = self.instance.health * (self.instance.age/100.00)
+        age = self.instance.health * (self.instance.age / 100.00)
         return base - pollution - age
 
     def _get_pollution_from_place_of_living(self):
-        return self.home.field.pollution
+        return self.home.field.pollution if self.home else 0
 
     def _get_pollution_from_workplace(self):
         return self.workplace.pollution_calculation() if self.workplace else 0

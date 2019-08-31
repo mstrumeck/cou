@@ -1,26 +1,31 @@
 from citizen_engine.social_actions import SocialAction
 from city_engine.main_view_data.resources_allocation import ResourceAllocation
 from city_engine.main_view_data.trash_management import TrashManagement, CollectGarbage
-from city_engine.models import Farm, AnimalFarm, MedicalEstablishment
+from city_engine.models import Farm, AnimalFarm, MedicalEstablishment, Prison
 from resources.models import MassConventer
 from .fire_strategy import FireStrategy
+from .police_strategy import PoliceStrategy
 
 
 class TurnCalculation:
-    def __init__(self, city, data, profile):
+    def __init__(self, city, data, profile, fire_strategy=FireStrategy, police_strategy=PoliceStrategy):
         self.city = city
         self.data = data
         self.profile = profile
-        self.fire_strategy = FireStrategy(self.data)
+        self.fire_strategy = fire_strategy(self.data)
+        self.police_strategy = police_strategy(self.data)
 
     def run(self):
-        self.fire_strategy.calculate_probability_of_fire_among_the_all_buildings()
-        self.fire_strategy.simulate_fire_in_the_city()
-        self.health_of_population_action()
-        self.health_care_actions()
-        TrashManagement(self.data).run()
         SocialAction(self.city, self.profile, self.data).run()
         ResourceAllocation(self.city, self.data).run()
+        self.fire_strategy.calculate_probability_of_fire_among_the_all_buildings()
+        self.fire_strategy.simulate_fire_in_the_city()
+        self.police_strategy.apply_crime_prevention_in_city()
+        self.police_strategy.calculate_criminals_vs_police_in_city()
+        self.health_of_population_action()
+        self.health_care_actions()
+        self.prisons_actions()
+        TrashManagement(self.data).run()
         CollectGarbage(self.city, self.data).run()
         self.financial_actions()
         self.collect_mass()
@@ -31,9 +36,13 @@ class TurnCalculation:
         self.trade_district_actions()
         self.save_all()
 
+    def prisons_actions(self):
+        for p in (p for p in self.data.list_of_buildings.values() if isinstance(p.instance, Prison)):
+            p.conduct_rehabilitation()
+
     def health_care_actions(self):
         for h in (b for b in self.data.list_of_buildings.values() if isinstance(b.instance, MedicalEstablishment)):
-            h.work()
+            h.work(self.data.list_of_buildings)
 
     def health_of_population_action(self):
         for c in self.data.citizens_in_city.values():

@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/../../ML/.idea/ML.iml" filepath="$PROJECT_DIR$/../../ML/.idea/ML.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/cou.iml" filepath="$PROJECT_DIR$/.idea/cou.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../map_generator/.idea/map_generator.iml" filepath="$PROJECT_DIR$/../../map_generator/.idea/map_generator.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../ulam_enc_dec/.idea/ulam_enc_dec.iml" filepath="$PROJECT_DIR$/../../ulam_enc_dec/.idea/ulam_enc_dec.iml" />
     </modules>
   </component>
 </project>

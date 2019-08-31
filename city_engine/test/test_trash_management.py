@@ -1,15 +1,23 @@
 from django import test
 from django.contrib.auth.models import User
 
+from citizen_engine.models import Citizen, Profession, Education, Family
 from city_engine.main_view_data.trash_management import TrashManagement
-from city_engine.models import City, DumpingGround, Field, Trash
+from city_engine.models import City, DumpingGround, Field
 from city_engine.test.base import TestHelper
-from cou.abstract import RootClass
+from cou.turn_data import RootClass
 from resources.models import Market
 
 
 class CityStatsTests(test.TestCase):
     fixtures = ["basic_fixture_resources_and_employees.json"]
+
+    def tearDown(self):
+        Citizen.objects.all().delete()
+        Profession.objects.all().delete()
+        Education.objects.all().delete()
+        Family.objects.all().delete()
+        Market.objects.all().delete()
 
     def setUp(self):
         self.city = City.objects.latest("id")

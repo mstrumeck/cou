@@ -1,17 +1,25 @@
 from django.contrib.auth.models import User
 
 from citizen_engine.models import Citizen
+from citizen_engine.models import Profession, Education, Family
 from citizen_engine.social_actions import SocialAction
 from city_engine.models import StandardLevelResidentialZone, City
-from city_engine.turn_data.main import TurnCalculation
-from cou.abstract import RootClass
+from city_engine.turn_data.calculation import TurnCalculation
 from cou.global_var import FEMALE, MALE
+from cou.turn_data import RootClass
 from resources.models import Market
 from .base import SocialTestHelper
 
 
 class TestFindPlaceToLive(SocialTestHelper):
     fixtures = ["basic_fixture_resources_and_employees.json"]
+
+    def tearDown(self):
+        Citizen.objects.all().delete()
+        Profession.objects.all().delete()
+        Education.objects.all().delete()
+        Family.objects.all().delete()
+        Market.objects.all().delete()
 
     def setUp(self):
         self.city = City.objects.get(id=1)

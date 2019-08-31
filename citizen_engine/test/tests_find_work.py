@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 
-from citizen_engine.models import Citizen, Profession, Education
+from citizen_engine.models import Citizen, Profession, Education, Family
 from citizen_engine.work_engine import CitizenWorkEngine
 from city_engine.models import (
     StandardLevelResidentialZone,
@@ -8,14 +8,22 @@ from city_engine.models import (
     Field,
     PrimarySchool,
 )
-from cou.abstract import RootClass
 from cou.global_var import MALE, FEMALE, ELEMENTARY, COLLEGE
+from cou.turn_data import RootClass
 from resources.models import Market
 from .base import SocialTestHelper
 
 
 class TestFindWork(SocialTestHelper):
     fixtures = ["basic_fixture_resources_and_employees.json"]
+
+    def tearDown(self):
+        Citizen.objects.all().delete()
+        Profession.objects.all().delete()
+        Education.objects.all().delete()
+        Family.objects.all().delete()
+        Market.objects.all().delete()
+        PrimarySchool.objects.all().delete()
 
     def setUp(self):
         self.city = City.objects.get(id=1)
@@ -74,16 +82,16 @@ class TestFindWork(SocialTestHelper):
 
     def test_for_find_better_job(self):
         RC = RootClass(self.city, User.objects.latest("id"))
-        citizen = [x for x in RC.citizens_in_city].pop()
-        self.assertEqual(citizen.workplace_object, None)
+        citizen = RC.citizens_in_city[self.s]
+        self.assertEqual(citizen.instance.workplace_object, None)
         CitizenWorkEngine(RC, self.city).human_resources_allocation()
         for c in RC.citizens_in_city:
             c.save()
-        cwo = citizen.workplace_object
+        cwo = citizen.instance.workplace_object
         elementary_vacancies_before = RC.list_of_workplaces[cwo].elementary_vacancies
         self.assertEqual(Profession.objects.all().count(), 3)
         self.assertEqual(Profession.objects.filter(if_current=True).count(), 3)
-        self.assertNotEqual(citizen.workplace_object, None)
+        self.assertNotEqual(citizen.instance.workplace_object, None)
         school = PrimarySchool.objects.create(
             city=self.city,
             city_field=Field.objects.latest("id"),
@@ -101,8 +109,8 @@ class TestFindWork(SocialTestHelper):
         self.assertEqual(Profession.objects.all().count(), 4)
         self.assertEqual(Profession.objects.filter(if_current=True).count(), 3)
         self.assertEqual(Profession.objects.filter(if_current=False).count(), 1)
-        citizen = [x for x in RC.citizens_in_city].pop()
-        self.assertEqual(citizen.workplace_object, school)
+        citizen = RC.citizens_in_city[self.s]
+        self.assertEqual(citizen.instance.workplace_object, school)
 
     def test_work_engine_for_specific_degree(self):
         school = PrimarySchool.objects.create(

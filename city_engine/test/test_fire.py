@@ -1,22 +1,29 @@
 import random
-
 import unittest.mock as mock
+
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from citizen_engine.models import Citizen, Profession, Education
+from citizen_engine.models import Citizen, Profession, Education, Family
 from city_engine.models import City
 from city_engine.models import WindPlant, StandardLevelResidentialZone, FireStation
 from city_engine.temp_models import TempResidential
 from city_engine.test.base import TestHelper
 from city_engine.turn_data.fire_strategy import FireStrategy
-from cou.abstract import RootClass
+from cou.turn_data import RootClass
 from map_engine.models import Field
 from resources.models import Market
 
 
 class FireStrategyTest(TestCase):
     fixtures = ["basic_fixture_resources_and_employees.json"]
+
+    def tearDown(self):
+        Citizen.objects.all().delete()
+        Profession.objects.all().delete()
+        Education.objects.all().delete()
+        Family.objects.all().delete()
+        Market.objects.all().delete()
 
     def setUp(self):
         self.city = City.objects.latest("id")

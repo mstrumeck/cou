@@ -10,7 +10,7 @@ from city_engine.models import (
     RopePlant,
     CoalPlant
 )
-from cou.abstract import RootClass
+from cou.turn_data import RootClass
 from resources.models import Market
 
 

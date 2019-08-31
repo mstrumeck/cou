@@ -4,6 +4,7 @@ from citizen_engine.citizen_abstract import CitizenAbstract
 from citizen_engine.models import Citizen
 from citizen_engine.work_engine import CitizenWorkEngine
 from city_engine.models import Residential, School
+from city_engine.turn_data.police_strategy import PoliceStrategy
 from cou.global_var import MALE, FEMALE
 from player.models import Message
 
@@ -14,6 +15,7 @@ class SocialAction:
         self.profile = profile
         self.city_data = city_data
         self.citizen_data = CitizenAbstract(self.city, self.profile, self.city_data)
+        self.police_strategy = PoliceStrategy(self.city_data)
 
     def run(self):
         self.match_marriages()
@@ -22,13 +24,16 @@ class SocialAction:
         CitizenWorkEngine(self.city_data, self.city).human_resources_allocation()
         self.launch_school()
         self.update_age()
+        # self.calculate_probability_of_become_criminal()
+        # self.criminals_ = self._get_criminals()
+        # self.calculate_criminals_vs_police_in_city()
 
     def update_age(self):
         for c in (p for p in self.citizen_data.citizens_in_city if p.month_of_birth == self.profile.current_turn):
             c.age += 1
 
     def launch_school(self):
-        for sch in [b for b in self.city_data.list_of_workplaces if isinstance(b, School)]:
+        for sch in (b for b in self.city_data.list_of_workplaces if isinstance(b, School)):
             if self.profile.current_turn == 8:
                 sch.yearly_run(self.citizen_data.citizens_in_city)
             sch.monthly_run(self.citizen_data.citizens_in_city, self.profile)
@@ -37,12 +42,9 @@ class SocialAction:
         homeless = [h for h in self.citizen_data.citizens_in_city if h.resident_object is None]
         if homeless:
             resident_with_space = [
-                r
-                for r in self.city_data.list_of_buildings
+                r for r in self.city_data.list_of_buildings
                 if isinstance(r, Residential)
-                and r.max_population
-                - self.city_data.list_of_buildings[r].people_in_charge
-                > 0
+                and r.max_population - self.city_data.list_of_buildings[r].people_in_charge > 0
             ]
             if resident_with_space:
                 random.shuffle(homeless)

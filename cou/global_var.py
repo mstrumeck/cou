@@ -32,3 +32,5 @@ URAN = "Uran"
 MOUNTAIN = "Mountain"
 FERTILE = "Fertile"
 SEA = "Sea"
+
+CRIMINAL = "Criminal"

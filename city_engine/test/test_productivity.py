@@ -1,16 +1,23 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from citizen_engine.models import Citizen, Profession
+from citizen_engine.models import Citizen, Profession, Education, Family
 from city_engine.models import City
 from city_engine.models import WindPlant
-from cou.abstract import RootClass
 from cou.global_var import MALE, ELEMENTARY, COLLEGE
+from cou.turn_data import RootClass
 from resources.models import Market
 
 
 class ProductivityTests(TestCase):
     fixtures = ["basic_fixture_resources_and_employees.json"]
+
+    def tearDown(self):
+        Citizen.objects.all().delete()
+        Profession.objects.all().delete()
+        Education.objects.all().delete()
+        Family.objects.all().delete()
+        Market.objects.all().delete()
 
     def setUp(self):
         self.city = City.objects.get(id=1)

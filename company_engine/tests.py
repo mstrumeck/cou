@@ -3,7 +3,7 @@ from django.test import TestCase
 
 from city_engine.models import TradeDistrict, City, Field
 from city_engine.test.base import TestHelper
-from cou.abstract import RootClass
+from cou.turn_data import RootClass
 from resources.models import Food
 from resources.models import Market, Mass
 from .models import FoodCompany

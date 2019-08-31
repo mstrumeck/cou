@@ -1,3 +1,4 @@
+import itertools
 from abc import ABC
 
 from django.apps import apps
@@ -12,15 +13,13 @@ from city_engine.models import (
     Residential,
     TradeDistrict,
     AnimalFarm,
-    District,
-    Farm
+    Prison
 )
-from city_engine.temp_models import DataContainersWithEmployees, TempTradeDistrict, TempResidential, TempDistrict
+from city_engine.temp_models import DataContainersWithEmployees, TempTradeDistrict, TempResidential, TempPrison
 from company_engine.models import Company
 from player.models import Profile
 from resources.models import Cattle
 from resources.temp_models import MarketDataContainer
-import itertools
 
 
 class BasicAbstract(ABC):
@@ -102,23 +101,38 @@ class RootClass(BasicAbstract):
             **self.companies
         }
 
+    def preprocess_data(self):
+        citizens = Citizen.objects.filter(city=self.city, jail__isnull=True)
+        buildings = self.get_quersies_of_buildings()
+        self.preprocess_city_fields()
+        self.preprocess_residentials(buildings)
+        self.preprocess_prisons(buildings)
+        self.preprocess_buildings(buildings)
+        self.preprocess_trade_districts()
+        self.preprocess_animal_farms(buildings)
+        self.preprocess_citizens(citizens)
+        self.add_citizen_data_to_residentials()
+        self.add_prisoner_data_to_prisons()
+        self.preprocess_families()
+        self.add_citizen_data_to_buildings()
+
     def kill_person(self, person_instance):
         del self.citizens_in_city[person_instance.instance]
         person_instance.instance.delete()
 
     def destroy_building(self, building):
-        for x in self.list_of_buildings[building.instance].all_people_in_building:
-            x.instance.workplace_object = None
-            x.instance.save()
+        for person in self.list_of_buildings[building.instance].all_people_in_building:
+            person.instance.workplace_object = None
+            person.instance.save()
         del self.list_of_buildings[building.instance]
         building.instance.delete()
 
     def preprocess_buildings(self, buildings):
-        for b in (b for b in buildings
-                  if not isinstance(b, Residential)
-                     and not isinstance(b, TradeDistrict)
-                     and not isinstance(b, Company)
-                     and not isinstance(b, AnimalFarm)):
+        for b in (b for b in buildings if not isinstance(b, Residential)
+                                          and not isinstance(b, TradeDistrict)
+                                          and not isinstance(b, Company)
+                                          and not isinstance(b, AnimalFarm)
+                                          and not isinstance(b, Prison)):
             self.to_save.append(b)
             self.list_of_buildings[b] = b.temp_model(
                 instance=b,
@@ -167,11 +181,40 @@ class RootClass(BasicAbstract):
                 field=self.city_fields_in_city[residential.city_field]
             )
 
+    def preprocess_prisons(self, buildings):
+        for prison in (p for p in buildings if isinstance(p, Prison)):
+            self.to_save.append(prison)
+            self.list_of_buildings[prison] = prison.temp_model(
+                instance=prison,
+                profile=self.profile,
+                market=self.market
+            )
+
     def add_citizen_data_to_residentials(self):
         for residential in (r for r in self.list_of_buildings.values() if isinstance(r, TempResidential)):
             residential.fill_data_by_residents(
                 [self.citizens_in_city[c] for c in residential.instance.resident.all()]
             )
+
+    def add_prisoner_data_to_prisons(self):
+        for prison in (p for p in self.list_of_buildings.values() if isinstance(p, TempPrison)):
+            prisoners = []
+            for prisoner in Citizen.objects.filter(jail=prison.instance):
+                diseases = list(prisoner.disease_set.all())
+                if self.is_turn_calculation:
+                    if self.probability_of_death(diseases):
+                        prisoner.kill()
+                        continue
+
+                self.to_save.append(prisoner)
+                prisoners.append(prisoner.temp_model(
+                    instance=prisoner,
+                    to_save=self.to_save,
+                    home=None,
+                    diseases=diseases,
+                    workplace=None
+                ))
+            prison.fill_data_by_prisoners(prisoners)
 
     def add_citizen_data_to_buildings(self):
         for b in (b for b in list(itertools.chain(self.list_of_buildings.values(), self.companies.values())) if not isinstance(b, TempResidential)):
@@ -220,19 +263,6 @@ class RootClass(BasicAbstract):
                     companies={c.instance: c for c in companies.values() if c.instance.trade_district == td},
                     support_buildings={},
                     profile=self.profile)
-
-    def preprocess_data(self):
-        citizens = Citizen.objects.filter(city=self.city)
-        buildings = self.get_quersies_of_buildings()
-        self.preprocess_city_fields()
-        self.preprocess_residentials(buildings)
-        self.preprocess_buildings(buildings)
-        self.preprocess_trade_districts()
-        self.preprocess_animal_farms(buildings)
-        self.preprocess_citizens(citizens)
-        self.add_citizen_data_to_residentials()
-        self.preprocess_families()
-        self.add_citizen_data_to_buildings()
 
     def datasets_for_turn_calculation(self):
         power_resources_allocation_dataset = {

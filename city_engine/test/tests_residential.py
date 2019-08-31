@@ -3,14 +3,22 @@ import random
 from django import test
 from django.contrib.auth.models import User
 
-from city_engine.models import City, StandardLevelResidentialZone, Field
-from cou.abstract import RootClass
+from citizen_engine.models import Citizen, Profession, Education, Family
+from city_engine.models import City, StandardLevelResidentialZone
+from cou.turn_data import RootClass
 from resources.models import Market
 from .base import TestHelper
 
 
 class StandardResidential(test.TestCase, TestHelper):
     fixtures = ["basic_fixture_resources_and_employees.json"]
+
+    def tearDown(self):
+        Citizen.objects.all().delete()
+        Profession.objects.all().delete()
+        Education.objects.all().delete()
+        Family.objects.all().delete()
+        Market.objects.all().delete()
 
     def setUp(self):
         self.city = City.objects.latest("id")

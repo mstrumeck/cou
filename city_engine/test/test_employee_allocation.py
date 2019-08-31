@@ -1,7 +1,7 @@
 from django import test
 from django.contrib.auth.models import User
 
-from citizen_engine.models import Citizen
+from citizen_engine.models import Citizen, Family, Education, Profession
 from city_engine.main_view_data.employee_allocation import EmployeeAllocation
 from city_engine.models import (
     City,
@@ -11,13 +11,20 @@ from city_engine.models import (
     DumpingGround,
 )
 from city_engine.test.base import TestHelper
-from cou.abstract import RootClass
 from cou.global_var import ELEMENTARY
+from cou.turn_data import RootClass
 from resources.models import Market
 
 
 class EmployeeAllocationTest(test.TestCase, TestHelper):
     fixtures = ["basic_fixture_resources_and_employees.json"]
+
+    def tearDown(self):
+        Citizen.objects.all().delete()
+        Profession.objects.all().delete()
+        Education.objects.all().delete()
+        Family.objects.all().delete()
+        Market.objects.all().delete()
 
     def setUp(self):
         self.city = City.objects.latest("id")

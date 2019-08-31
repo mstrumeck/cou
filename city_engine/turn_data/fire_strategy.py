@@ -35,7 +35,7 @@ class FireStrategy:
         self.data.destroy_building(b)
 
     def _is_fire_spread_too_much(self, chance):
-        return True if random.random() < chance * 0.10 else False
+        return random.random() < chance * 0.10
 
     def _get_nearest_buildings_in_fire_for_fire_station(self, fs):
         return sorted([b for b in self.data.list_of_buildings.values() if b.is_in_fire], key=lambda x: (

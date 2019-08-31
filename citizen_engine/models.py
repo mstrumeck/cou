@@ -8,8 +8,9 @@ from citizen_engine.temp_models import TempFamily, TempCitizen
 from city_engine.main_view_data.global_variables import ROW_NUM, HEX_NUM_IN_ROW
 from city_engine.models import (
     City,
-    BuldingsWithWorkes,
+    BuldingsWithWorkes, Prison
 )
+from cou.global_var import CRIMINAL
 from cou.global_var import (
     TRAINEE,
     JUNIOR,
@@ -46,6 +47,8 @@ class Citizen(models.Model):
     cash = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     health = models.FloatField(default=0.60)
 
+    jail = models.ForeignKey(Prison, null=True, on_delete=models.PROTECT)
+
     partner_id = models.PositiveIntegerField(default=0)
     father_id = models.PositiveIntegerField(default=0)
     mother_id = models.PositiveIntegerField(default=0)
@@ -72,6 +75,14 @@ class Citizen(models.Model):
     )
     school_object_id = models.PositiveIntegerField(null=True)
     school_object = GenericForeignKey("school_content_type", "school_object_id")
+
+    def create_criminal_profession(self):
+        self.workplace_object = None
+        self.save(update_fields=['workplace_object_id'])
+        return Profession.objects.create(
+            name=CRIMINAL,
+            citizen=self
+        )
 
     def create_disease(self, diseases, chance_to_get_sick):
         disease = Disease.objects.create(
@@ -187,7 +198,11 @@ class Citizen(models.Model):
 
 
 class Profession(models.Model):
-    EDUCATION = ((ELEMENTARY, "Elementary"), (COLLEGE, "College"), (PHD, "PhD"))
+    EDUCATION = (
+        (ELEMENTARY, "Elementary"),
+        (COLLEGE, "College"),
+        (PHD, "PhD")
+    )
     JOB_GRADES = (
         (TRAINEE, "Trainee"),
         (JUNIOR, "Junior"),

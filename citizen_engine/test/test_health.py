@@ -1,16 +1,24 @@
+from unittest import mock
+
 from django.contrib.auth.models import User
 from django.test import TestCase
 
 from citizen_engine.models import Citizen, Family, Education, Profession, Disease
 from city_engine.models import StandardLevelResidentialZone, City, WindPlant
-from cou.abstract import RootClass
 from cou.global_var import FEMALE, ELEMENTARY, COLLEGE
+from cou.turn_data import RootClass
 from resources.models import Market
-from unittest import mock
 
 
 class CitizenHealthTest(TestCase):
     fixtures = ["basic_fixture_resources_and_employees.json"]
+
+    def tearDown(self):
+        Citizen.objects.all().delete()
+        Family.objects.all().delete()
+        Market.objects.all().delete()
+        Education.objects.all().delete()
+        Profession.objects.all().delete()
 
     def setUp(self):
         self.city = City.objects.get(id=1)

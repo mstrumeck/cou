@@ -6,3 +6,4 @@ qunit.js
 .coverage
 htmlcov
 migrations
+.idea

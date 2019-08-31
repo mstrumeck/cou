@@ -1,17 +1,16 @@
 from django.contrib.auth.decorators import login_required
-# from django.core.urlresolvers import reverse
 from django.shortcuts import HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.safestring import mark_safe
 
 from city_engine.main_view_data.board import Board, HexDetail
 from city_engine.models import City, StandardLevelResidentialZone
-from cou.abstract import AbstractAdapter
-from cou.abstract import RootClass
+from cou.turn_data import AbstractAdapter
+from cou.turn_data import RootClass
 from player.models import Message
 from player.models import Profile
 from .turn_data.build import build_building, build_resident_zone
-from .turn_data.main import TurnCalculation
+from .turn_data.calculation import TurnCalculation
 from map_engine.map_viewer.main import HexTable
 from map_engine.models import Field
 

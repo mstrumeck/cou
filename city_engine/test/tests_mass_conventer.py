@@ -1,16 +1,23 @@
 from django import test
 from django.contrib.auth.models import User
 
-from citizen_engine.models import Citizen, Education, Profession
+from citizen_engine.models import Citizen, Education, Profession, Family
 from city_engine.models import City
 from city_engine.test.base import TestHelper
-from cou.abstract import RootClass
+from cou.turn_data import RootClass
 from map_engine.models import Field
 from resources.models import Market, Mass, MassConventer
 
 
 class TestMassConventer(test.TestCase):
     fixtures = ["basic_fixture_resources_and_employees.json"]
+
+    def tearDown(self):
+        Citizen.objects.all().delete()
+        Profession.objects.all().delete()
+        Education.objects.all().delete()
+        Family.objects.all().delete()
+        Market.objects.all().delete()
 
     def setUp(self):
         self.city = City.objects.latest("id")

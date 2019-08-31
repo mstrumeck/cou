@@ -3,8 +3,8 @@ from django.contrib.auth.models import User
 
 from city_engine.models import City, Field
 from city_engine.test.base import TestHelper
-from city_engine.turn_data.main import TurnCalculation
-from cou.abstract import RootClass
+from city_engine.turn_data.calculation import TurnCalculation
+from cou.turn_data import RootClass
 from resources.models import (
     Potato,
     Bean,

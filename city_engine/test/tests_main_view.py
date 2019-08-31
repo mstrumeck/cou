@@ -1,23 +1,24 @@
 from django import test
 from django.contrib.auth.models import User
-from django.urls import resolve
 
+from citizen_engine.models import Citizen, Profession, Education, Family
 from city_engine.models import (
     City,
     Field,
-    WindPlant,
-    RopePlant,
-    WaterTower,
-    CoalPlant,
 )
-from city_engine.views import main_view
-from cou.abstract import RootClass
 from resources.models import Market
 from .base import TestHelper
 
 
 class CityViewTests(test.TestCase):
     fixtures = ["basic_fixture_resources_and_employees2.json"]
+
+    def tearDown(self):
+        Citizen.objects.all().delete()
+        Profession.objects.all().delete()
+        Education.objects.all().delete()
+        Family.objects.all().delete()
+        Market.objects.all().delete()
 
     def setUp(self):
         self.city = City.objects.latest('id')

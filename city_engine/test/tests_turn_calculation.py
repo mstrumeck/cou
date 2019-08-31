@@ -1,19 +1,25 @@
 from django import test
 from django.contrib.auth.models import User
 
-from citizen_engine.models import Citizen, Family
+from citizen_engine.models import Citizen, Family, Profession, Education
 from city_engine.models import City
 from city_engine.models import StandardLevelResidentialZone
 from city_engine.test.base import TestHelper
-from city_engine.turn_data.main import TurnCalculation
-from cou.abstract import RootClass
+from city_engine.turn_data.calculation import TurnCalculation
 from cou.global_var import MALE, PHD, FEMALE, ELEMENTARY
-from player.models import Profile
+from cou.turn_data import RootClass
 from resources.models import Market
 
 
 class TestTurnCalculation(test.TestCase, TestHelper):
     fixtures = ["basic_fixture_resources_and_employees.json"]
+
+    def tearDown(self):
+        Citizen.objects.all().delete()
+        Profession.objects.all().delete()
+        Education.objects.all().delete()
+        Family.objects.all().delete()
+        Market.objects.all().delete()
 
     def setUp(self):
         self.user = User.objects.latest('id')

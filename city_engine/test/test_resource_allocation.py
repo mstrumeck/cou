@@ -1,23 +1,27 @@
 from django import test
 from django.contrib.auth.models import User
 
-from citizen_engine.models import Citizen
+from citizen_engine.models import Citizen, Profession, Education, Family
 from city_engine.main_view_data.resources_allocation import ResourceAllocation
 from city_engine.models import (
     City,
     WaterTower,
     SewageWorks
 )
-from city_engine.models import TradeDistrict
 from city_engine.test.base import TestHelper
-from company_engine.models import FoodCompany
-from cou.abstract import RootClass
-from map_engine.models import Field
+from cou.turn_data import RootClass
 from resources.models import Market
 
 
 class BuldingResourceAttrs(test.TestCase):
     fixtures = ["basic_fixture_resources_and_employees2.json"]
+
+    def tearDown(self):
+        Citizen.objects.all().delete()
+        Profession.objects.all().delete()
+        Education.objects.all().delete()
+        Family.objects.all().delete()
+        Market.objects.all().delete()
 
     def setUp(self):
         self.city = City.objects.latest("id")

@@ -20,7 +20,9 @@ from city_engine.temp_models import (
     TempWindPlant,
     TempDumpingGround,
     TempClinic,
-    TempFireStation
+    TempFireStation,
+    TempPoliceStation,
+    TempPrison
 )
 from cou.global_var import (
     ELEMENTARY,
@@ -433,9 +435,7 @@ class PrimarySchool(School):
 class DumpingGround(BuldingsWithWorkes):
     temp_model = TempDumpingGround
     name = models.CharField(default="Wysypisko śmieci", max_length=20)
-    profession_type_provided = models.CharField(
-        default="Pracownik wysypiska śmieci", max_length=30
-    )
+    profession_type_provided = models.CharField(default="Pracownik wysypiska śmieci", max_length=30)
     build_time = models.PositiveIntegerField(default=2)
     build_cost = models.PositiveIntegerField(default=100)
     maintenance_cost = models.PositiveIntegerField(default=10)
@@ -469,6 +469,25 @@ class Clinic(MedicalEstablishment):
 class FireStation(BuldingsWithWorkes):
     temp_model = TempFireStation
     name = models.CharField(default="Straż Pożarna", max_length=20)
+    build_time = models.PositiveIntegerField(default=1)
+    build_cost = models.PositiveIntegerField(default=1500)
+    elementary_employee_needed = models.PositiveIntegerField(default=10)
+    college_employee_needed = models.PositiveIntegerField(default=5)
+
+
+class PoliceStation(BuldingsWithWorkes):
+    temp_model = TempPoliceStation
+    name = models.CharField(default="Posterunek Policji", max_length=20)
+    build_time = models.PositiveIntegerField(default=1)
+    build_cost = models.PositiveIntegerField(default=1500)
+    elementary_employee_needed = models.PositiveIntegerField(default=10)
+    college_employee_needed = models.PositiveIntegerField(default=5)
+
+
+class Prison(BuldingsWithWorkes):
+    temp_model = TempPrison
+    name = models.CharField(default="Więzienie", max_length=20)
+    profession_type_provided = models.CharField(default="Strażnik więzienia", max_length=30)
     build_time = models.PositiveIntegerField(default=1)
     build_cost = models.PositiveIntegerField(default=1500)
     elementary_employee_needed = models.PositiveIntegerField(default=10)

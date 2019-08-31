@@ -1,6 +1,7 @@
 from django import test
 from django.contrib.auth.models import User
 
+from citizen_engine.models import Citizen, Family, Profession, Education
 from city_engine.main_view_data.trash_management import TrashManagement, CollectGarbage
 from city_engine.models import (
     DumpingGround,
@@ -10,13 +11,20 @@ from city_engine.models import (
     WaterTower,
 )
 from city_engine.test.base import TestHelper
-from city_engine.turn_data.main import TurnCalculation
-from cou.abstract import RootClass
+from city_engine.turn_data.calculation import TurnCalculation
+from cou.turn_data import RootClass
 from resources.models import Market
 
 
 class TestTrashAllocation(test.TestCase):
     fixtures = ["basic_fixture_resources_and_employees2.json"]
+
+    def tearDown(self):
+        Citizen.objects.all().delete()
+        Profession.objects.all().delete()
+        Education.objects.all().delete()
+        Family.objects.all().delete()
+        Market.objects.all().delete()
 
     def setUp(self):
         self.city = City.objects.latest("id")

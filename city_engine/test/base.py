@@ -5,8 +5,8 @@ from citizen_engine.citizen_creation import CreateCitizen
 from city_engine.models import (
     City,
 )
-from cou.abstract import RootClass
 from cou.global_var import ELEMENTARY, COLLEGE, PHD
+from cou.turn_data import RootClass
 from player.models import Profile
 from resources.models import Market
 

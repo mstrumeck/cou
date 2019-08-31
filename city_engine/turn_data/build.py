@@ -1,5 +1,5 @@
 from city_engine.models import Field, City, StandardLevelResidentialZone
-from cou.abstract import AbstractAdapter
+from cou.turn_data import AbstractAdapter
 from player.models import Profile
 
 

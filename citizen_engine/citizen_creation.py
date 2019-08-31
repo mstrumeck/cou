@@ -18,7 +18,7 @@ class CreateCitizen:
             age=randrange(18, 60),
             name="".join([random.choice(string.ascii_letters) for x in range(5)]),
             surname="".join([random.choice(string.ascii_letters) for x in range(5)]),
-            health=10,
+            health=0.5,
             month_of_birth=randrange(1, 12),
             resident_object=self.choose_residential(),
             workplace_object=workplace,
@@ -61,7 +61,7 @@ class CreateCitizen:
         c = Citizen.objects.create(
             city=self.city,
             age=randrange(18, 60),
-            health=10,
+            health=0.5,
             month_of_birth=randrange(1, 12),
             resident_object=self.choose_residential(),
             sex=choice(Citizen.SEX)[0],

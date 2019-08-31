@@ -8,14 +8,20 @@ from city_engine.models import (
     DumpingGround,
     StandardLevelResidentialZone,
 )
-from cou.abstract import RootClass
 from cou.global_var import COLLEGE, FEMALE, ELEMENTARY, PHD, MALE
-from player.models import Profile
+from cou.turn_data import RootClass
 from resources.models import Market
 
 
 class DataContainersTests(test.TestCase):
     fixtures = ["basic_fixture_resources_and_employees.json"]
+
+    def tearDown(self):
+        Citizen.objects.all().delete()
+        Profession.objects.all().delete()
+        Education.objects.all().delete()
+        Family.objects.all().delete()
+        Market.objects.all().delete()
 
     def setUp(self):
         self.city = City.objects.latest("id")

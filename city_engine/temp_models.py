@@ -25,6 +25,7 @@ class TempBuild:
         self.temp_trash = []
         self.is_in_fire = False
         self.fire_prevention = 0.0
+        self.criminal_prevention = 0.0
         self.pollution_rate = 0.0
 
     def convert_temp_trash_to_perm(self):
@@ -463,17 +464,26 @@ class TempClinic(DataContainersWithEmployees):
 
     def work(self, list_of_buildings):
         pattern = sorted(
-            [list_of_buildings[b] for b in list_of_buildings], key=lambda x: (
+            list_of_buildings.values(), key=lambda x: (
                 abs(x.row_col_cor[0] - self.row_col_cor[0]),
                 abs(x.row_col_cor[1] - self.row_col_cor[1])
             ))
         after_treatment = []
         for b in pattern:
-            for c in b.all_people_in_building:
-                if c.diseases and c not in after_treatment:
-                    self._treat_citizen(c, after_treatment)
-                if self.current_treatment_capacity <= 0:
-                    return
+            if isinstance(b, TempPrison):
+                for c in list(itertools.chain(b.all_people_in_building, b.prisoners)):
+                    if self._check_treatment_for_citizen(c, after_treatment):
+                        return
+            else:
+                for c in b.all_people_in_building:
+                    if self._check_treatment_for_citizen(c, after_treatment):
+                        return
+
+    def _check_treatment_for_citizen(self, citizen, after_treatment):
+        if citizen.diseases and citizen not in after_treatment:
+            self._treat_citizen(citizen, after_treatment)
+        if self.current_treatment_capacity <= 0:
+            return True
 
     def _treat_citizen(self, c, after_treatment):
         self.current_treatment_capacity -= 1
@@ -502,4 +512,72 @@ class TempFireStation(DataContainersWithEmployees):
         self.fire_prevention_capacity = int((self.people_in_charge / self.max_employees) * self._max_fire_prevention_capacity)
 
     def is_handle_with_fire(self):
-        return True if random.random() < self._get_productivity() else False
+        return random.random() < self._get_productivity()
+
+
+class TempPoliceStation(DataContainersWithEmployees):
+    def __init__(self, instance, profile, market):
+        super().__init__(instance, profile, market)
+        self.energy_required = 10
+        self.water_required = 10
+        self._max_crime_prevention_capacity = 15
+
+    def create_employess_data(self, employees):
+        super().create_employess_data(employees)
+        self.criminal_prevention_capacity = int((self.people_in_charge / self.max_employees) * self._max_crime_prevention_capacity)
+
+    def ensure_crime_prevention(self, buildings_in_city):
+        pattern = sorted(
+            [b for b in buildings_in_city.values() if not isinstance(b, TempPoliceStation)],
+            key=lambda x: (
+                abs(x.row_col_cor[0] - self.row_col_cor[0]),
+                abs(x.row_col_cor[1] - self.row_col_cor[1]),
+            ))
+        prevention = self._get_productivity()
+        for b in pattern[:self.criminal_prevention_capacity]:
+            if b.criminal_prevention < prevention:
+                b.criminal_prevention = prevention
+
+
+class TempPrison(DataContainersWithEmployees):
+    def __init__(self, instance, profile, market):
+        super().__init__(instance, profile, market)
+        self.energy_required = 20
+        self.water_required = 10
+        self._max_prison_capacity = 15
+
+    def create_employess_data(self, employees):
+        super().create_employess_data(employees)
+        self.prison_capacity = int((self.people_in_charge / self.max_employees) * self._max_prison_capacity) - self.num_of_prisoners
+
+    def rehabilitation_for_criminal(self, criminal):
+        criminal.current_profession.proficiency -= self._get_productivity() / 100.00
+        criminal.current_profession.save(update_fields=['proficiency'])
+
+    def conduct_rehabilitation(self):
+        for criminal in self.prisoners:
+            self.rehabilitation_for_criminal(criminal)
+
+    def release_criminal(self, criminal):
+        criminal.instance.jail = None
+        criminal.current_profession.delete()
+        criminal.current_profession = None
+        criminal.instance.save(update_fields=["jail"])
+
+    def put_criminal_to_jail(self, criminal):
+        criminal.instance.jail = self.instance
+        criminal.instance.resident_object = None
+        criminal.home = None
+        criminal.instance.save(update_fields=["jail", "resident_object_id"])
+
+    def is_has_place(self):
+        return self.prison_capacity > self.num_of_prisoners
+
+    def _resources_demand(self):
+        return self.num_of_prisoners * 3
+
+    def fill_data_by_prisoners(self, prisoners):
+        self.prisoners = prisoners
+        self.num_of_prisoners = len(prisoners)
+        self.water_required += self._resources_demand()
+        self.energy_required += self._resources_demand()

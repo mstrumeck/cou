@@ -1,18 +1,30 @@
+from unittest import mock
+
 from django.contrib.auth.models import User
 from django.test import TestCase
 
 from citizen_engine.citizen_creation import CreateCitizen
-from citizen_engine.models import Citizen, Family
+from citizen_engine.models import Citizen
+from citizen_engine.models import Profession, Education, Family
 from citizen_engine.social_actions import SocialAction
+from city_engine.main_view_data.trash_management import TrashManagement
 from city_engine.models import StandardLevelResidentialZone, City, WindPlant
-from city_engine.turn_data.main import TurnCalculation
-from cou.abstract import RootClass
+from city_engine.test.base import TestHelper
+from city_engine.turn_data.calculation import TurnCalculation
 from cou.global_var import MALE, FEMALE, ELEMENTARY
+from cou.turn_data import RootClass
 from resources.models import Market
 
 
 class CitizenGetMarriedTests(TestCase):
     fixtures = ["basic_fixture_resources_and_employees.json"]
+
+    def tearDown(self):
+        Citizen.objects.all().delete()
+        Profession.objects.all().delete()
+        Education.objects.all().delete()
+        Family.objects.all().delete()
+        Market.objects.all().delete()
 
     def setUp(self):
         self.city = City.objects.get(id=1)
@@ -311,3 +323,47 @@ class CitizenCreationsTest(TestCase):
         self.assertEqual(
             CreateCitizen(self.city, self.RC).choose_residential(), residential
         )
+
+
+class CitizenTests(TestCase):
+    fixtures = ["basic_fixture_resources_and_employees.json"]
+
+    def setUp(self):
+        self.city = City.objects.get(id=1)
+        self.user = User.objects.latest("id")
+        Market.objects.create(profile=self.user.profile)
+        TestHelper(self.city, User.objects.latest("id")).populate_city()
+        self.RC = RootClass(self.city, User.objects.latest("id"))
+        self.temp_citizen = self.RC.citizens_in_city[Citizen.objects.latest('id')]
+
+    def test_probability_of_become_a_criminal_without_education(self):
+        self.assertGreater(self.temp_citizen._probability_of_become_a_criminal(), 1)
+        for e in self.temp_citizen.educations:
+            e.delete()
+        self.RC = RootClass(self.city, User.objects.latest("id"))
+        self.temp_citizen = self.RC.citizens_in_city[Citizen.objects.latest('id')]
+        self.assertLess(self.temp_citizen._probability_of_become_a_criminal(), 1)
+
+    def test_probability_of_become_a_criminal_without_job(self):
+        self.assertGreater(self.temp_citizen._probability_of_become_a_criminal(), 1)
+        self.temp_citizen.workplace = None
+        self.assertLess(self.temp_citizen._probability_of_become_a_criminal(), 1)
+
+    def test_probability_of_become_a_criminal_with_huge_pollutions_and_trash(self):
+        self.assertGreater(self.temp_citizen._probability_of_become_a_criminal(), 1.2)
+        TrashManagement(self.RC).generate_trash()
+        TrashManagement(self.RC).generate_trash()
+        with mock.patch('citizen_engine.temp_models.TempCitizen._get_sum_of_pollutions', mock.Mock(return_value=2)):
+            self.assertLess(self.temp_citizen._probability_of_become_a_criminal(), 0.35)
+
+    def test_probability_of_become_a_criminal_if_homeless(self):
+        self.assertGreater(self.temp_citizen._probability_of_become_a_criminal(), 1)
+        self.temp_citizen.home = None
+        self.assertLess(self.temp_citizen._probability_of_become_a_criminal(), 1)
+
+    def test_probability_of_become_a_criminal_if_has_bad_health(self):
+        self.assertGreater(self.temp_citizen._probability_of_become_a_criminal(), 1)
+        self.temp_citizen.instance.health = 0.10
+        self.assertLess(self.temp_citizen._probability_of_become_a_criminal(), 1)
+
+

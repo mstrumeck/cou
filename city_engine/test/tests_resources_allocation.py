@@ -1,18 +1,24 @@
 from django import test
 from django.contrib.auth.models import User
-from django.db.models import Sum
 
+from citizen_engine.models import Citizen, Profession, Education, Family
 from city_engine.main_view_data.resources_allocation import ResourceAllocation
-from city_engine.models import Field, City, WindPlant, WaterTower, SewageWorks
+from city_engine.models import City
 from city_engine.test.base import TestHelper
-from city_engine.turn_data.main import TurnCalculation
-from cou.abstract import RootClass
-from player.models import Profile
+from city_engine.turn_data.calculation import TurnCalculation
+from cou.turn_data import RootClass
 from resources.models import Market
 
 
 class ResourcesAllocationsTests(test.TestCase, TestHelper):
     fixtures = ["basic_fixture_resources_and_employees2.json"]
+
+    def tearDown(self):
+        Citizen.objects.all().delete()
+        Profession.objects.all().delete()
+        Education.objects.all().delete()
+        Family.objects.all().delete()
+        Market.objects.all().delete()
 
     def setUp(self):
         self.city = City.objects.latest("id")

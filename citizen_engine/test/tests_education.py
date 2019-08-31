@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from citizen_engine.models import Citizen, Education, Profession
+from citizen_engine.models import Citizen, Education, Profession, Family
 from citizen_engine.social_actions import SocialAction
 from citizen_engine.work_engine import CitizenWorkEngine
 from city_engine.models import (
@@ -10,19 +10,27 @@ from city_engine.models import (
     Field,
     PrimarySchool,
 )
-from city_engine.turn_data.main import TurnCalculation
-from cou.abstract import RootClass
+from city_engine.turn_data.calculation import TurnCalculation
 from cou.global_var import (
     FEMALE,
     ELEMENTARY,
     MALE,
     COLLEGE,
 )
+from cou.turn_data import RootClass
 from resources.models import Market
 
 
 class TestEducation(TestCase):
     fixtures = ["basic_fixture_resources_and_employees.json"]
+
+    def tearDown(self):
+        Citizen.objects.all().delete()
+        Profession.objects.all().delete()
+        Education.objects.all().delete()
+        Family.objects.all().delete()
+        Market.objects.all().delete()
+        PrimarySchool.objects.all().delete()
 
     def setUp(self):
         self.city = City.objects.get(id=1)
